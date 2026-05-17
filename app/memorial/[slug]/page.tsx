@@ -167,15 +167,16 @@ if (!platform && navigator.share) {
   }
 }
   if (platform === "copy") {
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
+  await navigator.clipboard.writeText(url);
 
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
+  setCopied(true);
 
-    return;
-  }
+  setTimeout(() => {
+    setCopied(false);
+  }, 2000);
+
+  return;
+}
 
   if (platform === "facebook") {
     window.open(
@@ -733,6 +734,12 @@ if (error) {
   </div>
 
   <div className="flex flex-wrap gap-3">
+    <button
+  onClick={() => handleShare("copy")}
+  className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
+>
+  {copied ? "Link Copied!" : "Copy Link"}
+</button>
     <button
       onClick={() => handleShare("email")}
       className="inline-flex items-center justify-center rounded-full bg-stone-200 px-5 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-300"
