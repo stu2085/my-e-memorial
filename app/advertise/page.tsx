@@ -271,7 +271,7 @@ function getCtaLabel(type: string) {
         }`}
       >
         {plan.badge === "Most Popular" && (
-  <span className="absolute -top-3 right-4 rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-stone-900 shadow">
+  <span className="absolute left-1/2 -top-3 -translate-x-1/2 rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-stone-900 shadow"
     Most Popular
   </span>
 )}
