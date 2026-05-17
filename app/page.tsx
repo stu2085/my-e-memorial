@@ -122,7 +122,7 @@ useEffect(() => {
   </span>
 </Link>
  
-</div>
+
 </div>
   
               </div>
@@ -138,6 +138,7 @@ useEffect(() => {
   pageType="home"
   memorialZip={visitorZip}
 />
+</div>
             <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="rounded-[1.25rem] bg-white/95 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                 <div className="text-2xl">🕊️</div>
