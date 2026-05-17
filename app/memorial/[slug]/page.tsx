@@ -49,10 +49,12 @@ social_link_4?: string;
 social_link_5?: string;
   favorite_song_url?: string;
   favorite_song_urls?: string[] | null;
+  favorite_song_notes?: string[] | null;
   featured_photo_url?: string;
   headstone_photo_1?: string;
   headstone_photo_2?: string;
   gallery_photos?: string | string[];
+  gallery_photo_notes?: string[] | null;
   newspaper_articles?: string | string[];
   video_urls?: string | string[];
 
@@ -130,6 +132,7 @@ export default function MemorialDetailPage() {
         : "";
 const [error, setError] = useState("");
   const [data, setData] = useState<Memorial | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
   
   const [isOwner, setIsOwner] = useState(false);
@@ -798,56 +801,40 @@ if (error) {
   (data.favorite_song_urls && data.favorite_song_urls.length > 0)) && (
   <section className="rounded-3xl bg-white p-8 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-      Memorial Music
-    </h2>
+  {data.first_name
+    ? `${data.first_name}'s Favorite Songs`
+    : "Favorite Songs"}
+</h2>
 
-    <div className="mt-5">
+    <div className="mt-6 space-y-6">
+  {(
+    data.favorite_song_urls &&
+    data.favorite_song_urls.length > 0
+      ? data.favorite_song_urls
+      : data.favorite_song_url
+        ? [data.favorite_song_url]
+        : []
+  ).map((song, index) => (
+    <div
+      key={`${song}-${index}`}
+      className="rounded-3xl border border-stone-200 bg-stone-50 p-5"
+    >
       <audio
-        ref={backgroundAudioRef}
         controls
         preload="auto"
         className="w-full"
-        src={
-          data.favorite_song_urls &&
-          data.favorite_song_urls.length > 0
-            ? data.favorite_song_urls[currentSongIndex]
-            : data.favorite_song_url || undefined
-        }
-        onLoadedMetadata={() => {
-          const audio = backgroundAudioRef.current;
-          if (!audio) return;
-
-          audio.play().catch(() => {});
-        }}
-        onEnded={() => {
-          if (
-            data.favorite_song_urls &&
-            data.favorite_song_urls.length > 1
-          ) {
-            setCurrentSongIndex((prev) =>
-              prev + 1 >= data.favorite_song_urls!.length
-                ? 0
-                : prev + 1
-            );
-          } else {
-            const audio = backgroundAudioRef.current;
-
-            if (audio) {
-              audio.currentTime = 0;
-              audio.play().catch(() => {});
-            }
-          }
-        }}
+        src={song}
       />
-    </div>
 
-    {data.favorite_song_urls &&
-      data.favorite_song_urls.length > 1 && (
-        <p className="mt-3 text-sm text-stone-500">
-          Playing song {currentSongIndex + 1} of{" "}
-          {data.favorite_song_urls.length}
+      {data.favorite_song_notes?.[index] && (
+        <p className="mt-4 whitespace-pre-line text-sm leading-7 text-stone-700">
+          {data.favorite_song_notes[index]}
         </p>
       )}
+    </div>
+  ))}
+</div>
+        
   </section>
 )}
 <section className="rounded-[32px] bg-gradient-to-b from-white to-stone-50 p-10 shadow-sm">
@@ -1048,10 +1035,34 @@ if (error) {
 )}
 {galleryPhotos.length > 0 && (
   <section className="rounded-3xl bg-white p-8 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Photo Gallery</h2>
+    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+      Photo Gallery
+    </h2>
+
     <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
       {galleryPhotos.map((photo, index) => (
-        <img key={`${photo}-${index}`} src={photo} alt={`Gallery photo ${index + 1}`} className="w-full rounded-3xl object-cover shadow-md transition duration-300 hover:scale-[1.02]" />
+        <div
+          key={`${photo}-${index}`}
+          className="rounded-3xl border border-stone-200 bg-stone-50 p-3 shadow-sm"
+        >
+          <button
+            type="button"
+            onClick={() => setSelectedPhoto(photo)}
+            className="block w-full overflow-hidden rounded-3xl"
+          >
+            <img
+              src={photo}
+              alt={`Gallery photo ${index + 1}`}
+              className="w-full rounded-3xl object-cover shadow-md transition duration-300 hover:scale-[1.02]"
+            />
+          </button>
+
+          {data.gallery_photo_notes?.[index] && (
+            <p className="mt-3 whitespace-pre-line text-sm leading-6 text-stone-700">
+              {data.gallery_photo_notes[index]}
+            </p>
+          )}
+        </div>
       ))}
     </div>
   </section>
@@ -1430,6 +1441,26 @@ if (error) {
 
      
   </div>
+  {selectedPhoto && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6"
+    onClick={() => setSelectedPhoto(null)}
+  >
+    <button
+      type="button"
+      onClick={() => setSelectedPhoto(null)}
+      className="absolute right-5 top-5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-900 shadow"
+    >
+      Close
+    </button>
+
+    <img
+      src={selectedPhoto}
+      alt="Enlarged memorial photo"
+      className="max-h-[85vh] max-w-[95vw] rounded-3xl object-contain shadow-2xl"
+    />
+  </div>
+)}
 </main>
 );
 }

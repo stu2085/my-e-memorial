@@ -52,10 +52,12 @@ socialLink4: string;
 socialLink5: string;
   favoriteSongUrl: string;
   favoriteSongUrls: string[];
+  favoriteSongNotes: string[];
   featuredPhotoUrl: string;
   headstonePhoto1Url: string;
   headstonePhoto2Url: string;
   galleryPhotos: string;
+  galleryPhotoNotes: string[];
 newspaperArticles: string;
   graveLat: string;
   graveLng: string;
@@ -115,10 +117,12 @@ socialLink4: "",
 socialLink5: "",
   favoriteSongUrl: "",
   favoriteSongUrls: [],
+  favoriteSongNotes: [],
   featuredPhotoUrl: "",
   headstonePhoto1Url: "",
   headstonePhoto2Url: "",
   galleryPhotos: "",
+  galleryPhotoNotes: [],
 newspaperArticles: "",
   graveLat: "",
   graveLng: "",
@@ -561,15 +565,16 @@ socialLink2: data.social_link_2 ?? "",
 socialLink3: data.social_link_3 ?? "",
 socialLink4: data.social_link_4 ?? "",
 socialLink5: data.social_link_5 ?? "",
-        favoriteSongUrl: data.favorite_song_url ?? "",
-        favoriteSongUrls: data.favorite_song_urls ?? [],
-        featuredPhotoUrl: data.featured_photo_url ?? "",
-        headstonePhoto1Url: data.headstone_photo_1 ?? "",
-        headstonePhoto2Url: data.headstone_photo_2 ?? "",
-        galleryPhotos: Array.isArray(data.gallery_photos)
-        
-          ? data.gallery_photos.join(", ")
-          : (data.gallery_photos ?? ""),
+favoriteSongUrl: data.favorite_song_url ?? "",
+favoriteSongUrls: data.favorite_song_urls ?? [],
+favoriteSongNotes: data.favorite_song_notes ?? [],
+featuredPhotoUrl: data.featured_photo_url ?? "",
+headstonePhoto1Url: data.headstone_photo_1 ?? "",
+headstonePhoto2Url: data.headstone_photo_2 ?? "",
+       galleryPhotos: Array.isArray(data.gallery_photos)
+  ? data.gallery_photos.join(", ")
+  : (data.gallery_photos ?? ""),
+galleryPhotoNotes: data.gallery_photo_notes ?? [],
 newspaperArticles: data.newspaper_articles ?? "",
       mapStreet: data.map_street ?? "",
       mapCity: data.map_city ?? "",
@@ -581,7 +586,7 @@ extraVideoSlots: String(data.extra_video_slots ?? 0),
 backupEmail: "",
 backupPassword: "",
       });
-
+galleryPhotoNotes: data.gallery_photo_notes ?? [],
       setExistingVideos(
         Array.isArray(data.video_urls)
           ? data.video_urls.filter(Boolean)
@@ -934,10 +939,12 @@ favorite_song_urls: [
       : []),
   ...favoriteSongUrls,
 ].filter(Boolean).slice(0, 5),
+favorite_song_notes: form.favoriteSongNotes ?? [],
 featured_photo_url: featuredPhotoUrl,
         headstone_photo_1: headstonePhoto1Url,
         headstone_photo_2: headstonePhoto2Url,
         gallery_photos: galleryPhotos.join(","),
+        gallery_photo_notes: form.galleryPhotoNotes ?? [],
         newspaper_articles: newspaperArticles.join(","),
         video_urls: [...existingVideos, ...newPlaybackIds],
         backup_email: form.backupEmail,
@@ -1497,10 +1504,9 @@ const projectedTotal =
 </FormSection>
 
 <FormSection
-
-                    title="Music"
-                    description="Favorite Memorial Person's Music. (Load up to 5 songs)"
-                  >
+  title={form.firstName ? `${form.firstName}'s Favorite Songs` : "Favorite Songs"}
+  description="Add up to 5 favorite songs and a short note about each one."
+>
                     <div className="space-y-5">
                       <Input
                         label="Favorite Song URL"
@@ -1531,24 +1537,29 @@ const projectedTotal =
 
           <button
             type="button"
-            onClick={() => {
-              setForm((prev) => {
-                const currentSongs =
-                  prev.favoriteSongUrls?.length > 0
-                    ? prev.favoriteSongUrls
-                    : prev.favoriteSongUrl
-                      ? [prev.favoriteSongUrl]
-                      : [];
+           onClick={() => {
+  setForm((prev) => {
+    const currentSongs =
+      prev.favoriteSongUrls?.length > 0
+        ? prev.favoriteSongUrls
+        : prev.favoriteSongUrl
+          ? [prev.favoriteSongUrl]
+          : [];
 
-                const nextSongs = currentSongs.filter((_, i) => i !== index);
+    const nextSongs = currentSongs.filter((_, i) => i !== index);
 
-                return {
-                  ...prev,
-                  favoriteSongUrl: nextSongs[0] ?? "",
-                  favoriteSongUrls: nextSongs,
-                };
-              });
-            }}
+    const nextNotes = (prev.favoriteSongNotes ?? []).filter(
+      (_, i) => i !== index
+    );
+
+    return {
+      ...prev,
+      favoriteSongUrl: nextSongs[0] ?? "",
+      favoriteSongUrls: nextSongs,
+      favoriteSongNotes: nextNotes,
+    };
+  });
+}}
             className="rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
           >
             Delete Song
@@ -1559,6 +1570,28 @@ const projectedTotal =
           <source src={song} />
           Your browser does not support the audio element.
         </audio>
+        <p className="mt-3 text-sm font-semibold text-stone-700">
+  Song Note
+</p>
+        <textarea
+  value={form.favoriteSongNotes?.[index] ?? ""}
+  onChange={(e) => {
+    const value = e.target.value;
+
+    setForm((prev) => {
+      const nextNotes = [...(prev.favoriteSongNotes ?? [])];
+      nextNotes[index] = value;
+
+      return {
+        ...prev,
+        favoriteSongNotes: nextNotes,
+      };
+    });
+  }}
+  rows={3}
+  placeholder="What was special about this song?"
+ className="mt-3 block min-h-[90px] w-full rounded-2xl border-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-stone-900"
+/>
       </div>
     ))}
   </div>
@@ -1679,6 +1712,7 @@ const projectedTotal =
   title="Places Lived"
   description="Cities, states, and countries associated with this person."
 >
+  
   <TextArea
     label="Places Lived"
     name="placesLived"
@@ -1828,17 +1862,41 @@ const projectedTotal =
   />
 
   {splitGalleryPhotos(form.galleryPhotos).length > 0 ? (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-      {splitGalleryPhotos(form.galleryPhotos).map((photo, index) => (
+  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    {splitGalleryPhotos(form.galleryPhotos).map((photo, index) => (
+      <div
+        key={`${photo}-${index}`}
+        className="rounded-2xl border border-stone-200 bg-white p-3"
+      >
         <img
-  key={`${photo}-${index}`}
-  src={photo}
-  alt={`Gallery photo ${index + 1}`}
-  className="h-36 w-full rounded-2xl object-cover"
-/>
-      ))}
-    </div>
-  ) : (
+          src={photo}
+          alt={`Gallery photo ${index + 1}`}
+          className="h-36 w-full rounded-2xl object-cover"
+        />
+
+        <textarea
+          value={form.galleryPhotoNotes?.[index] ?? ""}
+          onChange={(e) => {
+            const value = e.target.value;
+
+            setForm((prev) => {
+              const nextNotes = [...(prev.galleryPhotoNotes ?? [])];
+              nextNotes[index] = value;
+
+              return {
+                ...prev,
+                galleryPhotoNotes: nextNotes,
+              };
+            });
+          }}
+          rows={3}
+          placeholder="Add a description for this photo..."
+          className="mt-3 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
+        />
+      </div>
+    ))}
+  </div>
+) : (
     <p className="text-sm text-stone-500">
       No gallery photos uploaded yet.
     </p>
