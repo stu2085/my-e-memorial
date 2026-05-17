@@ -164,7 +164,7 @@ function getCtaLabel(type: string) {
 </p>
 
         <p className="mt-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">
-          Introductory price: $99/month per ZIP code. One active flower shop per
+          Local advertising starting at
           ZIP code.
         </p>
 <form onSubmit={handleSubmit} className="mt-8 space-y-5">
@@ -245,11 +245,12 @@ function getCtaLabel(type: string) {
         badge: "Lowest Cost",
       },
       {
+        
         value: "quarterly",
         title: "Quarterly",
         price: "$279",
         note: "per quarter",
-        badge: "Save $18",
+        badge: "Most Popular",
       },
       {
         value: "yearly",
@@ -259,16 +260,21 @@ function getCtaLabel(type: string) {
         badge: "Save $189",
       },
     ].map((plan) => (
-      <button
-        key={plan.value}
-        type="button"
-        onClick={() => setBillingPlan(plan.value)}
-        className={`rounded-2xl border p-4 text-left transition ${
+     <button
+  key={plan.value}
+  type="button"
+  onClick={() => setBillingPlan(plan.value)}
+  className={`relative rounded-2xl border p-4 text-left transition ${
           billingPlan === plan.value
             ? "border-stone-900 bg-stone-900 text-white"
             : "border-stone-300 bg-white text-stone-900 hover:border-stone-500"
         }`}
       >
+        {plan.badge === "Most Popular" && (
+  <span className="absolute -top-3 right-4 rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-stone-900 shadow">
+    Most Popular
+  </span>
+)}
         <p className="text-xs font-semibold uppercase tracking-wide opacity-80">
           {plan.badge}
         </p>
