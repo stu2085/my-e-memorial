@@ -75,7 +75,7 @@ if (fixedUrl && !fixedUrl.startsWith("http://") && !fixedUrl.startsWith("https:/
     business_name: businessName,
     business_type: businessType,
     contact_name: contactName,
-    email,
+    advertiser_email: email,
     phone,
     cta_url: fixedUrl,
     cta_label: getCtaLabel(businessType),
@@ -106,14 +106,15 @@ const checkoutRes = await fetch("/api/checkout", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    plan: "advertiser",
-    amount: getBillingAmount(billingPlan),
-    returnUrl: `${
-  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-}/advertise/success`,
-    advertiserId: advertiserData.advertiserId,
-    isRenewal: false,
-  }),
+  plan: "advertiser",
+  amount: getBillingAmount(billingPlan),
+  billingPlan,
+  returnUrl: `${
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  }/advertise/success`,
+  advertiserId: advertiserData.advertiserId,
+  isRenewal: false,
+}),
 });
 
 const checkoutData = await checkoutRes.json();

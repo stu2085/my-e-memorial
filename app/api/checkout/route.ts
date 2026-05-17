@@ -65,12 +65,16 @@ if (plan === "premium") safeUnitAmount = 14995;
                 ? "Advertiser Renewal"
                 : plan === "extra_videos"
                   ? "Extra Memorial Video Uploads"
-                  : "Create a Memorial",
+                  : plan === "advertiser"
+  ? "MyEMemorial Advertising"
+  : "Create a Memorial",
               description: isRenewal
                 ? "Renew advertising placement on MyEMemorial"
                 : plan === "extra_videos"
                   ? "Additional video uploads for this memorial"
-                  : "Permanent memorial page on MyEMemorial",
+                  : plan === "advertiser"
+  ? "Advertising placement on MyEMemorial"
+  : "Permanent memorial page on MyEMemorial",
             },
             unit_amount: safeUnitAmount,
           },

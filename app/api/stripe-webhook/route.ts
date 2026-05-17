@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { supabase } from "../../lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+);
 import { transporter } from "../../lib/email";
 
 export async function POST(req: Request) {
@@ -118,10 +123,24 @@ if (
     if (plan === "advertiser" && advertiserId) {
       
 
-const { data: existingAdvertiser, error: fetchAdvertiserError } = await supabase
+const advertiserIdNumber = Number(advertiserId);
+
+if (!advertiserId || Number.isNaN(advertiserIdNumber)) {
+  console.error("Missing or invalid advertiserId:", advertiserId);
+
+  return NextResponse.json(
+    { error: "Invalid advertiserId" },
+    { status: 400 }
+  );
+}
+
+const {
+  data: existingAdvertiser,
+  error: fetchAdvertiserError,
+} = await supabase
   .from("advertisers")
   .select("billing_plan, expires_at")
-  .eq("id", advertiserId)
+  .eq("id", advertiserIdNumber)
   .single();
 
 if (fetchAdvertiserError) {
@@ -172,7 +191,7 @@ const { data: advertiser, error } = await supabase
     reminder_1_sent: false,
     edit_token: editToken,
   })
-  .eq("id", advertiserId)
+  .eq("id", advertiserIdNumber)
   .select("*")
   .single();
 
