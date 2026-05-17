@@ -1,8 +1,9 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function AdvertiserSuccessPage() {
+function AdvertiserSuccessContent() {
   const searchParams = useSearchParams();
   const success = searchParams.get("success");
 
@@ -27,5 +28,12 @@ export default function AdvertiserSuccessPage() {
         </div>
       )}
     </div>
+  );
+}
+export default function AdvertiserSuccessPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdvertiserSuccessContent />
+    </Suspense>
   );
 }

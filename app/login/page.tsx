@@ -1,10 +1,10 @@
 "use client";
-
+import { Suspense } from "react";
 import { FormEvent, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
-export default function LoginPage() {
+function LoginContent() {
     const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/create";
   const [email, setEmail] = useState("");
@@ -125,5 +125,12 @@ export default function LoginPage() {
 </button>
       </form>
     </main>
+  );
+}
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }

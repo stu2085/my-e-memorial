@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 export default function NavBar() {
   const router = useRouter();
 const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
-const searchParams = useSearchParams();
-const isPreplan =
-  pathname === "/create" && searchParams.get("mode") === "preplan";
+
+const isPreplan = pathname === "/create";
   useEffect(() => {
   async function checkUser() {
     const {
