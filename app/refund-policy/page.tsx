@@ -21,6 +21,10 @@ export default function RefundPolicyPage() {
               Memorial purchases are generally non-refundable once a memorial
               page has been created or digital services have been delivered.
             </p>
+            <p className="mt-2">
+  This includes memorial upgrades, additional media purchases, video
+  expansions, and other digital memorial services once activated or used.
+</p>
           </section>
 
           <section>
@@ -32,6 +36,10 @@ export default function RefundPolicyPage() {
               Advertising purchases are generally non-refundable after an
               advertisement has been activated or displayed on the platform.
             </p>
+            <p className="mt-2">
+  Advertiser plans renew according to the selected billing period unless
+  canceled prior to renewal.
+</p>
           </section>
 
           <section>
@@ -51,9 +59,10 @@ export default function RefundPolicyPage() {
             </h2>
 
             <p>
-              Filing a fraudulent or abusive chargeback may result in memorial
-              suspension, advertiser suspension, or account restrictions.
-            </p>
+  Fraudulent, abusive, or unauthorized chargebacks may result in memorial
+  suspension, advertiser suspension, account restrictions, removal of content,
+  or recovery actions where permitted by law.
+</p>
           </section>
 
           <section>
