@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import SideAd from "./components/SideAd";
+import MobileAd from "./components/MobileAd";
 import ContactForm from "./components/ContactForm";
 
 export default function HomePage() {
@@ -120,6 +121,19 @@ useEffect(() => {
     <span className="block">Us</span>
   </span>
 </Link>
+<div className="lg:hidden space-y-4">
+  <MobileAd
+    pageType="home"
+    memorialZip={visitorZip}
+    forcedCategory="attorney"
+  />
+
+  <MobileAd
+    pageType="home"
+    memorialZip={visitorZip}
+    forcedCategory="estate_planner"
+  />
+</div>
 </div>
   
               </div>
