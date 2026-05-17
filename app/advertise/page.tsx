@@ -140,7 +140,7 @@ function getCtaLabel(type: string) {
     case "funeral_home":
       return "Pre-Plan Funeral";
     case "attorney":
-      return "Estate Planning";
+  return "Contact Attorney";
     case "estate_planner":
       return "Plan Your Estate";
     case "cemetery":
