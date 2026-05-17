@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/advertiser-expiration-check",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}

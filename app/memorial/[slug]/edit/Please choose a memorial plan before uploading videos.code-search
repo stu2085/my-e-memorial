@@ -1,0 +1,9 @@
+# Query: Please choose a memorial plan before uploading videos
+# ContextLines: 1
+
+1 result - 1 file
+
+app\create\page.tsx:
+  306  if (!limits) {
+  307:   setVideoError("Please choose Basic, Plus, or Premium before selecting videos.");
+  308    setVideoFiles([]);
