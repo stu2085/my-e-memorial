@@ -316,7 +316,7 @@ function PlanCard({
     {badge}
   </div>
 )}
-      )}
+      
 
       <p className={`text-xs font-semibold uppercase tracking-[0.16em] ${dark ? "text-stone-300" : "text-stone-500"}`}>
         {title}
