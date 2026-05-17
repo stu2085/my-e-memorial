@@ -305,16 +305,17 @@ function PlanCard({
 }) {
   return (
     <div
-  className={`relative flex flex-col justify-between rounded-[1.25rem] p-5 pt-7 shadow-sm ${
+  className={` flex flex-col justify-between rounded-[1.25rem] p-5 pt-7 shadow-sm ${
         dark
           ? "border-2 border-stone-900 bg-stone-900 text-white"
           : "border border-stone-200 bg-stone-50 text-stone-900"
       }`}
     >
       {badge && (
-        <div className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-4 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-900 shadow-sm">
-  {badge}
-</div>
+  <div className="mb-4 inline-flex rounded-full bg-amber-400 px-4 py-1 text-xs font-bold uppercase tracking-[0.18em] text-stone-900 shadow">
+    {badge}
+  </div>
+)}
       )}
 
       <p className={`text-xs font-semibold uppercase tracking-[0.16em] ${dark ? "text-stone-300" : "text-stone-500"}`}>
