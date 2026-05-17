@@ -184,7 +184,7 @@ useEffect(() => {
             </section>
 
             <section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-7">
-              <div className="mx-auto max-w-6xl">
+              <div className="mx-auto max-w-7xl">
                 <div className="text-center">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
                     Memorial Plans
@@ -194,7 +194,7 @@ useEffect(() => {
                   </h2>
                 </div>
 
-                <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                <div className="mt-6 grid gap-6 md:grid-cols-3">
                   <PlanCard
                     title="Basic Memorial"
                     price="$99"
