@@ -25,6 +25,11 @@ export default function PrivacyPage() {
               We may also collect technical data such as IP address, browser type,
               and usage data to improve our services.
             </p>
+            <p className="mt-2">
+  We may collect contributor information, including names, email addresses,
+  messages, photos, videos, or corrections submitted to memorial owners for
+  review.
+</p>
           </section>
 
           <section>
@@ -37,6 +42,10 @@ export default function PrivacyPage() {
               <li>Process payments</li>
               <li>Improve the platform and user experience</li>
               <li>Ensure compliance with our Terms of Service</li>
+              <li>Notify memorial owners about submitted contributions</li>
+<li>Display relevant local advertisements</li>
+<li>Monitor traffic, media usage, and platform performance</li>
+<li>Detect excessive bandwidth, fraud, abuse, or security risks</li>
             </ul>
           </section>
 
@@ -70,6 +79,11 @@ export default function PrivacyPage() {
               with service providers (such as hosting, payment processing, and
               video delivery services) only as necessary to operate the platform.
             </p>
+            <p className="mt-2">
+  Contributor submissions may be shared with the memorial owner for review
+  and approval. Advertiser information may be used to display local sponsored
+  content on relevant pages.
+</p>
           </section>
 
           <section>
