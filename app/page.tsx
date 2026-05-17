@@ -122,17 +122,15 @@ useEffect(() => {
   </span>
 </Link>
 <div className="lg:hidden space-y-4">
-  <MobileAd
-    pageType="home"
-    memorialZip={visitorZip}
-    forcedCategory="attorney"
-  />
+ <MobileAd
+  pageType="home"
+  memorialZip={visitorZip}
+/>
 
-  <MobileAd
-    pageType="home"
-    memorialZip={visitorZip}
-    forcedCategory="estate_planner"
-  />
+<MobileAd
+  pageType="home"
+  memorialZip={visitorZip}
+/> 
 </div>
 </div>
   
