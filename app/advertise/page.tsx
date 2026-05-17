@@ -164,8 +164,8 @@ function getCtaLabel(type: string) {
 </p>
 
         <p className="mt-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">
-          Local advertising starting at
-          ZIP code.
+          Local advertising starting at $99/month per ZIP code. No long term contracts.  Cancel anytime.
+          
         </p>
 <form onSubmit={handleSubmit} className="mt-8 space-y-5">
   <div>
