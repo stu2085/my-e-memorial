@@ -94,7 +94,14 @@ export default function TermsPage() {
               MyEMemorial includes video hosting and streaming as part of its
               service. Due to the cost of delivering video content, memorials
               that generate unusually high traffic or streaming usage may be
-              subject to additional limitations.
+              subject to additional limitations. 
+              <p className="mt-2">
+  MyEMemorial plans are intended for ordinary personal memorial usage.
+  Memorials generating unusually high traffic, excessive bandwidth usage,
+  automated access, or abnormal media delivery activity may require
+  additional review, modified service limitations, or upgraded hosting
+  arrangements in order to maintain platform stability and performance.
+</p>
             </p>
             <p className="mt-2">
               MyEMemorial reserves the right to:
@@ -103,6 +110,7 @@ export default function TermsPage() {
               <li>Limit video playback</li>
               <li>Temporarily disable videos</li>
               <li>Require an upgraded hosting plan</li>
+              <li>Apply temporary media or bandwidth limitations</li>
             </ul>
           </section>
 
@@ -117,6 +125,7 @@ export default function TermsPage() {
               <li>Contains nudity, sexually explicit material, or vulgar content</li>
               <li>Promotes hate, violence, or harassment</li>
               <li>Is misleading or deceptive</li>
+              <li>Creates misleading, impersonated, duplicate, or fraudulent memorials</li>
             </ul>
             <p className="mt-2">
               MyEMemorial reserves the right to remove content that violates
