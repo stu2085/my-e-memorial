@@ -11,7 +11,7 @@ export default function MobileAd({
 }) {
   return (
     <div className="lg:hidden">
-      <div className="[&>div]:!flex [&>div]:!w-full [&>div]:!items-stretch [&>div>div]:!static [&>div>div]:!w-full [&_.h\\[600px\\]]:!h-28">
+      <div className="[&>div]:!flex [&>div]:!w-full [&>div]:!items-stretch [&>div>div]:!static [&>div>div]:!w-full"
         <SideAd memorialZip={memorialZip} pageType={pageType} />
       </div>
     </div>

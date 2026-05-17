@@ -121,6 +121,13 @@ useEffect(() => {
     <span className="block">Us</span>
   </span>
 </Link>
+ 
+</div>
+</div>
+  
+              </div>
+              
+            </section>
 <div className="lg:hidden space-y-4">
  <MobileAd
   pageType="home"
@@ -130,14 +137,7 @@ useEffect(() => {
 <MobileAd
   pageType="home"
   memorialZip={visitorZip}
-/> 
-</div>
-</div>
-  
-              </div>
-              
-            </section>
-
+/>
             <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="rounded-[1.25rem] bg-white/95 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                 <div className="text-2xl">🕊️</div>
