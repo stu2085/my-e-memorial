@@ -68,9 +68,10 @@ if (fixedUrl && !fixedUrl.startsWith("http://") && !fixedUrl.startsWith("https:/
   fixedUrl = "https://" + fixedUrl;
 }
 
-      const { data: newAdvertiser, error } = await supabase
-  .from("advertisers")
-  .insert({
+      const advertiserRes = await fetch("/api/create-advertiser", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
     business_name: businessName,
     business_type: businessType,
     contact_name: contactName,
@@ -81,12 +82,15 @@ if (fixedUrl && !fixedUrl.startsWith("http://") && !fixedUrl.startsWith("https:/
     service_zip: zip,
     billing_plan: billingPlan,
     active: false,
-  })
-  .select("id")
-  .single();
+  }),
+});
 
-if (error) {
-  throw new Error(error.message);
+const advertiserData = await advertiserRes.json();
+
+if (!advertiserRes.ok) {
+  throw new Error(
+    advertiserData.error || "Could not create advertiser."
+  );
 }
 function getBillingAmount(plan: string) {
   switch (plan) {
@@ -107,7 +111,7 @@ const checkoutRes = await fetch("/api/checkout", {
     returnUrl: `${
   process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
 }/advertise/success`,
-    advertiserId: newAdvertiser.id,
+    advertiserId: advertiserData.advertiserId,
     isRenewal: false,
   }),
 });
