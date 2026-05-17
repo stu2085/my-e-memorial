@@ -56,7 +56,7 @@ const isPreplan = pathname === "/create";
           <Link
   href="/create"
   className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ease-in-out ${
-    pathname === "/create" && !isPreplan
+    pathname === "/create"
       ? "bg-emerald-700 text-white"
       : "text-stone-700 hover:bg-stone-200 hover:text-stone-900 hover:scale-105"
   }`}
