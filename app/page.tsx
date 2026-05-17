@@ -305,7 +305,7 @@ function PlanCard({
 }) {
   return (
     <div
-  className={` flex flex-col justify-between rounded-[1.25rem] p-5 pt-7 shadow-sm ${
+  className={`flex min-w-0 flex-col justify-between rounded-[1.25rem] p-6 pt-7 shadow-sm ${
         dark
           ? "border-2 border-stone-900 bg-stone-900 text-white"
           : "border border-stone-200 bg-stone-50 text-stone-900"
@@ -322,7 +322,7 @@ function PlanCard({
         {title}
       </p>
 
-      <div className="mt-3 flex items-end gap-2">
+      <div className="mt-3 flex flex-wrap items-end gap-2">
         <span className="text-3xl font-bold">{price}</span>
         <span className={`pb-1 text-xs ${dark ? "text-stone-300" : "text-stone-500"}`}>
           one-time
