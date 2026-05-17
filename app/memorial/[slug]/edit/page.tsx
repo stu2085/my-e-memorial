@@ -2642,7 +2642,7 @@ function FormSection({
   description,
   children,
 }: {
-  title: string;
+  title: React.ReactNode;
   description?: string;
   children: React.ReactNode;
 }) {

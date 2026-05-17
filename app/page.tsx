@@ -284,7 +284,7 @@ function PlanCard({
   dark = false,
   badge,
 }: {
-  title: string;
+  title: React.ReactNode;
   price: string;
   items: string[];
   dark?: boolean;

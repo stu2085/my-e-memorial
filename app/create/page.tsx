@@ -882,14 +882,7 @@ async function handleBuyExtraVideos(extraCount: number) {
               </Section>
      {form.isLivingPreplan && (
 <Section
-  title={
-    <>
-      Backup Person Access{" "}
-      <span className="text-sm font-normal text-stone-500">
-        (For use after memorialized person's passing.)
-      </span>
-    </>
-  }
+  title="Backup Person Access"
 >
   <Grid>
     <Input
@@ -1687,7 +1680,7 @@ function Section({
   title,
   children,
 }: {
-  title: string;
+  title: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
