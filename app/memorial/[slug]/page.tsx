@@ -132,13 +132,14 @@ export default function MemorialDetailPage() {
         : "";
 const [error, setError] = useState("");
   const [data, setData] = useState<Memorial | null>(null);
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
 
   
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [wasMusicPlayingBeforeVideo, setWasMusicPlayingBeforeVideo] = useState(false);
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
 const [copied, setCopied] = useState(false);
 const [submitterName, setSubmitterName] = useState("");
@@ -432,6 +433,41 @@ const restingPlaceAddress = [
       backgroundAudioRef.current?.pause();
     };
   }, []);
+  useEffect(() => {
+  if (selectedPhotoIndex === null) return;
+
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      setSelectedPhotoIndex(null);
+    }
+
+    if (event.key === "ArrowLeft") {
+      setSelectedPhotoIndex((currentIndex) => {
+        if (currentIndex === null) return currentIndex;
+
+        return currentIndex === 0
+          ? galleryPhotos.length - 1
+          : currentIndex - 1;
+      });
+    }
+
+    if (event.key === "ArrowRight") {
+      setSelectedPhotoIndex((currentIndex) => {
+        if (currentIndex === null) return currentIndex;
+
+        return currentIndex === galleryPhotos.length - 1
+          ? 0
+          : currentIndex + 1;
+      });
+    }
+  }
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [selectedPhotoIndex, galleryPhotos.length]);
   function getContributorVideoDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
@@ -643,13 +679,45 @@ if (error) {
   }
 
   if (!data) {
+    
     return (
       <main className="flex min-h-screen items-center justify-center bg-stone-100">
         <p className="text-red-600">Memorial not found.</p>
       </main>
     );
   }
+const selectedPhoto =
+  selectedPhotoIndex !== null ? galleryPhotos[selectedPhotoIndex] : null;
 
+const selectedPhotoNote =
+  selectedPhotoIndex !== null
+    ? data.gallery_photo_notes?.[selectedPhotoIndex]
+    : null;
+    const canGoPrevious =
+  selectedPhotoIndex !== null && galleryPhotos.length > 1;
+
+const canGoNext =
+  selectedPhotoIndex !== null && galleryPhotos.length > 1;
+
+function showPreviousPhoto() {
+  if (selectedPhotoIndex === null) return;
+
+  setSelectedPhotoIndex(
+    selectedPhotoIndex === 0
+      ? galleryPhotos.length - 1
+      : selectedPhotoIndex - 1
+  );
+}
+
+function showNextPhoto() {
+  if (selectedPhotoIndex === null) return;
+
+  setSelectedPhotoIndex(
+    selectedPhotoIndex === galleryPhotos.length - 1
+      ? 0
+      : selectedPhotoIndex + 1
+  );
+}
   return (
   <main className="min-h-screen bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100 px-4 py-10">
   <div className="mx-auto grid w-full max-w-[1800px] grid-cols-1 gap-6 px-4 lg:grid-cols-[460px_minmax(0,1fr)]">
@@ -819,12 +887,13 @@ if (error) {
       key={`${song}-${index}`}
       className="rounded-3xl border border-stone-200 bg-stone-50 p-5"
     >
-      <audio
-        controls
-        preload="auto"
-        className="w-full"
-        src={song}
-      />
+     <audio
+  controls
+  preload="auto"
+  autoPlay={index === 0}
+  className="w-full"
+  src={song}
+/>
 
       {data.favorite_song_notes?.[index] && (
         <p className="mt-4 whitespace-pre-line text-sm leading-7 text-stone-700">
@@ -1047,7 +1116,7 @@ if (error) {
         >
           <button
             type="button"
-            onClick={() => setSelectedPhoto(photo)}
+            onClick={() => setSelectedPhotoIndex(index)}
             className="block w-full overflow-hidden rounded-3xl"
           >
             <img
@@ -1444,21 +1513,74 @@ if (error) {
   {selectedPhoto && (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6"
-    onClick={() => setSelectedPhoto(null)}
+    onClick={() => setSelectedPhotoIndex(null)}
   >
     <button
       type="button"
-      onClick={() => setSelectedPhoto(null)}
+      onClick={() => setSelectedPhotoIndex(null)}
       className="absolute right-5 top-5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-900 shadow"
     >
       Close
     </button>
 
-    <img
-      src={selectedPhoto}
-      alt="Enlarged memorial photo"
-      className="max-h-[85vh] max-w-[95vw] rounded-3xl object-contain shadow-2xl"
-    />
+    <div
+  className="max-h-[92vh] max-w-[95vw] overflow-auto rounded-3xl bg-white p-4 shadow-2xl"
+  onClick={(e) => e.stopPropagation()}
+  onTouchStart={(e) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  }}
+  onTouchEnd={(e) => {
+    if (touchStartXRef.current === null) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const difference = touchStartXRef.current - touchEndX;
+
+    if (Math.abs(difference) > 50) {
+      if (difference > 0) {
+        showNextPhoto();
+      } else {
+        showPreviousPhoto();
+      }
+    }
+
+    touchStartXRef.current = null;
+  }}
+>
+    
+      <img
+        src={selectedPhoto}
+        alt="Enlarged memorial photo"
+        className="max-h-[75vh] max-w-full rounded-2xl object-contain"
+      />
+{canGoPrevious && canGoNext && (
+  <div className="mt-4 flex items-center justify-between gap-4">
+    <button
+      type="button"
+      onClick={showPreviousPhoto}
+      className="rounded-full bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+    >
+      ← Previous
+    </button>
+
+    <p className="text-sm text-stone-500">
+      {(selectedPhotoIndex ?? 0) + 1} of {galleryPhotos.length}
+    </p>
+
+    <button
+      type="button"
+      onClick={showNextPhoto}
+      className="rounded-full bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+    >
+      Next →
+    </button>
+  </div>
+)}
+      {selectedPhotoNote && (
+        <p className="mt-4 whitespace-pre-line text-center text-sm leading-6 text-stone-700">
+          {selectedPhotoNote}
+        </p>
+      )}
+    </div>
   </div>
 )}
 </main>

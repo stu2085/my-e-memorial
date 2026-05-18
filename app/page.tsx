@@ -29,7 +29,7 @@ useEffect(() => {
     <main
       className="min-h-screen bg-stone-100 bg-cover bg-center bg-fixed px-4 py-6 md:px-8"
       style={{
-        backgroundImage: "linear-gradient(rgba(245,245,244,0.86), rgba(245,245,244,0.9)), url('/gravestone.jpg')",
+        backgroundImage: "linear-gradient(rgba(245,245,244,0.86), rgba(245,245,244,0.9)), url('/gravestone1.jpg')",
       }}
     >
       <div className="mx-auto flex w-full max-w-[1800px] gap-6 px-2">
@@ -52,8 +52,9 @@ useEffect(() => {
             <section
               className="relative overflow-hidden rounded-[1.5rem] shadow-sm"
               style={{
-                backgroundImage: "url('/gravestone.jpg')",
+                backgroundImage: "url('/gravestone1.jpg')",
                 backgroundSize: "cover",
+              
                 backgroundPosition: "center",
               }}
             >
