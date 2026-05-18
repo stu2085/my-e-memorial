@@ -1575,6 +1575,35 @@ function showNextPhoto() {
     </button>
   </div>
 )}
+{isOwner && selectedPhoto && (
+  <div className="mt-4 text-center">
+    <button
+      type="button"
+      onClick={async () => {
+        const { error } = await supabase
+          .from("memorials")
+          .update({ featured_photo_url: selectedPhoto })
+          .eq("id", data.id);
+
+        if (error) {
+          console.error(error);
+          alert("Could not set featured photo.");
+          return;
+        }
+
+        setData({
+          ...data,
+          featured_photo_url: selectedPhoto,
+        });
+
+        alert("Featured photo updated.");
+      }}
+      className="rounded-full bg-amber-400 px-5 py-2 text-sm font-semibold text-stone-900 hover:bg-amber-300"
+    >
+      ⭐ Make Featured Photo
+    </button>
+  </div>
+)}
       {selectedPhotoNote && (
         <p className="mt-4 whitespace-pre-line text-center text-sm leading-6 text-stone-700">
           {selectedPhotoNote}
