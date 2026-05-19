@@ -78,6 +78,7 @@ creatorStreet: string;
 creatorCity: string;
 creatorState: string;
 creatorZip: string;
+betaCode: string;
 };
 
 const initialForm: FormState = {
@@ -137,6 +138,7 @@ creatorStreet: "",
 creatorCity: "",
 creatorState: "",
 creatorZip: "",
+betaCode: "",
 };
 
 const PLAN_LIMITS = {
@@ -701,6 +703,9 @@ featured_photo_url: featuredPhotoUrl,
           final_resting_type: form.finalRestingType,
           ashes_location_description: form.ashesLocationDescription,
           backup_person_name: form.backupPersonName,
+          payment_status: isPaid ? "paid" : "free_beta",
+payment_source: isPaid ? "stripe" : "beta_code",
+beta_code_used: isPaid ? null : form.betaCode.trim().toUpperCase(),
         });
 
       if (error) {
@@ -1569,6 +1574,12 @@ Naples, FL, USA`}
   ) : (
     <>
       <label className="flex items-center gap-2 text-sm text-stone-700">
+        <Input
+  label="Beta Access Code (optional)"
+  name="betaCode"
+  value={form.betaCode}
+  onChange={handleChange}
+/>
         <input
           type="checkbox"
           checked={agreedToTerms}
@@ -1645,6 +1656,45 @@ if (!user) {
           : "$99"}
 
       </button>
+      <button
+  type="button"
+  disabled={isSubmitting}
+  onClick={async () => {
+    const enteredCode = form.betaCode.trim().toUpperCase();
+
+    if (!APPROVED_BETA_CODES.includes(enteredCode)) {
+      alert("Invalid beta access code.");
+      return;
+    }
+
+    if (!agreedToTerms) {
+      alert("You must agree to the Terms of Service before continuing.");
+      return;
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      const currentPath = window.location.pathname + window.location.search;
+      localStorage.setItem(
+        "memorialDraft",
+        JSON.stringify({
+          ...form,
+          betaCode: enteredCode,
+        })
+      );
+      window.location.assign(`/login?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+
+    setIsPaid(true);
+  }}
+  className="w-fit rounded-full border border-green-700 bg-white px-6 py-3 text-sm font-semibold text-green-700 transition hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  Use Beta Access Code — Skip Payment
+</button>
     </>
   )}
 
