@@ -63,6 +63,9 @@ await supabase.from("processed_webhooks").insert({
     const plan = session.metadata?.plan;
 const billingPlanFromCheckout = session.metadata?.billingPlan;
 const customerEmail = session.customer_details?.email;
+const checkoutType = session.metadata?.type;
+const fromPlan = session.metadata?.fromPlan;
+const toPlan = session.metadata?.toPlan;
 
 const memorialAmountPaid = session.amount_total
   ? `$${(session.amount_total / 100).toFixed(2)}`
@@ -262,6 +265,16 @@ const billingPlanLabel =
         `,
       });
     }
+    if (
+  checkoutType === "upgrade" &&
+  memorialId &&
+  fromPlan &&
+  toPlan
+) {
+  console.log(
+    `Future upgrade detected: ${fromPlan} -> ${toPlan}`
+  );
+}
     if (
   customerEmail &&
   (plan === "basic" || plan === "plus" || plan === "premium")

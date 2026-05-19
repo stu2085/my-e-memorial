@@ -5,16 +5,19 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   const {
-    plan,
-    amount,
-    quantity,
-    returnUrl,
-    advertiserId,
-    isRenewal,
-    billingPlan,
-    memorialId,
-    submissionId,
-  } = body;
+  plan,
+  amount,
+  quantity,
+  returnUrl,
+  advertiserId,
+  isRenewal,
+  billingPlan,
+  memorialId,
+  submissionId,
+  checkoutType,
+  fromPlan,
+  toPlan,
+} = body;
 
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
@@ -90,11 +93,15 @@ if (plan === "premium") safeUnitAmount = 14995;
         memorialId: memorialId ? String(memorialId) : "",
         submissionId: submissionId ? String(submissionId) : "",
         quantity: quantity ? String(quantity) : "",
-        type: isRenewal
-          ? "renewal"
-          : plan === "extra_videos"
-            ? "extra_videos"
-            : "standard",
+        type: checkoutType
+  ? String(checkoutType)
+  : isRenewal
+    ? "renewal"
+    : plan === "extra_videos"
+      ? "extra_videos"
+      : "standard",
+fromPlan: fromPlan || "",
+toPlan: toPlan || "",
       },
 
       success_url: returnUrl

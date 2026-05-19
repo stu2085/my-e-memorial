@@ -1,15 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 export default function NavBar() {
   const router = useRouter();
 const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
+const searchParams = useSearchParams();
 
-const isPreplan = pathname === "/create";
+const isCreate =
+  pathname === "/create" &&
+  searchParams.get("mode") !== "preplan";
+
+const isPreplan =
+  pathname === "/create" &&
+  searchParams.get("mode") === "preplan";
+
+
   useEffect(() => {
   async function checkUser() {
     const {
@@ -55,8 +64,11 @@ const isPreplan = pathname === "/create";
 
           <Link
   href="/create"
+  onClick={() => {
+    window.location.href = "/create";
+  }}
   className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ease-in-out ${
-    pathname === "/create"
+    isCreate
       ? "bg-emerald-700 text-white"
       : "text-stone-700 hover:bg-stone-200 hover:text-stone-900 hover:scale-105"
   }`}
@@ -69,6 +81,9 @@ const isPreplan = pathname === "/create";
 </Link>
 <Link
   href="/create?mode=preplan"
+  onClick={() => {
+    window.location.href = "/create?mode=preplan";
+  }}
   className={`hidden sm:inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ease-in-out ${
     isPreplan
       ? "bg-emerald-700 text-white"

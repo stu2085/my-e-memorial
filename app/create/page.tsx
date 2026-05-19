@@ -1,6 +1,7 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import SideAd from "../components/SideAd";
 import { supabase } from "../lib/supabase";
 import dynamic from "next/dynamic";
@@ -79,6 +80,7 @@ creatorCity: string;
 creatorState: string;
 creatorZip: string;
 betaCode: string;
+promotionCategory: string;
 };
 
 const initialForm: FormState = {
@@ -139,6 +141,7 @@ creatorCity: "",
 creatorState: "",
 creatorZip: "",
 betaCode: "",
+promotionCategory: "personal",
 };
 
 const PLAN_LIMITS = {
@@ -159,9 +162,14 @@ const PLAN_LIMITS = {
   },
 };
 
+
+
 type PlanKey = keyof typeof PLAN_LIMITS;
 
-export default function CreatePage() {
+
+
+function CreatePageContent() {
+  const searchParams = useSearchParams();
   const [isPaid, setIsPaid] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const MAX_VIDEO_SIZE_BYTES = 1000 * 1000 * 1000; // 1 GB
@@ -198,7 +206,7 @@ useEffect(() => {
   const randomPair = pairs[Math.floor(Math.random() * pairs.length)];
 
   setAdCategoryPair(randomPair);
-}, []);
+}, [searchParams]);
 
 const leftAdCategory = adCategoryPair[0];
 const rightAdCategory = adCategoryPair[1];
@@ -216,7 +224,7 @@ const rightAdCategory = adCategoryPair[1];
 });
 }
 
-      const params = new URLSearchParams(window.location.search);
+      const params = searchParams;
       const extraVideosPaid = Number(params.get("extra_videos_paid") || 0);
 
 if (extraVideosPaid > 0) {
@@ -232,12 +240,10 @@ if (extraVideosPaid > 0) {
 }
       const mode = params.get("mode");
 
-if (mode === "preplan") {
-  setForm((prev) => ({
-    ...prev,
-    isLivingPreplan: true,
-  }));
-}
+setForm((prev) => ({
+  ...prev,
+  isLivingPreplan: mode === "preplan",
+}));
       const sessionId = params.get("session_id");
 
       if (!sessionId) {
@@ -402,7 +408,7 @@ if (mode === "preplan") {
 
  async function handleVideoChange(e: ChangeEvent<HTMLInputElement>) {
   const files = Array.from(e.target.files || []);
-  const selectedPlan = form.plan as PlanKey;
+  let selectedPlan = form.plan as PlanKey;
 
   if (files.length === 0) return;
 
@@ -542,7 +548,7 @@ for (const file of videoFiles) {
         throw new Error("Please choose a memorial plan before continuing.");
       }
 
-      const selectedPlan = form.plan as PlanKey;
+      let selectedPlan = form.plan as PlanKey;
       const limits = PLAN_LIMITS[selectedPlan];
 
       if (!limits) {
@@ -633,7 +639,46 @@ if (featuredPhoto) {
 if (authError) {
   console.error("Auth error:", authError);
 }
+let usingBetaCode = false;
 
+if (form.betaCode.trim()) {
+  const enteredCode = form.betaCode.trim().toUpperCase();
+
+  const { data: promoCode, error: promoError } = await supabase
+    .from("promo_codes")
+    .select("*")
+    .eq("code", enteredCode)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (promoError) {
+    throw new Error("Could not validate promo code.");
+  }
+
+  if (!promoCode) {
+    throw new Error("Invalid or inactive promo code.");
+  }
+
+  if (
+    promoCode.max_uses &&
+    promoCode.uses_count >= promoCode.max_uses
+  ) {
+    throw new Error("This promotional code has reached its usage limit.");
+  }
+
+  if (
+    promoCode.expires_at &&
+    new Date(promoCode.expires_at) < new Date()
+  ) {
+    throw new Error("This promotional code has expired.");
+  }
+
+  usingBetaCode = true;
+
+if (promoCode.allowed_plan) {
+  selectedPlan = promoCode.allowed_plan as PlanKey;
+}
+}
 // TEMP: allow creation without login
 // if (!authUser) {
 //   throw new Error("You must be logged in before creating a memorial.");
@@ -703,16 +748,38 @@ featured_photo_url: featuredPhotoUrl,
           final_resting_type: form.finalRestingType,
           ashes_location_description: form.ashesLocationDescription,
           backup_person_name: form.backupPersonName,
-          payment_status: isPaid ? "paid" : "free_beta",
-payment_source: isPaid ? "stripe" : "beta_code",
-beta_code_used: isPaid ? null : form.betaCode.trim().toUpperCase(),
+          payment_status: usingBetaCode ? "free_beta" : "paid",
+payment_source: usingBetaCode ? "beta_code" : "stripe",
+beta_code_used: usingBetaCode
+  ? form.betaCode.trim().toUpperCase()
+  : null,
+  promotion_category: usingBetaCode
+  ? form.promotionCategory
+  : null,
         });
 
       if (error) {
         console.error("SUPABASE INSERT ERROR:", error);
         throw new Error(error.message);
       }
+if (usingBetaCode && form.betaCode.trim()) {
+  const enteredCode = form.betaCode.trim().toUpperCase();
 
+  const { data: promoCode } = await supabase
+    .from("promo_codes")
+    .select("id, uses_count")
+    .eq("code", enteredCode)
+    .maybeSingle();
+
+  if (promoCode) {
+    await supabase
+      .from("promo_codes")
+      .update({
+        uses_count: Number(promoCode.uses_count || 0) + 1,
+      })
+      .eq("id", promoCode.id);
+  }
+}
       localStorage.removeItem("memorialDraft");
 localStorage.removeItem("paidExtraVideos");
 setForm(initialForm);
@@ -1573,13 +1640,37 @@ Naples, FL, USA`}
     </button>
   ) : (
     <>
-      <label className="flex items-center gap-2 text-sm text-stone-700">
-        <Input
+      <Input
   label="Beta Access Code (optional)"
   name="betaCode"
   value={form.betaCode}
   onChange={handleChange}
 />
+{form.betaCode.trim() && (
+<div>
+  <label className="mb-2 block text-sm font-semibold text-stone-800">
+    Promotion Category
+  </label>
+
+  <select
+    name="promotionCategory"
+    value={form.promotionCategory}
+    onChange={handleChange}
+    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+  >
+    <option value="personal">Personal</option>
+    <option value="attorney">Attorney</option>
+    <option value="estate_planner">Estate Planner</option>
+    <option value="funeral_home">Funeral Home</option>
+    <option value="monument_company">Monument Company</option>
+    <option value="flower_shop">Flower Shop</option>
+    <option value="cemetery">Cemetery</option>
+    <option value="church">Church</option>
+    <option value="other">Other</option>
+  </select>
+</div>
+)}
+<label className="flex items-center gap-2 text-sm text-stone-700">
         <input
           type="checkbox"
           checked={agreedToTerms}
@@ -1656,42 +1747,63 @@ if (!user) {
           : "$99"}
 
       </button>
-      <button
+     <button
   type="button"
-  disabled={isSubmitting}
   onClick={async () => {
-    const enteredCode = form.betaCode.trim().toUpperCase();
+  const enteredCode = form.betaCode.trim().toUpperCase();
 
-    if (!APPROVED_BETA_CODES.includes(enteredCode)) {
-      alert("Invalid beta access code.");
-      return;
-    }
+  if (!enteredCode) {
+    alert("Please enter a promotional code.");
+    return;
+  }
 
-    if (!agreedToTerms) {
-      alert("You must agree to the Terms of Service before continuing.");
-      return;
-    }
+  if (!agreedToTerms) {
+    alert("You must agree to the Terms of Service before continuing.");
+    return;
+  }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    if (!user) {
-      const currentPath = window.location.pathname + window.location.search;
-      localStorage.setItem(
-        "memorialDraft",
-        JSON.stringify({
-          ...form,
-          betaCode: enteredCode,
-        })
-      );
-      window.location.assign(`/login?redirect=${encodeURIComponent(currentPath)}`);
-      return;
-    }
+  if (!user) {
+    const currentPath = window.location.pathname + window.location.search;
+    localStorage.setItem("memorialDraft", JSON.stringify(form));
+    window.location.assign(`/login?redirect=${encodeURIComponent(currentPath)}`);
+    return;
+  }
 
-    setIsPaid(true);
-  }}
-  className="w-fit rounded-full border border-green-700 bg-white px-6 py-3 text-sm font-semibold text-green-700 transition hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-60"
+  const { data: promoCode, error } = await supabase
+    .from("promo_codes")
+    .select("*")
+    .eq("code", enteredCode)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (error || !promoCode) {
+    alert("Invalid or inactive promotional code.");
+    return;
+  }
+
+  if (promoCode.max_uses && promoCode.uses_count >= promoCode.max_uses) {
+    alert("This promotional code has reached its usage limit.");
+    return;
+  }
+
+  if (promoCode.expires_at && new Date(promoCode.expires_at) < new Date()) {
+    alert("This promotional code has expired.");
+    return;
+  }
+
+  setForm((prev) => ({
+    ...prev,
+    plan: promoCode.allowed_plan || prev.plan,
+    promotionCategory: promoCode.promotion_category || prev.promotionCategory,
+  }));
+
+  setIsPaid(true);
+}}
+  className="w-fit rounded-full border border-green-700 bg-white px-6 py-3 text-sm font-semibold text-green-700 transition hover:bg-green-50"
 >
   Use Beta Access Code — Skip Payment
 </button>
@@ -1725,7 +1837,13 @@ if (!user) {
     </main>
   );
 }
-
+export default function CreatePage() {
+  return (
+    <Suspense fallback={null}>
+      <CreatePageContent />
+    </Suspense>
+  );
+}
 function Section({
   title,
   children,
