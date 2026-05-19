@@ -1780,10 +1780,16 @@ if (!user) {
     .eq("is_active", true)
     .maybeSingle();
 
-  if (error || !promoCode) {
-    alert("Invalid or inactive promotional code.");
-    return;
-  }
+  if (error) {
+  console.error("PROMO CODE ERROR:", error);
+  alert(`Promo code error: ${error.message}`);
+  return;
+}
+
+if (!promoCode) {
+  alert("Invalid or inactive promotional code.");
+  return;
+}
 
   if (promoCode.max_uses && promoCode.uses_count >= promoCode.max_uses) {
     alert("This promotional code has reached its usage limit.");
