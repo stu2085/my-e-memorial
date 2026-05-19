@@ -1773,36 +1773,24 @@ if (!user) {
     return;
   }
 
-  const { data: promoCode, error } = await supabase
-  .from("promo_codes")
-  .select("*")
-  .eq("code", enteredCode)
-  .maybeSingle();
+  const res = await fetch("/api/validate-promo-code", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    code: enteredCode,
+  }),
+});
 
-console.log("ENTERED CODE:", enteredCode);
-console.log("PROMO CODE RESULT:", promoCode);
-console.log("PROMO CODE ERROR:", error);
+const data = await res.json();
 
-  if (error) {
-  console.error("PROMO CODE ERROR:", error);
-  alert(`Promo code error: ${error.message}`);
+if (!res.ok) {
+  alert(data.error || "Invalid or inactive promotional code.");
   return;
 }
 
-if (!promoCode) {
-  alert("Invalid or inactive promotional code.");
-  return;
-}
-
-  if (promoCode.max_uses && promoCode.uses_count >= promoCode.max_uses) {
-    alert("This promotional code has reached its usage limit.");
-    return;
-  }
-
-  if (promoCode.expires_at && new Date(promoCode.expires_at) < new Date()) {
-    alert("This promotional code has expired.");
-    return;
-  }
+const promoCode = data.promoCode;
 
   setForm((prev) => ({
     ...prev,
