@@ -1788,6 +1788,9 @@ const promoCode = data.promoCode;
   }));
 
   setIsPaid(true);
+  setSuccessMessage(
+  "Promotional code accepted. You may now save the memorial without payment."
+);
 }}
   className="w-fit rounded-full border border-green-700 bg-white px-6 py-3 text-sm font-semibold text-green-700 transition hover:bg-green-50"
 >
