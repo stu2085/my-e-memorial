@@ -76,8 +76,8 @@ export async function POST(req: Request) {
         <ol>
           <li>
             Click this link:<br />
-            <a href="https://www.myememorial.com/login?redirect=%2Fcreate">
-  https://www.myememorial.com/login?redirect=/create
+            <a href="https://www.myememorial.com/login?mode=signup&redirect=%2Fcreate">
+  https://www.myememorial.com/login?mode=signup&redirect=/create
 </a>
           </li>
           <li>
