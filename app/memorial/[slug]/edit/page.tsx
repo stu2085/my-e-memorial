@@ -6,7 +6,17 @@ import { useEffect, useState, ChangeEvent, FormEvent, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import SideAd from "../../../components/SideAd";
+const PLAN_PRICES = {
+  basic: 9900,
+  plus: 12495,
+  premium: 14995,
+};
 
+const PLAN_LABELS = {
+  basic: "Basic",
+  plus: "Plus",
+  premium: "Premium",
+};
 const US_STATES = [
   "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut",
   "Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa",
@@ -1071,6 +1081,56 @@ async function handleBuyExtraVideos(extraCount: number, submissionId?: number) {
     alert("Error starting checkout.");
   }
 }
+async function handleUpgradePlan(toPlan: "plus" | "premium") {
+  if (!(isOwner || isBackupUnlocked)) {
+    alert("You do not have permission to upgrade this memorial.");
+    return;
+  }
+
+  if (!memorialId) {
+    alert("Missing memorial record. Could not start upgrade checkout.");
+    return;
+  }
+
+  const currentPlan = form.plan as keyof typeof PLAN_PRICES;
+  const currentPrice = PLAN_PRICES[currentPlan] || PLAN_PRICES.basic;
+  const newPrice = PLAN_PRICES[toPlan];
+  const upgradeAmount = newPrice - currentPrice;
+
+  if (upgradeAmount <= 0) {
+    alert("This memorial is already on this plan or a higher plan.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        plan: toPlan,
+        amount: upgradeAmount,
+        memorialId,
+        checkoutType: "upgrade",
+        fromPlan: currentPlan,
+        toPlan,
+        returnUrl: `${window.location.origin}/memorial/${originalSlug}/edit?upgrade_success=true`,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Could not start upgrade checkout.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error starting upgrade checkout.");
+  }
+}
   const displayName =
     `${form.firstName} ${form.lastName}`.trim() || "Unnamed Memorial";
 
@@ -1207,8 +1267,9 @@ async function handleBuyExtraVideos(extraCount: number, submissionId?: number) {
                 <form id="edit-memorial-form" onSubmit={handleSubmit} className="space-y-8">
                   
                   <FormSection
+  
   title="Plan"
-  description="This memorial plan is locked after payment."
+  description="View the current plan or upgrade this memorial."
 >
   <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
     <p className="text-sm text-stone-600">Current Plan</p>
@@ -1216,9 +1277,43 @@ async function handleBuyExtraVideos(extraCount: number, submissionId?: number) {
       {form.plan}
     </p>
 
-    <p className="mt-1 text-sm text-amber-700">
-      Plan locked after payment. To change plans, contact support.
-    </p>
+    {form.plan === "basic" && (
+      <div className="mt-4 flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={() => handleUpgradePlan("plus")}
+          className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
+        >
+          Upgrade to Plus — $25.95
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleUpgradePlan("premium")}
+          className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
+        >
+          Upgrade to Premium — $50.95
+        </button>
+      </div>
+    )}
+
+    {form.plan === "plus" && (
+      <div className="mt-4">
+        <button
+          type="button"
+          onClick={() => handleUpgradePlan("premium")}
+          className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
+        >
+          Upgrade to Premium — $25.00
+        </button>
+      </div>
+    )}
+
+    {form.plan === "premium" && (
+      <p className="mt-3 text-sm text-green-700">
+        This memorial already has the highest plan.
+      </p>
+    )}
   </div>
 </FormSection>
 <FormSection

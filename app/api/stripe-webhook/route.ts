@@ -63,6 +63,9 @@ await supabase.from("processed_webhooks").insert({
     const plan = session.metadata?.plan;
 const billingPlanFromCheckout = session.metadata?.billingPlan;
 const customerEmail = session.customer_details?.email;
+const canSendCustomerEmail =
+  customerEmail &&
+  !customerEmail.toLowerCase().endsWith("@example.com");
 const checkoutType = session.metadata?.type;
 const fromPlan = session.metadata?.fromPlan;
 const toPlan = session.metadata?.toPlan;
@@ -271,12 +274,60 @@ const billingPlanLabel =
   fromPlan &&
   toPlan
 ) {
-  console.log(
-    `Future upgrade detected: ${fromPlan} -> ${toPlan}`
-  );
+  const { error: upgradeError } = await supabase
+    .from("memorials")
+    .update({
+      plan: toPlan,
+    })
+    .eq("id", memorialId);
+
+  if (upgradeError) {
+    console.error("Plan upgrade error:", upgradeError);
+
+    return NextResponse.json(
+      { error: upgradeError.message },
+      { status: 500 }
+    );
+  }
+
+  if (canSendCustomerEmail) {
+    const toPlanLabel =
+      toPlan === "premium"
+        ? "Premium"
+        : toPlan === "plus"
+          ? "Plus"
+          : "Basic";
+
+    await transporter.sendMail({
+      from: `"MyEMemorial" <help@myememorial.com>`,
+      to: customerEmail,
+      subject: "Your Memorial Plan Upgrade Receipt",
+      html: `
+        <p>Hello,</p>
+
+        <p>
+          Your memorial plan has been successfully upgraded to
+          <strong>${toPlanLabel}</strong>.
+        </p>
+
+        <ul>
+          <li><strong>Previous Plan:</strong> ${fromPlan}</li>
+          <li><strong>New Plan:</strong> ${toPlanLabel}</li>
+          <li><strong>Amount Paid:</strong> ${memorialAmountPaid}</li>
+        </ul>
+
+        <p>
+          Your new memorial features are now active.
+        </p>
+
+        <p>Thank you,<br/>MyEMemorial</p>
+      `,
+    });
+  }
 }
     if (
-  customerEmail &&
+  canSendCustomerEmail &&
+  checkoutType !== "upgrade" &&
   (plan === "basic" || plan === "plus" || plan === "premium")
 ) {
   const planLabel =
