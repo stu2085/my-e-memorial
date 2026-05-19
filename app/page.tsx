@@ -253,7 +253,7 @@ useEffect(() => {
       </p>
     </div>
 
-    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+    <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
       <Link
         href="/create"
         className="flex h-[60px] w-full max-w-[260px] flex-col items-center justify-center rounded-full bg-white px-5 text-center text-sm font-semibold leading-tight text-stone-900 transition hover:bg-stone-200"
