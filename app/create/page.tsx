@@ -644,40 +644,29 @@ let usingBetaCode = false;
 if (form.betaCode.trim()) {
   const enteredCode = form.betaCode.trim().toUpperCase();
 
-  const { data: promoCode, error: promoError } = await supabase
-    .from("promo_codes")
-    .select("*")
-    .eq("code", enteredCode)
-    .eq("is_active", true)
-    .maybeSingle();
+  const res = await fetch("/api/validate-promo-code", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      code: enteredCode,
+    }),
+  });
 
-  if (promoError) {
-    throw new Error("Could not validate promo code.");
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Invalid or inactive promo code.");
   }
 
-  if (!promoCode) {
-    throw new Error("Invalid or inactive promo code.");
-  }
-
-  if (
-    promoCode.max_uses &&
-    promoCode.uses_count >= promoCode.max_uses
-  ) {
-    throw new Error("This promotional code has reached its usage limit.");
-  }
-
-  if (
-    promoCode.expires_at &&
-    new Date(promoCode.expires_at) < new Date()
-  ) {
-    throw new Error("This promotional code has expired.");
-  }
+  const promoCode = data.promoCode;
 
   usingBetaCode = true;
 
-if (promoCode.allowed_plan) {
-  selectedPlan = promoCode.allowed_plan as PlanKey;
-}
+  if (promoCode.allowed_plan) {
+    selectedPlan = promoCode.allowed_plan as PlanKey;
+  }
 }
 // TEMP: allow creation without login
 // if (!authUser) {
