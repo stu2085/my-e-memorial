@@ -1774,11 +1774,14 @@ if (!user) {
   }
 
   const { data: promoCode, error } = await supabase
-    .from("promo_codes")
-    .select("*")
-    .eq("code", enteredCode)
-    .eq("is_active", true)
-    .maybeSingle();
+  .from("promo_codes")
+  .select("*")
+  .eq("code", enteredCode)
+  .maybeSingle();
+
+console.log("ENTERED CODE:", enteredCode);
+console.log("PROMO CODE RESULT:", promoCode);
+console.log("PROMO CODE ERROR:", error);
 
   if (error) {
   console.error("PROMO CODE ERROR:", error);
