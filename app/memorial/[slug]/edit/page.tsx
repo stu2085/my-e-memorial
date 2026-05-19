@@ -1161,7 +1161,7 @@ async function handleBuyExtraVideos(extraCount: number, submissionId?: number) {
             <section
               className="relative overflow-hidden rounded-[2rem] shadow-[0_10px_30px_rgba(0,0,0,0.06)]"
               style={{
-                backgroundImage: "url('/gravestone.jpg')",
+                backgroundImage: "url('/gravestone1.jpg')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}

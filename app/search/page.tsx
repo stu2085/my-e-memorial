@@ -249,7 +249,7 @@ return [...filtered].sort(() => Math.random() - 0.5);
             <section
               className="relative overflow-hidden rounded-3xl shadow-sm"
               style={{
-                backgroundImage: "url('/gravestone.jpg')",
+                backgroundImage: "url('/gravestone1.jpg')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}

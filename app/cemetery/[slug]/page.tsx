@@ -143,7 +143,7 @@ setLoading(false);
         <section className="overflow-hidden rounded-3xl bg-white shadow-sm">
           <div className="relative h-[260px] w-full">
             <img
-              src="/gravestone.jpg"
+              src="/gravestone1.jpg"
               alt={cemeteryName}
               className="h-full w-full object-cover"
             />
@@ -250,7 +250,7 @@ setLoading(false);
                 const image =
                   memorial.headstone_photos?.[0] ||
                   memorial.gallery_photos?.[0] ||
-                  "/gravestone.jpg";
+                  "/gravestone1.jpg";
 
                 const birthDeathLine =
                   memorial.birth_date || memorial.death_date

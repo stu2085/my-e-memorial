@@ -309,7 +309,7 @@ const ogTags = [
     content:
       memorialData.featured_photo_url ||
       memorialData.headstone_photo_1 ||
-      `${window.location.origin}/gravestone.jpg`,
+      `${window.location.origin}/gravestone1.jpg`,
   },
 ];
 
