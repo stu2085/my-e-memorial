@@ -240,37 +240,38 @@ useEffect(() => {
             </section>
 
             <section className="rounded-[1.5rem] bg-stone-900 px-6 py-7 text-white shadow-sm md:px-8">
-              <div className="flex flex-col items-center justify-between gap-5 text-center md:flex-row md:text-left">
-                <div className="max-w-2xl">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-300">
-                    Begin today
-                  </p>
-                  <h2 className="mt-2 text-xl font-bold md:text-2xl">
-                    Preserve a life before more of it is lost
-                  </h2>
-                  <p className="mt-3 text-sm leading-6 text-stone-300">
-                    Start with a simple memorial now, then continue adding memories, photos, and family history over time.
-                  </p>
-                </div>
+  <div className="flex flex-col gap-6 text-center md:text-left">
+    <div className="max-w-2xl">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-300">
+        Begin today
+      </p>
+      <h2 className="mt-2 text-xl font-bold md:text-2xl">
+        Preserve a life before more of it is lost
+      </h2>
+      <p className="mt-3 text-sm leading-6 text-stone-300">
+        Start with a simple memorial now, then continue adding memories, photos, and family history over time.
+      </p>
+    </div>
 
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Link
-  href="/create"
-  className="flex h-[60px] w-[260px] flex-col items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-stone-900 leading-tight transition hover:bg-stone-200 text-center"
->
-  <span>Create an E-memorial</span>
-  <span>for a loved one</span>
-</Link>
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <Link
+        href="/create"
+        className="flex h-[60px] w-full max-w-[260px] flex-col items-center justify-center rounded-full bg-white px-5 text-center text-sm font-semibold leading-tight text-stone-900 transition hover:bg-stone-200"
+      >
+        <span>Create an E-memorial</span>
+        <span>for a loved one</span>
+      </Link>
 
-                  <Link
-                    href="/search"
-                    className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-stone-900 transition hover:bg-stone-200"
-                  >
-                    Search EMemorials
-                  </Link>
-                </div>
-              </div>
-            </section>
+      <Link
+        href="/search"
+        className="flex h-[60px] w-full max-w-[260px] items-center justify-center rounded-full bg-white px-5 text-center text-sm font-semibold leading-tight text-stone-900 transition hover:bg-stone-200"
+      >
+        Search EMemorials
+      </Link>
+    </div>
+  </div>
+</section>
+
           </div>
         </div>
         <div className="hidden w-[240px] flex-shrink-0 flex-col gap-6 lg:flex">
