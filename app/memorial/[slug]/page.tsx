@@ -146,6 +146,8 @@ const [submitterName, setSubmitterName] = useState("");
 const [submitterEmail, setSubmitterEmail] = useState("");
 const [submissionMessage, setSubmissionMessage] = useState("");
 const [submissionPhotos, setSubmissionPhotos] = useState<File[]>([]);
+const [isSlideshowPlaying, setIsSlideshowPlaying] = useState(false);
+const [photoFadeKey, setPhotoFadeKey] = useState(0);
 const [submissionVideo, setSubmissionVideo] = useState<File | null>(null);
 const [uploadingVideo, setUploadingVideo] = useState(false);
 const [uploadingPhotos, setUploadingPhotos] = useState(false);
@@ -468,6 +470,23 @@ const restingPlaceAddress = [
     window.removeEventListener("keydown", handleKeyDown);
   };
 }, [selectedPhotoIndex, galleryPhotos.length]);
+useEffect(() => {
+  if (!isSlideshowPlaying || selectedPhotoIndex === null) return;
+
+  const timer = setInterval(() => {
+    setSelectedPhotoIndex((currentIndex) => {
+      if (currentIndex === null) return currentIndex;
+
+      return currentIndex === galleryPhotos.length - 1
+        ? 0
+        : currentIndex + 1;
+    });
+
+    setPhotoFadeKey((current) => current + 1);
+  }, 4000);
+
+  return () => clearInterval(timer);
+}, [isSlideshowPlaying, selectedPhotoIndex, galleryPhotos.length]);
   function getContributorVideoDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
@@ -716,7 +735,7 @@ function showNextPhoto() {
     selectedPhotoIndex === galleryPhotos.length - 1
       ? 0
       : selectedPhotoIndex + 1
-  );
+  );setPhotoFadeKey((current) => current + 1);
 }
   return (
   <main className="min-h-screen bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100 px-4 py-10">
@@ -1548,10 +1567,11 @@ function showNextPhoto() {
 >
     
       <img
-        src={selectedPhoto}
-        alt="Enlarged memorial photo"
-        className="max-h-[75vh] max-w-full rounded-2xl object-contain"
-      />
+  key={photoFadeKey}
+  src={selectedPhoto}
+  alt="Enlarged memorial photo"
+  className="max-h-[75vh] max-w-full rounded-2xl object-contain opacity-100 transition-opacity duration-500"
+/>
 {canGoPrevious && canGoNext && (
   <div className="mt-4 flex items-center justify-between gap-4">
     <button
@@ -1573,6 +1593,15 @@ function showNextPhoto() {
     >
       Next →
     </button>
+    <div className="mt-4 text-center">
+  <button
+    type="button"
+    onClick={() => setIsSlideshowPlaying((current) => !current)}
+    className="rounded-full bg-stone-200 px-5 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-300"
+  >
+    {isSlideshowPlaying ? "Pause Slideshow" : "Start Slideshow"}
+  </button>
+</div>
   </div>
 )}
 {isOwner && selectedPhoto && (
