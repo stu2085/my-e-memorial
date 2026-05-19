@@ -76,14 +76,14 @@ export async function POST(req: Request) {
         <ol>
           <li>
             Click this link:<br />
-            <a href="https://www.myememorial.com/create">
-              https://www.myememorial.com/create
-            </a>
+            <a href="https://www.myememorial.com/login?redirect=%2Fcreate">
+  https://www.myememorial.com/login?redirect=/create
+</a>
           </li>
           <li>
-            Create a free MyEMemorial account.
-            If you already have an account, simply log in.
-          </li>
+  Create your free MyEMemorial account using your email address and a password you choose.
+  This account lets you save, edit, and manage the memorial after it is created.
+</li>
           <li>
             Complete the memorial information and upload photos/videos.
           </li>
