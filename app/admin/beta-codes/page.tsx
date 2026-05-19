@@ -120,8 +120,34 @@ export default function BetaCodesAdminPage() {
       setMessage(`Could not create promo code: ${error.message}`);
       return;
     }
+if (form.assignedEmail.trim()) {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    setMessage("Promo code created.");
+    await fetch("/api/admin/send-promo-invite", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({
+        to: form.assignedEmail.trim(),
+        contactName: form.contactName.trim(),
+        code: cleanCode,
+        allowedPlan: form.allowedPlan,
+      }),
+    });
+  } catch (err) {
+    console.error("Promo invite email error:", err);
+  }
+}
+    setMessage(
+  form.assignedEmail.trim()
+    ? "Promo code created and invitation email sent."
+    : "Promo code created."
+);
     setForm({
       code: "",
       contactName: "",
