@@ -819,7 +819,16 @@ function showNextPhoto() {
   </div>
 
   <div className="flex flex-wrap gap-3">
-    
+    <div className="flex flex-wrap gap-3">
+  <button
+    onClick={() => handleShare("copy")}
+    className="inline-flex items-center justify-center rounded-full bg-stone-200 px-5 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-300"
+  >
+    {copied ? "Memorial Link Copied!" : "Copy Memorial Link"}
+  </button>
+
+  <button
+    onClick={() => handleShare("email")}
     <button
       onClick={() => handleShare("email")}
       className="inline-flex items-center justify-center rounded-full bg-stone-200 px-5 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-300"
