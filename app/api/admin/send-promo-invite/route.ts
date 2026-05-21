@@ -49,6 +49,10 @@ export async function POST(req: Request) {
 
     const cleanPlanLabel = planLabel(allowedPlan || "basic");
 
+const inviteLink = `https://www.myememorial.com/login?mode=signup&redirect=${encodeURIComponent(
+  `/create?promo=${encodeURIComponent(code)}`
+)}`;
+
     await transporter.sendMail({
       from: `"MyEMemorial" <help@myememorial.com>`,
       to,
@@ -76,8 +80,8 @@ export async function POST(req: Request) {
         <ol>
           <li>
             Click this link:<br />
-            <a href="https://www.myememorial.com/login?mode=signup&redirect=%2Fcreate">
-  https://www.myememorial.com/login?mode=signup&redirect=/create
+            <a href="${inviteLink}">
+  ${inviteLink}
 </a>
           </li>
           <li>
