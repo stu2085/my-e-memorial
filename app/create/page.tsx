@@ -235,7 +235,7 @@ if (promoFromUrl) {
   }));
 
   setSuccessMessage(
-    "Your promo code has been filled in from your email. Please review the form, agree to the Terms of Service, then click Use Beta Access Code — Skip Payment."
+    "Your promo code has been filled in from your email. Please go to bottom on this page, agree to the Terms of Service, then click the Use Beta Access Code — Skip Payment button to access your free promotional memorial."
   );
 }
 if (extraVideosPaid > 0) {
