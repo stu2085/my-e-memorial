@@ -1631,6 +1631,13 @@ Naples, FL, USA`}
 
                 <div className="flex flex-col gap-4">
   {isPaid ? (
+  <div className="space-y-3">
+    {successMessage && (
+      <p className="text-sm font-semibold text-green-700">
+        {successMessage}
+      </p>
+    )}
+
     <button
       type="submit"
       disabled={isSubmitting}
@@ -1638,7 +1645,10 @@ Naples, FL, USA`}
     >
       {isSubmitting ? "Saving Memorial..." : "Save Memorial"}
     </button>
-  ) : (
+  </div>
+) : (
+      
+  
     <>
       <Input
   label="Enter the promo code you received in your email"
@@ -1799,10 +1809,9 @@ const promoCode = data.promoCode;
   }));
 
   setIsPaid(true);
-  setSuccessMessage(
-  "Free beta access approved. Please complete the memorial form below, then click Save Memorial when finished."
+setSuccessMessage(
+  "Free beta access approved. Please complete the memorial form above, then click Save Memorial when finished."
 );
-  
 }}
   className="w-fit rounded-full border border-green-700 bg-white px-6 py-3 text-sm font-semibold text-green-700 transition hover:bg-green-50"
 >
