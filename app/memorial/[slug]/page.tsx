@@ -816,11 +816,11 @@ function showNextPhoto() {
     )}
 
     <button
-      onClick={() => handleShare()}
-      className="inline-flex items-center justify-center rounded-full bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-900 hover:bg-amber-300"
-    >
-      Share Memorial
-    </button>
+  onClick={() => handleShare()}
+  className="inline-flex items-center justify-center rounded-full bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-900 hover:bg-amber-300"
+>
+  Share From Device
+</button>
   </div>
 
   <div className="flex flex-wrap gap-3">
@@ -828,7 +828,7 @@ function showNextPhoto() {
   onClick={() => handleShare("copy")}
   className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
 >
-  {copied ? "Link Copied!" : "Copy Link"}
+  {copied ? "Memorial Link Copied!" : "Copy Memorial Link"}
 </button>
     <button
       onClick={() => handleShare("email")}
