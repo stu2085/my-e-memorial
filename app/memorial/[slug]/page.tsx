@@ -819,7 +819,6 @@ function showNextPhoto() {
   </div>
 
   <div className="flex flex-wrap gap-3">
-    <div className="flex flex-wrap gap-3">
   <button
     onClick={() => handleShare("copy")}
     className="inline-flex items-center justify-center rounded-full bg-stone-200 px-5 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-300"
@@ -829,12 +828,10 @@ function showNextPhoto() {
 
   <button
     onClick={() => handleShare("email")}
-    <button
-      onClick={() => handleShare("email")}
-      className="inline-flex items-center justify-center rounded-full bg-stone-200 px-5 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-300"
-    >
-      Email
-    </button>
+    className="inline-flex items-center justify-center rounded-full bg-stone-200 px-5 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-300"
+  >
+    Email
+  </button>
 
     <button
       onClick={() => handleShare("sms")}
