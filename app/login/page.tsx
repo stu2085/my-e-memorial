@@ -132,8 +132,8 @@ return;
 
         <p className="mt-2 text-sm text-stone-600">
           {isSignupMode
-            ? "Create your account first so your memorial ownership is saved correctly."
-            : "Log in before creating a memorial so ownership is saved correctly."}
+  ? "Create your account first so your memorial ownership is saved correctly."
+  : "Create an account or log in to securely save and manage your memorial."}
         </p>
 
         <div className="mt-6 space-y-4">
@@ -181,9 +181,9 @@ return;
 
         <button
           type="submit"
-          className="mt-6 w-full rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white hover:bg-stone-700"
+         className="mt-6 w-full rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-100"
         >
-          {isSignupMode ? "Create Account" : "Log In"}
+          {isSignupMode ? "Create Account" : "Create Account or Log In"}
         </button>
 
         {!isSignupMode && (
@@ -222,7 +222,7 @@ return;
               href={`/login?mode=signup&redirect=${encodeURIComponent(
                 redirectTo
               )}`}
-              className="mt-3 block w-full rounded-full border border-stone-300 px-6 py-3 text-center text-sm font-semibold text-stone-700 hover:bg-stone-100"
+              className="mt-3 block w-full rounded-full bg-stone-900 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-stone-700"
             >
               Create Account
             </a>
