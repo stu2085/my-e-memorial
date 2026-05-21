@@ -1,12 +1,13 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { FormEvent, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
 function LoginContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const redirectTo = searchParams.get("redirect") || "/create";
   const mode = searchParams.get("mode") || "login";
   const isSignupMode = mode === "signup";
@@ -14,6 +15,19 @@ function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  useEffect(() => {
+  async function checkUser() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user && isSignupMode) {
+      router.push(redirectTo);
+    }
+  }
+
+  checkUser();
+}, [router, redirectTo, isSignupMode]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -41,8 +55,8 @@ function LoginContent() {
       }
 
       setMessage(
-        "Account created. Please check your email and click the confirmation link before continuing."
-      );
+  "Account created. You can now continue creating your memorial."
+);
       return;
     }
 
