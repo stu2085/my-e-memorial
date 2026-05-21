@@ -815,21 +815,11 @@ function showNextPhoto() {
       </Link>
     )}
 
-    <button
-  onClick={() => handleShare()}
-  className="inline-flex items-center justify-center rounded-full bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-900 hover:bg-amber-300"
->
-  Share From Device
-</button>
+    
   </div>
 
   <div className="flex flex-wrap gap-3">
-    <button
-  onClick={() => handleShare("copy")}
-  className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
->
-  {copied ? "Memorial Link Copied!" : "Copy Memorial Link"}
-</button>
+    
     <button
       onClick={() => handleShare("email")}
       className="inline-flex items-center justify-center rounded-full bg-stone-200 px-5 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-300"
