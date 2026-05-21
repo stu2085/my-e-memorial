@@ -209,6 +209,7 @@ const [backupLoginEmail, setBackupLoginEmail] = useState("");
 const [backupLoginPassword, setBackupLoginPassword] = useState("");
 const [isBackupUnlocked, setIsBackupUnlocked] = useState(false);
 const [isOwner, setIsOwner] = useState(false);
+const [isPublished, setIsPublished] = useState(false);
 const [authChecked, setAuthChecked] = useState(false);
 const [backupLoginError, setBackupLoginError] = useState("");
 const [submissions, setSubmissions] = useState<MemorialSubmission[]>([]);
@@ -538,6 +539,7 @@ setAuthChecked(true);
   loadSubmissions(data.id);
 }
       setOriginalSlug(data.slug ?? slug);
+      setIsPublished(!!data.is_published);
 
       setForm({
         firstName: data.first_name ?? "",
@@ -2521,7 +2523,7 @@ const remaining = Math.max(limit - total, 0);
                     >
                       {isSaving ? "Saving..." : "Save Changes"}
                     </button>
-                    {(isOwner || isBackupUnlocked) && (
+                    {(isOwner || isBackupUnlocked) && !isPublished && (
                     <button
   type="button"
   onClick={async () => {
