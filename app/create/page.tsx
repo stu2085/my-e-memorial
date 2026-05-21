@@ -226,7 +226,18 @@ const rightAdCategory = adCategoryPair[1];
 
       const params = searchParams;
       const extraVideosPaid = Number(params.get("extra_videos_paid") || 0);
+const promoFromUrl = params.get("promo");
 
+if (promoFromUrl) {
+  setForm((prev) => ({
+    ...prev,
+    betaCode: promoFromUrl.toUpperCase(),
+  }));
+
+  setSuccessMessage(
+    "Your promo code has been filled in from your email. Please review the form, agree to the Terms of Service, then click Use Beta Access Code — Skip Payment."
+  );
+}
 if (extraVideosPaid > 0) {
   const savedExtraVideos = Number(localStorage.getItem("paidExtraVideos") || 0);
   const newTotal = savedExtraVideos + extraVideosPaid;
@@ -1630,7 +1641,7 @@ Naples, FL, USA`}
   ) : (
     <>
       <Input
-  label="Beta Access Code (optional)"
+  label="Enter the promo code you received in your email"
   name="betaCode"
   value={form.betaCode}
   onChange={handleChange}
@@ -1789,11 +1800,9 @@ const promoCode = data.promoCode;
 
   setIsPaid(true);
   setSuccessMessage(
-  "Promotional code accepted. You may now save the memorial without payment."
+  "Free beta access approved. Please complete the memorial form below, then click Save Memorial when finished."
 );
-  setSuccessMessage(
-  "Promotional code accepted. You may now save the memorial without payment."
-);
+  
 }}
   className="w-fit rounded-full border border-green-700 bg-white px-6 py-3 text-sm font-semibold text-green-700 transition hover:bg-green-50"
 >
