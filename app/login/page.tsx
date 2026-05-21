@@ -54,10 +54,10 @@ function LoginContent() {
         return;
       }
 
-      setMessage(
-  "Account created. You can now continue creating your memorial."
-);
-      return;
+      setMessage("Account created. Taking you to the memorial form...");
+
+window.location.assign(redirectTo);
+return;
     }
 
     const { error } = await supabase.auth.signInWithPassword({
