@@ -126,9 +126,9 @@ return;
         onSubmit={handleSubmit}
         className="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm"
       >
-        <h1 className="text-3xl font-bold text-stone-900">
-          {isSignupMode ? "Create Account" : "Log In"}
-        </h1>
+       <h1 className="text-4xl font-bold text-stone-900">
+  Create Account or Log In
+</h1>
 
         <p className="mt-2 text-sm text-stone-600">
           {isSignupMode
