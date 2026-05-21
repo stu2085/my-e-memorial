@@ -256,11 +256,19 @@ setForm((prev) => ({
   isLivingPreplan: mode === "preplan",
 }));
       const sessionId = params.get("session_id");
+const autoCheckout = params.get("autocheckout");
 
-      if (!sessionId) {
-        setIsPaid(false);
-        return;
-      }
+if (!sessionId && autoCheckout !== "1") {
+  setIsPaid(false);
+  return;
+}
+if (autoCheckout === "1") {
+  // auto checkout logic here
+}
+
+if (!sessionId) {
+  return;
+}
 
       const res = await fetch("/api/verify-payment", {
         method: "POST",
@@ -1374,16 +1382,27 @@ async function handleBuyExtraVideos(extraCount: number) {
 </Section>
               <Section title="Places Lived, Schools Attended & Awards Won">
   <div className="grid grid-cols-1 gap-6">
-    <TextArea
-      label="Places Lived"
-      name="placesLived"
-      value={form.placesLived}
-      onChange={handleChange}
-      rows={5}
-      placeholder={`Lancaster, PA, USA
-Montclair, NJ, USA
-Naples, FL, USA`}
-    />
+    <div>
+  <label className="mb-2 block text-sm font-semibold text-stone-800">
+    Places Lived
+  </label>
+
+  <textarea
+    name="placesLived"
+    value={form.placesLived}
+    onChange={handleChange}
+    rows={5}
+    placeholder={`Example:
+Lancaster, Pennsylvania
+Philadelphia, Pennsylvania
+Naples, Florida`}
+    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+  />
+
+  <p className="mt-2 text-xs text-stone-500">
+    Enter one place per line.
+  </p>
+</div>
 
     <Input
       label="Schools Attended"
@@ -1707,8 +1726,15 @@ const {
 } = await supabase.auth.getUser();
 
 if (!user) {
-  const currentPath = window.location.pathname + window.location.search;
-  window.location.assign(`/login?redirect=${encodeURIComponent(currentPath)}`);
+  const currentPath =
+  window.location.pathname +
+  window.location.search +
+  (window.location.search ? "&" : "?") +
+  "autocheckout=1";
+
+window.location.assign(
+  `/login?redirect=${encodeURIComponent(currentPath)}`
+);
   return;
 }
           const selectedPlan = form.plan || "basic";
@@ -1777,11 +1803,20 @@ if (!user) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const currentPath = window.location.pathname + window.location.search;
-    localStorage.setItem("memorialDraft", JSON.stringify(form));
-    window.location.assign(`/login?redirect=${encodeURIComponent(currentPath)}`);
-    return;
-  }
+  const currentPath =
+    window.location.pathname +
+    window.location.search +
+    (window.location.search ? "&" : "?") +
+    "autocheckout=1";
+
+  localStorage.setItem("memorialDraft", JSON.stringify(form));
+
+  window.location.assign(
+    `/login?redirect=${encodeURIComponent(currentPath)}`
+  );
+
+  return;
+}
 
   const res = await fetch("/api/validate-promo-code", {
   method: "POST",

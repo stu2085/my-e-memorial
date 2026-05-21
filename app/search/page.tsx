@@ -21,8 +21,9 @@ type Memorial = {
   country_lived: string | null;
   schools_attended: string | null;
   awards_won: string | null;
-  headstone_photo_1: string | null;
-  headstone_photo_2: string | null;
+  featured_photo_url: string | null;
+headstone_photo_1: string | null;
+headstone_photo_2: string | null;
 };
 
 function buildFullName(memorial: Memorial) {
@@ -44,7 +45,12 @@ function getYear(dateString: string | null) {
 }
 
 function getThumbnail(memorial: Memorial) {
-  return memorial.headstone_photo_1 || memorial.headstone_photo_2 || "";
+  return (
+    memorial.featured_photo_url ||
+    memorial.headstone_photo_1 ||
+    memorial.headstone_photo_2 ||
+    ""
+  );
 }
 
 export default function SearchPage() {

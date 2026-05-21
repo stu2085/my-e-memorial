@@ -1488,6 +1488,25 @@ function showNextPhoto() {
     {new Date(data.updated_at).toLocaleDateString()}
   </div>
 )}
+<div className="mt-6 border-t border-stone-200 pt-5 text-center">
+  <button
+    type="button"
+    onClick={() => {
+      window.location.href =
+        "mailto:help@myememorial.com?subject=" +
+        encodeURIComponent(
+          `Report Memorial: ${data.full_name || "Unknown Memorial"}`
+        ) +
+        "&body=" +
+        encodeURIComponent(
+          `Please describe the issue with this memorial page:\n\n${window.location.href}`
+        );
+    }}
+    className="text-xs font-medium text-stone-500 underline hover:text-stone-700"
+  >
+    Report this memorial
+  </button>
+</div>
     {restingPlaceAddress && (
       <p className="mt-4 text-stone-700">{restingPlaceAddress}</p>
     )}

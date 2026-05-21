@@ -1808,14 +1808,27 @@ const projectedTotal =
   description="Cities, states, and countries associated with this person."
 >
   
-  <TextArea
-    label="Places Lived"
+  <div>
+  <label className="mb-2 block text-sm font-semibold text-stone-800">
+    Places Lived
+  </label>
+
+  <textarea
     name="placesLived"
     value={form.placesLived}
     onChange={handleChange}
     rows={5}
-    helpText="Example: Lancaster, PA, USA"
+    placeholder={`Example:
+Lancaster, Pennsylvania
+Philadelphia, Pennsylvania
+Naples, Florida`}
+    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
   />
+
+  <p className="mt-2 text-xs text-stone-500">
+    Enter one place per line.
+  </p>
+</div>
   <QuickSaveButton isSaving={isSaving} />
 </FormSection>
                   <FormSection

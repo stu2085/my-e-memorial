@@ -1,6 +1,7 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
+import Script from "next/script";
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
@@ -14,7 +15,9 @@ function LoginContent() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const turnstileRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
   async function checkUser() {
     const {
@@ -28,7 +31,27 @@ function LoginContent() {
 
   checkUser();
 }, [router, redirectTo, isSignupMode]);
+useEffect(() => {
+  const renderTurnstile = () => {
+    const turnstile = (window as any).turnstile;
 
+    if (
+      turnstile &&
+      turnstileRef.current &&
+      turnstileRef.current.childElementCount === 0
+    ) {
+      turnstile.render(turnstileRef.current, {
+        sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+      });
+    }
+  };
+
+  renderTurnstile();
+
+  const timer = setTimeout(renderTurnstile, 500);
+
+  return () => clearTimeout(timer);
+}, []);
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setMessage("");
@@ -37,7 +60,31 @@ function LoginContent() {
       setMessage("Please enter your email and create a password.");
       return;
     }
+    const captchaToken = (
+  document.querySelector('[name="cf-turnstile-response"]') as HTMLInputElement
+)?.value;
 
+if (!captchaToken) {
+  setMessage("Please complete the captcha verification.");
+  return;
+}
+
+const captchaRes = await fetch("/api/verify-captcha", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ token: captchaToken }),
+});
+
+if (!captchaRes.ok) {
+  setMessage("Captcha verification failed. Please try again.");
+  return;
+}
+if (isSignupMode && password !== confirmPassword) {
+  setMessage("Passwords do not match.");
+  return;
+}
     if (isSignupMode) {
       const { error } = await supabase.auth.signUp({
         email,
@@ -101,16 +148,35 @@ return;
           />
 
           <input
-            type="password"
-            placeholder={isSignupMode ? "Create Password" : "Password"}
-            autoComplete={isSignupMode ? "new-password" : "current-password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-2xl border border-stone-300 px-4 py-3"
-            required
-          />
-        </div>
+  type="password"
+  placeholder={isSignupMode ? "Create Password" : "Password"}
+  autoComplete={isSignupMode ? "new-password" : "current-password"}
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  className="w-full rounded-2xl border border-stone-300 px-4 py-3"
+  required
+/>
 
+{isSignupMode && (
+  <input
+    type="password"
+    placeholder="Confirm Password"
+    autoComplete="new-password"
+    value={confirmPassword}
+    onChange={(e) => setConfirmPassword(e.target.value)}
+    className="w-full rounded-2xl border border-stone-300 px-4 py-3"
+    required
+  />
+)}
+
+</div>
+<Script
+  src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+  async
+  defer
+/>
+
+<div ref={turnstileRef} className="mt-4" />
         {message && <p className="mt-4 text-sm text-red-600">{message}</p>}
 
         <button

@@ -10,11 +10,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://www.myememorial.com";
 
   const staticPages = [
-    "",
-    "/search",
-    "/create",
-    "/contact",
-    "/advertise",
+  "",
+  "/search",
+  "/contact",
+  "/advertise",
     "/privacy",
 "/terms",
 "/content-removal",
