@@ -12,7 +12,7 @@ function LoginContent() {
   const redirectTo = searchParams.get("redirect") || "/create";
   const mode = searchParams.get("mode") || "login";
   const isSignupMode = mode === "signup";
-
+const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -55,9 +55,11 @@ useEffect(() => {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setMessage("");
+    setIsSubmitting(true);
 
     if (!email || !password) {
       setMessage("Please enter your email and create a password.");
+      setIsSubmitting(false);
       return;
     }
     const captchaToken = (
@@ -66,6 +68,7 @@ useEffect(() => {
 
 if (!captchaToken) {
   setMessage("Please complete the captcha verification.");
+  setIsSubmitting(false);
   return;
 }
 
@@ -79,10 +82,13 @@ const captchaRes = await fetch("/api/verify-captcha", {
 
 if (!captchaRes.ok) {
   setMessage("Captcha verification failed. Please try again.");
+  setIsSubmitting(false);
   return;
 }
 if (isSignupMode && password !== confirmPassword) {
   setMessage("Passwords do not match.");
+  setIsSubmitting(false);
+  setIsSubmitting(false);
   return;
 }
     if (isSignupMode) {
@@ -98,6 +104,7 @@ if (isSignupMode && password !== confirmPassword) {
 
       if (error) {
         setMessage(error.message);
+        setIsSubmitting(false);
         return;
       }
 
@@ -181,9 +188,16 @@ return;
 
         <button
           type="submit"
+          disabled={isSubmitting}
          className="mt-6 w-full rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-100"
         >
-          {isSignupMode ? "Create Account" : "Create Account or Log In"}
+         {isSubmitting
+  ? isSignupMode
+    ? "Creating account..."
+    : "Logging in..."
+  : isSignupMode
+    ? "Create Account"
+    : "Create Account or Log In"}
         </button>
 
         {!isSignupMode && (
