@@ -14,10 +14,38 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "MyEMemorial",
+export const metadata: Metadata = {
+  title: {
+    default: "MyEMemorial | Online Memorials for Loved Ones",
+    template: "%s | MyEMemorial",
+  },
   description:
-    "Online memorials that preserve lives and memories forever.",
+    "Create lasting online memorials with photos, videos, life stories, family history, obituary details, cemetery maps, and contributor approval.",
+    keywords: [
+    "online memorials",
+    "memorial website",
+    "digital memorial",
+    "funeral memorial",
+    "cemetery memorial",
+    "tribute page",
+    "life story memorial",
+    "obituary memorial",
+    "family memorials",
+  ],
+  metadataBase: new URL("https://www.myememorial.com"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "MyEMemorial | Online Memorials for Loved Ones",
+    description:
+      "Create lasting online memorials with photos, videos, life stories, family history, obituary details, cemetery maps, and contributor approval.",
+    url: "https://www.myememorial.com",
+    siteName: "MyEMemorial",
+    type: "website",
+  },verification: {
+  google: "8gP9qEPq6SKkkPqnvWnT10HJFGiqva87-j5_VEdBomI",
+},
 };
 
 export default function RootLayout({

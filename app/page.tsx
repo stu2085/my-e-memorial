@@ -200,12 +200,13 @@ useEffect(() => {
                     title="Basic Memorial"
                     price="$99"
                     items={[
-                      "Up to 50 photos",
-                      "Up to 2 videos",
-                      "Background music",
-                      "Life story & obituary",
-                      "Cemetery map",
-                    ]}
+  "Up to 50 photos",
+  "Up to 2 videos",
+  "Background music",
+  "Life story & obituary",
+  "Cemetery map",
+  "Contributor approval",
+]}
                   />
 
                   <PlanCard

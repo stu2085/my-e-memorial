@@ -22,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
+priority: route === "" ? 1 : 0.8,
   }));
 
   const { data: memorials } = await supabase
@@ -30,12 +31,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .eq("is_published", true);
 
   const memorialPages =
-    memorials?.map((memorial) => ({
-      url: `${baseUrl}/memorial/${memorial.slug}`,
-      lastModified: memorial.updated_at
-        ? new Date(memorial.updated_at)
-        : new Date(),
-    })) || [];
+  memorials?.map((memorial) => ({
+    url: `${baseUrl}/memorial/${memorial.slug}`,
+    lastModified: memorial.updated_at
+      ? new Date(memorial.updated_at)
+      : new Date(),
+    priority: 0.9,
+  })) || [];
 
   return [...staticPages, ...memorialPages];
 }
