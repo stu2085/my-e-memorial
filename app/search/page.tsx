@@ -449,77 +449,83 @@ return [...filtered].sort(() => Math.random() - 0.5);
                     const fullName = buildFullName(memorial) || "Unnamed Memorial";
                     const thumb = getThumbnail(memorial);
 
-                    return (
-                      <Link
-                        key={memorial.id}
-                        href={`/memorial/${memorial.slug}`}
-                        className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                      >
-                        {thumb ? (
-                          <div className="flex h-40 w-full items-center justify-center bg-stone-100 p-4">
-  <img
-    src={thumb}
-    alt={fullName}
-    className="max-h-full max-w-full rounded-2xl object-contain"
-  />
-</div>
-                        ) : (
-                          <div className="flex h-52 w-full items-center justify-center bg-stone-100 text-sm text-stone-400">
-                            No Photo Yet
-                          </div>
-                        )}
+                        return (
+  <Link
+    key={memorial.id}
+    href={`/memorial/${memorial.slug}`}
+    className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+  >
+    <div className="flex flex-col gap-5 p-6 md:flex-row md:items-stretch">
+      <div className="flex-1">
+        <h3 className="text-xl font-bold text-stone-900">
+          {fullName}
+        </h3>
 
-                        <div className="p-6">
-                          <h3 className="text-xl font-bold text-stone-900">
-                            {fullName}
-                          </h3>
+        <p className="mt-2 text-sm text-stone-600">
+          {getYear(memorial.birth_date) || "Unknown"} -{" "}
+          {getYear(memorial.death_date) || "Unknown"}
+        </p>
 
-                          <p className="mt-2 text-sm text-stone-600">
-                            {getYear(memorial.birth_date) || "Unknown"} -{" "}
-                            {getYear(memorial.death_date) || "Unknown"}
-                          </p>
+        <div className="mt-4 space-y-2 text-sm text-stone-700">
+          {memorial.cemetery_name && (
+            <p>
+              <span className="font-semibold">Cemetery:</span>{" "}
+              {memorial.cemetery_name}
+            </p>
+          )}
 
-                          <div className="mt-4 space-y-2 text-sm text-stone-700">
-                            {memorial.cemetery_name && (
-                              <p>
-                                <span className="font-semibold">Cemetery:</span>{" "}
-                                {memorial.cemetery_name}
-                              </p>
-                            )}
-                            {(memorial.city_lived || memorial.state_lived) && (
-                              <p>
-                                <span className="font-semibold">Location:</span>{" "}
-                                {[memorial.city_lived, memorial.state_lived]
-                                  .filter(Boolean)
-                                  .join(", ")}
-                              </p>
-                            )}
-                            {memorial.country_lived && (
-                              <p>
-                                <span className="font-semibold">Country:</span>{" "}
-                                {memorial.country_lived}
-                              </p>
-                            )}
-                            {memorial.schools_attended && (
-                              <p>
-                                <span className="font-semibold">School:</span>{" "}
-                                {memorial.schools_attended}
-                              </p>
-                            )}
-                            {memorial.awards_won && (
-                              <p>
-                                <span className="font-semibold">Award:</span>{" "}
-                                {memorial.awards_won}
-                              </p>
-                            )}
-                          </div>
+          {(memorial.city_lived || memorial.state_lived) && (
+            <p>
+              <span className="font-semibold">Location:</span>{" "}
+              {[memorial.city_lived, memorial.state_lived]
+                .filter(Boolean)
+                .join(", ")}
+            </p>
+          )}
 
-                          <div className="mt-5 inline-flex rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white">
-                            View Memorial
-                          </div>
-                        </div>
-                      </Link>
-                    );
+          {memorial.country_lived && (
+            <p>
+              <span className="font-semibold">Country:</span>{" "}
+              {memorial.country_lived}
+            </p>
+          )}
+
+          {memorial.schools_attended && (
+            <p>
+              <span className="font-semibold">School:</span>{" "}
+              {memorial.schools_attended}
+            </p>
+          )}
+
+          {memorial.awards_won && (
+            <p>
+              <span className="font-semibold">Award:</span>{" "}
+              {memorial.awards_won}
+            </p>
+          )}
+        </div>
+
+        <div className="mt-5 inline-flex rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white">
+          View Memorial
+        </div>
+      </div>
+
+      {thumb ? (
+        <div className="flex w-full items-center justify-center rounded-3xl bg-stone-100 p-3 md:w-[220px]">
+          <img
+            src={thumb}
+            alt={fullName}
+            className="max-h-[260px] max-w-full rounded-2xl object-contain"
+          />
+        </div>
+      ) : (
+        <div className="flex min-h-[220px] w-full items-center justify-center rounded-3xl bg-stone-100 text-sm text-stone-400 md:w-[220px]">
+          No Photo Yet
+        </div>
+      )}
+    </div>
+  </Link>
+);
                   })}
                 </div>
               )}
@@ -529,10 +535,10 @@ return [...filtered].sort(() => Math.random() - 0.5);
         </div>
 
         <SideAd
-  pageType="search"
-  memorialZip={visitorZip}
-  categorySlot={rightAdCategory}
-/>
+          pageType="search"
+          memorialZip={visitorZip}
+          categorySlot={rightAdCategory}
+        />
       </div>
     </main>
   );
