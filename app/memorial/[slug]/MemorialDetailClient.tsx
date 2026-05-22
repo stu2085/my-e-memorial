@@ -932,7 +932,9 @@ function showNextPhoto() {
     ? `${data.first_name}'s Favorite Songs`
     : "Favorite Songs"}
 </h2>
-
+<p className="mt-3 text-sm text-stone-500">
+  Tap play to begin. Songs will continue automatically.
+</p>
     <div className="mt-6 space-y-6">
   {(
     data.favorite_song_urls &&
