@@ -63,6 +63,56 @@ export async function generateMetadata({
   };
 }
 
-export default function Page() {
-  return <MemorialDetailClient />;
+export default async function Page({ params }: PageProps) {
+  const { slug } = await params;
+
+  const { data } = await supabaseServer
+    .from("memorials")
+    .select(
+      "slug, full_name, first_name, middle_name, last_name, birth_date, death_date, obituary, life_story, featured_photo_url, headstone_photo_1, is_published"
+    )
+    .eq("slug", slug)
+    .maybeSingle();
+
+  const name = data?.full_name || "Memorial";
+  const url = `https://www.myememorial.com/memorial/${slug}`;
+
+  const structuredData =
+    data && data.is_published !== false
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Person",
+          name,
+          givenName: data.first_name || undefined,
+          additionalName: data.middle_name || undefined,
+          familyName: data.last_name || undefined,
+          birthDate: data.birth_date || undefined,
+          deathDate: data.death_date || undefined,
+          description:
+            data.obituary ||
+            data.life_story ||
+            `Memorial page for ${name}`,
+          image:
+            data.featured_photo_url ||
+            data.headstone_photo_1 ||
+            undefined,
+          url,
+        }
+      : null;
+
+  return (
+    <>
+      {structuredData && (
+        <script
+          id="memorial-structured-data"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData),
+          }}
+        />
+      )}
+
+      <MemorialDetailClient />
+    </>
+  );
 }
