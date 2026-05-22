@@ -1716,14 +1716,13 @@ const projectedTotal =
 />
 
 <p className="mt-2 text-xs text-stone-500">
-  <a
+  <Link
     href="/how-to-add-music"
     target="_blank"
-    rel="noopener noreferrer"
     className="font-semibold text-stone-700 underline hover:text-stone-900"
   >
     Need help recording music from your phone?
-  </a>
+  </Link>
 </p>
                         
                       </div>
