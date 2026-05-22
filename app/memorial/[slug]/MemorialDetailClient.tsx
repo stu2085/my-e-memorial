@@ -141,6 +141,7 @@ const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [wasMusicPlayingBeforeVideo, setWasMusicPlayingBeforeVideo] = useState(false);
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
+  const songAudioRefs = useRef<(HTMLAudioElement | null)[]>([]);
   const touchStartXRef = useRef<number | null>(null);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
 const [copied, setCopied] = useState(false);
@@ -517,6 +518,13 @@ useEffect(() => {
         ? 0
         : currentIndex + 1;
     });
+    useEffect(() => {
+  const audio = songAudioRefs.current[currentSongIndex];
+
+  if (audio) {
+    audio.play().catch(() => {});
+  }
+}, [currentSongIndex]);
 
     setPhotoFadeKey((current) => current + 1);
   }, 4000);
@@ -939,10 +947,15 @@ function showNextPhoto() {
       className="rounded-3xl border border-stone-200 bg-stone-50 p-5"
     >
      <audio
-  ref={index === currentSongIndex ? backgroundAudioRef : null}
+  ref={(element) => {
+    songAudioRefs.current[index] = element;
+
+    if (index === currentSongIndex) {
+      backgroundAudioRef.current = element;
+    }
+  }}
   controls
   preload="auto"
-  autoPlay={index === currentSongIndex}
   className="w-full"
   src={song}
   onPlay={() => {
@@ -950,8 +963,7 @@ function showNextPhoto() {
   }}
   onEnded={() => {
     const songs =
-      data.favorite_song_urls &&
-      data.favorite_song_urls.length > 0
+      data.favorite_song_urls && data.favorite_song_urls.length > 0
         ? data.favorite_song_urls
         : data.favorite_song_url
           ? [data.favorite_song_url]
