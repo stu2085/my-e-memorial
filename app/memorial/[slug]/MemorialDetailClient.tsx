@@ -836,7 +836,7 @@ function showNextPhoto() {
       <img
         src={data.featured_photo_url}
         alt={data.full_name || "Memorial photo"}
-        className="h-[240px] w-[240px] rounded-[28px] object-cover shadow-xl ring-1 ring-stone-200"
+        className="h-[240px] w-[240px] rounded-[28px] object-contain bg-stone-100 p-2 shadow-xl ring-1 ring-stone-200"
       />
    )}
 
