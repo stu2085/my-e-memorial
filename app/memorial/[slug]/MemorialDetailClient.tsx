@@ -962,15 +962,12 @@ function showNextPhoto() {
     setCurrentSongIndex(index);
   }}
   onEnded={() => {
-    const songs =
-      data.favorite_song_urls && data.favorite_song_urls.length > 0
-        ? data.favorite_song_urls
-        : data.favorite_song_url
-          ? [data.favorite_song_url]
-          : [];
+    const nextAudio = songAudioRefs.current[index + 1];
 
-    if (index < songs.length - 1) {
+    if (nextAudio) {
       setCurrentSongIndex(index + 1);
+      nextAudio.currentTime = 0;
+      nextAudio.play().catch(() => {});
     }
   }}
 />
