@@ -56,7 +56,7 @@ export default function HowToAddMusicPage() {
 
           <p className="mt-2 text-sm leading-6 text-stone-700">
             Only upload songs, recordings, or audio files you have permission to use.
-            Personally recorded songs, hymns, prayers, and spoken tributes are often the safest choice.
+            Personally recorded songs & hymns are often the safest choice.
           </p>
         </section>
       </div>
