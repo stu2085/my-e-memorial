@@ -456,14 +456,13 @@ return [...filtered].sort(() => Math.random() - 0.5);
                         className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                       >
                         {thumb ? (
-                          <div
-                            className="h-52 w-full bg-stone-200"
-                            style={{
-                              backgroundImage: `url('${thumb}')`,
-                              backgroundSize: "cover",
-                              backgroundPosition: "center",
-                            }}
-                          />
+                          <div className="flex h-40 w-full items-center justify-center bg-stone-100 p-4">
+  <img
+    src={thumb}
+    alt={fullName}
+    className="max-h-full max-w-full rounded-2xl object-contain"
+  />
+</div>
                         ) : (
                           <div className="flex h-52 w-full items-center justify-center bg-stone-100 text-sm text-stone-400">
                             No Photo Yet
