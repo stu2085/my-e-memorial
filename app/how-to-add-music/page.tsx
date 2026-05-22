@@ -28,7 +28,7 @@ export default function HowToAddMusicPage() {
           <ul className="list-disc space-y-2 pl-6 text-stone-700">
             <li>Upload an MP3, M4A, AAC, or WAV audio file.</li>
             <li>iPhone Voice Memos usually create M4A files.</li>
-            <li>Phone-recorded songs, hymns, prayers, or tributes can be uploaded.</li>
+            <li>Phone-recorded songs or hymns can be uploaded.</li>
             <li>For best results, keep recordings clear and avoid background noise.</li>
           </ul>
         </section>
@@ -41,7 +41,7 @@ export default function HowToAddMusicPage() {
           <ol className="list-decimal space-y-2 pl-6 text-stone-700">
             <li>Open the Voice Memos app.</li>
             <li>Tap the red record button.</li>
-            <li>Record the song, prayer, or message.</li>
+            <li>Record the song.</li>
             <li>Tap Done when finished.</li>
             <li>Tap the recording, then tap Share.</li>
             <li>Email it to yourself or save it to Files.</li>
