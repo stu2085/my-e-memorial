@@ -1624,7 +1624,9 @@ const projectedTotal =
                         <label className="mb-2 block text-sm font-medium text-stone-700">
                           Upload Music File
                         </label>
-
+<p className="mb-3 text-sm text-stone-500">
+  Upload MP3, M4A, AAC, or WAV audio files. Most phone recordings are supported.
+</p>
                         {(form.favoriteSongUrls?.length > 0 || form.favoriteSongUrl) && (
   <div className="mb-4 space-y-3">
     {(form.favoriteSongUrls?.length > 0
@@ -1702,16 +1704,28 @@ const projectedTotal =
   </div>
 )}
 
-                        <input
+                       <input
   type="file"
-  accept="audio/*"
+  accept=".mp3,.m4a,.aac,.wav,audio/*"
   multiple
-                          onChange={(e) => {
-  const files = Array.from(e.target.files || []).slice(0, 5);
-  setFavoriteSongFiles(files);
-}}
-                          className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
-                        />
+  onChange={(e) => {
+    const files = Array.from(e.target.files || []).slice(0, 5);
+    setFavoriteSongFiles(files);
+  }}
+  className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+/>
+
+<p className="mt-2 text-xs text-stone-500">
+  <a
+    href="/how-to-add-music"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="font-semibold text-stone-700 underline hover:text-stone-900"
+  >
+    Need help recording music from your phone?
+  </a>
+</p>
+                        
                       </div>
                     </div>
 
