@@ -41,6 +41,8 @@ grandparentsFatherSide: string;
 grandparentsMotherSide: string;
 parentsNames: string;
 siblingsNames: string;
+childrenNames: string;
+grandchildrenNames: string;
   obituary: string;
   obituaryUrl: string;
   lifeStory: string;
@@ -106,6 +108,8 @@ grandparentsFatherSide: "",
 grandparentsMotherSide: "",
 parentsNames: "",
 siblingsNames: "",
+childrenNames: "",
+grandchildrenNames: "",
   obituary: "",
   obituaryUrl: "",
   lifeStory: "",
@@ -554,6 +558,8 @@ grandparentsFatherSide: data.grandparents_father_side ?? "",
 grandparentsMotherSide: data.grandparents_mother_side ?? "",
 parentsNames: data.parents_names ?? "",
 siblingsNames: data.siblings_names ?? "",
+childrenNames: data.children_names || "",
+grandchildrenNames: data.grandchildren_names || "",
         obituary: data.obituary ?? "",
         obituaryUrl: data.obituary_url ?? "",
         lifeStory: data.life_story ?? "",
@@ -905,6 +911,8 @@ grandparents_father_side: form.grandparentsFatherSide,
 grandparents_mother_side: form.grandparentsMotherSide,
 parents_names: form.parentsNames,
 siblings_names: form.siblingsNames,
+children_names: form.childrenNames,
+grandchildren_names: form.grandchildrenNames,
         obituary: form.obituary,
         obituary_url: form.obituaryUrl,
         life_story: form.lifeStory,
@@ -1950,12 +1958,31 @@ Naples, Florida`}
     />
 
     <TextArea
-      label="Siblings Names"
+      label="Parent's Siblings Names"
       name="siblingsNames"
       value={form.siblingsNames}
       onChange={handleChange}
       rows={3}
+      placeholder={`Mother's siblings:\nFather's siblings:`}
     />
+    <TextArea
+  label="Parent's Children's Names"
+  name="childrenNames"
+  value={form.childrenNames}
+  onChange={handleChange}
+  rows={3}
+/>
+
+<TextArea
+  label="Grandchildren"
+  name="grandchildrenNames"
+  value={form.grandchildrenNames}
+  onChange={handleChange}
+  rows={3}
+/>
+    
+  
+
   </div>
   <QuickSaveButton isSaving={isSaving} />
 </FormSection>
@@ -2868,8 +2895,9 @@ function TextArea({
   name,
   value,
   onChange,
-  rows = 5,
+  rows = 4,
   helpText,
+  placeholder,
 }: {
   label: string;
   name: keyof MemorialForm;
@@ -2877,6 +2905,7 @@ function TextArea({
   onChange: ChangeHandler;
   rows?: number;
   helpText?: string;
+  placeholder?: string;
 }) {
   return (
     <div>
@@ -2888,6 +2917,7 @@ function TextArea({
         value={value}
         onChange={onChange}
         rows={rows}
+        placeholder={placeholder}
         className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
       />
       {helpText && <p className="mt-2 text-sm text-stone-500">{helpText}</p>}

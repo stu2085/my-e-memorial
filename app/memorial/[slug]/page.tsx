@@ -32,6 +32,8 @@ grandparents_father_side?: string;
 grandparents_mother_side?: string;
 parents_names?: string;
 siblings_names?: string;
+children_names?: string | null;
+grandchildren_names?: string | null;
   final_resting_type?: string;
   cemetery_name?: string;
   grave_section?: string;
@@ -328,6 +330,40 @@ ogTags.forEach((tag) => {
 
   element.content = tag.content;
 });
+const existingStructuredData = document.getElementById(
+  "memorial-structured-data"
+);
+
+if (existingStructuredData) {
+  existingStructuredData.remove();
+}
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: memorialData.full_name,
+  givenName: memorialData.first_name || undefined,
+  additionalName: memorialData.middle_name || undefined,
+  familyName: memorialData.last_name || undefined,
+  birthDate: memorialData.birth_date || undefined,
+  deathDate: memorialData.death_date || undefined,
+  description:
+    memorialData.obituary ||
+    memorialData.life_story ||
+    `Memorial page for ${memorialData.full_name}`,
+  image:
+    memorialData.featured_photo_url ||
+    memorialData.headstone_photo_1 ||
+    undefined,
+  url: `${window.location.origin}/memorial/${memorialData.slug}`,
+};
+
+const script = document.createElement("script");
+script.id = "memorial-structured-data";
+script.type = "application/ld+json";
+script.text = JSON.stringify(structuredData);
+
+document.head.appendChild(script);
       if (memorialData?.id) {
   
       const { data: approvedData, error: approvedError } =
@@ -998,6 +1034,27 @@ function showNextPhoto() {
           {data.siblings_names}
         </p>
       )}
+      {data.children_names && (
+  <div>
+    <h3 className="font-semibold text-stone-800">
+      Children
+    </h3>
+    <p className="mt-1 whitespace-pre-line text-stone-700">
+      {data.children_names}
+    </p>
+  </div>
+)}
+
+{data.grandchildren_names && (
+  <div>
+    <h3 className="font-semibold text-stone-800">
+      Grandchildren
+    </h3>
+    <p className="mt-1 whitespace-pre-line text-stone-700">
+      {data.grandchildren_names}
+    </p>
+  </div>
+)}
     </div>
   </section>
 )}
