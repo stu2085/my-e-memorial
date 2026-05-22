@@ -939,11 +939,28 @@ function showNextPhoto() {
       className="rounded-3xl border border-stone-200 bg-stone-50 p-5"
     >
      <audio
+  ref={index === currentSongIndex ? backgroundAudioRef : null}
   controls
   preload="auto"
-  autoPlay={index === 0}
+  autoPlay={index === currentSongIndex}
   className="w-full"
   src={song}
+  onPlay={() => {
+    setCurrentSongIndex(index);
+  }}
+  onEnded={() => {
+    const songs =
+      data.favorite_song_urls &&
+      data.favorite_song_urls.length > 0
+        ? data.favorite_song_urls
+        : data.favorite_song_url
+          ? [data.favorite_song_url]
+          : [];
+
+    if (index < songs.length - 1) {
+      setCurrentSongIndex(index + 1);
+    }
+  }}
 />
 
       {data.favorite_song_notes?.[index] && (
