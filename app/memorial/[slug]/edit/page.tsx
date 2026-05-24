@@ -1608,11 +1608,11 @@ const projectedTotal =
   <QuickSaveButton isSaving={isSaving} />
 </FormSection>
 
-<FormSection
+<CompactFormSection
   title={form.firstName ? `${form.firstName}'s Favorite Songs` : "Favorite Songs"}
   description="Add up to 5 favorite songs and a short note about each one."
 >
-                    <div className="space-y-5">
+                    <div className="space-y-3">
                       <Input
                         label="Favorite Song URL"
                         name="favoriteSongUrl"
@@ -1624,7 +1624,7 @@ const projectedTotal =
                         <label className="mb-2 block text-sm font-medium text-stone-700">
                           Upload Music File
                         </label>
-<p className="mb-3 text-sm text-stone-500">
+<p className="mb-2 text-xs text-stone-500">
   Upload MP3, M4A, AAC, or WAV audio files. Most phone recordings are supported.
 </p>
                         {(form.favoriteSongUrls?.length > 0 || form.favoriteSongUrl) && (
@@ -1635,10 +1635,10 @@ const projectedTotal =
     ).map((song, index) => (
       <div
         key={`${song}-${index}`}
-        className="rounded-2xl border border-stone-200 bg-white p-3"
+        className="rounded-xl border border-stone-200 bg-white p-2"
       >
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <p className="text-sm font-semibold text-stone-700">
+        <div className="mb-1 flex items-center justify-between gap-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-stone-600">
             Song {index + 1}
           </p>
 
@@ -1667,7 +1667,7 @@ const projectedTotal =
     };
   });
 }}
-            className="rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+            className="rounded-full border border-red-300 px-2 py-0.5 text-[11px] font-semibold text-red-600 hover:bg-red-50"
           >
             Delete Song
           </button>
@@ -1695,9 +1695,9 @@ const projectedTotal =
       };
     });
   }}
-  rows={3}
+  rows={2}
   placeholder="What was special about this song?"
- className="mt-3 block min-h-[90px] w-full rounded-2xl border-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-stone-900"
+ className="mt-2 block w-full rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-stone-900"
 />
       </div>
     ))}
@@ -1712,7 +1712,7 @@ const projectedTotal =
     const files = Array.from(e.target.files || []).slice(0, 5);
     setFavoriteSongFiles(files);
   }}
-  className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+  className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
 />
 
 <p className="mt-2 text-xs text-stone-500">
@@ -1729,7 +1729,7 @@ const projectedTotal =
                     </div>
 
                     <QuickSaveButton isSaving={isSaving} />
-                  </FormSection>
+                  </CompactFormSection>
 
                   
 
@@ -2862,6 +2862,34 @@ function FormSection({
         </h2>
         {description && (
           <p className="mt-2 leading-7 text-stone-600">{description}</p>
+        )}
+      </div>
+
+      {children}
+    </section>
+  );
+}
+
+
+function CompactFormSection({
+  title,
+  description,
+  children,
+}: {
+  title: React.ReactNode;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-[1.25rem] border border-stone-200/80 bg-stone-50/70 p-4 transition hover:shadow-sm md:p-5">
+      <div className="mb-3">
+        <h2 className="text-xl font-bold tracking-tight text-stone-900">
+          {title}
+        </h2>
+        {description && (
+          <p className="mt-1 text-sm leading-6 text-stone-600">
+            {description}
+          </p>
         )}
       </div>
 

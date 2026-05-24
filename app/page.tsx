@@ -79,7 +79,7 @@ useEffect(() => {
                 </p>
 
                 <p className="mx-auto mt-4 max-w-3xl text-sm leading-6 text-stone-100 md:text-base">
-                  A place for lasting memorials with photos, videos, favorite song and life story for today's friends, families and future generations.
+                  A place for lasting memorials with photos, videos, loved one's favorite songs and life stories for today's friends, families and future generations.
                 </p>
 
                 <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
@@ -147,7 +147,7 @@ useEffect(() => {
                   Preserve a life
                 </h2>
                 <p className="mt-2 text-sm leading-5 text-stone-600">
-                  Create a lasting memorial with biography, obituary, cemetery details, photos, videos, and personal memories.
+                  Create a lasting memorial with biography, photos, videos, favorite songs, personal memories, cemetery details & obituary.
                 </p>
               </div>
 
@@ -201,8 +201,8 @@ useEffect(() => {
                     price="$99"
                     items={[
   "Up to 50 photos",
-  "Up to 2 videos",
-  "Background music",
+  "Up to 2 ten minute videos",
+  "Favorite music",
   "Life story & obituary",
   "Cemetery map",
   "Contributor approval",
@@ -217,8 +217,8 @@ useEffect(() => {
                     items={[
                       "Everything in Basic",
                       "Up to 150 photos",
-                      "Up to 5 videos",
-                      "Contributor approval",
+                      "Up to 5 ten minute videos",
+                      
                     ]}
                   />
 
@@ -228,14 +228,14 @@ useEffect(() => {
                     items={[
                       "Everything in Plus",
                       "Unlimited photos",
-                      "Up to 10 videos",
+                      "Up to 10 ten minutevideos",
                       "Best for larger families",
                     ]}
                   />
                 </div>
 
                 <p className="mt-4 text-center text-sm text-stone-500">
-                  Contributors can add photos and text for free, subject to memorial owner approval.
+                  One time fee.  No subscriptions.  Contributors can add photos and text for free, subject to memorial owner approval.
                 </p>
               </div>
             </section>
