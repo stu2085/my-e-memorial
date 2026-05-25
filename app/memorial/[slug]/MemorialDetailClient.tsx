@@ -790,7 +790,7 @@ function showNextPhoto() {
 />
 
     <div className="space-y-10">
-        <section className="rounded-3xl bg-white p-8 shadow-sm">
+        <section className="rounded-2xl bg-white p-5 shadow-sm">
 {isOwner && (
   <div
     className={`mb-6 rounded-2xl border px-5 py-4 text-sm font-semibold ${
@@ -1039,7 +1039,7 @@ function showNextPhoto() {
   data.parents_names?.trim() ||
   data.siblings_names?.trim()
 ) && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Family History</h2>
 
     <div className="mt-5 space-y-4 text-stone-700">
@@ -1103,7 +1103,7 @@ function showNextPhoto() {
 )}
 </section>
 {data.places_lived?.trim() && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm>
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Places Lived
     </h2>
@@ -1120,7 +1120,7 @@ function showNextPhoto() {
   data.social_link_4 ||
   data.social_link_5
 ) && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Social Media
     </h2>
@@ -1194,7 +1194,7 @@ function showNextPhoto() {
   </section>
 )}
 {(data.schools_attended || data.awards_won) && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Schools and Awards</h2>
     <div className="mt-5 space-y-3 text-stone-700">
       {data.schools_attended && (
@@ -1208,7 +1208,7 @@ function showNextPhoto() {
 )}
 
 {data.life_story?.trim() && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
   Life Story
 </h2>
@@ -1264,7 +1264,7 @@ function showNextPhoto() {
   </section>
 )}
 {newspaperArticles.length > 0 && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Newspaper Articles
     </h2>
@@ -1286,7 +1286,7 @@ function showNextPhoto() {
 )}
 
 {videoUrls.length > 0 && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Memorial Videos</h2>
     <div className="mt-6 grid gap-6 md:grid-cols-2">
       {videoUrls.map((videoId, index) => (
@@ -1318,7 +1318,7 @@ function showNextPhoto() {
 
 
 {(data.headstone_photo_1 || data.headstone_photo_2) && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Headstone Photos</h2>
     <div className="mt-6 grid gap-4 md:grid-cols-2">
       {data.headstone_photo_1 && <img src={data.headstone_photo_1} alt="Headstone photo 1" className="w-full rounded-2xl object-cover shadow-sm" />}
@@ -1328,7 +1328,7 @@ function showNextPhoto() {
 )}
 
 {approvedSubmissions.length > 0 && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-3xl bg-white p-8 shadow-srounded-2xl bg-white p-5 shadow-sm">
     <div>
   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">
     Shared By Family & Friends
@@ -1571,7 +1571,7 @@ function showNextPhoto() {
   
 </section>   
 {(data.obituary || data.obituary_url) && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-3xl bg-white p-8 shadow-s">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary</h2>
     {data.obituary && <p className="mt-4 whitespace-pre-line text-stone-700">{data.obituary}</p>}
     {data.obituary_url && (
@@ -1582,7 +1582,7 @@ function showNextPhoto() {
   </section>
 )}     
         {hasFinalRestingPlace ? (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Final Resting Place
     </h2>
@@ -1636,7 +1636,7 @@ function showNextPhoto() {
     )}
   </section>
 ) : (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Final Resting Place
     </h2>
