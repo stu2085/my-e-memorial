@@ -1556,7 +1556,9 @@ function showNextPhoto() {
       </button>
     </div>
   )}
-  {(data.obituary || data.obituary_url) && (
+  
+</section>   
+{(data.obituary || data.obituary_url) && (
   <section className="rounded-3xl bg-white p-8 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary</h2>
     {data.obituary && <p className="mt-4 whitespace-pre-line text-stone-700">{data.obituary}</p>}
@@ -1566,8 +1568,7 @@ function showNextPhoto() {
       </a>
     )}
   </section>
-)}
-</section>        
+)}     
         {hasFinalRestingPlace ? (
   <section className="rounded-3xl bg-white p-8 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
