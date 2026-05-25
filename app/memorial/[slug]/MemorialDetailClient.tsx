@@ -135,7 +135,7 @@ export default function MemorialDetailClient() {
 const [error, setError] = useState("");
   const [data, setData] = useState<Memorial | null>(null);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
-
+const [showFavoriteSongs, setShowFavoriteSongs] = useState(false);
   
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -927,62 +927,77 @@ function showNextPhoto() {
 {(data.favorite_song_url ||
   (data.favorite_song_urls && data.favorite_song_urls.length > 0)) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-  {data.first_name
-    ? `${data.first_name}'s Favorite Songs`
-    : "Favorite Songs"}
-</h2>
-<p className="mt-1 text-xs text-stone-500">
-  Tap play to begin. Songs will continue automatically.
-</p>
-    <div className="mt-4 space-y-2">
-  {(
-    data.favorite_song_urls &&
-    data.favorite_song_urls.length > 0
-      ? data.favorite_song_urls
-      : data.favorite_song_url
-        ? [data.favorite_song_url]
-        : []
-  ).map((song, index) => (
-    <div
-      key={`${song}-${index}`}
-      className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2"
+    <button
+      type="button"
+      onClick={() => setShowFavoriteSongs((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
     >
-     <audio
-  ref={(element) => {
-    songAudioRefs.current[index] = element;
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        {data.first_name
+          ? `${data.first_name}'s Favorite Songs`
+          : "Favorite Songs"}
+      </h2>
 
-    if (index === currentSongIndex) {
-      backgroundAudioRef.current = element;
-    }
-  }}
-  controls
-  preload="auto"
-  className="w-full"
-  src={song}
-  onPlay={() => {
-    setCurrentSongIndex(index);
-  }}
-  onEnded={() => {
-    const nextAudio = songAudioRefs.current[index + 1];
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showFavoriteSongs ? "▲" : "▼"}
+      </span>
+    </button>
 
-    if (nextAudio) {
-      setCurrentSongIndex(index + 1);
-      nextAudio.currentTime = 0;
-      nextAudio.play().catch(() => {});
-    }
-  }}
-/>
-
-      {data.favorite_song_notes?.[index] && (
-        <p className="mt-1 whitespace-pre-line text-xs leading-5 text-stone-600">
-          {data.favorite_song_notes[index]}
+    {showFavoriteSongs && (
+      <>
+        <p className="mt-2 text-xs text-stone-500">
+          Tap play to begin. Songs will continue automatically.
         </p>
-      )}
-    </div>
-  ))}
-</div>
-        
+
+        <div className="mt-4 space-y-2">
+          {(
+            data.favorite_song_urls &&
+            data.favorite_song_urls.length > 0
+              ? data.favorite_song_urls
+              : data.favorite_song_url
+                ? [data.favorite_song_url]
+                : []
+          ).map((song, index) => (
+            <div
+              key={`${song}-${index}`}
+              className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2"
+            >
+              <audio
+                ref={(element) => {
+                  songAudioRefs.current[index] = element;
+
+                  if (index === currentSongIndex) {
+                    backgroundAudioRef.current = element;
+                  }
+                }}
+                controls
+                preload="auto"
+                className="w-full"
+                src={song}
+                onPlay={() => {
+                  setCurrentSongIndex(index);
+                }}
+                onEnded={() => {
+                  const nextAudio = songAudioRefs.current[index + 1];
+
+                  if (nextAudio) {
+                    setCurrentSongIndex(index + 1);
+                    nextAudio.currentTime = 0;
+                    nextAudio.play().catch(() => {});
+                  }
+                }}
+              />
+
+              {data.favorite_song_notes?.[index] && (
+                <p className="mt-1 whitespace-pre-line text-xs leading-5 text-stone-600">
+                  {data.favorite_song_notes[index]}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </>
+    )}
   </section>
 )}
 <section className="rounded-[32px] bg-gradient-to-b from-white to-stone-50 p-10 shadow-sm">
