@@ -1343,13 +1343,14 @@ function showNextPhoto() {
   </p>
 </div>
 
-    <div className="mt-6 space-y-6">
+    <div className="mt-5 space-y-4">
       {approvedSubmissions.map((submission) => (
         <div
           key={submission.id}
-          className="rounded-3xl border border-stone-200 bg-gradient-to-b from-stone-50 to-white p-6 shadow-sm"
+          
+          
         >
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-stone-200 pb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 pb-3">
   <div>
     <p className="text-base font-semibold text-stone-900">
       {submission.submitter_name || "Anonymous Visitor"}
@@ -1370,7 +1371,7 @@ function showNextPhoto() {
            
           
 
-          <p className="mt-5 whitespace-pre-line text-[15px] leading-8 text-stone-700">
+          <p className="mt-4 whitespace-pre-line text-sm leading-7 text-stone-700">
             {submission.message}
           </p>
           {(() => {
@@ -1403,7 +1404,7 @@ function showNextPhoto() {
           <img
             src={photoUrl}
             alt={`Submitted photo ${index + 1}`}
-            className="w-full rounded-3xl object-cover shadow-md transition duration-300 hover:scale-[1.02]"
+            className="w-full rounded-2xl object-cover shadow-sm transition duration-300 hover:scale-[1.01]"
           />
         </a>
       ))}
@@ -1482,13 +1483,13 @@ function showNextPhoto() {
       Thank you. Your contribution has been submitted for review.
     </div>
   ) : (
-    <div className="mt-6 space-y-4">
+    <div className="mt-5 space-y-3">
       <input
         type="text"
         placeholder="Your Name (optional)"
         value={submitterName}
         onChange={(e) => setSubmitterName(e.target.value)}
-        className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
+        className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900"
       />
 
       <input
@@ -1503,7 +1504,7 @@ function showNextPhoto() {
         placeholder="Share a memory, story, correction, or information..."
         value={submissionMessage}
         onChange={(e) => setSubmissionMessage(e.target.value)}
-        rows={6}
+        rows={5}
         className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
       />
 <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
