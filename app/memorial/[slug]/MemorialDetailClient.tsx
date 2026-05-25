@@ -926,16 +926,16 @@ function showNextPhoto() {
 
 {(data.favorite_song_url ||
   (data.favorite_song_urls && data.favorite_song_urls.length > 0)) && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
   {data.first_name
     ? `${data.first_name}'s Favorite Songs`
     : "Favorite Songs"}
 </h2>
-<p className="mt-3 text-sm text-stone-500">
+<p className="mt-1 text-xs text-stone-500">
   Tap play to begin. Songs will continue automatically.
 </p>
-    <div className="mt-6 space-y-6">
+    <div className="mt-4 space-y-2">
   {(
     data.favorite_song_urls &&
     data.favorite_song_urls.length > 0
@@ -946,7 +946,7 @@ function showNextPhoto() {
   ).map((song, index) => (
     <div
       key={`${song}-${index}`}
-      className="rounded-3xl border border-stone-200 bg-stone-50 p-5"
+      className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2"
     >
      <audio
   ref={(element) => {
@@ -975,7 +975,7 @@ function showNextPhoto() {
 />
 
       {data.favorite_song_notes?.[index] && (
-        <p className="mt-4 whitespace-pre-line text-sm leading-7 text-stone-700">
+        <p className="mt-1 whitespace-pre-line text-xs leading-5 text-stone-600">
           {data.favorite_song_notes[index]}
         </p>
       )}
