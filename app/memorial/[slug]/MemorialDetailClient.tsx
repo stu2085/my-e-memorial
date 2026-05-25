@@ -136,7 +136,7 @@ const [error, setError] = useState("");
   const [data, setData] = useState<Memorial | null>(null);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
 const [showFavoriteSongs, setShowFavoriteSongs] = useState(false);
-  
+  const [showPhotoGallery, setShowPhotoGallery] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [wasMusicPlayingBeforeVideo, setWasMusicPlayingBeforeVideo] = useState(false);
@@ -1218,12 +1218,23 @@ function showNextPhoto() {
 
 )}
 {galleryPhotos.length > 0 && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-      Photo Gallery
-    </h2>
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <button
+      type="button"
+      onClick={() => setShowPhotoGallery((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Photo Gallery
+      </h2>
 
-    <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showPhotoGallery ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showPhotoGallery && (
+      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
       {galleryPhotos.map((photo, index) => (
         <div
           key={`${photo}-${index}`}
@@ -1248,7 +1259,8 @@ function showNextPhoto() {
           )}
         </div>
       ))}
-    </div>
+          </div>
+    )}
   </section>
 )}
 {newspaperArticles.length > 0 && (
