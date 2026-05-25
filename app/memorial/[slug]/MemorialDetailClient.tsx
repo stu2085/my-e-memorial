@@ -1682,9 +1682,17 @@ function showNextPhoto() {
         <p><strong>Disposition:</strong> Cremated</p>
       )}
       {data.cemetery_name?.trim() && (
-  <p>
-    <strong>Cemetery Name:</strong> {data.cemetery_name}
-  </p>
+  <div>
+    <p>
+      <strong>Cemetery Name:</strong> {data.cemetery_name}
+    </p>
+
+    {restingPlaceAddress && (
+      <p className="mt-1 text-sm text-stone-600">
+        {restingPlaceAddress}
+      </p>
+    )}
+  </div>
 )}
 
 {data.grave_section?.trim() && (
@@ -1730,9 +1738,7 @@ function showNextPhoto() {
     Report this memorial
   </button>
 </div>
-    {restingPlaceAddress && (
-      <p className="mt-4 text-stone-700">{restingPlaceAddress}</p>
-    )}
+    
 
     {hasGraveMap && (
       <div className="mt-6 overflow-hidden rounded-2xl">
