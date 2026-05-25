@@ -1303,17 +1303,7 @@ function showNextPhoto() {
   </section>
 )}
 
-{(data.obituary || data.obituary_url) && (
-  <section className="rounded-3xl bg-white p-8 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary</h2>
-    {data.obituary && <p className="mt-4 whitespace-pre-line text-stone-700">{data.obituary}</p>}
-    {data.obituary_url && (
-      <a href={data.obituary_url} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700">
-        View Full Obituary
-      </a>
-    )}
-  </section>
-)}
+
 
 {(data.headstone_photo_1 || data.headstone_photo_2) && (
   <section className="rounded-3xl bg-white p-8 shadow-sm">
@@ -1566,7 +1556,17 @@ function showNextPhoto() {
       </button>
     </div>
   )}
-  
+  {(data.obituary || data.obituary_url) && (
+  <section className="rounded-3xl bg-white p-8 shadow-sm">
+    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary</h2>
+    {data.obituary && <p className="mt-4 whitespace-pre-line text-stone-700">{data.obituary}</p>}
+    {data.obituary_url && (
+      <a href={data.obituary_url} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700">
+        View Full Obituary
+      </a>
+    )}
+  </section>
+)}
 </section>        
         {hasFinalRestingPlace ? (
   <section className="rounded-3xl bg-white p-8 shadow-sm">
