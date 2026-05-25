@@ -782,7 +782,7 @@ function showNextPhoto() {
   );setPhotoFadeKey((current) => current + 1);
 }
   return (
-  <main className="min-h-screen bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100 px-4 py-10">
+  <main className="min-h-screen bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100 px-2 py-6 sm:px-4 sm:py-10">
   <div className="mx-auto grid w-full max-w-[1800px] grid-cols-1 gap-6 px-4 lg:grid-cols-[460px_minmax(0,1fr)]">
     <SideAd
   memorialZip={data.map_zip}
@@ -807,11 +807,11 @@ function showNextPhoto() {
   <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start">
 
   <div className="min-w-0 flex-1">
-    <h1 className="text-4xl font-bold tracking-tight text-stone-900 md:text-5xl">
+    <h1 className="text-3xl font-bold leading-tight tracking-tight text-stone-900 sm:text-4xl md:text-5xl">
       {data.full_name || "Unnamed Memorial"}
     </h1>
 
-    <div className="mt-6 grid gap-4 text-stone-700 sm:grid-cols-2">
+    <div className="mt-4 grid gap-3 text-sm text-stone-700 sm:grid-cols-2 md:text-base">
       {data.birth_date && (
         <p>
           <strong>Born:</strong> {formatDate(data.birth_date)}
@@ -844,7 +844,7 @@ function showNextPhoto() {
       <img
         src={data.featured_photo_url}
         alt={data.full_name || "Memorial photo"}
-        className="h-[240px] w-[240px] rounded-[28px] object-contain bg-stone-100 p-2 shadow-xl ring-1 ring-stone-200"
+        className="h-[190px] w-[190px] rounded-2xl bg-stone-100 object-contain p-2 shadow-lg ring-1 ring-stone-200 sm:h-[220px] sm:w-[220px] md:h-[240px] md:w-[240px]"
       />
    )}
 
