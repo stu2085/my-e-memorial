@@ -862,45 +862,45 @@ function showNextPhoto() {
     
   </div>
 
-  <div className="flex flex-wrap gap-3">
+  <div className="flex flex-wrap gap-2">
   <button
     onClick={() => handleShare("copy")}
-    className="inline-flex items-center justify-center rounded-full bg-stone-200 px-5 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-300"
+    className="inline-flex items-center justify-center rounded-full bg-stone-200 px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-300"
   >
     {copied ? "Memorial Link Copied!" : "Copy Memorial Link"}
   </button>
 
   <button
     onClick={() => handleShare("email")}
-    className="inline-flex items-center justify-center rounded-full bg-stone-200 px-5 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-300"
+    className="inline-flex items-center justify-center rounded-full bg-stone-200 px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-300"
   >
     Email
   </button>
 
     <button
       onClick={() => handleShare("sms")}
-      className="inline-flex items-center justify-center rounded-full bg-green-600 px-5 py-3 text-sm font-semibold text-white hover:bg-green-500"
+      className="inline-flex items-center justify-center rounded-full bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-500"
     >
       Text
     </button>
 
     <button
       onClick={() => handleShare("facebook")}
-      className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500"
+      className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-500"
     >
       Facebook
     </button>
 
     <button
       onClick={() => handleShare("whatsapp")}
-      className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-500"
+      className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
     >
       WhatsApp
     </button>
 
     <button
       onClick={() => handleShare("twitter")}
-      className="inline-flex items-center justify-center rounded-full bg-black px-5 py-3 text-sm font-semibold text-white hover:bg-stone-800"
+      className="inline-flex items-center justify-center rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-stone-800"
     >
       X
     </button>
@@ -1000,7 +1000,7 @@ function showNextPhoto() {
     )}
   </section>
 )}
-<section className="rounded-[32px] bg-gradient-to-b from-white to-stone-50 p-10 shadow-sm">
+<section className="rounded-2xl bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm">
   <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Basic Information</h2>
 
   <div className="mt-5 grid gap-3 text-stone-700 sm:grid-cols-2">
@@ -1103,7 +1103,7 @@ function showNextPhoto() {
 )}
 </section>
 {data.places_lived?.trim() && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm>
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Places Lived
     </h2>
@@ -1328,7 +1328,7 @@ function showNextPhoto() {
 )}
 
 {approvedSubmissions.length > 0 && (
-  <section className="rounded-3xl bg-white p-8 shadow-srounded-2xl bg-white p-5 shadow-sm">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <div>
   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">
     Shared By Family & Friends
@@ -1571,7 +1571,7 @@ function showNextPhoto() {
   
 </section>   
 {(data.obituary || data.obituary_url) && (
-  <section className="rounded-3xl bg-white p-8 shadow-s">
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary</h2>
     {data.obituary && <p className="mt-4 whitespace-pre-line text-stone-700">{data.obituary}</p>}
     {data.obituary_url && (
@@ -1594,6 +1594,29 @@ function showNextPhoto() {
       {isCremated && (
         <p><strong>Disposition:</strong> Cremated</p>
       )}
+      {data.cemetery_name?.trim() && (
+  <p>
+    <strong>Cemetery Name:</strong> {data.cemetery_name}
+  </p>
+)}
+
+{data.grave_section?.trim() && (
+  <p>
+    <strong>Section:</strong> {data.grave_section}
+  </p>
+)}
+
+{data.grave_row?.trim() && (
+  <p>
+    <strong>Row:</strong> {data.grave_row}
+  </p>
+)}
+
+{data.grave_plot?.trim() && (
+  <p>
+    <strong>Plot:</strong> {data.grave_plot}
+  </p>
+)}
     </div>
 {data.updated_at && (
   <div className="pb-4 pt-2 text-center text-xs text-stone-500">
