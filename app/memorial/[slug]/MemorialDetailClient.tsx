@@ -804,10 +804,10 @@ function showNextPhoto() {
       : "This memorial is currently unpublished and only visible to you and your backup person."}
   </div>
 )}
-  <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+  <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start">
 
   <div className="min-w-0 flex-1">
-    <h1 className="text-5xl font-bold tracking-tight text-stone-900">
+    <h1 className="text-4xl font-bold tracking-tight text-stone-900 md:text-5xl">
       {data.full_name || "Unnamed Memorial"}
     </h1>
 
@@ -838,7 +838,7 @@ function showNextPhoto() {
     </div>
   </div>
 
-  <div className="ml-auto flex shrink-0 flex-col items-center gap-4 lg:items-end">
+  <div className="flex flex-col items-center gap-4 lg:items-end">
 
     {data.featured_photo_url && (
       <img
