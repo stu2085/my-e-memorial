@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import SideAd from "../components/SideAd";
 import { supabase } from "../lib/supabase";
 import dynamic from "next/dynamic";
-
+import { famousNames } from "../lib/famousNames";
 const GraveLocationMap = dynamic(
   () => import("../components/GraveLocationMap"),
   { ssr: false }
@@ -640,17 +640,23 @@ if (featuredPhoto) {
       }
 
       const fullName = [
-        form.firstName,
-        form.middleName,
-        form.lastName,
-        form.maidenName ? `(${form.maidenName})` : "",
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .replace(/\s+/g, " ")
-        .trim();
+  form.firstName,
+  form.middleName,
+  form.lastName,
+  form.maidenName ? `(${form.maidenName})` : "",
+]
+  .filter(Boolean)
+  .join(" ")
+  .replace(/\s+/g, " ")
+  .trim();
 
-      const {
+const normalizedName = `${form.firstName} ${form.lastName}`
+  .trim()
+  .toLowerCase();
+
+const requiresReview = famousNames.includes(normalizedName);
+
+const {
   data: { user: authUser },
   error: authError,
 } = await supabase.auth.getUser();
@@ -716,7 +722,9 @@ creator_zip: form.creatorZip,
           gender: form.gender,
           plan: selectedPlan,
           is_living_preplan: form.isLivingPreplan,
-          is_published: form.isLivingPreplan ? false : true,
+          is_published:
+  form.isLivingPreplan || requiresReview ? false : true,
+  needs_review: requiresReview,
           birth_date: form.birthDate || null,
           death_date: form.deathDate || null,
           obituary: form.obituary,
@@ -798,6 +806,12 @@ setGalleryPhotos([]);
 setFavoriteSongFile(null);
 setVideoFiles([]);
 setVideoError("");
+
+if (requiresReview) {
+  alert(
+    "This memorial requires review before publication."
+  );
+}
 
 window.location.assign(`/memorial/${slug}`);
       return;

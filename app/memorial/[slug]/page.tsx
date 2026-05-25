@@ -50,6 +50,10 @@ export async function generateMetadata({
   return {
     title: `${name} Memorial | MyEMemorial`,
     description,
+    robots: {
+  index: true,
+  follow: true,
+},
     alternates: {
       canonical: url,
     },

@@ -179,11 +179,97 @@ useEffect(() => {
                 </h2>
 
                 <p className="mt-3 text-sm leading-6 text-stone-600 md:text-base">
-                  MyEMemorial helps families preserve the stories, places, photos, and memories that make a life worth remembering.
+                  MyEMemorial helps families preserve the stories, places, family members, music, photos, and memories that make a life worth remembering.
                 </p>
               </div>
             </section>
+<section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
+  <div className="mx-auto max-w-6xl">
+    <div className="text-center">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+        Built for families
+      </p>
+      <h2 className="mt-2 text-xl font-bold text-stone-900 md:text-2xl">
+        A memorial your family controls
+      </h2>
+      <p className="mx-auto mt-3 max-w-3xl text-sm leading-6 text-stone-600 md:text-base">
+        MyEMemorial gives families a respectful place to preserve memories, approve contributions,
+        and keep a loved one’s memories alive for future generations.
+      </p>
+    </div>
 
+    <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5 text-center">
+        <div className="text-2xl">🔒</div>
+        <h3 className="mt-3 text-base font-bold text-stone-900">
+          Family-controlled edits
+        </h3>
+        <p className="mt-2 text-sm leading-5 text-stone-600">
+          Memorial owners manage updates, photos, videos, music, obituary details, and family history.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5 text-center">
+        <div className="text-2xl">✅</div>
+        <h3 className="mt-3 text-base font-bold text-stone-900">
+          Contributor approval
+        </h3>
+        <p className="mt-2 text-sm leading-5 text-stone-600">
+          Friends and relatives can submit memories, but families approve contributions before they appear publicly.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5 text-center">
+        <div className="text-2xl">🕯️</div>
+        <h3 className="mt-3 text-base font-bold text-stone-900">
+          Built to preserve memories
+        </h3>
+        <p className="mt-2 text-sm leading-5 text-stone-600">
+          Photos, videos, stories, songs, cemetery details, and family history can be saved in one lasting memorial.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+<div className="mt-6 rounded-2xl border border-stone-200 bg-stone-50 p-5 md:p-6">
+  <div className="grid gap-4 text-center md:grid-cols-4">
+    <div>
+      <p className="text-2xl font-bold text-stone-900">
+        One-Time
+      </p>
+      <p className="mt-1 text-sm text-stone-600">
+        No subscription fees
+      </p>
+    </div>
+
+    <div>
+  <p className="text-2xl font-bold text-stone-900">
+    Family Guided
+  </p>
+  <p className="mt-1 text-sm text-stone-600">
+    Family-controlled memorial updates
+  </p>
+</div>
+
+    <div>
+      <p className="text-2xl font-bold text-stone-900">
+        Secure
+      </p>
+      <p className="mt-1 text-sm text-stone-600">
+        Contributor approval before publishing
+      </p>
+    </div>
+
+    <div>
+      <p className="text-2xl font-bold text-stone-900">
+        Lasting
+      </p>
+      <p className="mt-1 text-sm text-stone-600">
+        Preserve stories, photos, videos, and memories
+      </p>
+    </div>
+  </div>
+</div>
             <section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-7">
               <div className="mx-auto max-w-7xl">
                 <div className="text-center">
@@ -228,18 +314,126 @@ useEffect(() => {
                     items={[
                       "Everything in Plus",
                       "Unlimited photos",
-                      "Up to 10 ten minutevideos",
+                      "Up to 10 ten minute videos",
                       "Best for larger families",
                     ]}
                   />
                 </div>
 
-                <p className="mt-4 text-center text-sm text-stone-500">
-                  One time fee.  No subscriptions.  Contributors can add photos and text for free, subject to memorial owner approval.
-                </p>
+                <p className="mt-4 text-center text-sm leading-6 text-stone-500">
+  One-time payment. No recurring subscription fees.
+  <br />
+  Families maintain control through contributor approval.
+  <br />
+  Memorial owners control updates, photos, videos, and public contributions.
+</p>
               </div>
-            </section>
+   <section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
+  <div className="text-center">
+    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+      Memorial Experience
+    </p>
 
+    <h2 className="mt-2 text-xl font-bold text-stone-900 md:text-2xl">
+      Preserve memories in one meaningful place
+    </h2>
+
+    <p className="mx-auto mt-3 max-w-3xl text-sm leading-6 text-stone-600 md:text-base">
+      Memorials can include photographs, videos, favorite music, obituary information,
+      cemetery locations, family history, and stories shared by loved ones.
+    </p>
+  </div>
+
+  <div className="mt-8 grid gap-5 md:grid-cols-3">
+    <div className="overflow-hidden rounded-3xl border border-stone-200 bg-stone-50 shadow-sm">
+      <div className="h-44 bg-[url('/memorial-preview-1.jpg')] bg-cover bg-center" />
+      <div className="p-5">
+        <h3 className="text-base font-bold text-stone-900">
+          Photo Galleries
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Preserve family photographs, milestones, and cherished memories.
+        </p>
+      </div>
+    </div>
+
+    <div className="overflow-hidden rounded-3xl border border-stone-200 bg-stone-50 shadow-sm">
+      <div className="h-44 bg-[url('/memorial-preview-2.jpg')] bg-cover bg-center" />
+      <div className="p-5">
+        <h3 className="text-base font-bold text-stone-900">
+          Videos & Stories
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Save personal stories, celebrations, voices, and important life moments.
+        </p>
+      </div>
+    </div>
+
+    <div className="overflow-hidden rounded-3xl border border-stone-200 bg-stone-50 shadow-sm">
+      <div className="h-44 bg-[url('/memorial-preview-3.jpg')] bg-cover bg-center" />
+      <div className="p-5">
+        <h3 className="text-base font-bold text-stone-900">
+          Family Legacy
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Help future generations remember family history, relationships, and life stories.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>           
+            </section>
+<section className="overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-stone-800 via-stone-900 to-black px-6 py-8 text-white shadow-sm md:px-10">
+  <div className="mx-auto max-w-4xl text-center">
+    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-300">
+      Why MyEMemorial
+    </p>
+
+    <h2 className="mt-3 text-2xl font-bold leading-tight md:text-3xl">
+      A life deserves more than a fading stone.
+    </h2>
+
+    <p className="mt-5 text-sm leading-7 text-stone-300 md:text-base">
+      Every person leaves behind stories, memories, photographs, voices,
+      relationships, and moments that deserve to be remembered.
+    </p>
+
+    <p className="mt-4 text-sm leading-7 text-stone-300 md:text-base">
+      MyEMemorial was created to help families preserve those memories for
+      children, grandchildren, and future generations in one respectful place.
+    </p>
+  </div>
+</section>
+<section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-7">
+  <div className="grid gap-6 text-center md:grid-cols-3">
+    <div>
+      <p className="text-3xl font-bold text-stone-900">
+        Photos
+      </p>
+      <p className="mt-2 text-sm text-stone-600">
+        Preserve family photographs and important moments.
+      </p>
+    </div>
+
+    <div>
+      <p className="text-3xl font-bold text-stone-900">
+        Videos
+      </p>
+      <p className="mt-2 text-sm text-stone-600">
+        Save stories, voices, celebrations, and memories that would otherwise fade over time.
+      </p>
+    </div>
+
+    <div>
+      <p className="text-3xl font-bold text-stone-900">
+        Family History
+      </p>
+      <p className="mt-2 text-sm text-stone-600">
+        Help future generations understand where they came from and who came before them.
+      </p>
+    </div>
+  </div>
+</section>
             <section className="rounded-[1.5rem] bg-stone-900 px-6 py-7 text-white shadow-sm md:px-8">
   <div className="flex flex-col gap-6 text-center md:text-left">
     <div className="max-w-2xl">
