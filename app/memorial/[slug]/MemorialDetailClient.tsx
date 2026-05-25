@@ -137,6 +137,12 @@ const [error, setError] = useState("");
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
 const [showFavoriteSongs, setShowFavoriteSongs] = useState(false);
   const [showPhotoGallery, setShowPhotoGallery] = useState(false);
+  const [showMemorialVideos, setShowMemorialVideos] = useState(false);
+  const [showHeadstonePhotos, setShowHeadstonePhotos] = useState(false);
+  const [showNewspaperArticles, setShowNewspaperArticles] = useState(false);
+  const [showSocialMedia, setShowSocialMedia] = useState(false);
+  const [showSchoolsAwards, setShowSchoolsAwards] = useState(false);
+  const [showPlacesLived, setShowPlacesLived] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [wasMusicPlayingBeforeVideo, setWasMusicPlayingBeforeVideo] = useState(false);
@@ -1104,13 +1110,25 @@ function showNextPhoto() {
 </section>
 {data.places_lived?.trim() && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-      Places Lived
-    </h2>
+    <button
+      type="button"
+      onClick={() => setShowPlacesLived((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Places Lived
+      </h2>
 
-    <div className="mt-5 whitespace-pre-line text-stone-700">
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showPlacesLived ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showPlacesLived && (
+      <div className="mt-5 whitespace-pre-line text-stone-700">
       {data.places_lived}
-    </div>
+      </div>
+    )}
   </section>
 )}
 {(
@@ -1121,11 +1139,22 @@ function showNextPhoto() {
   data.social_link_5
 ) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-      Social Media
-    </h2>
+    <button
+      type="button"
+      onClick={() => setShowSocialMedia((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Social Media
+      </h2>
 
-    <div className="mt-6 flex flex-col gap-3">
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showSocialMedia ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showSocialMedia && (
+      <div className="mt-5 flex flex-col gap-3">
       {data.social_link_1 && (
         <a
           href={data.social_link_1.startsWith("http")
@@ -1190,20 +1219,36 @@ function showNextPhoto() {
           Social Media Link 5
         </a>
       )}
-    </div>
+      </div>
+    )}
   </section>
 )}
 {(data.schools_attended || data.awards_won) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Schools and Awards</h2>
-    <div className="mt-5 space-y-3 text-stone-700">
+    <button
+      type="button"
+      onClick={() => setShowSchoolsAwards((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Schools and Awards
+      </h2>
+
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showSchoolsAwards ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showSchoolsAwards && (
+      <div className="mt-5 space-y-3 text-stone-700">
       {data.schools_attended && (
         <p><strong>Schools:</strong> {Array.isArray(data.schools_attended) ? data.schools_attended.join(", ") : data.schools_attended}</p>
       )}
       {data.awards_won && (
         <p><strong>Awards:</strong> {Array.isArray(data.awards_won) ? data.awards_won.join(", ") : data.awards_won}</p>
       )}
-    </div>
+      </div>
+    )}
   </section>
 )}
 
@@ -1265,11 +1310,22 @@ function showNextPhoto() {
 )}
 {newspaperArticles.length > 0 && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-      Newspaper Articles
-    </h2>
+    <button
+      type="button"
+      onClick={() => setShowNewspaperArticles((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Newspaper Articles
+      </h2>
 
-    <div className="mt-6 space-y-3">
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showNewspaperArticles ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showNewspaperArticles && (
+      <div className="mt-5 space-y-3">
       {newspaperArticles.map((article, index) => (
         <a
           key={`${article}-${index}`}
@@ -1281,14 +1337,29 @@ function showNextPhoto() {
           View Newspaper Article {index + 1}
         </a>
       ))}
-    </div>
+      </div>
+    )}
   </section>
 )}
 
 {videoUrls.length > 0 && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Memorial Videos</h2>
-    <div className="mt-6 grid gap-6 md:grid-cols-2">
+    <button
+      type="button"
+      onClick={() => setShowMemorialVideos((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Memorial Videos
+      </h2>
+
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showMemorialVideos ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showMemorialVideos && (
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
       {videoUrls.map((videoId, index) => (
         <div key={`${videoId}-${index}`} className="overflow-hidden rounded-3xl border border-stone-200 bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm">
           <MuxPlayer
@@ -1311,7 +1382,8 @@ function showNextPhoto() {
           />
         </div>
       ))}
-    </div>
+      </div>
+    )}
   </section>
 )}
 
@@ -1319,11 +1391,26 @@ function showNextPhoto() {
 
 {(data.headstone_photo_1 || data.headstone_photo_2) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Headstone Photos</h2>
-    <div className="mt-6 grid gap-4 md:grid-cols-2">
+    <button
+      type="button"
+      onClick={() => setShowHeadstonePhotos((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Headstone Photos
+      </h2>
+
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showHeadstonePhotos ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showHeadstonePhotos && (
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
       {data.headstone_photo_1 && <img src={data.headstone_photo_1} alt="Headstone photo 1" className="w-full rounded-2xl object-cover shadow-sm" />}
       {data.headstone_photo_2 && <img src={data.headstone_photo_2} alt="Headstone photo 2" className="w-full rounded-2xl object-cover shadow-sm" />}
-    </div>
+      </div>
+    )}
   </section>
 )}
 
@@ -1346,10 +1433,9 @@ function showNextPhoto() {
     <div className="mt-5 space-y-4">
       {approvedSubmissions.map((submission) => (
         <div
-          key={submission.id}
-          
-          
-        >
+  key={submission.id}
+  className="rounded-2xl border border-stone-200 bg-gradient-to-b from-stone-50 to-white p-4 shadow-sm"
+>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 pb-3">
   <div>
     <p className="text-base font-semibold text-stone-900">
@@ -1461,7 +1547,7 @@ function showNextPhoto() {
 </p>
   </section>
 )}
-  <section className="rounded-3xl border border-amber-200 bg-amber-50 p-8 shadow-sm">
+  <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-800">
     Help Preserve This Memory
   </p>
@@ -1470,11 +1556,11 @@ function showNextPhoto() {
     Share a Story, Photo, or Remembrance
   </h2>
 
-  <p className="mt-4 text-stone-700">
+  <p className="mt-3 text-sm leading-6 text-stone-700">
     Did you know this person? Your memories, stories, corrections, or photos can help preserve their life for family, friends, and future generations.
   </p>
 
-  <p className="mt-2 text-sm text-stone-600">
+  <p className="mt-1 text-xs text-stone-600">
     Contributions are reviewed by the memorial owner before appearing publicly.
   </p>
 
@@ -1497,17 +1583,17 @@ function showNextPhoto() {
         placeholder="Your Email (optional)"
         value={submitterEmail}
         onChange={(e) => setSubmitterEmail(e.target.value)}
-        className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
+        className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900"
       />
 
-      <textarea
-        placeholder="Share a memory, story, correction, or information..."
-        value={submissionMessage}
-        onChange={(e) => setSubmissionMessage(e.target.value)}
-        rows={5}
-        className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
-      />
-<div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
+     <textarea
+  placeholder="Share a memory, story, correction, or information..."
+  value={submissionMessage}
+  onChange={(e) => setSubmissionMessage(e.target.value)}
+  rows={5}
+  className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900"
+/>
+<div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 p-3">
   <label className="block text-sm font-semibold text-stone-800">
     Add Photos (optional)
   </label>
@@ -1549,7 +1635,7 @@ function showNextPhoto() {
       const file = e.target.files?.[0] ?? null;
       setSubmissionVideo(file);
     }}
-    className="mt-4 block w-full text-sm text-stone-700"
+    className="mt-3 block w-full text-sm text-stone-700"
   />
 
   {submissionVideo && (
@@ -1561,7 +1647,7 @@ function showNextPhoto() {
       <button
         onClick={handleContributionSubmit}
         disabled={isSubmittingContribution || uploadingPhotos || uploadingVideo}
-        className="rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-50"
+        className="rounded-full bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-50"
       >
         {isSubmittingContribution || uploadingPhotos || uploadingVideo
   ? "Submitting..."
@@ -1725,11 +1811,11 @@ function showNextPhoto() {
   className="max-h-[75vh] max-w-full rounded-2xl object-contain opacity-100 transition-opacity duration-500"
 />
 {canGoPrevious && canGoNext && (
-  <div className="mt-4 flex items-center justify-between gap-4">
+  <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:justify-between">
     <button
       type="button"
       onClick={showPreviousPhoto}
-      className="rounded-full bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+      className="rounded-full bg-stone-900 px-4 py-2 text-xs font-semibold text-white hover:bg-stone-700 sm:text-sm"
     >
       ← Previous
     </button>
@@ -1741,7 +1827,7 @@ function showNextPhoto() {
     <button
       type="button"
       onClick={showNextPhoto}
-      className="rounded-full bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+      className="rounded-full bg-stone-900 px-4 py-2 text-xs font-semibold text-white hover:bg-stone-700 sm:text-sm"
     >
       Next →
     </button>
@@ -1749,7 +1835,7 @@ function showNextPhoto() {
   <button
     type="button"
     onClick={() => setIsSlideshowPlaying((current) => !current)}
-    className="rounded-full bg-stone-200 px-5 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-300"
+   className="rounded-full bg-stone-200 px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-300 sm:text-sm"
   >
     {isSlideshowPlaying ? "Pause Slideshow" : "Start Slideshow"}
   </button>
