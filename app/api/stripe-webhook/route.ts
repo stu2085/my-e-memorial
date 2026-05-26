@@ -77,9 +77,39 @@ const memorialAmountPaid = session.amount_total
 const quantity = Number(session.metadata?.quantity || 0);
 if (
   plan === "extra_videos" &&
-  memorialId &&
-  quantity > 0
+  canSendCustomerEmail
 ) {
+  await transporter.sendMail({
+    from: `"MyEMemorial" <help@myememorial.com>`,
+    to: customerEmail,
+
+    subject: "Your Extra Memorial Video Purchase Receipt",
+
+    html: `
+      <p>Hello,</p>
+
+      <p>
+        Thank you for your payment. Your additional memorial video purchase has been successfully processed.
+      </p>
+
+      <p><strong>Receipt Details:</strong></p>
+
+      <ul>
+        <li><strong>Additional Videos Purchased:</strong> ${quantity}</li>
+        <li><strong>Amount Paid:</strong> ${memorialAmountPaid}</li>
+        <li><strong>Status:</strong> Paid</li>
+      </ul>
+
+      <p>
+        Your additional video upload capacity is now active.
+      </p>
+
+      <p>Please keep this email for your records.</p>
+
+      <p>Thank you,<br/>MyEMemorial</p>
+    `,
+  });
+} {
   const { data: memorial, error: memorialError } =
     await supabase
       .from("memorials")
