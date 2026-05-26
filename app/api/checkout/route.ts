@@ -46,7 +46,7 @@ if (plan === "extra_videos") {
     );
   }
 
-  safeUnitAmount = safeQuantity * 1895;
+  safeUnitAmount = safeQuantity * 100;
 }
 
 if (checkoutType !== "upgrade") {
