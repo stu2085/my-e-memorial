@@ -856,14 +856,17 @@ function showNextPhoto() {
 
 <div className="flex flex-col gap-3">
   <div className="flex flex-wrap gap-3">
-    {isOwner && (
-      <Link
-        href={`/memorial/${data.slug}/edit`}
-        className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700"
-      >
-        Edit Memorial
-      </Link>
-    )}
+   {isOwner && (
+  <button
+    type="button"
+    onClick={() => {
+      window.location.href = `/memorial/${data.slug}/edit`;
+    }}
+    className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700"
+  >
+    Edit Memorial
+  </button>
+)}
 
     
   </div>
