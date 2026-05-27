@@ -1036,9 +1036,11 @@ if (!res.ok) {
 
       setSuccessMessage(
   videoFiles.length > 0
-    ? `Memorial updated successfully. ${videoFiles.length} video${videoFiles.length === 1 ? "" : "s"} uploaded. Please wait while videos finish processing before making additional video changes.`
+    ? `Memorial updated successfully. ${videoFiles.length} video${videoFiles.length === 1 ? "" : "s"} uploaded. Please wait while photos and videos finish uploading and processing before making additional changes or leaving this page.`
     : "Memorial updated successfully."
 );
+    
+
       return;
     } catch (error) {
       const message =
@@ -2160,28 +2162,7 @@ Naples, Florida`}
     </div>
   </div>
 
-  {(() => {
-  const limit =
-    (form.plan === "premium" ? 10 : form.plan === "plus" ? 5 : 2) +
-    paidExtraVideos;
-
-  const current = existingVideos.length;
-const selected = videoFiles.length;
-const total = current + selected;
-const remaining = Math.max(limit - total, 0);
-
-  return (
-  remaining <= 0 && (
-      <button
-        type="button"
-        onClick={() => handleBuyExtraVideos(1)}
-        className="rounded-md bg-black px-3 py-2 text-xs text-white hover:bg-gray-800"
-      >
-        Add 1 Video — $18.95
-      </button>
-    )
-  );
-})()}
+  
 </div>
     )}
 {/* 🔒 Max reached message */}
@@ -2189,7 +2170,7 @@ const remaining = Math.max(limit - total, 0);
   ((form.plan === "premium" ? 10 : 
     form.plan === "plus" ? 5 : 2) + paidExtraVideos) && (
   <p className="mt-2 text-sm text-amber-600">
- You’ve reached your video limit. Please save this memorial first before purchasing additional video slots.
+ You’ve reached your current video limit. Save your memorial first. After saving, you may purchase additional video slots and then upload more videos.
   </p>
 )}
 {existingVideos.length > 0 &&
