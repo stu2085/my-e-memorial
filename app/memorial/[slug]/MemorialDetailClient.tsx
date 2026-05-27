@@ -1391,31 +1391,60 @@ function showNextPhoto() {
     </button>
 
     {showMemorialVideos && (
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
-      {videoUrls.map((videoId, index) => (
-        <div key={`${videoId}-${index}`} className="overflow-hidden rounded-3xl border border-stone-200 bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm">
+  <div className="mt-5 grid gap-4 md:grid-cols-2">
+    {videoUrls.map((videoId, index) => (
+      <div
+        key={`${videoId}-${index}`}
+        className="overflow-hidden rounded-3xl border border-stone-200 bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm"
+      >
+        <p className="mb-4 text-sm font-semibold text-stone-700">
+          Memorial Video {index + 1}
+        </p>
+
+        {showMemorialVideos === true &&
+        currentSongIndex === index + 1000 ? (
           <MuxPlayer
             playbackId={videoId}
             streamType="on-demand"
             className="aspect-video w-full rounded-xl bg-black"
             onPlay={(event) => {
-              const currentPlayer = event.currentTarget as HTMLElement & { pause?: () => void };
-              document.querySelectorAll("mux-player").forEach((player) => {
-                if (player !== currentPlayer) {
-                  try {
-                    (player as HTMLElement & { pause?: () => void }).pause?.();
-                  } catch {}
-                }
-              });
+              const currentPlayer =
+                event.currentTarget as HTMLElement & {
+                  pause?: () => void;
+                };
+
+              document
+                .querySelectorAll("mux-player")
+                .forEach((player) => {
+                  if (player !== currentPlayer) {
+                    try {
+                      (
+                        player as HTMLElement & {
+                          pause?: () => void;
+                        }
+                      ).pause?.();
+                    } catch {}
+                  }
+                });
+
               pauseBackgroundMusicForVideo();
             }}
             onPause={resumeBackgroundMusicAfterVideo}
             onEnded={resumeBackgroundMusicAfterVideo}
           />
-        </div>
-      ))}
+        ) : (
+          <button
+            type="button"
+            onClick={() => setCurrentSongIndex(index + 1000)}
+            className="flex aspect-video w-full items-center justify-center rounded-xl bg-stone-200 text-sm font-semibold text-stone-700 transition hover:bg-stone-300"
+          >
+            ▶ Load & Play Video
+          </button>
+        )}
       </div>
-    )}
+    ))}
+  </div>
+)}
   </section>
 )}
 
