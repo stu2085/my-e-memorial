@@ -987,14 +987,33 @@ function showNextPhoto() {
                   setCurrentSongIndex(index);
                 }}
                 onEnded={() => {
-                  const nextAudio = songAudioRefs.current[index + 1];
+  const nextIndex = index + 1;
 
-                  if (nextAudio) {
-                    setCurrentSongIndex(index + 1);
-                    nextAudio.currentTime = 0;
-                    nextAudio.play().catch(() => {});
-                  }
-                }}
+  if (
+    nextIndex <
+    songAudioRefs.current.length
+  ) {
+    setCurrentSongIndex(nextIndex);
+
+    setTimeout(() => {
+      const nextAudio =
+        songAudioRefs.current[nextIndex];
+
+      if (nextAudio) {
+        nextAudio.currentTime = 0;
+
+        nextAudio
+          .play()
+          .catch((err) =>
+            console.error(
+              "Autoplay failed:",
+              err
+            )
+          );
+      }
+    }, 250);
+  }
+}}
               />
 
               {data.favorite_song_notes?.[index] && (
