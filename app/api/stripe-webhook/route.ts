@@ -109,7 +109,9 @@ if (
       <p>Thank you,<br/>MyEMemorial</p>
     `,
   });
-} {
+}
+
+if (plan === "extra_videos") {
   const { data: memorial, error: memorialError } =
     await supabase
       .from("memorials")
