@@ -1037,9 +1037,11 @@ if (!res.ok) {
           : "Memorial updated successfully. Redirecting..."
       );
 
-      setTimeout(() => {
-        window.location.assign(`/memorial/${updatePayload.slug}`);
-      }, 1800);
+      setSuccessMessage(
+  videoFiles.length > 0
+    ? `Memorial updated successfully. ${videoFiles.length} video${videoFiles.length === 1 ? "" : "s"} uploaded.`
+    : "Memorial updated successfully."
+);
       return;
     } catch (error) {
       const message =
