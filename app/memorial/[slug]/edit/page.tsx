@@ -2137,13 +2137,21 @@ Naples, Florida`}
                         </p>
 
                         <input
+  
+  key={videoFiles.length}
   type="file"
   accept="video/*"
   multiple
-    disabled={false}
+  disabled={false}
   onChange={handleVideoChange}
   className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
 />
+{videoFiles.length > 0 && (
+  <p className="mt-2 text-sm font-medium text-green-700">
+    {videoFiles.length} video
+    {videoFiles.length === 1 ? "" : "s"} selected and ready to upload.
+  </p>
+)}
 {existingVideos.length >=
   ((form.plan === "premium" ? 10 : 
     form.plan === "plus" ? 5 : 2) + paidExtraVideos) && (
