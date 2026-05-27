@@ -942,9 +942,7 @@ function showNextPhoto() {
         <button
           type="button"
           onClick={() => {
-            setShowFavoriteSongs(true);
-
-            setTimeout(() => {
+  setTimeout(() => {
               const firstAudio = songAudioRefs.current[0];
 
               if (firstAudio) {
@@ -976,12 +974,12 @@ function showNextPhoto() {
         {showFavoriteSongs ? "▲" : "▼"}
       </button>
     </div>
-
-    {showFavoriteSongs && (
-      <>
-        <p className="mt-2 text-xs text-stone-500">
+<p className="mt-2 text-xs text-stone-500">
           Tap play to begin. Songs will continue automatically.
         </p>
+    {showFavoriteSongs && (
+      <>
+        
 
         <div className="mt-4 space-y-2">
           {(data.favorite_song_urls && data.favorite_song_urls.length > 0
