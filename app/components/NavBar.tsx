@@ -52,15 +52,15 @@ const isPreplan =
     <header className="sticky top-0 z-50 border-b border-stone-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-2 px-3 py-2 sm:flex-row sm:justify-between sm:px-6 sm:py-4">
         {/* Logo */}
-        <Link href="/" className="text-lg font-bold text-stone-900">
-          MyEMemorial
-        </Link>
+        <a href="/" className="text-lg font-bold text-stone-900">
+  MyEMemorial
+</a>
 
         {/* Navigation */}
         <nav className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 sm:gap-3">
-          <Link href="/" className={linkClass("/")}>
-            Home
-          </Link>
+          <a href="/" className={linkClass("/")}>
+  Home
+</a>
 
           <Link
   href="/create"
