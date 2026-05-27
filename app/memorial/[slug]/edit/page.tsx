@@ -1032,14 +1032,8 @@ if (!res.ok) {
       setVideoFiles([]);
 
       setSuccessMessage(
-        videoFiles.length > 0
-          ? `Memorial updated successfully. ${videoFiles.length} video${videoFiles.length === 1 ? "" : "s"} uploaded. Redirecting...`
-          : "Memorial updated successfully. Redirecting..."
-      );
-
-      setSuccessMessage(
   videoFiles.length > 0
-    ? `Memorial updated successfully. ${videoFiles.length} video${videoFiles.length === 1 ? "" : "s"} uploaded.`
+    ? `Memorial updated successfully. ${videoFiles.length} video${videoFiles.length === 1 ? "" : "s"} uploaded. Please wait while videos finish processing before making additional video changes.`
     : "Memorial updated successfully."
 );
       return;
