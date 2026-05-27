@@ -977,11 +977,7 @@ function showNextPhoto() {
 <p className="mt-2 text-xs text-stone-500">
           Tap play to begin. Songs will continue automatically.
         </p>
-    {showFavoriteSongs && (
-      <>
-        
-
-        <div className="mt-4 space-y-2">
+    <div className={showFavoriteSongs ? "mt-4 space-y-2" : "hidden"}>
           {(data.favorite_song_urls && data.favorite_song_urls.length > 0
             ? data.favorite_song_urls
             : data.favorite_song_url
@@ -1034,9 +1030,7 @@ function showNextPhoto() {
               )}
             </div>
           ))}
-        </div>
-      </>
-    )}
+                </div>
   </section>
 )}
 
