@@ -479,6 +479,13 @@ const restingPlaceAddress = [
     };
   }, []);
   useEffect(() => {
+  const audio = songAudioRefs.current[currentSongIndex];
+
+  if (audio) {
+    audio.play().catch(() => {});
+  }
+}, [currentSongIndex]);
+  useEffect(() => {
   if (selectedPhotoIndex === null) return;
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -524,13 +531,7 @@ useEffect(() => {
         ? 0
         : currentIndex + 1;
     });
-    useEffect(() => {
-  const audio = songAudioRefs.current[currentSongIndex];
-
-  if (audio) {
-    audio.play().catch(() => {});
-  }
-}, [currentSongIndex]);
+    
 
     setPhotoFadeKey((current) => current + 1);
   }, 4000);
@@ -941,11 +942,35 @@ function showNextPhoto() {
       onClick={() => setShowFavoriteSongs((current) => !current)}
       className="flex w-full items-center justify-between gap-4 text-left"
     >
-      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-        {data.first_name
-          ? `${data.first_name}'s Favorite Songs`
-          : "Favorite Songs"}
-      </h2>
+      <div className="flex items-center gap-3">
+  <button
+    type="button"
+    onClick={() => {
+      const firstAudio = songAudioRefs.current[0];
+
+      if (firstAudio) {
+        setCurrentSongIndex(0);
+        firstAudio.currentTime = 0;
+
+        firstAudio.play().catch((err) => {
+          console.error("Audio play failed:", err);
+        });
+      }
+
+      setShowFavoriteSongs(true);
+    }}
+    className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-lg text-white transition hover:bg-stone-700"
+  >
+    ▶
+  </button>
+
+  <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+    {data.first_name
+      ? `${data.first_name}'s Favorite Songs`
+      : "Favorite Songs"}
+  </h2>
+</div>
+
 
       <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
         {showFavoriteSongs ? "▲" : "▼"}
