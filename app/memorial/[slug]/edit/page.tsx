@@ -80,6 +80,7 @@ newspaperArticles: string;
   mapZip: string;
   mapCountry: string;
   plan: string;
+  isLivingPreplan: boolean;
 extraVideoSlots: string;
 backupEmail: string;
 backupPassword: string;
@@ -147,6 +148,7 @@ newspaperArticles: "",
   mapZip: "",
   mapCountry: "USA",
   plan: "basic",
+  isLivingPreplan: false,
 extraVideoSlots: "0",
 backupEmail: "",
   backupPassword: "",
@@ -600,6 +602,7 @@ newspaperArticles: data.newspaper_articles ?? "",
       mapZip: data.map_zip ?? "",
       mapCountry: data.map_country ?? "USA",
       plan: data.plan ?? "standard",
+    isLivingPreplan: data.is_living_preplan ?? false,  
 extraVideoSlots: String(data.extra_video_slots ?? 0),
 backupEmail: "",
 backupPassword: "",
@@ -1572,6 +1575,7 @@ const projectedTotal =
     </div>
   )}
 </FormSection>
+{form.isLivingPreplan && (
 <FormSection
   title="Backup Person"
   description="Assign a trusted person who can manage and publish this memorial."
@@ -1603,7 +1607,7 @@ const projectedTotal =
   </p>
   <QuickSaveButton isSaving={isSaving} />
 </FormSection>
-
+)}
 <CompactFormSection
   title={form.firstName ? `${form.firstName}'s Favorite Songs` : "Favorite Songs"}
   description="Add up to 5 favorite songs and a short note about each one."
