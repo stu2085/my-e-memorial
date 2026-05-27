@@ -46,13 +46,13 @@ if (plan === "extra_videos") {
     );
   }
 
-  safeUnitAmount = safeQuantity * 100;
+  safeUnitAmount = safeQuantity * 1895;
 }
 
 if (checkoutType !== "upgrade") {
-  if (plan === "basic") safeUnitAmount = 100;
-  if (plan === "plus") safeUnitAmount = 100;
-  if (plan === "premium") safeUnitAmount = 100;
+  if (plan === "basic") safeUnitAmount = 9900;
+  if (plan === "plus") safeUnitAmount = 12495;
+  if (plan === "premium") safeUnitAmount = 14995;
 }
 
     
