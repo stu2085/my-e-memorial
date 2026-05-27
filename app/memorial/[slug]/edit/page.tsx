@@ -2187,10 +2187,11 @@ const remaining = Math.max(limit - total, 0);
   ((form.plan === "premium" ? 10 : 
     form.plan === "plus" ? 5 : 2) + paidExtraVideos) && (
   <p className="mt-2 text-sm text-amber-600">
- You’ve reached your video limit. You can add more videos for $18.95 each.
+ You’ve reached your video limit. Please save this memorial first before purchasing additional video slots.
   </p>
 )}
-{existingVideos.length >=
+{existingVideos.length > 0 &&
+  existingVideos.length >=
   ((form.plan === "premium" ? 10 : 
     form.plan === "plus" ? 5 : 2) + paidExtraVideos) && (
   <div className="mt-3 flex flex-wrap gap-2">
