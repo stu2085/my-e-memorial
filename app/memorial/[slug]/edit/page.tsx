@@ -206,7 +206,7 @@ const paidExtraVideos = savedExtraVideos;
   const [existingVideos, setExistingVideos] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
+const [previewVideoId, setPreviewVideoId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [locationStatus, setLocationStatus] = useState("");
@@ -2272,33 +2272,50 @@ Naples, Florida`}
                       </div>
 
                       {existingVideos.length > 0 && (
-                        <div className="mt-6 grid gap-6 md:grid-cols-2">
-                          {existingVideos.map((videoId, index) => (
-                            <div
-                              key={`${videoId}-${index}`}
-                              className="overflow-hidden rounded-2xl border border-stone-200 bg-stone-50 p-4"
-                            >
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveExistingVideo(videoId)}
-                                className="mb-3 rounded-full border border-red-300 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
-                              >
-                                Delete Video
-                              </button>
+  <div className="mt-6 grid gap-6 md:grid-cols-2">
+    {existingVideos.map((videoId, index) => (
+      <div
+        key={`${videoId}-${index}`}
+        className="rounded-2xl border border-stone-200 bg-stone-50 p-4"
+      >
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-stone-800">
+            Video {index + 1}
+          </p>
 
-                              <MuxPlayer
-                                playbackId={videoId}
-                                streamType="on-demand"
-                                className="aspect-video w-full rounded-xl bg-black"
-                              />
+          <button
+            type="button"
+            onClick={() => handleRemoveExistingVideo(videoId)}
+            className="rounded-full border border-red-300 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+          >
+            Delete Video
+          </button>
+        </div>
 
-                              <p className="mt-2 text-xs text-red-500">
-                                If video fails to load, delete it.
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+        {previewVideoId === videoId ? (
+          <MuxPlayer
+            playbackId={videoId}
+            streamType="on-demand"
+            className="aspect-video w-full rounded-xl bg-black"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPreviewVideoId(videoId)}
+            className="flex aspect-video w-full items-center justify-center rounded-xl bg-stone-200 text-sm font-semibold text-stone-700 hover:bg-stone-300"
+          >
+            Preview Video
+          </button>
+        )}
+
+        <p className="mt-2 text-xs text-stone-500">
+          Preview only loads when clicked to keep this edit page fast.
+        </p>
+      </div>
+    ))}
+  </div>
+)}
+                            
                     </div>
 
                     <QuickSaveButton isSaving={isSaving} />
