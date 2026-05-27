@@ -2154,7 +2154,7 @@ Naples, Florida`}
         Add extra videos anytime for $18.95 each.
       </p>
     </div>
-  </div>)}
+  </div>
 
   {(() => {
   const limit =
@@ -2179,6 +2179,7 @@ const remaining = Math.max(limit - total, 0);
   );
 })()}
 </div>
+    )}
 {/* 🔒 Max reached message */}
 {existingVideos.length >=
   ((form.plan === "premium" ? 10 : 
