@@ -454,7 +454,7 @@ const newUniqueFiles = files.filter(
 );
 
 const totalVideos =
-  existingVideos.length + videoFiles.length + newUniqueFiles.length;
+  [...existingVideos, ...videoFiles.map(v => v.name), ...newUniqueFiles.map(v => v.name)].length;
 
     if (totalVideos > maxVideos) {
     const extraVideosNeeded = totalVideos - maxVideos;
