@@ -934,54 +934,113 @@ function showNextPhoto() {
   <MobileAd memorialZip={data.map_zip} pageType="memorial" />
 </div>
 
-<section className="rounded-2xl bg-white p-5 shadow-sm">
-  <div className="flex w-full items-center justify-between gap-4 text-left">
-    <div className="flex items-center gap-3">
+{(data.favorite_song_url ||
+  (data.favorite_song_urls && data.favorite_song_urls.length > 0)) && (
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <div className="flex w-full items-center justify-between gap-4 text-left">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setShowFavoriteSongs(true);
+
+            setTimeout(() => {
+              const firstAudio = songAudioRefs.current[0];
+
+              if (firstAudio) {
+                setCurrentSongIndex(0);
+                firstAudio.currentTime = 0;
+                firstAudio.play().catch((err) => {
+                  console.error("Audio play failed:", err);
+                });
+              }
+            }, 300);
+          }}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-lg text-white transition hover:bg-stone-700"
+        >
+          ▶
+        </button>
+
+        <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+          {data.first_name
+            ? `${data.first_name}'s Favorite Songs`
+            : "Favorite Songs"}
+        </h2>
+      </div>
+
       <button
         type="button"
-        onClick={() => {
-          setShowFavoriteSongs(true);
-
-          setTimeout(() => {
-            const firstAudio = songAudioRefs.current[0];
-
-            if (firstAudio) {
-              setCurrentSongIndex(0);
-              firstAudio.currentTime = 0;
-
-              firstAudio.play().catch((err) => {
-                console.error("Audio play failed:", err);
-              });
-            }
-          }, 300);
-        }}
-        className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-lg text-white transition hover:bg-stone-700"
+        onClick={() => setShowFavoriteSongs((current) => !current)}
+        className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700 hover:bg-stone-200"
       >
-        ▶
+        {showFavoriteSongs ? "▲" : "▼"}
       </button>
-
-      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-        {data.first_name
-          ? `${data.first_name}'s Favorite Songs`
-          : "Favorite Songs"}
-      </h2>
     </div>
 
-    <button
-      type="button"
-      onClick={() => setShowFavoriteSongs((current) => !current)}
-      className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700 hover:bg-stone-200"
-    >
-      {showFavoriteSongs ? "▲" : "▼"}
-    </button>
-  </div>
+    {showFavoriteSongs && (
+      <>
+        <p className="mt-2 text-xs text-stone-500">
+          Tap play to begin. Songs will continue automatically.
+        </p>
 
-  {showFavoriteSongs && (
-  <p className="mt-2 text-xs text-stone-500">
-    Tap play to begin. Songs will continue automatically.
-  </p>
+        <div className="mt-4 space-y-2">
+          {(data.favorite_song_urls && data.favorite_song_urls.length > 0
+            ? data.favorite_song_urls
+            : data.favorite_song_url
+              ? [data.favorite_song_url]
+              : []
+          ).map((song, index) => (
+            <div
+              key={`${song}-${index}`}
+              className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2"
+            >
+              <audio
+                ref={(element) => {
+                  songAudioRefs.current[index] = element;
+
+                  if (index === currentSongIndex) {
+                    backgroundAudioRef.current = element;
+                  }
+                }}
+                controls
+                preload="auto"
+                className="w-full"
+                src={song}
+                onPlay={() => {
+                  setCurrentSongIndex(index);
+                }}
+                onEnded={() => {
+                  const nextIndex = index + 1;
+
+                  if (nextIndex < songAudioRefs.current.length) {
+                    setCurrentSongIndex(nextIndex);
+
+                    setTimeout(() => {
+                      const nextAudio = songAudioRefs.current[nextIndex];
+
+                      if (nextAudio) {
+                        nextAudio.currentTime = 0;
+                        nextAudio.play().catch((err) =>
+                          console.error("Autoplay failed:", err)
+                        );
+                      }
+                    }, 250);
+                  }
+                }}
+              />
+
+              {data.favorite_song_notes?.[index] && (
+                <p className="mt-1 whitespace-pre-line text-xs leading-5 text-stone-600">
+                  {data.favorite_song_notes[index]}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+  </section>
 )}
-</section>
 
 <section className="rounded-2xl bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm">
   <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Basic Information</h2>
