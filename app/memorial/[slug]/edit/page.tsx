@@ -2138,7 +2138,10 @@ Naples, Florida`}
   onChange={handleVideoChange}
   className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
 />
-<div className="mt-3 flex items-center justify-between rounded-xl border border-stone-300 bg-stone-50 p-4">
+{existingVideos.length >=
+  ((form.plan === "premium" ? 10 : 
+    form.plan === "plus" ? 5 : 2) + paidExtraVideos) && (
+  <div className="mt-3 flex items-center justify-between rounded-xl border border-stone-300 bg-stone-50 p-4">
   <div className="flex items-center gap-3">
     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-200">
       🎥
@@ -2151,7 +2154,7 @@ Naples, Florida`}
         Add extra videos anytime for $18.95 each.
       </p>
     </div>
-  </div>
+  </div>)}
 
   {(() => {
   const limit =
