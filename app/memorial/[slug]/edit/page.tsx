@@ -2136,7 +2136,7 @@ Naples, Florida`}
                           Leave a message, tell a life story, or share memories for loved ones and future generations.
                         </p>
                         <p className="mt-2 text-xs text-stone-500">
-  After selecting a video, click Save Changes to upload it.
+  After selecting a video, clicking "Save Changes" will upload it.
 </p>
 
                         <input
