@@ -58,50 +58,40 @@ const inviteLink = `https://www.myememorial.com/login?mode=signup&redirect=${enc
       to,
       subject: "Your Free MyEMemorial Memorial Invitation",
       html: `
-        <p>Hello${contactName ? ` ${contactName}` : ""},</p>
+  <p>Hello${contactName ? ` ${contactName}` : ""},</p>
 
-        <p>
-          You have been invited to create a free memorial on
-          <strong>MyEMemorial</strong>.
-        </p>
+  <p>
+    You have been invited to create a free
+    <strong>${cleanPlanLabel}</strong> memorial on
+    <strong>MyEMemorial</strong>.
+  </p>
 
-        <p>Your promotional code is:</p>
+  <p>
+    Click the link below to begin:
+  </p>
 
-        <p style="font-size: 20px; font-weight: bold; letter-spacing: 1px;">
-          ${code}
-        </p>
+  <p>
+    <a href="${inviteLink}">
+      ${inviteLink}
+    </a>
+  </p>
 
-        <p>
-          This code provides a free <strong>${cleanPlanLabel}</strong> memorial.
-        </p>
+  <p>
+    After creating your account, you can immediately begin building the memorial
+    by adding music,photos, videos, life stories, family history, and other memories.
+  </p>
 
-        <p><strong>To begin creating the memorial:</strong></p>
+  <p>
+    Your complimentary <strong>${cleanPlanLabel}</strong> access is already included
+    in the link above, so no payment information or promotional code entry is required.
+  </p>
 
-        <ol>
-          <li>
-            Click this link:<br />
-            <a href="${inviteLink}">
-  ${inviteLink}
-</a>
-          </li>
-          <li>
-  Create your free MyEMemorial account using your email address and a password you choose.
-  This account lets you save, edit, and manage the memorial after it is created.
-</li>
-          <li>
-            Complete the memorial information and upload photos/videos.
-          </li>
-          <li>
-            When you reach the payment section, enter your promotional code and click:
-            <br />
-            <strong>Use Beta Access Code — Skip Payment</strong>
-          </li>
-        </ol>
+  <p>
+    Thank you for helping us improve MyEMemorial through early access testing.
+  </p>
 
-        <p>Your memorial will then be created without payment.</p>
-
-        <p>Thank you,<br />MyEMemorial</p>
-      `,
+  <p>Thank you,<br />MyEMemorial</p>
+`,
     });
 
     return NextResponse.json({ success: true });
