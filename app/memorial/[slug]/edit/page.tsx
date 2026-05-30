@@ -2073,11 +2073,7 @@ Naples, Florida`}
 
       if (oldIndex === -1 || newIndex === -1) return;
 
-      const reorderedPhotos = arrayMove(
-        photos,
-        oldIndex,
-        newIndex
-      );
+      const reorderedPhotos = arrayMove(photos, oldIndex, newIndex);
 
       const reorderedNotes = arrayMove(
         form.galleryPhotoNotes ?? [],
