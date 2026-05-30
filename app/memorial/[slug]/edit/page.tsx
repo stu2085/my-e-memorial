@@ -638,12 +638,18 @@ backupPassword: "",
       });
 galleryPhotoNotes: data.gallery_photo_notes ?? [],
       setExistingVideos(
-        Array.isArray(data.video_urls)
-          ? data.video_urls.filter(Boolean)
-          : typeof data.video_urls === "string"
-            ? data.video_urls.split(",").map((item: string) => item.trim()).filter(Boolean)
-            : []
-      );
+  Array.isArray(data.video_urls)
+    ? data.video_urls
+        .filter(Boolean)
+        .filter((videoId: string) => videoId.length > 15)
+    : typeof data.video_urls === "string"
+      ? data.video_urls
+          .split(",")
+          .map((item: string) => item.trim())
+          .filter(Boolean)
+          .filter((videoId: string) => videoId.length > 15)
+      : []
+);
 
       setIsLoading(false);
     }
@@ -2343,7 +2349,10 @@ Naples, Florida`}
 
                       {existingVideos.length > 0 && (
   <div className="mt-6 grid gap-6 md:grid-cols-2">
-    {existingVideos.map((videoId, index) => (
+    {existingVideos
+  .filter(Boolean)
+  .filter((videoId) => videoId.length > 15)
+  .map((videoId, index) => (
       <div
         key={`${videoId}-${index}`}
         className="rounded-2xl border border-stone-200 bg-stone-50 p-4"
