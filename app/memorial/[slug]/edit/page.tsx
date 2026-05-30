@@ -6,6 +6,22 @@ import { useEffect, useState, ChangeEvent, FormEvent, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import SideAd from "../../../components/SideAd";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 const PLAN_PRICES = {
   basic: 9900,
   plus: 12495,
@@ -2028,45 +2044,83 @@ Naples, Florida`}
   />
 
   {splitGalleryPhotos(form.galleryPhotos).length > 0 ? (
-  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-    {splitGalleryPhotos(form.galleryPhotos).map((photo, index) => (
-      <div
-        key={`${photo}-${index}`}
-        className="rounded-2xl border border-stone-200 bg-white p-3"
-      >
-        <img
-          src={photo}
-          alt={`Gallery photo ${index + 1}`}
-          className="h-36 w-full rounded-2xl object-cover"
-        />
+  <DndContext
+    sensors={useSensors(
+      useSensor(PointerSensor),
+      useSensor(TouchSensor)
+    )}
+    collisionDetection={closestCenter}
+    onDragEnd={(event: DragEndEvent) => {
+      const { active, over } = event;
 
-        <textarea
-          value={form.galleryPhotoNotes?.[index] ?? ""}
-          onChange={(e) => {
-            const value = e.target.value;
+      if (!over || active.id === over.id) return;
 
-            setForm((prev) => {
-              const nextNotes = [...(prev.galleryPhotoNotes ?? [])];
-              nextNotes[index] = value;
+      const photos = splitGalleryPhotos(form.galleryPhotos);
 
-              return {
-                ...prev,
-                galleryPhotoNotes: nextNotes,
-              };
-            });
-          }}
-          rows={3}
-          placeholder="Add a description for this photo..."
-          className="mt-3 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
-        />
+      const oldIndex = photos.findIndex(
+        (_, index) => `gallery-${index}` === active.id
+      );
+
+      const newIndex = photos.findIndex(
+        (_, index) => `gallery-${index}` === over.id
+      );
+
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      const reorderedPhotos = arrayMove(
+        photos,
+        oldIndex,
+        newIndex
+      );
+
+      const reorderedNotes = arrayMove(
+        form.galleryPhotoNotes ?? [],
+        oldIndex,
+        newIndex
+      );
+
+      setForm((prev) => ({
+        ...prev,
+        galleryPhotos: reorderedPhotos.join(","),
+        galleryPhotoNotes: reorderedNotes,
+      }));
+    }}
+  >
+    <SortableContext
+      items={splitGalleryPhotos(form.galleryPhotos).map(
+        (_, index) => `gallery-${index}`
+      )}
+      strategy={rectSortingStrategy}
+    >
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {splitGalleryPhotos(form.galleryPhotos).map((photo, index) => (
+          <SortableGalleryPhotoCard
+            key={`gallery-${index}`}
+            id={`gallery-${index}`}
+            photo={photo}
+            index={index}
+            note={form.galleryPhotoNotes?.[index] ?? ""}
+            onNoteChange={(photoIndex, value) => {
+              setForm((prev) => {
+                const nextNotes = [...(prev.galleryPhotoNotes ?? [])];
+                nextNotes[photoIndex] = value;
+
+                return {
+                  ...prev,
+                  galleryPhotoNotes: nextNotes,
+                };
+              });
+            }}
+          />
+        ))}
       </div>
-    ))}
-  </div>
+    </SortableContext>
+  </DndContext>
 ) : (
-    <p className="text-sm text-stone-500">
-      No gallery photos uploaded yet.
-    </p>
-  )}
+  <p className="text-sm text-stone-500">
+    No gallery photos uploaded yet.
+  </p>
+)}
 
   <div className="mt-4">
     <label className="text-sm font-medium text-stone-700">
@@ -3047,6 +3101,67 @@ function TextArea({
         className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
       />
       {helpText && <p className="mt-2 text-sm text-stone-500">{helpText}</p>}
+    </div>
+  );
+}
+
+function SortableGalleryPhotoCard({
+  id,
+  photo,
+  index,
+  note,
+  onNoteChange,
+}: {
+  id: string;
+  photo: string;
+  index: number;
+  note: string;
+  onNoteChange: (index: number, value: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`rounded-2xl border border-stone-200 bg-white p-3 ${
+        isDragging ? "opacity-60 shadow-lg" : ""
+      }`}
+    >
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        className="mb-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-3 py-2 text-xs font-semibold text-stone-700 active:scale-95"
+      >
+        Drag to reorder
+      </button>
+
+      <img
+        src={photo}
+        alt={`Gallery photo ${index + 1}`}
+        className="h-36 w-full rounded-2xl object-cover"
+      />
+
+      <textarea
+        value={note}
+        onChange={(e) => onNoteChange(index, e.target.value)}
+        rows={3}
+        placeholder="Add a description for this photo..."
+        className="mt-3 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
+      />
     </div>
   );
 }
