@@ -77,7 +77,7 @@ type ApprovedSubmission = {
   id: number;
   submitter_name: string | null;
   message: string | null;
-  photo_urls: string[] | null;
+  photo_urls: string[] | string | null;
   video_urls: string[] | string | null;
   created_at: string | null;
 };
@@ -436,15 +436,24 @@ const videoUrls = useMemo(
       submittedPhotos = submission.photo_urls;
     } else if (typeof submission.photo_urls === "string") {
       try {
-        submittedPhotos = JSON.parse(submission.photo_urls);
+        const parsed = JSON.parse(submission.photo_urls);
+
+        if (Array.isArray(parsed)) {
+          submittedPhotos = parsed;
+        } else if (typeof parsed === "string") {
+          submittedPhotos = [parsed];
+        }
       } catch {
-        submittedPhotos = [];
+        submittedPhotos = submission.photo_urls
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
       }
     }
 
     return submittedPhotos.filter(Boolean).map((photoUrl) => ({
       src: photoUrl,
-      note: "",
+      note: submission.message ?? "",
       attribution: submission.submitter_name
         ? `Submitted by ${submission.submitter_name}`
         : "Submitted by Anonymous Visitor",
