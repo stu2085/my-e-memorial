@@ -1547,13 +1547,14 @@ function showNextPhoto() {
   </p>
 
   <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-    Memories, Stories & Contributions
+    Videos & Written Stories
   </h2>
 
   <p className="mt-3 text-sm leading-6 text-stone-600">
-    These memories were submitted by visitors and approved by the memorial owner.
+    These videos and written stories were submitted by family and friends and approved by the memorial owner.
   </p>
 </div>
+npm run dev
 
     <div className="mt-5 space-y-4">
       {approvedSubmissions
@@ -1598,7 +1599,9 @@ function showNextPhoto() {
     }
 
     const hasPhotos = submittedPhotos.filter(Boolean).length > 0;
-    const hasVideos = submittedVideos.filter(Boolean).length > 0;
+    const hasVideos = submittedVideos
+  .filter(Boolean)
+  .filter((videoId) => videoId.length > 15).length > 0;
 
     return !hasPhotos || hasVideos;
   })
@@ -1647,7 +1650,9 @@ function showNextPhoto() {
     }
   }
 
-  submittedVideos = submittedVideos.filter(Boolean);
+  submittedVideos = submittedVideos
+  .filter(Boolean)
+  .filter((videoId) => videoId.length > 15);
 
   if (submittedVideos.length === 0) return null;
 
