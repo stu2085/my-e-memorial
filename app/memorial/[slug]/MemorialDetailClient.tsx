@@ -1557,8 +1557,8 @@ function showNextPhoto() {
 
 
     <div className="mt-5 space-y-4">
-      {approvedSubmissionsnpm run dev
-      
+      {approvedSubmissions
+
   .filter((submission) => {
     let submittedPhotos: string[] = [];
     let submittedVideos: string[] = [];
