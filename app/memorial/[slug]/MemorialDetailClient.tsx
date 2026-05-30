@@ -398,6 +398,12 @@ document.head.appendChild(script);
     setApprovedSubmissions(
       (approvedData as ApprovedSubmission[]) || []
     );
+    console.log(
+  "APPROVED SUBMISSIONS:",
+  approvedData,
+  "COUNT:",
+  approvedData?.length
+);
   }
 }
       setLoading(false);
