@@ -1554,10 +1554,11 @@ function showNextPhoto() {
     These videos and written stories were submitted by family and friends and approved by the memorial owner.
   </p>
 </div>
-npm run dev
+
 
     <div className="mt-5 space-y-4">
-      {approvedSubmissions
+      {approvedSubmissionsnpm run dev
+      
   .filter((submission) => {
     let submittedPhotos: string[] = [];
     let submittedVideos: string[] = [];
