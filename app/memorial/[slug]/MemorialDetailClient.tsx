@@ -165,6 +165,10 @@ const [isSubmittingContribution, setIsSubmittingContribution] = useState(false);
 const [approvedSubmissions, setApprovedSubmissions] = useState<
   ApprovedSubmission[]
 >([]);
+const [contributorPhotoViewer, setContributorPhotoViewer] = useState<{
+  photos: string[];
+  index: number;
+} | null>(null);
 async function handleShare(platform?: string) {
   const url = `${window.location.origin}/memorial/${data?.slug || slug}`;
   const text = `View this memorial for ${data?.full_name || "a loved one"}`;
@@ -1539,24 +1543,34 @@ function showNextPhoto() {
   if (submittedPhotos.length === 0) return null;
 
   return (
-    <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+  <div className="mt-6">
+    <p className="mb-3 text-sm font-semibold text-stone-800">
+      Submitted Photos
+    </p>
+
+    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
       {submittedPhotos.map((photoUrl, index) => (
-        <a
+        <button
           key={`${photoUrl}-${index}`}
-          href={photoUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
+          type="button"
+          onClick={() =>
+            setContributorPhotoViewer({
+              photos: submittedPhotos,
+              index,
+            })
+          }
+          className="block overflow-hidden rounded-xl border border-stone-200 bg-stone-50"
         >
           <img
             src={photoUrl}
             alt={`Submitted photo ${index + 1}`}
-            className="w-full rounded-2xl object-cover shadow-sm transition duration-300 hover:scale-[1.01]"
+            className="h-20 w-full object-cover transition hover:scale-105"
           />
-        </a>
+        </button>
       ))}
     </div>
-  );
+  </div>
+);
 })()}
 {(() => {
   let submittedVideos: string[] = [];
@@ -1834,6 +1848,80 @@ function showNextPhoto() {
 
      
   </div>
+  {contributorPhotoViewer && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6"
+    onClick={() => setContributorPhotoViewer(null)}
+  >
+    <button
+      type="button"
+      onClick={() => setContributorPhotoViewer(null)}
+      className="absolute right-5 top-5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-900 shadow"
+    >
+      Close
+    </button>
+
+    <div
+      className="max-h-[92vh] max-w-[95vw] overflow-auto rounded-3xl bg-white p-4 shadow-2xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <img
+        src={contributorPhotoViewer.photos[contributorPhotoViewer.index]}
+        alt="Contributor photo"
+        className="max-h-[75vh] max-w-full rounded-2xl object-contain"
+      />
+
+      {contributorPhotoViewer.photos.length > 1 && (
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() =>
+              setContributorPhotoViewer((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      index:
+                        prev.index === 0
+                          ? prev.photos.length - 1
+                          : prev.index - 1,
+                    }
+                  : prev
+              )
+            }
+            className="rounded-full bg-stone-900 px-4 py-2 text-xs font-semibold text-white hover:bg-stone-700 sm:text-sm"
+          >
+            ← Previous
+          </button>
+
+          <p className="text-sm text-stone-500">
+            {contributorPhotoViewer.index + 1} of{" "}
+            {contributorPhotoViewer.photos.length}
+          </p>
+
+          <button
+            type="button"
+            onClick={() =>
+              setContributorPhotoViewer((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      index:
+                        prev.index === prev.photos.length - 1
+                          ? 0
+                          : prev.index + 1,
+                    }
+                  : prev
+              )
+            }
+            className="rounded-full bg-stone-900 px-4 py-2 text-xs font-semibold text-white hover:bg-stone-700 sm:text-sm"
+          >
+            Next →
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+)}
   {selectedPhoto && (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6"
