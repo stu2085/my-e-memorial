@@ -220,6 +220,10 @@ const [authChecked, setAuthChecked] = useState(false);
 const [backupLoginError, setBackupLoginError] = useState("");
 const [submissions, setSubmissions] = useState<MemorialSubmission[]>([]);
 const [submissionsMessage, setSubmissionsMessage] = useState("");
+const [submissionPhotoViewer, setSubmissionPhotoViewer] = useState<{
+  photos: string[];
+  index: number;
+} | null>(null);
 const [adCategoryPair, setAdCategoryPair] = useState<[string, string]>([
   "attorney",
   "estate_planner",
@@ -1393,24 +1397,34 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
   if (submittedPhotos.length === 0) return null;
 
   return (
-    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+  <div className="mt-4">
+    <p className="mb-3 text-sm font-semibold text-stone-800">
+      Submitted Photos
+    </p>
+
+    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
       {submittedPhotos.map((photoUrl, index) => (
-        <a
-          key={`${photoUrl}-${index}`}
-          href={photoUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
-        >
-          <img
-            src={photoUrl}
-            alt={`Submitted photo ${index + 1}`}
-            className="w-full rounded-2xl object-cover shadow-sm"
-          />
-        </a>
+        <button
+  key={`${photoUrl}-${index}`}
+  type="button"
+  onClick={() =>
+    setSubmissionPhotoViewer({
+      photos: submittedPhotos,
+      index,
+    })
+  }
+  className="block overflow-hidden rounded-xl border border-stone-200 bg-stone-50 text-left"
+>
+  <img
+    src={photoUrl}
+    alt={`Submitted photo ${index + 1}`}
+    className="h-20 w-full object-cover transition hover:scale-105"
+  />
+</button>
       ))}
     </div>
-  );
+  </div>
+);
 })()}
 {(() => {
   let submittedVideos: string[] = [];
@@ -2640,6 +2654,63 @@ if (!res.ok) {
         categorySlot={rightAdCategory}
       />
     </div>
+    {submissionPhotoViewer && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+    <button
+      type="button"
+      onClick={() => setSubmissionPhotoViewer(null)}
+      className="absolute right-4 top-4 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-900"
+    >
+      Close
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        setSubmissionPhotoViewer((prev) =>
+          prev
+            ? {
+                ...prev,
+                index:
+                  prev.index === 0
+                    ? prev.photos.length - 1
+                    : prev.index - 1,
+              }
+            : prev
+        )
+      }
+      className="absolute left-4 rounded-full bg-white px-4 py-3 text-xl font-bold text-stone-900"
+    >
+      ‹
+    </button>
+
+    <img
+      src={submissionPhotoViewer.photos[submissionPhotoViewer.index]}
+      alt="Submitted photo preview"
+      className="max-h-[85vh] max-w-[90vw] rounded-2xl object-contain shadow-2xl"
+    />
+
+    <button
+      type="button"
+      onClick={() =>
+        setSubmissionPhotoViewer((prev) =>
+          prev
+            ? {
+                ...prev,
+                index:
+                  prev.index === prev.photos.length - 1
+                    ? 0
+                    : prev.index + 1,
+              }
+            : prev
+        )
+      }
+      className="absolute right-4 rounded-full bg-white px-4 py-3 text-xl font-bold text-stone-900"
+    >
+      ›
+    </button>
+  </div>
+)}
   </main>
   );
 }
