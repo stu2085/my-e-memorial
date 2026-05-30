@@ -1695,7 +1695,7 @@ npm run dev
   </p>
 
   <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-    Share a Story, Photo, or Remembrance
+    Share a Story, Photo, Video or Remembrance
   </h2>
 
   <p className="mt-3 text-sm leading-6 text-stone-700">
