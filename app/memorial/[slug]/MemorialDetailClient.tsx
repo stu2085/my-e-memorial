@@ -428,7 +428,39 @@ const videoUrls = useMemo(
   () => getVideoUrls(data?.video_urls),
   [data?.video_urls]
 );
-  
+  const contributorGalleryPhotos = useMemo(() => {
+  return approvedSubmissions.flatMap((submission) => {
+    let submittedPhotos: string[] = [];
+
+    if (Array.isArray(submission.photo_urls)) {
+      submittedPhotos = submission.photo_urls;
+    } else if (typeof submission.photo_urls === "string") {
+      try {
+        submittedPhotos = JSON.parse(submission.photo_urls);
+      } catch {
+        submittedPhotos = [];
+      }
+    }
+
+    return submittedPhotos.filter(Boolean).map((photoUrl) => ({
+      src: photoUrl,
+      note: "",
+      attribution: submission.submitter_name
+        ? `Submitted by ${submission.submitter_name}`
+        : "Submitted by Anonymous Visitor",
+    }));
+  });
+}, [approvedSubmissions]);
+
+const combinedGalleryPhotos = useMemo(() => {
+  const ownerPhotos = galleryPhotos.map((photoUrl, index) => ({
+    src: photoUrl,
+    note: data?.gallery_photo_notes?.[index] ?? "",
+    attribution: "",
+  }));
+
+  return [...ownerPhotos, ...contributorGalleryPhotos];
+}, [galleryPhotos, data?.gallery_photo_notes, contributorGalleryPhotos]);
 
   const graveLat = toNumber(data?.grave_lat ?? data?.grave_latitude ?? null);
   const graveLng = toNumber(data?.grave_lng ?? data?.grave_longitude ?? null);
@@ -512,7 +544,7 @@ const restingPlaceAddress = [
         if (currentIndex === null) return currentIndex;
 
         return currentIndex === 0
-          ? galleryPhotos.length - 1
+          ? combinedGalleryPhotos.length - 1
           : currentIndex - 1;
       });
     }
@@ -521,7 +553,7 @@ const restingPlaceAddress = [
       setSelectedPhotoIndex((currentIndex) => {
         if (currentIndex === null) return currentIndex;
 
-        return currentIndex === galleryPhotos.length - 1
+        return currentIndex === combinedGalleryPhotos.length - 1
           ? 0
           : currentIndex + 1;
       });
@@ -533,7 +565,7 @@ const restingPlaceAddress = [
   return () => {
     window.removeEventListener("keydown", handleKeyDown);
   };
-}, [selectedPhotoIndex, galleryPhotos.length]);
+}, [selectedPhotoIndex, combinedGalleryPhotos.length]);
 useEffect(() => {
   if (!isSlideshowPlaying || selectedPhotoIndex === null) return;
 
@@ -541,7 +573,7 @@ useEffect(() => {
     setSelectedPhotoIndex((currentIndex) => {
       if (currentIndex === null) return currentIndex;
 
-      return currentIndex === galleryPhotos.length - 1
+      return currentIndex === combinedGalleryPhotos.length - 1
         ? 0
         : currentIndex + 1;
     });
@@ -551,7 +583,7 @@ useEffect(() => {
   }, 4000);
 
   return () => clearInterval(timer);
-}, [isSlideshowPlaying, selectedPhotoIndex, galleryPhotos.length]);
+}, [isSlideshowPlaying, selectedPhotoIndex, combinedGalleryPhotos.length]);
   function getContributorVideoDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
@@ -771,24 +803,31 @@ if (error) {
     );
   }
 const selectedPhoto =
-  selectedPhotoIndex !== null ? galleryPhotos[selectedPhotoIndex] : null;
+  selectedPhotoIndex !== null
+    ? combinedGalleryPhotos[selectedPhotoIndex]?.src
+    : null;
 
 const selectedPhotoNote =
   selectedPhotoIndex !== null
-    ? data.gallery_photo_notes?.[selectedPhotoIndex]
+    ? combinedGalleryPhotos[selectedPhotoIndex]?.note
     : null;
+
+const selectedPhotoAttribution =
+  selectedPhotoIndex !== null
+    ? combinedGalleryPhotos[selectedPhotoIndex]?.attribution
+    : "";
     const canGoPrevious =
-  selectedPhotoIndex !== null && galleryPhotos.length > 1;
+  selectedPhotoIndex !== null && combinedGalleryPhotos.length > 1;
 
 const canGoNext =
-  selectedPhotoIndex !== null && galleryPhotos.length > 1;
+  selectedPhotoIndex !== null && combinedGalleryPhotos.length > 1;
 
 function showPreviousPhoto() {
   if (selectedPhotoIndex === null) return;
 
   setSelectedPhotoIndex(
     selectedPhotoIndex === 0
-      ? galleryPhotos.length - 1
+      ? combinedGalleryPhotos.length- 1
       : selectedPhotoIndex - 1
   );
 }
@@ -797,7 +836,7 @@ function showNextPhoto() {
   if (selectedPhotoIndex === null) return;
 
   setSelectedPhotoIndex(
-    selectedPhotoIndex === galleryPhotos.length - 1
+    selectedPhotoIndex === combinedGalleryPhotos.length - 1
       ? 0
       : selectedPhotoIndex + 1
   );setPhotoFadeKey((current) => current + 1);
@@ -1304,7 +1343,7 @@ function showNextPhoto() {
 
 
 )}
-{galleryPhotos.length > 0 && (
+{combinedGalleryPhotos.length > 0 && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
     <button
       type="button"
@@ -1322,7 +1361,7 @@ function showNextPhoto() {
 
     {showPhotoGallery && (
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-      {galleryPhotos.map((photo, index) => (
+      {combinedGalleryPhotos.map((photo, index) => (
         <div
           key={`${photo}-${index}`}
           className="rounded-3xl border border-stone-200 bg-stone-50 p-3 shadow-sm"
@@ -1333,17 +1372,23 @@ function showNextPhoto() {
             className="block w-full overflow-hidden rounded-3xl"
           >
             <img
-              src={photo}
+              src={photo.src}
               alt={`Gallery photo ${index + 1}`}
               className="w-full rounded-3xl object-cover shadow-md transition duration-300 hover:scale-[1.02]"
             />
           </button>
 
-          {data.gallery_photo_notes?.[index] && (
-            <p className="mt-3 whitespace-pre-line text-sm leading-6 text-stone-700">
-              {data.gallery_photo_notes[index]}
-            </p>
-          )}
+          {photo.attribution && (
+  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">
+    {photo.attribution}
+  </p>
+)}
+
+{photo.note && (
+  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-700">
+    {photo.note}
+  </p>
+)}
         </div>
       ))}
           </div>
@@ -1531,54 +1576,7 @@ function showNextPhoto() {
           <p className="mt-4 whitespace-pre-line text-sm leading-7 text-stone-700">
             {submission.message}
           </p>
-          {(() => {
-  let submittedPhotos: string[] = [];
-
-  if (Array.isArray(submission.photo_urls)) {
-    submittedPhotos = submission.photo_urls;
-  } else if (typeof submission.photo_urls === "string") {
-    try {
-      submittedPhotos = JSON.parse(submission.photo_urls);
-    } catch {
-      submittedPhotos = [];
-    }
-  }
-
-  submittedPhotos = submittedPhotos.filter(Boolean);
-
-  if (submittedPhotos.length === 0) return null;
-
-  return (
-  <div className="mt-6">
-    <p className="mb-3 text-sm font-semibold text-stone-800">
-      Submitted Photos
-    </p>
-
-    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
-      {submittedPhotos.map((photoUrl, index) => (
-        <button
-          key={`${photoUrl}-${index}`}
-          type="button"
-          onClick={() =>
-            setContributorPhotoViewer({
-              photos: submittedPhotos,
-              index,
-            })
-          }
-          className="block overflow-hidden rounded-xl border border-stone-200 bg-stone-50"
-        >
-          <img
-            src={photoUrl}
-            alt={`Submitted photo ${index + 1}`}
-            className="h-20 w-full object-cover transition hover:scale-105"
-          />
-        </button>
-      ))}
-    </div>
-  </div>
-);
-})()}
-{(() => {
+       {(() => {   
   let submittedVideos: string[] = [];
 
   if (Array.isArray(submission.video_urls)) {
@@ -1971,6 +1969,11 @@ function showNextPhoto() {
   alt="Enlarged memorial photo"
   className="max-h-[75vh] max-w-full rounded-2xl object-contain opacity-100 transition-opacity duration-500"
 />
+{selectedPhotoAttribution && (
+  <p className="mt-3 text-center text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">
+    {selectedPhotoAttribution}
+  </p>
+)}
 {canGoPrevious && canGoNext && (
   <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:justify-between">
     <button
