@@ -237,6 +237,11 @@ if (promoFromUrl) {
   setSuccessMessage(
     "Your free memorial access is ready. Review the Terms of Service and click Activate Free Premium Access below."
   );
+  setTimeout(() => {
+  document
+    .getElementById("promo-access")
+    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+}, 750);
 }
 if (extraVideosPaid > 0) {
   const savedExtraVideos = Number(localStorage.getItem("paidExtraVideos") || 0);
@@ -1656,9 +1661,10 @@ Naples, Florida`}
               </section>
 
               <section
-  id="payment"
-  className="rounded-3xl bg-white p-8 shadow-sm"
+  id="promo-access"
+  className="scroll-mt-6 rounded-3xl bg-white p-8 shadow-sm"
 >
+  
                 {errorMessage && (
                   <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                     {errorMessage}
@@ -1801,6 +1807,7 @@ window.location.assign(
 
       </button>
       )}
+      
      <button
   type="button"
   onClick={async () => {
@@ -1883,6 +1890,7 @@ setSuccessMessage(
                   </button>
                 </div>
               </section>
+              
             </form>
           </div>
         </div>
