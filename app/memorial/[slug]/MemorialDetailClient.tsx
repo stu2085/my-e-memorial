@@ -1658,7 +1658,10 @@ npm run dev
 
   return (
     <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-      {submittedVideos.map((playbackId, index) => (
+      {submittedVideos
+  .filter(Boolean)
+  .filter((playbackId) => playbackId.length > 15)
+  .map((playbackId, index) => (
         <div
           key={`${playbackId}-${index}`}
           className="overflow-hidden rounded-3xl border border-stone-200 bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm"
