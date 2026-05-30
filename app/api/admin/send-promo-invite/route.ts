@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     const cleanPlanLabel = planLabel(allowedPlan || "basic");
 
 const inviteLink = `https://www.myememorial.com/login?mode=signup&redirect=${encodeURIComponent(
-  `/create?promo=${encodeURIComponent(code)}`
+  `/create?promo=${encodeURIComponent(code)}#payment`
 )}`;
 
     await transporter.sendMail({
@@ -78,7 +78,7 @@ const inviteLink = `https://www.myememorial.com/login?mode=signup&redirect=${enc
 
   <p>
     After creating your account, you can immediately begin building the memorial
-    by adding music,photos, videos, life stories, family history, and other memories.
+    by adding music, photos, videos, life stories, family history, and other memories.
   </p>
 
   <p>

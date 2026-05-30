@@ -235,7 +235,7 @@ if (promoFromUrl) {
   }));
 
   setSuccessMessage(
-    "Your promo code has been filled in from your email. Please go to bottom on this page, agree to the Terms of Service, then click the Use Beta Access Code — Skip Payment button to access your free promotional memorial."
+    "Your free memorial access is ready. Review the Terms of Service and click Activate Free Premium Access below."
   );
 }
 if (extraVideosPaid > 0) {
@@ -1655,7 +1655,10 @@ Naples, Florida`}
                 </p>
               </section>
 
-              <section className="rounded-3xl bg-white p-8 shadow-sm">
+              <section
+  id="payment"
+  className="rounded-3xl bg-white p-8 shadow-sm"
+>
                 {errorMessage && (
                   <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                     {errorMessage}
@@ -1726,7 +1729,7 @@ Naples, Florida`}
           </a>
         </span>
       </label>
-
+{!form.betaCode.trim() && (
       <button
         type="button"
         disabled={isSubmitting}
@@ -1797,6 +1800,7 @@ window.location.assign(
           : "$99"}
 
       </button>
+      )}
      <button
   type="button"
   onClick={async () => {
@@ -1864,7 +1868,7 @@ setSuccessMessage(
 }}
   className="w-fit rounded-full border border-green-700 bg-white px-6 py-3 text-sm font-semibold text-green-700 transition hover:bg-green-50"
 >
-  Use Beta Access Code — Skip Payment
+  Activate Free Premium Access
 </button>
     </>
   )}
