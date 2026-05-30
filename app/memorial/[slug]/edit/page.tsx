@@ -207,6 +207,15 @@ const [form, setForm] = useState<MemorialForm>(emptyForm);
 
 const savedExtraVideos = Number(form.extraVideoSlots || 0);
 const paidExtraVideos = savedExtraVideos;
+const galleryDragSensors = useSensors(
+  useSensor(PointerSensor),
+  useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 150,
+      tolerance: 5,
+    },
+  })
+);
   const isPlanLocked = !!form.plan;
   const [memorialId, setMemorialId] = useState<number | null>(null);
   const [originalSlug, setOriginalSlug] = useState(slug);
@@ -2045,10 +2054,7 @@ Naples, Florida`}
 
   {splitGalleryPhotos(form.galleryPhotos).length > 0 ? (
   <DndContext
-    sensors={useSensors(
-      useSensor(PointerSensor),
-      useSensor(TouchSensor)
-    )}
+    sensors={galleryDragSensors}
     collisionDetection={closestCenter}
     onDragEnd={(event: DragEndEvent) => {
       const { active, over } = event;
