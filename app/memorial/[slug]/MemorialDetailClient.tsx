@@ -1556,7 +1556,53 @@ function showNextPhoto() {
 </div>
 
     <div className="mt-5 space-y-4">
-      {approvedSubmissions.map((submission) => (
+      {approvedSubmissions
+  .filter((submission) => {
+    let submittedPhotos: string[] = [];
+    let submittedVideos: string[] = [];
+
+    if (Array.isArray(submission.photo_urls)) {
+      submittedPhotos = submission.photo_urls;
+    } else if (typeof submission.photo_urls === "string") {
+      try {
+        const parsedPhotos = JSON.parse(submission.photo_urls);
+        submittedPhotos = Array.isArray(parsedPhotos)
+          ? parsedPhotos
+          : parsedPhotos
+            ? [parsedPhotos]
+            : [];
+      } catch {
+        submittedPhotos = submission.photo_urls
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+    }
+
+    if (Array.isArray(submission.video_urls)) {
+      submittedVideos = submission.video_urls;
+    } else if (typeof submission.video_urls === "string") {
+      try {
+        const parsedVideos = JSON.parse(submission.video_urls);
+        submittedVideos = Array.isArray(parsedVideos)
+          ? parsedVideos
+          : parsedVideos
+            ? [parsedVideos]
+            : [];
+      } catch {
+        submittedVideos = submission.video_urls
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+    }
+
+    const hasPhotos = submittedPhotos.filter(Boolean).length > 0;
+    const hasVideos = submittedVideos.filter(Boolean).length > 0;
+
+    return !hasPhotos || hasVideos;
+  })
+  .map((submission) => (
         <div
   key={submission.id}
   className="rounded-2xl border border-stone-200 bg-gradient-to-b from-stone-50 to-white p-4 shadow-sm"
