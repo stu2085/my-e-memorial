@@ -221,12 +221,12 @@ ${videoListHtml}
             This contribution is pending review and has not been published.
           </p>
 
-          <p>
-            Review this contribution:<br />
-<a href="${baseUrl}/memorial/${memorialSlug}/edit">
-  ${baseUrl}/memorial/${memorialSlug}/edit
-</a>
-          </p>
+         <p>
+  Review this contribution:<br />
+  <a href="${baseUrl}/login?redirect=${encodeURIComponent(`/memorial/${memorialSlug}/edit`)}">
+    ${baseUrl}/login
+  </a>
+</p>
 
           <p>
             Submission ID: ${submission.id}
