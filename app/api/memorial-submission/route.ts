@@ -196,7 +196,7 @@ const videoListHtml =
 try {
   const info = await transporter.sendMail({
   from: `"MyEMemorial" <${process.env.EMAIL_USER}>`,
-  to: "mike@realchoicerealestate.com",
+  to: "to: ownerEmail,",
   replyTo: submitterEmail || process.env.EMAIL_USER,
   subject: `New contribution submitted for ${
           memorialName || memorial.full_name || "a memorial"
@@ -223,9 +223,9 @@ ${videoListHtml}
 
          <p>
   Review this contribution:<br />
-  <a href="${baseUrl}/login?redirect=${encodeURIComponent(`/memorial/${memorialSlug}/edit`)}">
-    ${baseUrl}/login
-  </a>
+  <a href="${baseUrl}/login?mode=login&redirect=${encodeURIComponent(`/memorial/${memorialSlug}/edit`)}">
+  Review Contribution
+</a>
 </p>
 
           <p>
