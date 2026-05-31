@@ -95,17 +95,37 @@ function getGalleryPhotos(value: string | string[] | null | undefined): string[]
   return [];
 }
 
-function getVideoUrls(value: string | string[] | null | undefined): string[] {
+function parseUrlList(value: string | string[] | null | undefined): string[] {
   if (Array.isArray(value)) return value.filter(Boolean);
 
   if (typeof value === "string") {
-    return value
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
+    const trimmed = value.trim();
+
+    if (!trimmed || trimmed === "null" || trimmed === "[]") return [];
+
+    try {
+      const parsed = JSON.parse(trimmed);
+
+      if (Array.isArray(parsed)) return parsed.filter(Boolean);
+
+      if (typeof parsed === "string" && parsed.trim()) {
+        return [parsed.trim()];
+      }
+
+      return [];
+    } catch {
+      return trimmed
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
   }
 
   return [];
+}
+
+function getVideoUrls(value: string | string[] | null | undefined): string[] {
+  return parseUrlList(value).filter((videoId) => videoId.length > 15);
 }
 
 function formatDate(value?: string) {
@@ -430,28 +450,9 @@ const videoUrls = useMemo(
 );
   const contributorGalleryPhotos = useMemo(() => {
   return approvedSubmissions.flatMap((submission) => {
-    let submittedPhotos: string[] = [];
+    const submittedPhotos = parseUrlList(submission.photo_urls);
 
-    if (Array.isArray(submission.photo_urls)) {
-      submittedPhotos = submission.photo_urls;
-    } else if (typeof submission.photo_urls === "string") {
-      try {
-        const parsed = JSON.parse(submission.photo_urls);
-
-        if (Array.isArray(parsed)) {
-          submittedPhotos = parsed;
-        } else if (typeof parsed === "string") {
-          submittedPhotos = [parsed];
-        }
-      } catch {
-        submittedPhotos = submission.photo_urls
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean);
-      }
-    }
-
-    return submittedPhotos.filter(Boolean).map((photoUrl) => ({
+    return submittedPhotos.map((photoUrl) => ({
       src: photoUrl,
       note: submission.message ?? "",
       attribution: submission.submitter_name
@@ -1558,53 +1559,17 @@ function showNextPhoto() {
 
     <div className="mt-5 space-y-4">
       {approvedSubmissions
-
   .filter((submission) => {
-    let submittedPhotos: string[] = [];
-    let submittedVideos: string[] = [];
+    const submittedPhotos = parseUrlList(submission.photo_urls);
+    const submittedVideos = parseUrlList(submission.video_urls).filter(
+      (videoId) => videoId.length > 15
+    );
 
-    if (Array.isArray(submission.photo_urls)) {
-      submittedPhotos = submission.photo_urls;
-    } else if (typeof submission.photo_urls === "string") {
-      try {
-        const parsedPhotos = JSON.parse(submission.photo_urls);
-        submittedPhotos = Array.isArray(parsedPhotos)
-          ? parsedPhotos
-          : parsedPhotos
-            ? [parsedPhotos]
-            : [];
-      } catch {
-        submittedPhotos = submission.photo_urls
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean);
-      }
-    }
+    const hasPhotos = submittedPhotos.length > 0;
+    const hasVideos = submittedVideos.length > 0;
+    const hasMessage = !!submission.message?.trim();
 
-    if (Array.isArray(submission.video_urls)) {
-      submittedVideos = submission.video_urls;
-    } else if (typeof submission.video_urls === "string") {
-      try {
-        const parsedVideos = JSON.parse(submission.video_urls);
-        submittedVideos = Array.isArray(parsedVideos)
-          ? parsedVideos
-          : parsedVideos
-            ? [parsedVideos]
-            : [];
-      } catch {
-        submittedVideos = submission.video_urls
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean);
-      }
-    }
-
-    const hasPhotos = submittedPhotos.filter(Boolean).length > 0;
-    const hasVideos = submittedVideos
-  .filter(Boolean)
-  .filter((videoId) => videoId.length > 15).length > 0;
-
-    return !hasPhotos || hasVideos;
+    return hasVideos || (hasMessage && !hasPhotos);
   })
   .map((submission) => (
         <div
@@ -1636,24 +1601,9 @@ function showNextPhoto() {
             {submission.message}
           </p>
        {(() => {   
-  let submittedVideos: string[] = [];
-
-  if (Array.isArray(submission.video_urls)) {
-    submittedVideos = submission.video_urls;
-  } else if (typeof submission.video_urls === "string") {
-    try {
-      submittedVideos = JSON.parse(submission.video_urls);
-    } catch {
-      submittedVideos = submission.video_urls
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
-    }
-  }
-
-  submittedVideos = submittedVideos
-  .filter(Boolean)
-  .filter((videoId) => videoId.length > 15);
+  let submittedVideos = parseUrlList(submission.video_urls).filter(
+  (videoId) => videoId.length > 15
+);
 
   if (submittedVideos.length === 0) return null;
 
