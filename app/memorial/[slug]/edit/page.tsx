@@ -761,7 +761,11 @@ async function loadSubmissions(currentMemorialId: number) {
     return;
   }
 
-  setSubmissions((data as MemorialSubmission[]) || []);
+  setSubmissions(
+  ((data as MemorialSubmission[]) || []).filter(
+    (submission) => submission.status !== "rejected"
+  )
+);
 }
 
 async function handleSubmissionStatus(
