@@ -197,7 +197,7 @@ return;
     : "Logging in..."
   : isSignupMode
     ? "Create Account"
-    : "Create Account or Log In"}
+    : "Log In"}
         </button>
 
         {!isSignupMode && (
