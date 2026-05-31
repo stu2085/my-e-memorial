@@ -196,7 +196,7 @@ const videoListHtml =
 try {
   const info = await transporter.sendMail({
   from: `"MyEMemorial" <${process.env.EMAIL_USER}>`,
-  to: "mikestum1957@gmail.com",
+  to: "mike@realchoicerealestate.com",
   replyTo: submitterEmail || process.env.EMAIL_USER,
   subject: `New contribution submitted for ${
           memorialName || memorial.full_name || "a memorial"
