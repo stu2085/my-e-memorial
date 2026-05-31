@@ -148,7 +148,9 @@ status: "pending",
       console.log("OWNER EMAIL FOUND:", ownerEmail);
 console.log("OWNER ERROR:", ownerError);
     }
-
+console.log("CONTRIBUTION OWNER ID:", memorial.owner_id);
+console.log("CONTRIBUTION OWNER EMAIL:", ownerEmail);
+console.log("CONTRIBUTION BACKUP EMAIL:", memorial.backup_email);
     if (ownerEmail) {
       const baseUrl =
         process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -190,7 +192,8 @@ const videoListHtml =
     `
     : "";
     console.log("SENDING CONTRIBUTION EMAIL TO:", ownerEmail);
-      await transporter.sendMail({
+
+await transporter.sendMail({
         from: `"MyEMemorial" <${process.env.EMAIL_USER}>`,
         to: ownerEmail,
         subject: `New contribution submitted for ${
