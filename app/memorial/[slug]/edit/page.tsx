@@ -1473,7 +1473,9 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
     }
   }
 
-  submittedVideos = submittedVideos.filter(Boolean);
+  submittedVideos = submittedVideos
+  .filter(Boolean)
+  .filter((videoId) => videoId.length > 15);
 
   if (submittedVideos.length === 0) return null;
 
