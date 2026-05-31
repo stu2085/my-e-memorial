@@ -134,7 +134,7 @@ return;
         className="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm"
       >
        <h1 className="text-4xl font-bold text-stone-900">
-  Create Account or Log In
+  Create Account
 </h1>
 
         <p className="mt-2 text-sm text-stone-600">
