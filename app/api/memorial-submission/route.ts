@@ -145,6 +145,8 @@ status: "pending",
       if (!ownerError && ownerData?.user?.email) {
         ownerEmail = ownerData.user.email;
       }
+      console.log("OWNER EMAIL FOUND:", ownerEmail);
+console.log("OWNER ERROR:", ownerError);
     }
 
     if (ownerEmail) {
@@ -187,6 +189,7 @@ const videoListHtml =
       </ul>
     `
     : "";
+    console.log("SENDING CONTRIBUTION EMAIL TO:", ownerEmail);
       await transporter.sendMail({
         from: `"MyEMemorial" <${process.env.EMAIL_USER}>`,
         to: ownerEmail,
