@@ -193,7 +193,8 @@ const videoListHtml =
     : "";
     console.log("SENDING CONTRIBUTION EMAIL TO:", ownerEmail);
 
-await transporter.sendMail({
+try {
+  const info = await transporter.sendMail({
         from: `"MyEMemorial" <${process.env.EMAIL_USER}>`,
         to: ownerEmail,
         subject: `New contribution submitted for ${
@@ -231,6 +232,10 @@ ${videoListHtml}
           </p>
         `,
       });
+        console.log("CONTRIBUTION EMAIL SENT:", info.messageId);
+} catch (emailError) {
+  console.error("CONTRIBUTION EMAIL ERROR:", emailError);
+}
     }
 
     return NextResponse.json({
