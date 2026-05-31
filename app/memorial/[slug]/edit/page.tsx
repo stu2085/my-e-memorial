@@ -1415,6 +1415,8 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
             {submission.message}
           </p>
 {(() => {
+  if (submission.status !== "pending") return null;
+
   let submittedPhotos: string[] = [];
 
   if (Array.isArray(submission.photo_urls)) {
