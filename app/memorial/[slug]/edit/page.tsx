@@ -1208,13 +1208,26 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
         {authChecked && !(isOwner || isBackupUnlocked) ? (
   <section className="rounded-[2rem] border border-stone-200/80 bg-white p-8 shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
     <h1 className="text-3xl font-bold text-stone-900">
-      Backup Person Login
-    </h1>
+  {form.isLivingPreplan ? "Backup Person Login" : "Log In Required"}
+</h1>
 
     <p className="mt-3 text-stone-600">
-      This memorial is locked. Enter the backup person email and password to continue.
+      {form.isLivingPreplan
+  ? "This memorial is locked. Enter the backup person email and password to continue."
+  : "Please log in with the memorial owner account to review contributions or edit this memorial."}
     </p>
 
+    {!form.isLivingPreplan && (
+  <Link
+    href={`/login?redirect=${encodeURIComponent(`/memorial/${originalSlug}/edit`)}`}
+    className="mt-5 inline-flex items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white hover:bg-stone-700"
+  >
+    Log In
+  </Link>
+)}
+
+{form.isLivingPreplan && (
+  <>
     <div className="mt-6 grid gap-5 md:grid-cols-2">
       <div>
         <label className="mb-2 block text-sm font-semibold text-stone-800">
@@ -1241,15 +1254,15 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
       </div>
     </div>
 
-    
-
-<button
-  type="button"
-  onClick={handleBackupLogin}
-  className="mt-5 inline-flex items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white hover:bg-stone-700"
->
-  Unlock Memorial
-</button>
+    <button
+      type="button"
+      onClick={handleBackupLogin}
+      className="mt-5 inline-flex items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white hover:bg-stone-700"
+    >
+      Unlock Memorial
+    </button>
+  </>
+)}
 
 {backupLoginError && (
   <p className="mt-3 text-sm font-semibold text-red-600">
