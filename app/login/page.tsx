@@ -14,6 +14,7 @@ function LoginContent() {
   const isSignupMode = mode === "signup";
 const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState("");
+  const [confirmEmail, setConfirmEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -58,6 +59,11 @@ useEffect(() => {
     setIsSubmitting(true);
 
     if (!email || !password) {
+      if (isSignupMode && email.trim().toLowerCase() !== confirmEmail.trim().toLowerCase()) {
+  setMessage("Email addresses do not match.");
+  setIsSubmitting(false);
+  return;
+}
       setMessage("Please enter your email and create a password.");
       setIsSubmitting(false);
       return;
@@ -155,7 +161,17 @@ return;
             className="w-full rounded-2xl border border-stone-300 px-4 py-3"
             required
           />
-
+{isSignupMode && (
+  <input
+    type="email"
+    placeholder="Confirm Email"
+    autoComplete="email"
+    value={confirmEmail}
+    onChange={(e) => setConfirmEmail(e.target.value)}
+    className="w-full rounded-2xl border border-stone-300 px-4 py-3"
+    required
+  />
+)}
           <input
   type="password"
   placeholder={isSignupMode ? "Create Password" : "Password"}
