@@ -114,9 +114,9 @@ const isPreplan =
     </button>
   </>
 ) : (
-  <Link href="/login" className={linkClass("/login")}>
-    Log In
-  </Link>
+  <Link href="/login?mode=login" className={linkClass("/login")}>
+  Log In
+</Link>
 )}
         </nav>
       </div>

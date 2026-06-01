@@ -134,14 +134,16 @@ return;
         className="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm"
       >
        <h1 className="text-4xl font-bold text-stone-900">
-  Create Account
+  {isSignupMode ? "Create Account" : "Log In"}
 </h1>
 
-        <p className="mt-2 text-sm text-stone-600">
-          {isSignupMode
-  ? "Create your account first so your memorial ownership is saved correctly."
-  : "Create an account or log in to securely save and manage your memorial."}
-        </p>
+     
+
+<p className="mt-2 text-sm text-stone-600">
+  {isSignupMode
+    ? "Create your account first so your memorial ownership is saved correctly."
+    : "Log in to access and manage your memorials."}
+</p>
 
         <div className="mt-6 space-y-4">
           <input
@@ -221,9 +223,10 @@ return;
                 );
 
                 if (error) {
-                  setMessage(error.message);
-                  return;
-                }
+  setMessage(error.message);
+  setIsSubmitting(false);
+  return;
+}
 
                 setMessage("Password reset email sent. Please check your email.");
               }}
