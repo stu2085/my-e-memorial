@@ -225,6 +225,7 @@ const galleryDragSensors = useSensors(
   const [headstonePhoto1File, setHeadstonePhoto1File] = useState<File | null>(null);
   const [headstonePhoto2File, setHeadstonePhoto2File] = useState<File | null>(null);
   const [galleryPhotoFiles, setGalleryPhotoFiles] = useState<File[]>([]);
+  const [galleryInputResetKey, setGalleryInputResetKey] = useState(0);
   const [newspaperArticleFiles, setNewspaperArticleFiles] = useState<File[]>([]);
   const [videoFiles, setVideoFiles] = useState<File[]>([]);
   const [videoError, setVideoError] = useState("");
@@ -1086,6 +1087,7 @@ if (!res.ok) {
       setHeadstonePhoto1File(null);
       setHeadstonePhoto2File(null);
       setGalleryPhotoFiles([]);
+      setGalleryInputResetKey((prev) => prev + 1);
       setNewspaperArticleFiles([]);
       setVideoFiles([]);
 
@@ -2172,6 +2174,7 @@ Naples, Florida`}
       Upload Gallery Photos
     </label>
     <input
+  key={`gallery-upload-${galleryInputResetKey}`}
   type="file"
   accept="image/*"
   multiple
