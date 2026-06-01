@@ -215,13 +215,17 @@ const rightAdCategory = adCategoryPair[1];
     async function verifyPayment() {
       const savedDraft = localStorage.getItem("memorialDraft");
 
-      if (savedDraft) {
+if (savedDraft) {
   const parsedDraft = JSON.parse(savedDraft);
 
   setForm({
-  ...initialForm,
-  ...parsedDraft,
-});
+    ...initialForm,
+    ...parsedDraft,
+  });
+}
+
+if (localStorage.getItem("agreedToTerms") === "true") {
+  setAgreedToTerms(true);
 }
 setDraftReady(true);
       const params = searchParams;
@@ -268,7 +272,44 @@ if (!sessionId && autoCheckout !== "1") {
   return;
 }
 if (autoCheckout === "1") {
-  // auto checkout logic here
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const savedDraft = localStorage.getItem("memorialDraft");
+
+    if (savedDraft) {
+      const parsedDraft = JSON.parse(savedDraft);
+      const selectedPlan = parsedDraft.plan || "basic";
+
+      const planPrices = {
+        basic: 9900,
+        plus: 12495,
+        premium: 14995,
+      };
+
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plan: selectedPlan,
+          amount: planPrices[selectedPlan as keyof typeof planPrices],
+          returnUrl: `${window.location.origin}/create?session_id={CHECKOUT_SESSION_ID}`,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+
+      return;
+    }
+  }
 }
 
 if (!sessionId) {
@@ -873,6 +914,7 @@ async function handleBuyExtraVideos(extraCount: number) {
     localStorage.removeItem("memorialDraft");
     localStorage.removeItem("memorialPaid");
     localStorage.removeItem("paidExtraVideos");
+    localStorage.removeItem("agreedToTerms");
 
     setForm(initialForm);
     setFeaturedPhoto(null);
@@ -1770,7 +1812,7 @@ if (!user) {
       plan: selectedPlan,
     })
   );
-
+localStorage.setItem("agreedToTerms", "true");
   window.location.assign(
     `/login?mode=choice&redirect=${encodeURIComponent(currentPath)}`
   );
@@ -1792,6 +1834,7 @@ const selectedPlan = form.plan || "basic";
     plan: form.plan || "basic",
   })
 );
+localStorage.setItem("agreedToTerms", "true");
   window.location.assign(
     `/login?mode=choice&redirect=${encodeURIComponent(currentPath)}`
   );
@@ -1865,7 +1908,7 @@ const selectedPlan = form.plan || "basic";
     "autocheckout=1";
 
   localStorage.setItem("memorialDraft", JSON.stringify(form));
-
+localStorage.setItem("agreedToTerms", "true");
   window.location.assign(
   `/login?mode=choice&redirect=${encodeURIComponent(currentPath)}`
 );
