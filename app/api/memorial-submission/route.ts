@@ -155,25 +155,7 @@ console.log("CONTRIBUTION BACKUP EMAIL:", memorial.backup_email);
       const baseUrl =
         process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-      const photoListHtml =
-        cleanPhotoUrls.length > 0
-          ? `
-            <p><strong>Submitted Photos:</strong></p>
-            <ul>
-              ${cleanPhotoUrls
-                .map(
-                  (url) => `
-                    <li>
-                      <a href="${url}" target="_blank" rel="noopener noreferrer">
-                        ${url}
-                      </a>
-                    </li>
-                  `
-                )
-                .join("")}
-            </ul>
-          `
-          : "";
+      
 const videoListHtml =
   cleanVideoUrls.length > 0
     ? `
@@ -196,7 +178,7 @@ const videoListHtml =
 try {
   const info = await transporter.sendMail({
   from: `"MyEMemorial" <${process.env.EMAIL_USER}>`,
-  to: "to: ownerEmail,",
+  to: ownerEmail,
   replyTo: submitterEmail || process.env.EMAIL_USER,
   subject: `New contribution submitted for ${
           memorialName || memorial.full_name || "a memorial"
@@ -215,8 +197,7 @@ try {
           <p><strong>Message:</strong></p>
           <p style="white-space: pre-line;">${message || "No message provided."}</p>
 
-          ${photoListHtml}
-${videoListHtml}
+          
           <p>
             This contribution is pending review and has not been published.
           </p>
