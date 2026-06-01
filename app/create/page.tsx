@@ -183,6 +183,7 @@ const [featuredPhoto, setFeaturedPhoto] = useState<File | null>(null);
   const [favoriteSongFile, setFavoriteSongFile] = useState<File | null>(null);
 const [draftReady, setDraftReady] = useState(false);
   const [videoFiles, setVideoFiles] = useState<File[]>([]);
+  const [videoNotes, setVideoNotes] = useState<string[]>([]);
   const [videoError, setVideoError] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -512,7 +513,7 @@ useEffect(() => {
 
  const maxVideos = limits.videos + paidExtraVideos;
 const totalVideos = videoFiles.length + newUniqueFiles.length;
-
+const [videoNotes, setVideoNotes] = useState<string[]>([]);
 if (totalVideos > maxVideos) {
     setVideoError(
       `${limits.label} allows up to ${maxVideos} videos. You selected ${totalVideos}.`
@@ -534,8 +535,14 @@ if (totalVideos > maxVideos) {
   }
 
   setVideoFiles((prev) => [...prev, ...newUniqueFiles]);
-  setVideoError("");
-  e.target.value = "";
+
+setVideoNotes((prev) => [
+  ...prev,
+  ...newUniqueFiles.map(() => ""),
+]);
+
+setVideoError("");
+e.target.value = "";
 }
 
 
@@ -814,7 +821,8 @@ featured_photo_url: featuredPhotoUrl,
           gallery_photos: galleryPhotoUrls.join(","),
           favorite_song_url: favoriteSongUrl,
           video_urls: uploadedVideoUrls,
-          final_resting_type: form.finalRestingType,
+video_notes: videoNotes,
+final_resting_type: form.finalRestingType,
           ashes_location_description: form.ashesLocationDescription,
           backup_person_name: form.backupPersonName,
           payment_status: usingBetaCode ? "free_beta" : "paid",
@@ -1619,26 +1627,44 @@ Naples, Florida`}
                     </p>
 
                     <ul className="mt-3 space-y-2 text-sm text-stone-600">
-  {videoFiles.map((file) => (
-    <li
-      key={file.name}
-      className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-2"
-    >
+  {videoFiles.map((file, index) => (
+  <li
+    key={file.name}
+    className="rounded-xl bg-white px-3 py-3"
+  >
+    <div className="flex items-center justify-between gap-3">
       <span className="break-all">{file.name}</span>
 
       <button
         type="button"
-        onClick={() =>
+        onClick={() => {
           setVideoFiles((prev) =>
             prev.filter((item) => item.name !== file.name)
-          )
-        }
+          );
+
+          setVideoNotes((prev) =>
+            prev.filter((_, i) => i !== index)
+          );
+        }}
         className="shrink-0 rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
       >
         Remove
       </button>
-    </li>
-  ))}
+    </div>
+
+    <input
+      type="text"
+      placeholder="Video caption or memory..."
+      value={videoNotes[index] || ""}
+      onChange={(e) => {
+        const updated = [...videoNotes];
+        updated[index] = e.target.value;
+        setVideoNotes(updated);
+      }}
+      className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
+    />
+  </li>
+))}
 </ul>
                   </div>
                 )}

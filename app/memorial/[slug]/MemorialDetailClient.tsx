@@ -59,7 +59,7 @@ social_link_5?: string;
   gallery_photo_notes?: string[] | null;
   newspaper_articles?: string | string[];
   video_urls?: string | string[];
-
+video_notes?: string[] | null;
   grave_lat?: number | string | null;
   grave_lng?: number | string | null;
   grave_latitude?: number | string | null;
@@ -447,6 +447,13 @@ const newspaperArticles = useMemo(
 const videoUrls = useMemo(
   () => getVideoUrls(data?.video_urls),
   [data?.video_urls]
+);
+const videoNotes = useMemo(
+  () =>
+    Array.isArray(data?.video_notes)
+      ? data.video_notes
+      : [],
+  [data?.video_notes]
 );
   const contributorGalleryPhotos = useMemo(() => {
   return approvedSubmissions.flatMap((submission) => {
@@ -1506,6 +1513,11 @@ function showNextPhoto() {
             ▶ Load & Play Video
           </button>
         )}
+        {videoNotes[index] && (
+  <p className="mt-3 text-sm italic text-stone-600">
+    {videoNotes[index]}
+  </p>
+)}
       </div>
     ))}
   </div>

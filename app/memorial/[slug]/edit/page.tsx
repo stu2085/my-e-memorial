@@ -230,6 +230,7 @@ const galleryDragSensors = useSensors(
   const [videoFiles, setVideoFiles] = useState<File[]>([]);
   const [videoError, setVideoError] = useState("");
   const [existingVideos, setExistingVideos] = useState<string[]>([]);
+  const [videoNotes, setVideoNotes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 const [previewVideoId, setPreviewVideoId] = useState<string | null>(null);
@@ -636,9 +637,10 @@ newspaperArticles: data.newspaper_articles ?? "",
 extraVideoSlots: String(data.extra_video_slots ?? 0),
 backupEmail: "",
 backupPassword: "",
-      });
-galleryPhotoNotes: data.gallery_photo_notes ?? [],
-      setExistingVideos(
+
+});
+
+const loadedVideos =
   Array.isArray(data.video_urls)
     ? data.video_urls
         .filter(Boolean)
@@ -649,10 +651,17 @@ galleryPhotoNotes: data.gallery_photo_notes ?? [],
           .map((item: string) => item.trim())
           .filter(Boolean)
           .filter((videoId: string) => videoId.length > 15)
-      : []
+      : [];
+
+setExistingVideos(loadedVideos);
+
+setVideoNotes(
+  Array.isArray(data.video_notes)
+    ? data.video_notes
+    : []
 );
 
-      setIsLoading(false);
+setIsLoading(false);
     }
 
     loadMemorial();
@@ -1026,7 +1035,8 @@ featured_photo_url: featuredPhotoUrl,
         gallery_photo_notes: form.galleryPhotoNotes ?? [],
         newspaper_articles: newspaperArticles.join(","),
         video_urls: [...existingVideos, ...newPlaybackIds],
-        backup_email: form.backupEmail,
+video_notes: videoNotes,
+backup_email: form.backupEmail,
 backup_password: form.backupPassword,
       };
 
@@ -2466,7 +2476,17 @@ Naples, Florida`}
             Preview Video
           </button>
         )}
-
+<input
+  type="text"
+  placeholder="Video caption or memory..."
+  value={videoNotes[index] || ""}
+  onChange={(e) => {
+    const updated = [...videoNotes];
+    updated[index] = e.target.value;
+    setVideoNotes(updated);
+  }}
+  className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
+/>
         <p className="mt-2 text-xs text-stone-500">
           Preview only loads when clicked to keep this edit page fast.
         </p>
