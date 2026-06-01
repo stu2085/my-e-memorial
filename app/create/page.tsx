@@ -1543,7 +1543,13 @@ Naples, Florida`}
 }}
                       className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
                     />
-
+<p className="mt-2 text-sm text-stone-600">
+  {form.plan === "premium"
+    ? `${galleryPhotos.length} gallery photo${galleryPhotos.length === 1 ? "" : "s"} selected. Premium allows unlimited photos.`
+    : `${galleryPhotos.length} of ${
+        form.plan === "plus" ? 150 : 50
+      } gallery photos selected.`}
+</p>
                     <p className="mt-2 text-sm text-stone-500">
                       You can select multiple gallery images at once.
                     </p>
