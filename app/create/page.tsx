@@ -1750,14 +1750,15 @@ const {
 
 if (!user) {
   const currentPath =
-  window.location.pathname +
-  window.location.search +
-  (window.location.search ? "&" : "?") +
-  "autocheckout=1";
+    window.location.pathname +
+    window.location.search +
+    (window.location.search ? "&" : "?") +
+    "autocheckout=1";
 
-window.location.assign(
-  `/login?redirect=${encodeURIComponent(currentPath)}`
-);
+  window.location.assign(
+    `/login?mode=choice&redirect=${encodeURIComponent(currentPath)}`
+  );
+
   return;
 }
           const selectedPlan = form.plan || "basic";
@@ -1837,8 +1838,8 @@ window.location.assign(
   localStorage.setItem("memorialDraft", JSON.stringify(form));
 
   window.location.assign(
-    `/login?redirect=${encodeURIComponent(currentPath)}`
-  );
+  `/login?mode=choice&redirect=${encodeURIComponent(currentPath)}`
+);
 
   return;
 }

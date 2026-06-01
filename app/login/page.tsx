@@ -19,6 +19,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const turnstileRef = useRef<HTMLDivElement | null>(null);
+  const isChoiceMode = mode === "choice";
   useEffect(() => {
   async function checkUser() {
     const {
@@ -58,16 +59,21 @@ useEffect(() => {
     setMessage("");
     setIsSubmitting(true);
 
-    if (!email || !password) {
-      if (isSignupMode && email.trim().toLowerCase() !== confirmEmail.trim().toLowerCase()) {
+    
+      if (!email || !password) {
+  setMessage("Please enter your email and create a password.");
+  setIsSubmitting(false);
+  return;
+}
+
+if (
+  isSignupMode &&
+  email.trim().toLowerCase() !== confirmEmail.trim().toLowerCase()
+) {
   setMessage("Email addresses do not match.");
   setIsSubmitting(false);
   return;
 }
-      setMessage("Please enter your email and create a password.");
-      setIsSubmitting(false);
-      return;
-    }
     const captchaToken = (
   document.querySelector('[name="cf-turnstile-response"]') as HTMLInputElement
 )?.value;
@@ -93,7 +99,6 @@ if (!captchaRes.ok) {
 }
 if (isSignupMode && password !== confirmPassword) {
   setMessage("Passwords do not match.");
-  setIsSubmitting(false);
   setIsSubmitting(false);
   return;
 }
@@ -126,13 +131,42 @@ return;
     });
 
     if (error) {
-      setMessage(error.message);
-      return;
-    }
+  setMessage(error.message);
+  setIsSubmitting(false);
+  return;
+}
 
     window.location.assign(redirectTo);
   }
+if (isChoiceMode) {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4">
+      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm">
+        <h1 className="text-4xl font-bold text-stone-900">
+          Continue to MyEMemorial
+        </h1>
 
+        <p className="mt-3 text-sm text-stone-600">
+          Do you already have an account?
+        </p>
+
+        <a
+          href={`/login?mode=login&redirect=${encodeURIComponent(redirectTo)}`}
+          className="mt-6 block w-full rounded-full border border-stone-300 bg-white px-6 py-3 text-center text-sm font-semibold text-stone-800 hover:bg-stone-100"
+        >
+          I Already Have an Account
+        </a>
+
+        <a
+          href={`/login?mode=signup&redirect=${encodeURIComponent(redirectTo)}`}
+          className="mt-4 block w-full rounded-full bg-stone-900 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-stone-700"
+        >
+          Create New Account
+        </a>
+      </div>
+    </main>
+  );
+}
   return (
     <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4">
       <form
@@ -222,7 +256,7 @@ return;
 
         {isSignupMode && (
           <a
-            href={`/login?redirect=${encodeURIComponent(redirectTo)}`}
+            href={`/login?mode=login&redirect=${encodeURIComponent(redirectTo)}`}
             className="mt-3 block w-full text-center text-sm font-medium text-stone-600 hover:text-stone-900"
           >
             Already have an account? Log in
