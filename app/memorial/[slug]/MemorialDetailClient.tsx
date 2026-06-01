@@ -1506,12 +1506,23 @@ function showNextPhoto() {
           />
         ) : (
           <button
-            type="button"
-            onClick={() => setCurrentSongIndex(index + 1000)}
-            className="flex aspect-video w-full items-center justify-center rounded-xl bg-stone-200 text-sm font-semibold text-stone-700 transition hover:bg-stone-300"
-          >
-            ▶ Load & Play Video
-          </button>
+  type="button"
+  onClick={() => setCurrentSongIndex(index + 1000)}
+  className="group relative block aspect-video w-full overflow-hidden rounded-xl bg-stone-200"
+>
+  <img
+    src={`https://image.mux.com/${videoId}/thumbnail.jpg?time=5`}
+    alt={`Memorial video ${index + 1} thumbnail`}
+    className="h-full w-full object-cover transition group-hover:scale-105"
+    loading="lazy"
+  />
+
+  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+    <div className="rounded-full bg-black/65 px-5 py-4 text-2xl text-white shadow-lg">
+      ▶
+    </div>
+  </div>
+</button>
         )}
         {videoNotes[index] && (
   <p className="mt-3 text-sm italic text-stone-600">
