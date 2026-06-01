@@ -202,49 +202,7 @@ return;
     : "Log In"}
         </button>
 
-        {!isSignupMode && (
-          <>
-            <button
-              type="button"
-              onClick={async () => {
-                if (!email) {
-                  setMessage("Please enter your email first.");
-                  return;
-                }
-
-                const { error } = await supabase.auth.resetPasswordForEmail(
-                  email,
-                  {
-                    redirectTo: `${
-                      process.env.NEXT_PUBLIC_SITE_URL ||
-                      "http://localhost:3000"
-                    }/reset-password`,
-                  }
-                );
-
-                if (error) {
-  setMessage(error.message);
-  setIsSubmitting(false);
-  return;
-}
-
-                setMessage("Password reset email sent. Please check your email.");
-              }}
-              className="mt-3 w-full text-sm font-medium text-stone-600 hover:text-stone-900"
-            >
-              Forgot Password?
-            </button>
-
-            <a
-              href={`/login?mode=signup&redirect=${encodeURIComponent(
-                redirectTo
-              )}`}
-              className="mt-3 block w-full rounded-full bg-stone-900 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-stone-700"
-            >
-              Create Account
-            </a>
-          </>
-        )}
+        
 
         {isSignupMode && (
           <a
