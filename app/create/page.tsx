@@ -1525,7 +1525,22 @@ Naples, Florida`}
                       type="file"
                       accept="image/*"
                       multiple
-                      onChange={(e) => setGalleryPhotos(Array.from(e.target.files ?? []))}
+                      onChange={(e) => {
+  const files = Array.from(e.target.files ?? []);
+  const selectedPlan = form.plan as PlanKey;
+  const limit = PLAN_LIMITS[selectedPlan]?.galleryPhotos ?? 50;
+
+  if (Number.isFinite(limit) && files.length > limit) {
+    alert(
+      `${PLAN_LIMITS[selectedPlan].label} allows up to ${limit} gallery photos. You selected ${files.length}.`
+    );
+    e.target.value = "";
+    setGalleryPhotos([]);
+    return;
+  }
+
+  setGalleryPhotos(files);
+}}
                       className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
                     />
 
@@ -1798,27 +1813,7 @@ const {
 } = await supabase.auth.getUser();
 const selectedPlan = form.plan || "basic";
 
-if (!user) {
-  const currentPath =
-    window.location.pathname +
-    window.location.search +
-    (window.location.search ? "&" : "?") +
-    "autocheckout=1";
 
-  localStorage.setItem(
-    "memorialDraft",
-    JSON.stringify({
-      ...form,
-      plan: selectedPlan,
-    })
-  );
-localStorage.setItem("agreedToTerms", "true");
-  window.location.assign(
-    `/login?mode=choice&redirect=${encodeURIComponent(currentPath)}`
-  );
-
-  return;
-}
 if (!user) {
   const currentPath =
     window.location.pathname +
