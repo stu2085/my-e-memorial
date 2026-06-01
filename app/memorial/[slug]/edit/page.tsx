@@ -849,20 +849,47 @@ async function uploadFile(file: File, folderName: string, bucketName: string) {
   return data.publicUrl;
 }
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-if (!(isOwner || isBackupUnlocked)) {
-  setErrorMessage("You do not have permission to edit this memorial.");
-  return;
-}
-    if (!memorialId) {
-      setErrorMessage("Missing memorial record. Could not save.");
-      return;
-    }
+  e.preventDefault();
 
-    setIsSaving(true);
-    setErrorMessage("");
-    setSuccessMessage("");
-    setVideoError("");
+  if (!(isOwner || isBackupUnlocked)) {
+    setErrorMessage("You do not have permission to edit this memorial.");
+    return;
+  }
+
+  if (!memorialId) {
+    setErrorMessage("Missing memorial record. Could not save.");
+    return;
+  }
+
+  const galleryPhotoLimit =
+    form.plan === "premium"
+      ? Infinity
+      : form.plan === "plus"
+      ? 150
+      : 50;
+
+  const existingGalleryPhotoCount =
+    splitGalleryPhotos(form.galleryPhotos).length;
+
+  const newGalleryPhotoCount = galleryPhotoFiles.length;
+
+  const totalGalleryPhotoCount =
+    existingGalleryPhotoCount + newGalleryPhotoCount;
+
+  if (
+    Number.isFinite(galleryPhotoLimit) &&
+    totalGalleryPhotoCount > galleryPhotoLimit
+  ) {
+    setErrorMessage(
+      `${form.plan === "plus" ? "Plus" : "Basic"} Memorial allows up to ${galleryPhotoLimit} gallery photos. This memorial already has ${existingGalleryPhotoCount}, and you selected ${newGalleryPhotoCount}.`
+    );
+    return;
+  }
+
+  setIsSaving(true);
+  setErrorMessage("");
+  setSuccessMessage("");
+  setVideoError("");
 
     try {
       const newPlaybackIds = await uploadVideos();
@@ -2145,12 +2172,52 @@ Naples, Florida`}
       Upload Gallery Photos
     </label>
     <input
-      type="file"
-      accept="image/*"
-      multiple
-      onChange={(e) => setGalleryPhotoFiles(Array.from(e.target.files ?? []))}
-      className="w-full rounded-2xl border border-stone-300 px-4 py-3"
-    />
+  type="file"
+  accept="image/*"
+  multiple
+  onChange={(e) => {
+    const files = Array.from(e.target.files ?? []);
+
+    const galleryPhotoLimit =
+      form.plan === "premium"
+        ? Infinity
+        : form.plan === "plus"
+        ? 150
+        : 50;
+
+    const existingGalleryPhotoCount =
+      splitGalleryPhotos(form.galleryPhotos).length;
+
+    const totalGalleryPhotoCount =
+      existingGalleryPhotoCount + files.length;
+
+    if (
+      Number.isFinite(galleryPhotoLimit) &&
+      totalGalleryPhotoCount > galleryPhotoLimit
+    ) {
+      alert(
+        `${form.plan === "plus" ? "Plus" : "Basic"} Memorial allows up to ${galleryPhotoLimit} gallery photos. This memorial already has ${existingGalleryPhotoCount}, and you selected ${files.length}.`
+      );
+
+      e.target.value = "";
+      setGalleryPhotoFiles([]);
+      return;
+    }
+
+    setGalleryPhotoFiles(files);
+  }}
+  className="w-full rounded-2xl border border-stone-300 px-4 py-3"
+/>
+
+<p className="mt-2 text-sm text-stone-600">
+  {form.plan === "premium"
+    ? `${splitGalleryPhotos(form.galleryPhotos).length + galleryPhotoFiles.length} gallery photo${
+        splitGalleryPhotos(form.galleryPhotos).length + galleryPhotoFiles.length === 1 ? "" : "s"
+      } used. Premium allows unlimited photos.`
+    : `${splitGalleryPhotos(form.galleryPhotos).length + galleryPhotoFiles.length} of ${
+        form.plan === "plus" ? 150 : 50
+      } gallery photos used.`}
+</p>
     </div>
 
   <QuickSaveButton isSaving={isSaving} />
