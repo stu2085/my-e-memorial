@@ -235,7 +235,7 @@ useEffect(() => {
   <div className="grid gap-4 text-center md:grid-cols-4">
     <div>
       <p className="text-2xl font-bold text-stone-900">
-        One-Time
+        One-Time Payment
       </p>
       <p className="mt-1 text-sm text-stone-600">
         No subscription fees
