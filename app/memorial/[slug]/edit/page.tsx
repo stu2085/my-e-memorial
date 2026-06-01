@@ -763,7 +763,7 @@ async function loadSubmissions(currentMemorialId: number) {
 
   setSubmissions(
   ((data as MemorialSubmission[]) || []).filter(
-    (submission) => submission.status !== "rejected"
+    (submission) => submission.status === "pending"
   )
 );
 }
@@ -815,19 +815,8 @@ async function handleSubmissionStatus(
     }
 
     setSubmissions((prev) =>
-      prev.map((submission) =>
-        submission.id === submissionId
-          ? {
-              ...submission,
-              status: nextStatus,
-              approved_at:
-                nextStatus === "approved"
-                  ? new Date().toISOString()
-                  : null,
-            }
-          : submission
-      )
-    );
+  prev.filter((submission) => submission.id !== submissionId)
+);
 
     setSubmissionsMessage(
       `Submission ${nextStatus}.`
