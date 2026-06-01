@@ -1208,7 +1208,7 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
 
     {!form.isLivingPreplan && (
   <Link
-    href={`/login?redirect=${encodeURIComponent(`/memorial/${originalSlug}/edit`)}`}
+    href={`/login?mode=login&redirect=${encodeURIComponent(`/memorial/${originalSlug}/edit`)}`}
     className="mt-5 inline-flex items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white hover:bg-stone-700"
   >
     Log In

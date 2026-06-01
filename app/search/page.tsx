@@ -201,14 +201,7 @@ const matchesMiddleName =
     );
   });
 
-if (lastName.trim() !== "") {
-  return [...filtered].sort((a, b) => {
-    const aLast = (a.last_name || "").toLowerCase();
-    const bLast = (b.last_name || "").toLowerCase();
 
-    return aLast.localeCompare(bLast);
-  });
-}
 
 if (lastName.trim() !== "") {
   return [...filtered].sort((a, b) => {
@@ -219,7 +212,7 @@ if (lastName.trim() !== "") {
   });
 }
 
-return [...filtered].sort(() => Math.random() - 0.5);
+return filtered;
 }, [memorials, firstName, middleName, lastName, cemetery, city, state, country, school, award]);
   useEffect(() => {
   if (hasSearched) {

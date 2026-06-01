@@ -1747,6 +1747,7 @@ Naples, Florida`}
 const {
   data: { user },
 } = await supabase.auth.getUser();
+const selectedPlan = form.plan || "basic";
 
 if (!user) {
   const currentPath =
@@ -1755,21 +1756,42 @@ if (!user) {
     (window.location.search ? "&" : "?") +
     "autocheckout=1";
 
+  localStorage.setItem(
+    "memorialDraft",
+    JSON.stringify({
+      ...form,
+      plan: selectedPlan,
+    })
+  );
+
   window.location.assign(
     `/login?mode=choice&redirect=${encodeURIComponent(currentPath)}`
   );
 
   return;
 }
-          const selectedPlan = form.plan || "basic";
+if (!user) {
+  const currentPath =
+    window.location.pathname +
+    window.location.search +
+    (window.location.search ? "&" : "?") +
+    "autocheckout=1";
+const selectedPlan = form.plan || "basic";
 
           localStorage.setItem(
-            "memorialDraft",
-            JSON.stringify({
-              ...form,
-              plan: selectedPlan,
-            })
-          );
+  "memorialDraft",
+  JSON.stringify({
+    ...form,
+    plan: form.plan || "basic",
+  })
+);
+  window.location.assign(
+    `/login?mode=choice&redirect=${encodeURIComponent(currentPath)}`
+  );
+
+  return;
+}
+          
 
           const planPrices = {
             basic: 9900,

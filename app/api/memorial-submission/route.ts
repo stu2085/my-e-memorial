@@ -156,23 +156,7 @@ console.log("CONTRIBUTION BACKUP EMAIL:", memorial.backup_email);
         process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
       
-const videoListHtml =
-  cleanVideoUrls.length > 0
-    ? `
-      <p><strong>Submitted Videos:</strong></p>
-      <ul>
-        ${cleanVideoUrls
-          .map(
-            (playbackId) => `
-              <li>
-                Mux playback ID: ${playbackId}
-              </li>
-            `
-          )
-          .join("")}
-      </ul>
-    `
-    : "";
+
     console.log("SENDING CONTRIBUTION EMAIL TO:", ownerEmail);
 
 try {

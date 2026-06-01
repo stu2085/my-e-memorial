@@ -981,11 +981,11 @@ function showNextPhoto() {
 
   {!isOwner && data.is_living_preplan && (
   <Link
-    href={`/memorial/${data.slug}/edit`}
-    className="inline-flex w-fit items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-stone-400 hover:bg-stone-100"
-  >
-    Backup person? Manage this memorial
-  </Link>
+  href={`/memorial/${data.slug || slug}/edit`}
+  className="inline-flex w-fit items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-stone-400 hover:bg-stone-100"
+>
+  Backup person? Manage this memorial
+</Link>
 )}
 </div>
 

@@ -39,9 +39,7 @@ export default function BetaCodesAdminPage() {
     notes: "",
   });
 
-  useEffect(() => {
-    checkAdminAndLoad();
-  }, []);
+  
 
   async function checkAdminAndLoad() {
     setLoading(true);
@@ -60,7 +58,9 @@ export default function BetaCodesAdminPage() {
     await loadCodes();
     setLoading(false);
   }
-
+useEffect(() => {
+    checkAdminAndLoad();
+  }, []);
   async function loadCodes() {
     const { data, error } = await supabase
       .from("promo_codes")
