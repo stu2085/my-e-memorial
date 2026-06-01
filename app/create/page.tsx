@@ -181,7 +181,7 @@ const [featuredPhoto, setFeaturedPhoto] = useState<File | null>(null);
   const [headstonePhoto2, setHeadstonePhoto2] = useState<File | null>(null);
   const [galleryPhotos, setGalleryPhotos] = useState<File[]>([]);
   const [favoriteSongFile, setFavoriteSongFile] = useState<File | null>(null);
-
+const [draftReady, setDraftReady] = useState(false);
   const [videoFiles, setVideoFiles] = useState<File[]>([]);
   const [videoError, setVideoError] = useState("");
 
@@ -223,7 +223,7 @@ const rightAdCategory = adCategoryPair[1];
   ...parsedDraft,
 });
 }
-
+setDraftReady(true);
       const params = searchParams;
       const extraVideosPaid = Number(params.get("extra_videos_paid") || 0);
 const promoFromUrl = params.get("promo");
@@ -289,7 +289,14 @@ if (!sessionId) {
 
     verifyPayment();
   }, []);
+useEffect(() => {
+  if (!draftReady) return;
 
+  localStorage.setItem(
+    "memorialDraft",
+    JSON.stringify(form)
+  );
+}, [draftReady, form]);
   function handleChange(
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) {
