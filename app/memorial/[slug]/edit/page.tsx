@@ -2816,7 +2816,7 @@ if (!res.ok) {
                    </>
         )}
       </div>
-
+<div className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-8 px-4 lg:grid-cols-[180px_minmax(0,900px)_180px] lg:justify-center"></div>
      <div className="hidden lg:block">
   <div className="sticky top-24">
     <SideAd
