@@ -1226,14 +1226,14 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
     </Link>
   </div>
 
-  <div className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-8 px-4 lg:grid-cols-[180px_minmax(0,900px)_180px] lg:justify-center">
-      <div className="lg:-translate-x-6">
-        <div className="sticky top-24"></div>
-  <SideAd
-    pageType="edit"
-    memorialZip={form.mapZip}
-    categorySlot={leftAdCategory}
-  />
+  <div className="hidden lg:block lg:-translate-x-6">
+  <div className="sticky top-24">
+    <SideAd
+      pageType="edit"
+      memorialZip={form.mapZip}
+      categorySlot={leftAdCategory}
+    />
+  </div>
 </div>
 
     <div className="mx-auto w-full max-w-[900px] space-y-8">
@@ -2817,12 +2817,17 @@ if (!res.ok) {
         )}
       </div>
 
-      <SideAd
-        pageType="edit"
-        memorialZip={form.mapZip}
-        categorySlot={rightAdCategory}
-      />
-    </div>
+     <div className="hidden lg:block">
+  <div className="sticky top-24">
+    <SideAd
+      pageType="edit"
+      memorialZip={form.mapZip}
+      categorySlot={rightAdCategory}
+    />
+  </div>
+</div>
+
+
     {submissionPhotoViewer && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
     <button
