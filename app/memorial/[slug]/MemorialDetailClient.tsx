@@ -131,10 +131,14 @@ function getVideoUrls(value: string | string[] | null | undefined): string[] {
 function formatDate(value?: string) {
   if (!value) return "-";
 
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
+  const parts = value.split("-");
 
-  return date.toLocaleDateString();
+  if (parts.length === 3) {
+    const [year, month, day] = parts;
+    return `${month}/${day}/${year}`;
+  }
+
+  return value;
 }
 
 function toNumber(value: number | string | null | undefined): number | null {
