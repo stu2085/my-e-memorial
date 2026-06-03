@@ -1228,6 +1228,7 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
 
   <div className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-8 px-4 lg:grid-cols-[180px_minmax(0,900px)_180px] lg:justify-center">
       <div className="lg:-translate-x-6">
+        <div className="sticky top-24"></div>
   <SideAd
     pageType="edit"
     memorialZip={form.mapZip}
