@@ -903,7 +903,7 @@ async function uploadFile(file: File, folderName: string, bucketName: string) {
 
     try {
       const newPlaybackIds = await uploadVideos();
-      const newSlug = makeSlug(form.firstName, form.lastName) || originalSlug;
+      const newSlug = originalSlug;
 
       const fullName = [
         form.firstName,
@@ -1337,7 +1337,7 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
 
                   <div className="flex flex-wrap gap-3">
                     <Link
-                      href={`/memorial/${makeSlug(form.firstName, form.lastName) || originalSlug}`}
+                      href={`/memorial/${originalSlug}`}
                       className="inline-flex items-center justify-center rounded-full border border-white/40 bg-white/10 px-5 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white/20"
                     >
                       Back to Memorial
