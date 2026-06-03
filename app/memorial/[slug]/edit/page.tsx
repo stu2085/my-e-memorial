@@ -1210,7 +1210,10 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
   }
 }
   const displayName =
-    `${form.firstName} ${form.lastName}`.trim() || "Unnamed Memorial";
+  [form.firstName, form.middleName, form.lastName]
+    .filter(Boolean)
+    .join(" ")
+    .trim() || "Unnamed Memorial";
 
  return (
   <main className="min-h-screen bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100 px-4 py-8 md:px-6 md:py-10 lg:px-8">
