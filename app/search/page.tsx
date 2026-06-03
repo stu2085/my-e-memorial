@@ -439,11 +439,11 @@ return filtered;
                     const thumb = getThumbnail(memorial);
 
                         return (
-  <Link
-    key={memorial.id}
-    href={`/memorial/${memorial.slug}`}
-    className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-  >
+  <a
+  key={memorial.id}
+  href={`/memorial/${memorial.slug}`}
+  className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+>
     <div className="flex flex-col gap-5 p-6 md:flex-row md:items-stretch">
       <div className="flex-1">
         <h3 className="text-xl font-bold text-stone-900">
@@ -513,7 +513,7 @@ return filtered;
         </div>
       )}
     </div>
-  </Link>
+  </a>
 );
                   })}
                 </div>
