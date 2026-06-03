@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-// import SideAd from "../components/SideAd";
+import SideAd from "../components/SideAd";
 import { supabase } from "../lib/supabase";
 import { useRef } from "react";
 
@@ -237,7 +237,11 @@ return filtered;
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
       <div className="mx-auto flex w-full max-w-[1800px] justify-between gap-6 px-4">
-        <div className="hidden md:block w-[220px]" />
+        <SideAd
+  pageType="search"
+  memorialZip={visitorZip}
+  categorySlot={leftAdCategory}
+/>
 
         <div className="flex-1">
           <div className="mx-auto w-full max-w-[1400px]">
@@ -523,7 +527,11 @@ return filtered;
           </div>
         </div>
 
-        <div className="hidden md:block w-[220px]" />
+        <SideAd
+  pageType="search"
+  memorialZip={visitorZip}
+  categorySlot={leftAdCategory}
+/>
       </div>
     </main>
   );
