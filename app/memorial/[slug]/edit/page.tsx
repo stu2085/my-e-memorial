@@ -1225,7 +1225,8 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
       ← Back to My Memorials
     </Link>
   </div>
-
+  <div className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-8 px-4 lg:grid-cols-[180px_minmax(0,900px)_180px] lg:justify-center"></div>
+<div className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-8 px-4 lg:grid-cols-[180px_minmax(0,900px)_180px] lg:justify-center">
   <div className="hidden lg:block lg:-translate-x-6">
   <div className="sticky top-24">
     <SideAd
@@ -2816,7 +2817,7 @@ if (!res.ok) {
                    </>
         )}
       </div>
-<div className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-8 px-4 lg:grid-cols-[180px_minmax(0,900px)_180px] lg:justify-center"></div>
+
      <div className="hidden lg:block">
   <div className="sticky top-24">
     <SideAd
@@ -2826,7 +2827,7 @@ if (!res.ok) {
     />
   </div>
 </div>
-
+</div>
 
     {submissionPhotoViewer && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
