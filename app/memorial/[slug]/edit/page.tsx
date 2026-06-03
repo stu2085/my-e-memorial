@@ -1706,7 +1706,7 @@ const projectedTotal =
 )}
 <CompactFormSection
   title={form.firstName ? `${form.firstName}'s Favorite Songs` : "Favorite Songs"}
-  description="Add up to 5 favorite songs and a short note about each one."
+  description="Add up to 5 favorite songs and a short note about each one.  Tip: Record song on phone using Quickvoice or similar app and upload that file."
 >
                     <div className="space-y-3">
                       <Input
