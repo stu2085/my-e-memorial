@@ -1812,7 +1812,10 @@ function showNextPhoto() {
         {restingPlaceAddress}
       </p>
     )}
-    {data?.grave_directions?.trim() && (
+    
+  </div>
+)}
+{data.grave_directions?.trim() && (
   <div>
     <p className="font-semibold text-stone-900">Directions:</p>
     <p className="mt-1 whitespace-pre-line text-stone-700">
@@ -1820,9 +1823,6 @@ function showNextPhoto() {
     </p>
   </div>
 )}
-  </div>
-)}
-
 {data.grave_section?.trim() && (
   <p>
     <strong>Section:</strong> {data.grave_section}
