@@ -1812,6 +1812,14 @@ function showNextPhoto() {
         {restingPlaceAddress}
       </p>
     )}
+    {data?.grave_directions?.trim() && (
+  <div>
+    <p className="font-semibold text-stone-900">Directions:</p>
+    <p className="mt-1 whitespace-pre-line text-stone-700">
+      {data.grave_directions}
+    </p>
+  </div>
+)}
   </div>
 )}
 
