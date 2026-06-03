@@ -237,11 +237,7 @@ return filtered;
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
       <div className="mx-auto flex w-full max-w-[1800px] justify-between gap-6 px-4">
-        <SideAd
-  pageType="search"
-  memorialZip={visitorZip}
-  categorySlot={leftAdCategory}
-/>
+        {/* SideAd temporarily disabled for testing */}
 
         <div className="flex-1">
           <div className="mx-auto w-full max-w-[1400px]">
@@ -527,11 +523,7 @@ return filtered;
           </div>
         </div>
 
-        <SideAd
-          pageType="search"
-          memorialZip={visitorZip}
-          categorySlot={rightAdCategory}
-        />
+        {/* SideAd temporarily disabled for testing */}
       </div>
     </main>
   );
