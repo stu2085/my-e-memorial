@@ -2751,12 +2751,12 @@ Naples, Florida`}
   <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-800">
     <p className="font-semibold">{successMessage}</p>
 
-    <Link
-      href={`/memorial/${originalSlug}`}
+    <a
+  href={`/memorial/${originalSlug}`}
       className="mt-3 inline-flex items-center justify-center rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white hover:bg-green-800"
     >
       After Saving, View Memorial
-    </Link>
+    </a>
   </div>
 )}
 
@@ -2811,12 +2811,12 @@ if (!res.ok) {
 </button>
 )}
 
-                    <Link
-                      href={`/memorial/${originalSlug}`}
-                      className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-stone-50"
-                    >
-                      After Saving, View Memorial
-                    </Link>
+                    <a
+  href={`/memorial/${originalSlug}`}
+  className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-stone-50"
+>
+  After Saving, View Memorial
+</a>
                   </div>
                 </form>
               </div>
