@@ -2755,7 +2755,7 @@ Naples, Florida`}
       href={`/memorial/${originalSlug}`}
       className="mt-3 inline-flex items-center justify-center rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white hover:bg-green-800"
     >
-      View Memorial
+      After Saving, View Memorial
     </Link>
   </div>
 )}
@@ -2815,7 +2815,7 @@ if (!res.ok) {
                       href={`/memorial/${originalSlug}`}
                       className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-stone-50"
                     >
-                      View Memorial
+                      After Saving, View Memorial
                     </Link>
                   </div>
                 </form>
