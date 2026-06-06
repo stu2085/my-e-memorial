@@ -1103,8 +1103,8 @@ if (!res.ok) {
 
       setSuccessMessage(
   videoFiles.length > 0
-    ? `Memorial updated successfully. ${videoFiles.length} video${videoFiles.length === 1 ? "" : "s"} uploaded. Please wait while photos and videos finish uploading and processing before making additional changes or leaving this page.`
-    : "Memorial updated successfully."
+    ? `✅ Changes saved successfully. ${videoFiles.length} video${videoFiles.length === 1 ? "" : "s"} uploaded. Videos may take a few moments to finish processing.`
+    : "✅ Changes saved successfully."
 );
     
 
@@ -2748,10 +2748,17 @@ Naples, Florida`}
                   
 
                   {successMessage && (
-                    <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-                      {successMessage}
-                    </div>
-                  )}
+  <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-800">
+    <p className="font-semibold">{successMessage}</p>
+
+    <Link
+      href={`/memorial/${originalSlug}`}
+      className="mt-3 inline-flex items-center justify-center rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white hover:bg-green-800"
+    >
+      View Memorial
+    </Link>
+  </div>
+)}
 
                   <div className="flex flex-wrap gap-3 border-t border-stone-200 pt-6">
                     <button
@@ -2808,7 +2815,7 @@ if (!res.ok) {
                       href={`/memorial/${originalSlug}`}
                       className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-stone-50"
                     >
-                      Cancel
+                      View Memorial
                     </Link>
                   </div>
                 </form>
