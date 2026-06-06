@@ -269,19 +269,7 @@ useEffect(() => {
     ["estate_planner", "monument_company"],
     ["funeral_home", "monument_company"],
   ];
-useEffect(() => {
-  function handlePageShow(event: PageTransitionEvent) {
-    if (event.persisted) {
-      window.location.reload();
-    }
-  }
 
-  window.addEventListener("pageshow", handlePageShow);
-
-  return () => {
-    window.removeEventListener("pageshow", handlePageShow);
-  };
-}, []);
   const randomPair = pairs[Math.floor(Math.random() * pairs.length)];
   setAdCategoryPair(randomPair);
 }, []);
