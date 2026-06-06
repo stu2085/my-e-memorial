@@ -2811,12 +2811,15 @@ if (!res.ok) {
 </button>
 )}
 
-                    <a
-  href={`/memorial/${originalSlug}`}
+                    <button
+  type="button"
+  onClick={() => {
+    window.location.href = `/memorial/${originalSlug}`;
+  }}
   className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-stone-50"
 >
   After Saving, View Memorial
-</a>
+</button>
                   </div>
                 </form>
               </div>
