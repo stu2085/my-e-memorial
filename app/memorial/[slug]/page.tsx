@@ -37,9 +37,9 @@ export async function generateMetadata({
 
   const name = data.full_name || "Memorial";
   const description =
-    data.obituary?.slice(0, 155) ||
-    data.life_story?.slice(0, 155) ||
-    `View the memorial page for ${name} on MyEMemorial.`;
+  `View the online memorial of ${name} including photos, videos, life story, obituary information, family history, cemetery details, favorite music, and memories shared by family and friends. ${
+    data.obituary?.slice(0, 80) || ""
+  }`;
 
   const url = `https://www.myememorial.com/memorial/${data.slug}`;
   const image =
