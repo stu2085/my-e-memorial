@@ -434,6 +434,92 @@ useEffect(() => {
     </div>
   </div>
 </section>
+<section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
+  <div className="mx-auto max-w-5xl">
+    <div className="text-center">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+        Frequently Asked Questions
+      </p>
+
+      <h2 className="mt-2 text-xl font-bold text-stone-900 md:text-2xl">
+        Online memorial questions families often ask
+      </h2>
+
+      <p className="mx-auto mt-3 max-w-3xl text-sm leading-6 text-stone-600 md:text-base">
+        MyEMemorial helps families create lasting online memorials with photos,
+        videos, favorite music, life stories, obituary information, family history,
+        cemetery maps, and memories shared by loved ones.
+      </p>
+    </div>
+
+    <div className="mt-7 grid gap-4 md:grid-cols-2">
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+        <h3 className="text-base font-bold text-stone-900">
+          What is MyEMemorial?
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          MyEMemorial is an online memorial platform where families can preserve
+          photos, videos, life stories, obituary details, family history, cemetery
+          information, and memories in one lasting tribute page.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+        <h3 className="text-base font-bold text-stone-900">
+          Can family and friends contribute memories?
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Yes. Family members and friends can submit written memories, photos,
+          and videos. Memorial owners review and approve contributions before
+          they appear publicly.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+        <h3 className="text-base font-bold text-stone-900">
+          Can a memorial include photos, videos, and music?
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Yes. MyEMemorial supports photo galleries, memorial videos, video
+          captions, favorite songs, music playlists, life stories, and obituary
+          information.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+        <h3 className="text-base font-bold text-stone-900">
+          Is there a monthly subscription fee?
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          No. MyEMemorial memorial plans are one-time payments with no recurring
+          subscription fees.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+        <h3 className="text-base font-bold text-stone-900">
+          Can memorials include cemetery or final resting place information?
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Yes. Memorials can include cemetery names, grave details, final resting
+          place information, directions, and map details to help family and friends
+          find and remember a loved one.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+        <h3 className="text-base font-bold text-stone-900">
+          Can an online memorial be shared with a QR code?
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Yes. Memorial pages can be shared by link, social media, email, text
+          message, printed materials, or QR codes placed on memorial cards,
+          plaques, markers, or monuments.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
             <section className="rounded-[1.5rem] bg-stone-900 px-6 py-7 text-white shadow-sm md:px-8">
   <div className="flex flex-col gap-6 text-center md:text-left">
     <div className="max-w-2xl">

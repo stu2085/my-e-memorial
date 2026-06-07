@@ -21,7 +21,8 @@ export const metadata: Metadata = {
     template: "%s | MyEMemorial",
   },
   description:
-    "Create lasting online memorials with photos, videos, life stories, family history, obituary details, cemetery maps, and contributor approval.",
+    
+  "Create permanent online memorials with photos, videos, music playlists, life stories, obituaries, family history, schools attended, awards received, cemetery maps, and visitor contributions. Families control all submissions through an approval system. One-time payment with no recurring subscription fees.",
     keywords: [
     "online memorials",
     "memorial website",

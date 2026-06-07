@@ -26,7 +26,7 @@ export async function generateMetadata({
 
   if (!data || data.is_published === false) {
     return {
-      title: "Memorial Not Available | MyEMemorial",
+      title: "Memorial Not Available",
       description: "This memorial is not currently available.",
       robots: {
         index: false,
@@ -48,7 +48,7 @@ export async function generateMetadata({
     "https://www.myememorial.com/gravestone1.jpg";
 
   return {
-    title: `${name} Memorial | MyEMemorial`,
+    title: `${name} Memorial`,
     description,
     robots: {
   index: true,
@@ -58,7 +58,7 @@ export async function generateMetadata({
       canonical: url,
     },
     openGraph: {
-      title: `${name} Memorial | MyEMemorial`,
+      title: `${name} Memorial`,
       description,
       url,
       type: "website",
