@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import NavBar from "./components/NavBar";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 const geistSans = Geist({
@@ -88,6 +89,7 @@ export default function RootLayout({
   its branding, or memorial platform is prohibited.
 </p>
   </footer>
+      <GoogleAnalytics gaId="G-SLX50BGDQK" />
 </body> 
     </html>
   );
