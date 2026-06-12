@@ -36,10 +36,7 @@ export async function generateMetadata({
   }
 
   const name = data.full_name || "Memorial";
-  const description =
-  `View the online memorial of ${name} including photos, videos, life story, obituary information, family history, cemetery details, favorite music, and memories shared by family and friends. ${
-    data.obituary?.slice(0, 80) || ""
-  }`;
+  const description = `View the online memorial of ${name} including photos, videos, life story, obituary information, family history, cemetery details, favorite music, and memories shared by family and friends.`;
 
   const url = `https://www.myememorial.com/memorial/${data.slug}`;
   const image =
@@ -92,10 +89,7 @@ export default async function Page({ params }: PageProps) {
           familyName: data.last_name || undefined,
           birthDate: data.birth_date || undefined,
           deathDate: data.death_date || undefined,
-          description:
-            data.obituary ||
-            data.life_story ||
-            `Memorial page for ${name}`,
+          description: `Online memorial for ${name} featuring photos, videos, life story, obituary information, family history, cemetery details, favorite music, and memories shared by family and friends.`,
           image:
             data.featured_photo_url ||
             data.headstone_photo_1 ||
