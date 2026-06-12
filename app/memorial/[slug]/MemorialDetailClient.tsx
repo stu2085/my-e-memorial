@@ -860,30 +860,36 @@ function showNextPhoto() {
     </h1>
 
     <div className="mt-4 grid gap-3 text-sm text-stone-700 sm:grid-cols-2 md:text-base">
-      {data.birth_date && (
-        <p>
-          <strong>Born:</strong> {formatDate(data.birth_date)}
-        </p>
-      )}
+  {data.birth_date && (
+    <p>
+      <strong>Born:</strong> {formatDate(data.birth_date)}
+    </p>
+  )}
 
-      {data.death_date && (
-        <p>
-          <strong>Died:</strong> {formatDate(data.death_date)}
-        </p>
-      )}
+  {data.death_date && (
+    <p>
+      <strong>Died:</strong> {formatDate(data.death_date)}
+    </p>
+  )}
 
-      {data.nickname?.trim() && (
-        <p>
-          <strong>Nickname:</strong> {data.nickname}
-        </p>
-      )}
+  {data.nickname?.trim() && (
+    <p>
+      <strong>Nickname:</strong> {data.nickname}
+    </p>
+  )}
 
-      {data.maiden_name?.trim() && (
-        <p>
-          <strong>Maiden Name:</strong> {data.maiden_name}
-        </p>
-      )}
-    </div>
+  {data.maiden_name?.trim() && (
+    <p>
+      <strong>Maiden Name:</strong> {data.maiden_name}
+    </p>
+  )}
+</div>
+
+<p className="mt-5 max-w-3xl text-sm leading-6 text-stone-600 md:text-base">
+  This MyEMemorial page preserves photos, videos, life story, obituary information,
+  family history, cemetery details, favorite music, and memories shared by family
+  and friends.
+</p>
   </div>
 
   <div className="flex flex-col items-center gap-4 lg:items-end">
