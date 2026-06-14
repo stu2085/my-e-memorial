@@ -50,7 +50,7 @@ if (plan === "extra_videos") {
 }
 
 if (checkoutType !== "upgrade") {
-  if (plan === "basic") safeUnitAmount = 9900;
+  if (plan === "basic") safeUnitAmount = 100;
   if (plan === "plus") safeUnitAmount = 12495;
   if (plan === "premium") safeUnitAmount = 100;
 }
