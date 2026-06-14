@@ -61,10 +61,11 @@ const inviteLink = `https://www.myememorial.com/login?mode=signup&redirect=${enc
   <div style="font-family: Arial, sans-serif; color: #1c1917; line-height: 1.6;">
     <div style="text-align: center; margin-bottom: 24px;">
       <img
-        src="https://www.myememorial.com/myememorial-logo.png"
-        alt="MyEMemorial"
-        style="max-width: 200px; height: auto;"
-      />
+  src="https://www.myememorial.com/myememorial-logo.png"
+  alt="MyEMemorial"
+  width="200"
+  style="display:block; margin:auto;"
+/>
     </div>
 
     <p>Hello${contactName ? ` ${contactName}` : ""},</p>
