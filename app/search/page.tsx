@@ -140,11 +140,15 @@ useEffect(() => {
     const fullName = buildFullName(memorial).toLowerCase();
 
     const matchesFirstName =
-      firstName.trim() === "" ||
-      fullName.includes(firstName.trim().toLowerCase());
+  firstName.trim() === "" ||
+  (memorial.first_name ?? "")
+    .toLowerCase()
+    .startsWith(firstName.trim().toLowerCase());
 const matchesMiddleName =
   middleName.trim() === "" ||
-  fullName.includes(middleName.trim().toLowerCase());
+  (memorial.middle_name ?? "")
+    .toLowerCase()
+    .startsWith(middleName.trim().toLowerCase());
     const matchesLastName =
   lastName.trim() === "" ||
   (memorial.last_name ?? "")
