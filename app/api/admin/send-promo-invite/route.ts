@@ -108,7 +108,7 @@ const inviteLink = `https://www.myememorial.com/login?mode=signup&redirect=${enc
 
 <div style="margin-top:20px;">
   <img
-    src="https://www.myememorial.com/myemorial-logo.png"
+    src="https://www.myememorial.com/myememorial-logo.png"
     alt="MyEMemorial"
     width="250"
     style="display:block;"
