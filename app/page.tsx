@@ -595,9 +595,12 @@ function PlanCard({
       }`}
     >
       {badge && (
-  <div className="mb-4 inline-flex max-w-full items-center justify-center rounded-full bg-amber-400 px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.12em] text-stone-900 shadow">
-    {badge}
+  <div className="mb-4 flex justify-center">
+    <div className="rounded-full bg-amber-400 px-6 py-2 text-xs font-bold uppercase tracking-[0.15em] text-stone-900 shadow text-center">
+      {badge}
+    </div>
   </div>
+)}
 )}
       
 
