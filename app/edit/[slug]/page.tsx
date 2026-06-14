@@ -20,6 +20,7 @@ type FormState = {
   graveRow: string;
   gravePlot: string;
     placesLived: string;
+    placesWorked: string;
   schoolsAttended: string;
   awardsWon: string;
 };
@@ -43,6 +44,7 @@ type MemorialRecord = {
   grave_row?: string;
   grave_plot?: string;
     places_lived?: string;
+    places_worked?: string;
   schools_attended?: string;
   awards_won?: string;
   headstone_photos?: string[];
@@ -65,6 +67,7 @@ const initialForm: FormState = {
   graveRow: "",
   gravePlot: "",
     placesLived: "",
+    placesWorked: "",
   schoolsAttended: "",
   awardsWon: "",
 };
@@ -212,6 +215,7 @@ export default function EditMemorialPage() {
         graveRow: memorial.grave_row || "",
         gravePlot: memorial.grave_plot || "",
                 placesLived: memorial.places_lived || "",
+        placesWorked: memorial.places_worked || "",
         schoolsAttended: memorial.schools_attended || "",
         awardsWon: memorial.awards_won || "",
       });
@@ -360,6 +364,7 @@ export default function EditMemorialPage() {
         grave_row: form.graveRow || "",
         grave_plot: form.gravePlot || "",
                 places_lived: form.placesLived || "",
+                places_worked: form.placesWorked || "",
         schools_attended: form.schoolsAttended || "",
         awards_won: form.awardsWon || "",
         headstone_photos: updatedHeadstonePhotos,
@@ -449,12 +454,20 @@ setIsSubmitting(false);
               </Grid>
             </Section>
 
-            <Section title="Places Lived, Schools & Awards">
+           <Section title="Places Lived, Places Worked, Schools & Awards">
   <div className="grid grid-cols-1 gap-6">
     <Textarea
       label="Places Lived"
       name="placesLived"
       value={form.placesLived}
+      onChange={handleChange}
+      rows={5}
+    />
+
+    <Textarea
+      label="Places Worked"
+      name="placesWorked"
+      value={form.placesWorked}
       onChange={handleChange}
       rows={5}
     />

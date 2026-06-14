@@ -52,6 +52,7 @@ siblingsNames: string;
   mapCountry: string;
   graveDirections: string;
     placesLived: string;
+    placesWorked: string;
   schoolsAttended: string;
   awardsWon: string;
   socialLink1: string;
@@ -112,7 +113,8 @@ siblingsNames: "",
   mapState: "",
   mapZip: "",
   mapCountry: "USA",
-    placesLived: "",
+  placesLived: "",
+  placesWorked: "",
   schoolsAttended: "",
   awardsWon: "",
   socialLink1: "",
@@ -808,6 +810,7 @@ siblings_names: form.siblingsNames,
           map_zip: form.mapZip,
           map_country: form.mapCountry,
           places_lived: form.placesLived,
+          places_worked: form.placesWorked,
           schools_attended: form.schoolsAttended,
           awards_won: form.awardsWon,
           social_link_1: form.socialLink1,
@@ -1456,7 +1459,7 @@ async function handleBuyExtraVideos(extraCount: number) {
     </p>
   </div>
 </Section>
-              <Section title="Places Lived, Schools Attended & Awards Won">
+             <Section title="Places Lived, Places Worked, Schools Attended & Awards Won">
   <div className="grid grid-cols-1 gap-6">
     <div>
   <label className="mb-2 block text-sm font-semibold text-stone-800">
@@ -1479,7 +1482,27 @@ Naples, Florida`}
     Enter one place per line.
   </p>
 </div>
+<div>
+  <label className="mb-2 block text-sm font-semibold text-stone-800">
+    Places Worked
+  </label>
 
+  <textarea
+    name="placesWorked"
+    value={form.placesWorked}
+    onChange={handleChange}
+    rows={5}
+    placeholder={`Example:
+Armstrong World Industries
+Stum's Repair Service
+Hershey Foods Corporation`}
+    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+  />
+
+  <p className="mt-2 text-xs text-stone-500">
+    Enter one employer, job, or workplace per line.
+  </p>
+</div>
     <Input
       label="Schools Attended"
       name="schoolsAttended"

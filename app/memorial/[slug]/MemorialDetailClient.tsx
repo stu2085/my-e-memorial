@@ -42,6 +42,7 @@ grandchildren_names?: string | null;
   ashes_location_description?: string;
 is_living_preplan?: boolean;
     places_lived?: string;
+    places_worked?: string;
   schools_attended?: string | string[];
   awards_won?: string | string[];
   social_link_1?: string;
@@ -167,6 +168,7 @@ const [showFavoriteSongs, setShowFavoriteSongs] = useState(false);
   const [showSocialMedia, setShowSocialMedia] = useState(false);
   const [showSchoolsAwards, setShowSchoolsAwards] = useState(false);
   const [showPlacesLived, setShowPlacesLived] = useState(false);
+  const [showPlacesWorked, setShowPlacesWorked] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [wasMusicPlayingBeforeVideo, setWasMusicPlayingBeforeVideo] = useState(false);
@@ -1204,8 +1206,32 @@ function showNextPhoto() {
       {data.places_lived}
       </div>
     )}
+    </section>
+)}
+{data.places_worked && (
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <button
+      type="button"
+      onClick={() => setShowPlacesWorked((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Places Worked
+      </h2>
+
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showPlacesWorked ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showPlacesWorked && (
+      <div className="mt-5 whitespace-pre-line text-stone-700">
+        {data.places_worked}
+      </div>
+    )}
   </section>
 )}
+
 {(
   data.social_link_1 ||
   data.social_link_2 ||
