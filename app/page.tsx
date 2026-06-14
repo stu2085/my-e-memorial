@@ -109,7 +109,7 @@ useEffect(() => {
 >
   <span className="block">
     <span className="block">Create Your Own Future</span>
-    <span className="block">PersonalE-Memorial</span>
+    <span className="block">Personal E-Memorial</span>
   </span>
 </Link>
 
