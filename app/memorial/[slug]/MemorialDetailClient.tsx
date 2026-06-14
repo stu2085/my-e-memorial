@@ -8,6 +8,7 @@ import { supabase } from "../../lib/supabase";
 import dynamic from "next/dynamic";
 import SideAd from "../../components/SideAd";
 import MobileAd from "../../components/MobileAd";
+import { QRCodeSVG } from "qrcode.react";
 const GraveLocationMap = dynamic(
   () => import("../../components/GraveLocationMap"),
   { ssr: false }
@@ -188,6 +189,7 @@ const [uploadingVideo, setUploadingVideo] = useState(false);
 const [uploadingPhotos, setUploadingPhotos] = useState(false);
 const [submissionSuccess, setSubmissionSuccess] = useState(false);
 const [isSubmittingContribution, setIsSubmittingContribution] = useState(false);
+const [showQrCode, setShowQrCode] = useState(false);
 const [approvedSubmissions, setApprovedSubmissions] = useState<
   ApprovedSubmission[]
 >([]);
@@ -936,34 +938,57 @@ function showNextPhoto() {
     Email Memorial Link
   </button>
 
-    <button
-      onClick={() => handleShare("sms")}
-      className="inline-flex items-center justify-center rounded-full bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-500"
-    >
-      Text
-    </button>
+  <button
+    onClick={() => handleShare("sms")}
+    className="inline-flex items-center justify-center rounded-full bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-500"
+  >
+    Text
+  </button>
 
-    <button
-      onClick={() => handleShare("facebook")}
-      className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-500"
-    >
-      Facebook
-    </button>
+  <button
+    onClick={() => handleShare("facebook")}
+    className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-500"
+  >
+    Facebook
+  </button>
 
-    <button
-      onClick={() => handleShare("whatsapp")}
-      className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
-    >
-      WhatsApp
-    </button>
+  <button
+    onClick={() => handleShare("whatsapp")}
+    className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
+  >
+    WhatsApp
+  </button>
 
-    <button
-      onClick={() => handleShare("twitter")}
-      className="inline-flex items-center justify-center rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-stone-800"
-    >
-      X
-    </button>
+  <button
+    onClick={() => handleShare("twitter")}
+    className="inline-flex items-center justify-center rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-stone-800"
+  >
+    X
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setShowQrCode((current) => !current)}
+    className="inline-flex items-center justify-center rounded-full bg-blue-950 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-900"
+  >
+    QR Code
+  </button>
+</div>
+
+{showQrCode && (
+  <div className="mt-4 inline-block rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+    <QRCodeSVG
+      value={`https://www.myememorial.com/memorial/${data.slug}`}
+      size={180}
+      level="H"
+      includeMargin
+    />
+
+    <p className="mt-3 max-w-[220px] text-center text-xs leading-5 text-stone-600">
+      Scan this QR code to open this memorial page.
+    </p>
   </div>
+)}
 
   {!isOwner && data.is_living_preplan && (
   <Link
