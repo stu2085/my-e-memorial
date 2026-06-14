@@ -108,8 +108,8 @@ useEffect(() => {
   className="inline-flex h-[60px] w-[260px] items-center justify-center rounded-full bg-amber-400 px-5 text-sm font-semibold text-stone-900 text-center leading-tight transition hover:bg-amber-300"
 >
   <span className="block">
-    <span className="block">Create Your Own Future Personal</span>
-    <span className="block">E-Memorial</span>
+    <span className="block">Create Your Own Future</span>
+    <span className="block">PersonalE-Memorial</span>
   </span>
 </Link>
 
