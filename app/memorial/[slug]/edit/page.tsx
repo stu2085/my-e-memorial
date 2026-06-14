@@ -71,6 +71,7 @@ backupPersonName: string;
   ashesLocationDescription: string;
 
   placesLived: string;
+  placesWorked: string;
   schoolsAttended: string;
   awardsWon: string;
   socialLink1: string;
@@ -139,6 +140,7 @@ backupPersonName: "",
   ashesLocationDescription: "",
 
   placesLived: "",
+  placesWorked: "",
   schoolsAttended: "",
   awardsWon: "",
   socialLink1: "",
@@ -609,6 +611,7 @@ grandchildrenNames: data.grandchildren_names || "",
         graveDirections: data.grave_directions ?? "",
 
         placesLived: data.places_lived ?? "",
+        placesWorked: data.places_worked ?? "",
         schoolsAttended: toCommaString(data.schools_attended),
         awardsWon: toCommaString(data.awards_won),
         socialLink1: data.social_link_1 ?? "",
@@ -1953,6 +1956,34 @@ Naples, Florida`}
     Enter one place per line.
   </p>
 </div>
+  <QuickSaveButton isSaving={isSaving} />
+</FormSection>
+<FormSection
+  title="Places Worked"
+  description="Employers, occupations, or businesses associated with this person."
+>
+  <div>
+    <label className="mb-2 block text-sm font-semibold text-stone-800">
+      Places Worked
+    </label>
+
+    <textarea
+      name="placesWorked"
+      value={form.placesWorked}
+      onChange={handleChange}
+      rows={5}
+      placeholder={`Example:
+Armstrong World Industries
+Stum's Repair Service
+Hershey Foods Corporation`}
+      className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+    />
+
+    <p className="mt-2 text-xs text-stone-500">
+      Enter one employer, job, or workplace per line.
+    </p>
+  </div>
+
   <QuickSaveButton isSaving={isSaving} />
 </FormSection>
                   <FormSection
