@@ -963,7 +963,7 @@ async function handleBuyExtraVideos(extraCount: number) {
 
               <div className="relative z-10 p-8 md:p-10 text-white">
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-200">
-                  {form.isLivingPreplan ? "Create Your Own Personal E-Memorial" : "Create a Memorial"}
+                  {form.isLivingPreplan ? "Create My Personal E-Memorial" : "Create a Memorial"}
                 </p>
 
                 <h1 className="mt-3 text-3xl font-bold md:text-4xl text-center">
