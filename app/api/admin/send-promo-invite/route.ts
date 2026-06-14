@@ -59,14 +59,7 @@ const inviteLink = `https://www.myememorial.com/login?mode=signup&redirect=${enc
       subject: "Your Free MyEMemorial Memorial Invitation",
       html: `
   <div style="font-family: Arial, sans-serif; color: #1c1917; line-height: 1.6;">
-    <div style="text-align: center; margin-bottom: 24px;">
-      <img
-  src="https://www.myememorial.com/myememorial-logo.png"
-  alt="MyEMemorial"
-  width="200"
-  style="display:block; margin:auto;"
-/>
-    </div>
+    
 
     <p>Hello${contactName ? ` ${contactName}` : ""},</p>
 
@@ -108,7 +101,19 @@ const inviteLink = `https://www.myememorial.com/login?mode=signup&redirect=${enc
       Thank you for helping us improve MyEMemorial through early access testing.
     </p>
 
-    <p>Thank you,<br />MyEMemorial</p>
+    <p>
+  Thank you,<br />
+  MyEMemorial
+</p>
+
+<div style="margin-top:20px;">
+  <img
+    src="https://www.myememorial.com/myemorial-logo.png"
+    alt="MyEMemorial"
+    width="250"
+    style="display:block;"
+  />
+</div>
   </div>
 `,
     });
