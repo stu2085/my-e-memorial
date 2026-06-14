@@ -976,8 +976,9 @@ function showNextPhoto() {
 </div>
 
 {showQrCode && (
-  <div className="mt-4 inline-block rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+  <div className="mt-4 inline-block rounded-2xl border border-stone-200 bg-white p-5 text-center shadow-sm">
     <QRCodeSVG
+      id="memorial-qr-code"
       value={`https://www.myememorial.com/memorial/${data.slug}`}
       size={180}
       level="H"
@@ -987,6 +988,43 @@ function showNextPhoto() {
     <p className="mt-3 max-w-[220px] text-center text-xs leading-5 text-stone-600">
       Scan this QR code to open this memorial page.
     </p>
+
+    <button
+      type="button"
+      onClick={() => {
+        const svg = document.getElementById("memorial-qr-code");
+
+        if (!svg) return;
+
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+
+        canvas.width = 600;
+        canvas.height = 600;
+
+        img.onload = () => {
+          if (!ctx) return;
+
+          ctx.fillStyle = "white";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          const pngFile = canvas.toDataURL("image/png");
+
+          const downloadLink = document.createElement("a");
+          downloadLink.href = pngFile;
+          downloadLink.download = `${data.slug}-myememorial-qr-code.png`;
+          downloadLink.click();
+        };
+
+        img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
+      }}
+      className="mt-4 inline-flex items-center justify-center rounded-full bg-blue-950 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-900"
+    >
+      Download QR Code
+    </button>
   </div>
 )}
 
