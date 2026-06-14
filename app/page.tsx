@@ -595,7 +595,7 @@ function PlanCard({
       }`}
     >
       {badge && (
-  <div className="mb-4 inline-flex rounded-full bg-amber-400 px-4 py-1 text-xs font-bold uppercase tracking-[0.18em] text-stone-900 shadow">
+  <div className="mb-4 inline-flex max-w-full items-center justify-center rounded-full bg-amber-400 px-4 py-2 text-center text-xs font-bold uppercase tracking-[0.12em] text-stone-900 shadow">
     {badge}
   </div>
 )}
@@ -605,7 +605,7 @@ function PlanCard({
         {title}
       </p>
 
-      <div className="mt-3 flex flex-wrap items-end gap-2">
+      <div className="mt-3 flex flex-wrap items-end justify-center gap-2 text-center">
         <span className="text-3xl font-bold">{price}</span>
         <span className={`pb-1 text-xs ${dark ? "text-stone-300" : "text-stone-500"}`}>
           one-time
