@@ -58,39 +58,57 @@ const inviteLink = `https://www.myememorial.com/login?mode=signup&redirect=${enc
       to,
       subject: "Your Free MyEMemorial Memorial Invitation",
       html: `
-  <p>Hello${contactName ? ` ${contactName}` : ""},</p>
+  <div style="font-family: Arial, sans-serif; color: #1c1917; line-height: 1.6;">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <img
+        src="https://www.myememorial.com/myememorial-logo.png"
+        alt="MyEMemorial"
+        style="max-width: 420px; width: 100%; height: auto;"
+      />
+    </div>
 
-  <p>
-    You have been invited to create a free
-    <strong>${cleanPlanLabel}</strong> memorial on
-    <strong>MyEMemorial</strong>.
-  </p>
+    <p>Hello${contactName ? ` ${contactName}` : ""},</p>
 
-  <p>
-    Click the link below to begin:
-  </p>
+    <p>
+      You have been invited to create a free
+      <strong>${cleanPlanLabel}</strong> memorial on
+      <strong>MyEMemorial</strong>.
+    </p>
 
-  <p>
-    <a href="${inviteLink}">
-      ${inviteLink}
-    </a>
-  </p>
+    <p>
+      Click the button below to begin:
+    </p>
 
-  <p>
-    After creating your account, you can immediately begin building the memorial
-    by adding music, photos, videos, life stories, family history, and other memories.
-  </p>
+    <p style="text-align: center; margin: 28px 0;">
+      <a
+        href="${inviteLink}"
+        style="display: inline-block; background-color: #172554; color: #ffffff; padding: 12px 22px; border-radius: 999px; text-decoration: none; font-weight: bold;"
+      >
+        Create Your Free Memorial
+      </a>
+    </p>
 
-  <p>
-    Your complimentary <strong>${cleanPlanLabel}</strong> access is already included
-    in the link above, so no payment information or promotional code entry is required.
-  </p>
+    <p style="font-size: 13px; color: #57534e;">
+      If the button does not work, copy and paste this link into your browser:<br />
+      <a href="${inviteLink}" style="color: #172554;">${inviteLink}</a>
+    </p>
 
-  <p>
-    Thank you for helping us improve MyEMemorial through early access testing.
-  </p>
+    <p>
+      After creating your account, you can immediately begin building the memorial
+      by adding music, photos, videos, life stories, family history, and other memories.
+    </p>
 
-  <p>Thank you,<br />MyEMemorial</p>
+    <p>
+      Your complimentary <strong>${cleanPlanLabel}</strong> access is already included
+      in the link above, so no payment information or promotional code entry is required.
+    </p>
+
+    <p>
+      Thank you for helping us improve MyEMemorial through early access testing.
+    </p>
+
+    <p>Thank you,<br />MyEMemorial</p>
+  </div>
 `,
     });
 
