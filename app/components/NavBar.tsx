@@ -43,8 +43,8 @@ const isPreplan =
   function linkClass(path: string) {
   return `rounded-full px-2 py-1 text-xs font-semibold transition-all duration-200 ease-in-out sm:px-4 sm:py-2 sm:text-sm ${
     pathname === path
-      ? "bg-emerald-700 text-white"
-      : "text-stone-700 hover:bg-stone-200 hover:text-stone-900 hover:scale-105"
+  ? "bg-blue-900 text-white"
+  : "text-stone-700 hover:bg-blue-50 hover:text-blue-900 hover:scale-105"
   }`;
 }
 
@@ -73,8 +73,8 @@ const isPreplan =
   }}
   className={`rounded-full px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold transition-all duration-200 ease-in-out ${
     isCreate
-      ? "bg-emerald-700 text-white"
-      : "text-stone-700 hover:bg-stone-200 hover:text-stone-900 hover:scale-105"
+  ? "bg-blue-900 text-white"
+  : "text-stone-700 hover:bg-blue-50 hover:text-blue-900 hover:scale-105"
   }`}
 >
   Create E-Memorial
@@ -90,8 +90,8 @@ const isPreplan =
   }}
   className={`hidden sm:inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ease-in-out ${
     isPreplan
-      ? "bg-emerald-700 text-white"
-      : "text-stone-700 hover:bg-stone-200 hover:text-stone-900 hover:scale-105"
+  ? "bg-blue-900 text-white"
+  : "text-stone-700 hover:bg-blue-50 hover:text-blue-900 hover:scale-105"
   }`}
 >
   My Personal E-Memorial
