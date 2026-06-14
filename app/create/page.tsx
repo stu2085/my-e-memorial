@@ -287,7 +287,7 @@ if (autoCheckout === "1") {
       const selectedPlan = parsedDraft.plan || "basic";
 
       const planPrices = {
-        basic: 9900,
+        basic: 100,
         plus: 12495,
         premium: 14995,
       };
