@@ -56,7 +56,7 @@ const isPreplan =
   <img
     src="/myememorial-logo.png"
     alt="MyEMemorial"
-    className="h-12 w-auto sm:h-14"
+    className="h-20 w-auto sm:h-24"
   />
 </a>
 
