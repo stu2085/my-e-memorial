@@ -590,13 +590,13 @@ function PlanCard({
     <div
   className={`flex min-w-0 flex-col justify-between rounded-[1.25rem] p-6 pt-7 shadow-sm ${
         dark
-          ? "border-2 border-stone-900 bg-stone-900 text-white"
+          ? "border-2 border-blue-950 bg-blue-950 text-white"
           : "border border-stone-200 bg-stone-50 text-stone-900"
       }`}
     >
       {badge && (
   <div className="mb-4 flex justify-center">
-    <div className="rounded-full bg-blue-950 px-6 py-2 text-xs font-bold uppercase tracking-[0.15em] text-stone-900 shadow text-center">
+    <div className="rounded-full bg-amber-400 px-6 py-2 text-xs font-bold uppercase tracking-[0.15em] text-stone-900 shadow text-center">
       {badge}
     </div>
   </div>
