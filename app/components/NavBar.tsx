@@ -50,7 +50,7 @@ const isPreplan =
 
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-col items-center gap-2 px-3 py-4 sm:flex-row sm:justify-between sm:px-6 sm:py-6">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-1 px-3 py-1 sm:flex-row sm:justify-between sm:px-6 sm:py-2">
        {/* Logo */}
 <a href="/" className="flex items-center">
   <img
