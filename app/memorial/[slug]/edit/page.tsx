@@ -23,9 +23,9 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 const PLAN_PRICES = {
-  basic: 9900,
-  plus: 12495,
-  premium: 14995,
+  basic: 4995,
+  plus: 6995,
+  premium: 8995,
 };
 
 const PLAN_LABELS = {
@@ -198,7 +198,7 @@ function sanitizeFileName(name: string) {
 
 export default function EditMemorialPage() {
   const MAX_VIDEO_SIZE_BYTES = 1000 * 1000 * 1000; // 1 GB
-  const EXTRA_VIDEO_PRICE = 18.95;
+  const EXTRA_VIDEO_PRICE = 9.95;
   const params = useParams<{ slug: string }>();
   const slug = params?.slug ?? "";
 const searchParams = useSearchParams();
@@ -472,7 +472,7 @@ function getVideoDuration(file: File): Promise<number> {
 
   if (oversizedFile) {
     setVideoError(
-      `"${oversizedFile.name}" exceeds the upload limit. Videos must be 1 GB or smaller and 10 minutes or less.`
+      `"${oversizedFile.name}" exceeds the upload limit. Videos must be 1 GB or smaller and 5 minutes or less.`
     );
     e.target.value = "";
     return;
@@ -508,14 +508,14 @@ const totalVideos =
     for (const file of files) {
       const duration = await getVideoDuration(file);
 
-      if (duration > 600) {
+      if (duration > 300) {
         const minutes = Math.floor(duration / 60);
         const seconds = Math.floor(duration % 60)
           .toString()
           .padStart(2, "0");
 
         setVideoError(
-          `"${file.name}" is ${minutes}:${seconds}. Maximum allowed is 10:00.`
+          `"${file.name}" is ${minutes}:${seconds}. Maximum allowed is 5:00.`
         );
         e.target.value = "";
         return;
@@ -1384,7 +1384,7 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
           onClick={() => handleUpgradePlan("plus")}
           className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
         >
-          Upgrade to Plus — $25.95
+          Upgrade to Plus — $20.00
         </button>
 
         <button
@@ -1392,7 +1392,7 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
           onClick={() => handleUpgradePlan("premium")}
           className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
         >
-          Upgrade to Premium — $50.95
+          Upgrade to Premium — $40.00
         </button>
       </div>
     )}
@@ -1404,7 +1404,7 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
           onClick={() => handleUpgradePlan("premium")}
           className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
         >
-          Upgrade to Premium — $25.00
+          Upgrade to Premium — $20.00
         </button>
       </div>
     )}
@@ -1656,7 +1656,7 @@ const projectedTotal =
 }
           className="rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-stone-900 hover:bg-amber-400"
         >
-          Approve With Extra Video — $18.95
+          Approve With Extra Video — $9.95
         </button>
       )}
 
@@ -2371,7 +2371,7 @@ Hershey Foods Corporation`}
         Need more video space?
       </p>
       <p className="text-xs text-stone-600">
-        Add extra videos anytime for $18.95 each.
+        Add extra videos anytime for $9.95 each.
       </p>
     </div>
   </div>
@@ -2397,7 +2397,7 @@ Hershey Foods Corporation`}
       onClick={() => handleBuyExtraVideos(1)}
       className="rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-amber-400"
     >
-      Buy 1 — $18.95
+      Buy 1 — $9.95
     </button>
 
     <button
@@ -2405,7 +2405,7 @@ Hershey Foods Corporation`}
       onClick={() => handleBuyExtraVideos(3)}
       className="rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-amber-400"
     >
-      Buy 3 — $56.85
+      Buy 3 — $29.85
     </button>
 
     <button
@@ -2413,7 +2413,7 @@ Hershey Foods Corporation`}
       onClick={() => handleBuyExtraVideos(5)}
       className="rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-amber-400"
     >
-      Buy 5 — $94.75
+      Buy 5 — $49.75
     </button>
   </div>
 )}
@@ -2466,7 +2466,7 @@ Hershey Foods Corporation`}
    
 
                         <p className="mt-1 text-sm text-stone-500">
-                          MP4 recommended. Basic allows 2 videos, Plus allows 5, and Premium allows 10. Extra videos are $18.95 each.
+                          MP4 recommended. Basic allows 2 videos, Plus allows 5, and Premium allows 10. Extra videos are $9.95 each.
                         </p>
 
                         {videoError && (

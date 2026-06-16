@@ -611,8 +611,8 @@ async function uploadContributorVideo(file: File): Promise<string> {
 
   const duration = await getContributorVideoDuration(file);
 
-  if (duration > 600) {
-    throw new Error("Contributor videos must be 10 minutes or less.");
+  if (duration > 300) {
+    throw new Error("Contributor videos must be 5 minutes or less.");
   }
 
   const uploadRes = await fetch("/api/mux-upload", {

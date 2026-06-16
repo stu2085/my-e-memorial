@@ -17,7 +17,7 @@ export default function RenewPage({
       },
       body: JSON.stringify({
         plan: "advertiser",
-        amount: 9900,
+        amount: 4995,
         advertiserId: id,
         isRenewal: true,
         returnUrl: `${window.location.origin}/renew-success?session_id={CHECKOUT_SESSION_ID}`,

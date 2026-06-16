@@ -287,9 +287,9 @@ if (autoCheckout === "1") {
       const selectedPlan = parsedDraft.plan || "basic";
 
       const planPrices = {
-        basic: 9900,
-        plus: 12495,
-        premium: 14995,
+        basic: 4995,
+        plus: 6995,
+        premium: 8995,
       };
 
       const res = await fetch("/api/checkout", {
@@ -527,9 +527,9 @@ if (totalVideos > maxVideos) {
   for (const file of newUniqueFiles) {
     const duration = await getVideoDuration(file);
 
-    if (duration > 600) {
+    if (duration > 300) {
       setVideoError(
-        `"${file.name}" is longer than 10 minutes. Maximum video length is 10 minutes.`
+        `"${file.name}" is longer than 5 minutes. Maximum video length is 5 minutes.`
       );
       e.target.value = "";
       return;
@@ -562,9 +562,9 @@ if (oversizedFile) {
 for (const file of videoFiles) {
   const duration = await getVideoDuration(file);
 
-  if (duration > 600) {
+  if (duration > 300) {
     throw new Error(
-      `"${file.name}" is longer than 10 minutes. Please remove it before saving.`
+      `"${file.name}" is longer than 5 minutes. Please remove it before saving.`
     );
   }
 }
@@ -898,7 +898,7 @@ async function handleBuyExtraVideos(extraCount: number) {
     })
   );
 
-  const amount = extraCount * 1895;
+  const amount = extraCount * 995;
 
   const res = await fetch("/api/checkout", {
     method: "POST",
@@ -1595,7 +1595,7 @@ Hershey Foods Corporation`}
                 <h2 className="text-2xl font-bold text-stone-900">Memorial Videos</h2>
 
                 <p className="mt-2 text-sm text-stone-600">
-                  Basic allows 2 videos, Plus allows 5 videos, and Premium allows 10 videos. Each video must be 10 minutes or less.
+                  Basic allows 2 videos, Plus allows 5 videos, and Premium allows 10 videos. Each video must be 5 minutes or less.
                 </p>
 
                 <div className="mt-6">
@@ -1633,7 +1633,7 @@ Hershey Foods Corporation`}
     remaining <= 0 && (
       <>
         <p className="mt-3 text-sm text-amber-600">
-          You’ve reached your video limit. You can add more videos for $18.95 each.
+          You’ve reached your video limit. You can add more videos for $9.95 each.
         </p>
 
         <p className="mt-3 text-sm text-amber-600">
@@ -1715,12 +1715,12 @@ Hershey Foods Corporation`}
                     <p className="text-sm font-semibold uppercase tracking-[0.16em]">
                       Basic Memorial
                     </p>
-                    <p className="mt-3 text-3xl font-bold">$99</p>
+                    <p className="mt-3 text-3xl font-bold">$49.95</p>
                     <p className="mt-1 text-sm opacity-80">one-time</p>
 
                     <ul className="mt-5 space-y-2 text-sm leading-6">
                       <li>✔ Up to 50 photos</li>
-                      <li>✔ Up to 2 videos (up to 10 minutes each)</li>
+                      <li>✔ Up to 2 videos (up to 5 minutes each)</li>
                       <li>✔ Background music</li>
                       <li>✔ Life story & obituary</li>
                       <li>✔ Unlimited contributors</li>
@@ -1741,13 +1741,13 @@ Hershey Foods Corporation`}
                     <p className="text-sm font-semibold uppercase tracking-[0.16em]">
                       Plus Memorial
                     </p>
-                    <p className="mt-3 text-3xl font-bold">$124.95</p>
+                    <p className="mt-3 text-3xl font-bold">$69.95</p>
                     <p className="mt-1 text-sm opacity-80">one-time</p>
 
                     <ul className="mt-5 space-y-2 text-sm leading-6">
                       <li>✔ Everything in Basic</li>
                       <li>✔ Up to 150 photos</li>
-                      <li>✔ Up to 5 videos (up to 10 minutes each)</li>
+                      <li>✔ Up to 5 videos (up to 5 minutes each)</li>
                     </ul>
                   </button>
 
@@ -1763,13 +1763,13 @@ Hershey Foods Corporation`}
                     <p className="text-sm font-semibold uppercase tracking-[0.16em]">
                       Premium Memorial
                     </p>
-                    <p className="mt-3 text-3xl font-bold">$149.95</p>
+                    <p className="mt-3 text-3xl font-bold">$89.95</p>
                     <p className="mt-1 text-sm opacity-80">one-time</p>
 
                     <ul className="mt-5 space-y-2 text-sm leading-6">
                       <li>✔ Everything in Plus</li>
                       <li>✔ Unlimited photos</li>
-                      <li>✔ Up to 10 videos (up to 10 minutes each)</li>
+                      <li>✔ Up to 10 videos (up to 5 minutes each)</li>
                     </ul>
                   </button>
                 </div>
@@ -1894,9 +1894,9 @@ localStorage.setItem("agreedToTerms", "true");
           
 
           const planPrices = {
-            basic: 100,
-            plus: 12495,
-            premium: 14995,
+            basic: 4995,
+            plus: 6995,
+            premium: 8995,
           };
 
           const res = await fetch("/api/checkout", {
@@ -1923,10 +1923,10 @@ localStorage.setItem("agreedToTerms", "true");
       >
         Continue to Payment —{" "}
         {form.plan === "plus"
-          ? "$124.95"
+          ? "$69.95"
           : form.plan === "premium"
-          ? "$149.95"
-          : "$99"}
+          ? "$89.95"
+          : "$49.95"}
 
       </button>
       )}

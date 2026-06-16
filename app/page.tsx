@@ -284,10 +284,10 @@ useEffect(() => {
                 <div className="mt-6 grid gap-6 md:grid-cols-3">
                   <PlanCard
                     title="Basic Memorial"
-                    price="$99"
+                    price="$49.95"
                     items={[
   "Up to 50 photos",
-  "Up to 2 ten minute videos",
+  "Up to 2 five minute videos",
   "Favorite music",
   "Life story & obituary",
   "Cemetery map",
@@ -297,24 +297,24 @@ useEffect(() => {
 
                   <PlanCard
                     title="Plus Memorial"
-                    price="$124.95"
+                    price="$69.95"
                     dark
                     badge="Most Popular"
                     items={[
                       "Everything in Basic",
                       "Up to 150 photos",
-                      "Up to 5 ten minute videos",
+                      "Up to 5 five minute videos",
                       
                     ]}
                   />
 
                   <PlanCard
                     title="Premium Memorial"
-                    price="$149.95"
+                    price="$89.95"
                     items={[
                       "Everything in Plus",
                       "Unlimited photos",
-                      "Up to 10 ten minute videos",
+                      "Up to 10 five minute videos",
                       "Best for larger families",
                     ]}
                   />
