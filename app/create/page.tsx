@@ -970,16 +970,22 @@ async function handleBuyExtraVideos(extraCount: number) {
                 </p>
 
                 <h1 className="mt-3 text-3xl font-bold md:text-4xl text-center">
-  Begin preserving a life with dignity and care
+  {form.isLivingPreplan
+    ? "Tell Your Life Story In Your Own Words And In Your Own Way"
+    : "Begin preserving a life with dignity and care"}
 </h1>
 
-                <p className="mt-4 text-lg text-stone-200 max-w-2xl">
-                  Preserve a life, a story, and a voice for future generations. Add photos, videos, and memories — or record your own message to share with loved ones.
-                </p>
+                <p className="mt-6 text-lg text-white/90">
+  {form.isLivingPreplan
+    ? "Tell your life story in your own words and in your own way. Share the memories, photos, videos, music, and moments that matter most so future generations can truly know and remember you."
+    : "Preserve a life, a story, and a voice for future generations. Add photos, videos, and memories — or record your own message to share with loved ones."}
+</p>
 
-                <p className="mt-4 text-base md:text-lg text-stone-100">
-                  Add details, stories, photos, and a favorite memorial song.
-                </p>
+                <p className="mt-8 text-xl text-white">
+  {form.isLivingPreplan
+    ? "Add stories, photos, videos, and your favorite songs to preserve a lifetime of memories."
+    : "Add details, stories, photos, and a favorite memorial song."}
+</p>
               </div>
             </section>
 
@@ -1116,7 +1122,7 @@ async function handleBuyExtraVideos(extraCount: number) {
         This personal E-Memorial will be saved but not published.
       </p>
       <p className="mt-2 text-sm leading-6 text-amber-800">
-        Your backup person will be responsible for completing and publishing this memorial after your death or incapacity.
+        Your backup person will be responsible for completing and publishing this memorial upon your passing.
       </p>
     </div>
 
