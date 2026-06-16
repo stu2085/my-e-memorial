@@ -2129,14 +2129,11 @@ Hershey Foods Corporation`}
   onChange={handleChange}
   rows={3}
 />
-  <label className="block text-sm font-medium text-stone-700">
-  Great Grandchildren
-</label>
-<textarea
+ <TextArea
+  label="Great Grandchildren"
   name="greatGrandchildrenNames"
   value={form.greatGrandchildrenNames}
   onChange={handleChange}
-  className="mt-2 w-full rounded-2xl border border-stone-300 px-4 py-3 text-sm text-stone-900 shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
   rows={3}
 />
   
