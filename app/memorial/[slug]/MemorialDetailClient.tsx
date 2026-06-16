@@ -35,6 +35,7 @@ parents_names?: string;
 siblings_names?: string;
 children_names?: string | null;
 grandchildren_names?: string | null;
+great_grandchildren_names?: string | null;
   final_resting_type?: string;
   cemetery_name?: string;
   grave_section?: string;
@@ -1241,6 +1242,16 @@ function showNextPhoto() {
     </h3>
     <p className="mt-1 whitespace-pre-line text-stone-700">
       {data.grandchildren_names}
+    </p>
+  </div>
+)}
+{data.great_grandchildren_names && (
+  <div>
+    <h3 className="font-semibold text-stone-800">
+      Great Grandchildren
+    </h3>
+    <p className="mt-1 whitespace-pre-line text-stone-700">
+      {data.great_grandchildren_names}
     </p>
   </div>
 )}

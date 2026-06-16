@@ -59,6 +59,7 @@ parentsNames: string;
 siblingsNames: string;
 childrenNames: string;
 grandchildrenNames: string;
+greatGrandchildrenNames: string
   obituary: string;
   obituaryUrl: string;
   lifeStory: string;
@@ -128,6 +129,7 @@ parentsNames: "",
 siblingsNames: "",
 childrenNames: "",
 grandchildrenNames: "",
+greatGrandchildrenNames: "",
   obituary: "",
   obituaryUrl: "",
   lifeStory: "",
@@ -595,6 +597,7 @@ parentsNames: data.parents_names ?? "",
 siblingsNames: data.siblings_names ?? "",
 childrenNames: data.children_names || "",
 grandchildrenNames: data.grandchildren_names || "",
+greatGrandchildrenNames: data.great_grandchildren_names || "",
         obituary: data.obituary ?? "",
         obituaryUrl: data.obituary_url ?? "",
         lifeStory: data.life_story ?? "",
@@ -2126,7 +2129,16 @@ Hershey Foods Corporation`}
   onChange={handleChange}
   rows={3}
 />
-    
+  <label className="block text-sm font-medium text-stone-700">
+  Great Grandchildren
+</label>
+<textarea
+  name="greatGrandchildrenNames"
+  value={form.greatGrandchildrenNames}
+  onChange={handleChange}
+  className="mt-2 w-full rounded-2xl border border-stone-300 px-4 py-3 text-sm text-stone-900 shadow-sm focus:border-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
+  rows={3}
+/>
   
 
   </div>
