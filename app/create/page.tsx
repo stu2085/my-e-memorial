@@ -39,6 +39,9 @@ grandparentsFatherSide: string;
 grandparentsMotherSide: string;
 parentsNames: string;
 siblingsNames: string;
+childrenNames: string;
+grandchildrenNames: string;
+greatGrandchildrenNames: string;
   cemeteryName: string;
   graveSection: string;
   graveRow: string;
@@ -101,6 +104,9 @@ grandparentsFatherSide: "",
 grandparentsMotherSide: "",
 parentsNames: "",
 siblingsNames: "",
+childrenNames: "",
+grandchildrenNames: "",
+greatGrandchildrenNames: "",
   cemeteryName: "",
   graveDirections: "",
   graveSection: "",
@@ -1270,8 +1276,36 @@ async function handleBuyExtraVideos(extraCount: number) {
       rows={3}
       placeholder="Enter siblings names..."
     />
+
+    <TextArea
+      label="Children Names"
+      name="childrenNames"
+      value={form.childrenNames}
+      onChange={handleChange}
+      rows={3}
+      placeholder="Enter children names..."
+    />
+
+    <TextArea
+      label="Grandchildren Names"
+      name="grandchildrenNames"
+      value={form.grandchildrenNames}
+      onChange={handleChange}
+      rows={3}
+      placeholder="Enter grandchildren names..."
+    />
+
+    <TextArea
+      label="Great Grandchildren Names"
+      name="greatGrandchildrenNames"
+      value={form.greatGrandchildrenNames}
+      onChange={handleChange}
+      rows={3}
+      placeholder="Enter great grandchildren names..."
+    />
   </div>
 </Section>
+
               <Section title="Favorite Song">
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-stone-800">
