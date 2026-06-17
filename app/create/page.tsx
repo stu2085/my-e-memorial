@@ -178,6 +178,7 @@ type PlanKey = keyof typeof PLAN_LIMITS;
 
 function CreatePageContent() {
   const searchParams = useSearchParams();
+  const isPersonalMode = searchParams.get("mode") === "personal";
   const [isPaid, setIsPaid] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const MAX_VIDEO_SIZE_BYTES = 1000 * 1000 * 1000; // 1 GB
@@ -220,127 +221,139 @@ useEffect(() => {
 const leftAdCategory = adCategoryPair[0];
 const rightAdCategory = adCategoryPair[1];
 
-  useEffect(() => {
-    async function verifyPayment() {
-      const savedDraft = localStorage.getItem("memorialDraft");
+useEffect(() => {
+  async function verifyPayment() {
+    const params = searchParams;
+    const mode = params.get("mode");
+    const isPersonalMode = mode === "personal";
 
-if (savedDraft) {
-  const parsedDraft = JSON.parse(savedDraft);
-
-  setForm({
-    ...initialForm,
-    ...parsedDraft,
-  });
-}
-
-if (localStorage.getItem("agreedToTerms") === "true") {
-  setAgreedToTerms(true);
-}
-setDraftReady(true);
-      const params = searchParams;
-      const extraVideosPaid = Number(params.get("extra_videos_paid") || 0);
-const promoFromUrl = params.get("promo");
-
-if (promoFromUrl) {
-  setForm((prev) => ({
-    ...prev,
-    betaCode: promoFromUrl.toUpperCase(),
-  }));
-
-  setSuccessMessage(
-    "Your free memorial access is ready. Review the Terms of Service and click Activate Free Premium Access below."
-  );
-  setTimeout(() => {
-  document
-    .getElementById("promo-access")
-    ?.scrollIntoView({ behavior: "smooth", block: "start" });
-}, 750);
-}
-if (extraVideosPaid > 0) {
-  const savedExtraVideos = Number(localStorage.getItem("paidExtraVideos") || 0);
-  const newTotal = savedExtraVideos + extraVideosPaid;
-
-  localStorage.setItem("paidExtraVideos", String(newTotal));
-  setPaidExtraVideos(newTotal);
-
-  window.history.replaceState({}, "", "/create");
-} else {
-  setPaidExtraVideos(Number(localStorage.getItem("paidExtraVideos") || 0));
-}
-      const mode = params.get("mode");
-
-setForm((prev) => ({
-  ...prev,
-  isLivingPreplan: mode === "preplan",
-}));
-      const sessionId = params.get("session_id");
-const autoCheckout = params.get("autocheckout");
-
-if (!sessionId && autoCheckout !== "1") {
-  setIsPaid(false);
-  return;
-}
-if (autoCheckout === "1") {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) {
     const savedDraft = localStorage.getItem("memorialDraft");
 
     if (savedDraft) {
       const parsedDraft = JSON.parse(savedDraft);
-      const selectedPlan = parsedDraft.plan || "basic";
 
-      const planPrices = {
-        basic: 4995,
-        plus: 6995,
-        premium: 8995,
-      };
-const isPersonalMode = searchParams.get("mode") === "personal";
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          plan: selectedPlan,
-          amount: planPrices[selectedPlan as keyof typeof planPrices],
-         returnUrl: `${window.location.origin}/create${
-  isPersonalMode ? "?mode=personal" : ""
-}`,
-        }),
+      setForm({
+        ...initialForm,
+        ...parsedDraft,
+        isLivingPreplan:
+          isPersonalMode || parsedDraft.isLivingPreplan === true,
       });
 
-      const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url;
+      if (localStorage.getItem("agreedToTerms") === "true") {
+        setAgreedToTerms(true);
       }
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        isLivingPreplan: isPersonalMode,
+      }));
+    }
 
+    setDraftReady(true);
+
+    const extraVideosPaid = Number(params.get("extra_videos_paid") || 0);
+    const promoFromUrl = params.get("promo");
+
+    if (promoFromUrl) {
+      setForm((prev) => ({
+        ...prev,
+        betaCode: promoFromUrl.toUpperCase(),
+      }));
+
+      setSuccessMessage(
+        "Your free memorial access is ready. Review the Terms of Service and click Activate Free Premium Access below."
+      );
+
+      setTimeout(() => {
+        document
+          .getElementById("promo-access")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 750);
+    }
+
+    if (extraVideosPaid > 0) {
+      const savedExtraVideos = Number(
+        localStorage.getItem("paidExtraVideos") || 0
+      );
+      const newTotal = savedExtraVideos + extraVideosPaid;
+
+      localStorage.setItem("paidExtraVideos", String(newTotal));
+      setPaidExtraVideos(newTotal);
+
+      window.history.replaceState(
+        {},
+        "",
+        isPersonalMode ? "/create?mode=personal" : "/create"
+      );
+    } else {
+      setPaidExtraVideos(Number(localStorage.getItem("paidExtraVideos") || 0));
+    }
+
+    const sessionId = params.get("session_id");
+    const autoCheckout = params.get("autocheckout");
+
+    if (!sessionId && autoCheckout !== "1") {
+      setIsPaid(false);
       return;
     }
-  }
-}
 
-if (!sessionId) {
-  return;
-}
+    if (autoCheckout === "1") {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-      const res = await fetch("/api/verify-payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ sessionId }),
-      });
+      if (user && savedDraft) {
+        const parsedDraft = JSON.parse(savedDraft);
+        const selectedPlan = parsedDraft.plan || "basic";
 
-      const data = await res.json();
-      setIsPaid(data.paid === true);
+        const planPrices = {
+          basic: 4995,
+          plus: 6995,
+          premium: 8995,
+        };
+
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            plan: selectedPlan,
+            amount: planPrices[selectedPlan as keyof typeof planPrices],
+            returnUrl: `${window.location.origin}/create${
+              isPersonalMode ? "?mode=personal" : ""
+            }`,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (data.url) {
+          window.location.href = data.url;
+        }
+
+        return;
+      }
     }
 
-    verifyPayment();
-  }, []);
+    if (!sessionId) {
+      return;
+    }
+
+    const res = await fetch("/api/verify-payment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ sessionId }),
+    });
+
+    const data = await res.json();
+    setIsPaid(data.paid === true);
+  }
+
+  verifyPayment();
+}, []);
 useEffect(() => {
   if (!draftReady) return;
 
@@ -1950,8 +1963,8 @@ localStorage.setItem("agreedToTerms", "true");
   plan: selectedPlan,
   amount: planPrices[selectedPlan as keyof typeof planPrices],
   returnUrl: `${window.location.origin}/create${
-  form.isLivingPreplan ? "?mode=personal&" : "?"
-}session_id={CHECKOUT_SESSION_ID}`,
+  isPersonalMode ? "?mode=personal" : ""
+}`,
 }),
           });
 
