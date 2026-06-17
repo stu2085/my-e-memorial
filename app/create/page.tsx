@@ -1947,7 +1947,9 @@ localStorage.setItem("agreedToTerms", "true");
             body: JSON.stringify({
   plan: selectedPlan,
   amount: planPrices[selectedPlan as keyof typeof planPrices],
-  returnUrl: `${window.location.origin}/create?session_id={CHECKOUT_SESSION_ID}`,
+  returnUrl: `${window.location.origin}/create${
+  form.isLivingPreplan ? "?mode=personal&" : "?"
+}session_id={CHECKOUT_SESSION_ID}`,
 }),
           });
 
