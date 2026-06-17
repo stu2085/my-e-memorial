@@ -977,7 +977,7 @@ async function handleBuyExtraVideos(extraCount: number) {
 
                 <p className="mt-6 text-lg text-white/90">
   {form.isLivingPreplan
-    ? "Tell your life story in your own words and in your own way. Share the memories, photos, videos, music, and moments that matter most so future generations can truly know and remember you."
+    ? "Far better than an obituary or headstone with two dates, here's your opportunity to leave tell your own story in your own words using photos, videos, music, and moments that mattered the most to you in your life so future generations can truly know and remember you."
     : "Preserve a life, a story, and a voice for future generations. Add photos, videos, and memories — or record your own message to share with loved ones."}
 </p>
 
