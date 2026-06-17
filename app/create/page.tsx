@@ -307,8 +307,8 @@ const isPersonalMode = searchParams.get("mode") === "personal";
           plan: selectedPlan,
           amount: planPrices[selectedPlan as keyof typeof planPrices],
          returnUrl: `${window.location.origin}/create${
-  isPersonalMode ? "?mode=personal&" : "?"
-}session_id={CHECKOUT_SESSION_ID}`,
+  isPersonalMode ? "?mode=personal" : ""
+}`,
         }),
       });
 
