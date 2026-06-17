@@ -2788,18 +2788,7 @@ Hershey Foods Corporation`}
 
                   
 
-                  {successMessage && (
-  <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-800">
-    <p className="font-semibold">{successMessage}</p>
-
-    <a
-  href={`/memorial/${originalSlug}`}
-      className="mt-3 inline-flex items-center justify-center rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white hover:bg-green-800"
-    >
-      After Saving, View Memorial
-    </a>
-  </div>
-)}
+                  
 
                   <div className="flex flex-wrap gap-3 border-t border-stone-200 pt-6">
                     <button
@@ -2864,6 +2853,18 @@ if (!res.ok) {
   </button>
 )}
                   </div>
+                  {successMessage && (
+  <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-800">
+    <p className="font-semibold">{successMessage}</p>
+
+    <a
+  href={`/memorial/${originalSlug}`}
+      className="mt-3 inline-flex items-center justify-center rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white hover:bg-green-800"
+    >
+      After Saving, View Memorial
+    </a>
+  </div>
+)}
                 </form>
               </div>
             </section>
