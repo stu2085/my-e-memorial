@@ -297,7 +297,7 @@ if (autoCheckout === "1") {
         plus: 6995,
         premium: 8995,
       };
-
+const isPersonalMode = searchParams.get("mode") === "personal";
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: {
@@ -306,7 +306,9 @@ if (autoCheckout === "1") {
         body: JSON.stringify({
           plan: selectedPlan,
           amount: planPrices[selectedPlan as keyof typeof planPrices],
-          returnUrl: `${window.location.origin}/create?session_id={CHECKOUT_SESSION_ID}`,
+         returnUrl: `${window.location.origin}/create${
+  isPersonalMode ? "?mode=personal&" : "?"
+}session_id={CHECKOUT_SESSION_ID}`,
         }),
       });
 
