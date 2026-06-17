@@ -984,7 +984,7 @@ async function handleBuyExtraVideos(extraCount: number) {
                 <p className="mt-8 text-xl text-white">
   {form.isLivingPreplan
     ? "Add stories, photos, videos, and your favorite songs to preserve your lifetime of memories."
-    : "Add details, stories, photos, and a favorite memorial song."}
+    : "Add details, stories, photos, awards, videos, awards and favorite songs."}
 </p>
               </div>
             </section>
