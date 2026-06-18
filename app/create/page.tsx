@@ -225,9 +225,13 @@ useEffect(() => {
   async function verifyPayment() {
     const params = searchParams;
     const mode = params.get("mode");
-    const isPersonalMode = mode === "personal";
+    const isPersonalModeFromUrl = mode === "personal";
 
     const savedDraft = localStorage.getItem("memorialDraft");
+    const extraVideosPaid = Number(params.get("extra_videos_paid") || 0);
+    const promoFromUrl = params.get("promo");
+    const sessionId = params.get("session_id");
+    const autoCheckout = params.get("autocheckout");
 
     if (savedDraft) {
       const parsedDraft = JSON.parse(savedDraft);
@@ -236,7 +240,10 @@ useEffect(() => {
         ...initialForm,
         ...parsedDraft,
         isLivingPreplan:
-          isPersonalMode || parsedDraft.isLivingPreplan === true,
+          isPersonalModeFromUrl || parsedDraft.isLivingPreplan === true,
+        promotionCategory: isPersonalModeFromUrl
+          ? "personal"
+          : parsedDraft.promotionCategory || "personal",
       });
 
       if (localStorage.getItem("agreedToTerms") === "true") {
@@ -245,19 +252,20 @@ useEffect(() => {
     } else {
       setForm((prev) => ({
         ...prev,
-        isLivingPreplan: isPersonalMode,
+        isLivingPreplan: isPersonalModeFromUrl,
+        promotionCategory: isPersonalModeFromUrl
+          ? "personal"
+          : prev.promotionCategory || "personal",
       }));
     }
 
     setDraftReady(true);
 
-    const extraVideosPaid = Number(params.get("extra_videos_paid") || 0);
-    const promoFromUrl = params.get("promo");
-
     if (promoFromUrl) {
       setForm((prev) => ({
         ...prev,
         betaCode: promoFromUrl.toUpperCase(),
+        isLivingPreplan: isPersonalModeFromUrl || prev.isLivingPreplan,
       }));
 
       setSuccessMessage(
@@ -283,14 +291,11 @@ useEffect(() => {
       window.history.replaceState(
         {},
         "",
-        isPersonalMode ? "/create?mode=personal" : "/create"
+        isPersonalModeFromUrl ? "/create?mode=personal" : "/create"
       );
     } else {
       setPaidExtraVideos(Number(localStorage.getItem("paidExtraVideos") || 0));
     }
-
-    const sessionId = params.get("session_id");
-    const autoCheckout = params.get("autocheckout");
 
     if (!sessionId && autoCheckout !== "1") {
       setIsPaid(false);
@@ -321,7 +326,7 @@ useEffect(() => {
             plan: selectedPlan,
             amount: planPrices[selectedPlan as keyof typeof planPrices],
             returnUrl: `${window.location.origin}/create${
-              isPersonalMode ? "?mode=personal" : ""
+              isPersonalModeFromUrl ? "?mode=personal" : ""
             }`,
           }),
         });
@@ -353,15 +358,23 @@ useEffect(() => {
   }
 
   verifyPayment();
-}, []);
+}, [searchParams]);
 useEffect(() => {
   if (!draftReady) return;
 
+  const isPersonalModeFromUrl = searchParams.get("mode") === "personal";
+
   localStorage.setItem(
     "memorialDraft",
-    JSON.stringify(form)
+    JSON.stringify({
+      ...form,
+      isLivingPreplan: isPersonalModeFromUrl || form.isLivingPreplan,
+      promotionCategory: isPersonalModeFromUrl
+        ? "personal"
+        : form.promotionCategory,
+    })
   );
-}, [draftReady, form]);
+}, [draftReady, form, searchParams]);
   function handleChange(
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) {
