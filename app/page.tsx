@@ -434,6 +434,27 @@ useEffect(() => {
     </div>
   </div>
 </section>
+<section className="mx-auto mt-12 max-w-4xl rounded-3xl bg-white px-6 py-10 text-center shadow-sm">
+  <p className="text-sm font-semibold uppercase tracking-wide text-blue-900">
+    The Story Behind MyEMemorial
+  </p>
+
+  <h2 className="mt-3 text-3xl font-bold text-stone-900">
+    “Who was this person?”
+  </h2>
+
+  <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-stone-700">
+    That question first came to mind more than fifty years ago while a little boy was standing in a cemetery as a seventh grader. It stayed with him
+    for decades and eventually became the reason MyEMemorial was created.
+  </p>
+
+  <a
+    href="/our-story"
+    className="mt-6 inline-flex rounded-full bg-blue-950 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-900"
+  >
+    Read Our Story
+  </a>
+</section>
 <section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
   <div className="mx-auto max-w-5xl">
     <div className="text-center">
@@ -506,7 +527,26 @@ useEffect(() => {
           find and remember a loved one.
         </p>
       </div>
+<div className="rounded-2xl bg-white p-6 shadow-sm">
+  <h3 className="text-lg font-semibold text-stone-900">
+    What inspired the creation of MyEMemorial?
+  </h3>
 
+ <p className="mt-3 text-stone-700">
+  The inspiration for MyEMemorial began more than fifty years ago when a little
+  boy standing in a cemetery found himself wondering about the people behind
+  weathered gravestones and asking, “Who was this person?” That question stayed
+  with him throughout his life and eventually led to the creation of
+  MyEMemorial.
+</p>
+
+  <a
+    href="/our-story"
+    className="mt-4 inline-block font-semibold text-blue-900 hover:underline"
+  >
+    Read Our Story →
+  </a>
+</div>
       <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
         <h3 className="text-base font-bold text-stone-900">
           Can an online memorial be shared with a QR code?

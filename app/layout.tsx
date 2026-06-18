@@ -75,6 +75,9 @@ export default function RootLayout({
       <a href="/content-removal" className="hover:text-stone-800">Content Removal</a>
       <a href="/dmca" className="hover:text-stone-800">DMCA</a>
       <a href="/refund-policy" className="hover:text-stone-800">Refund Policy</a>
+       <a href="/our-story" className="hover:text-stone-800">
+      Our Story
+    </a>
       <a href="/contact" className="hover:text-stone-800">Contact Us</a>
       <a
   href="/login?mode=login&redirect=%2Fadmin%2Fbeta-codes"
