@@ -71,11 +71,11 @@ useEffect(() => {
                 </p>
 
                 <h1 className="mx-auto mt-4 max-w-4xl text-3xl font-bold leading-tight md:text-5xl">
-                  Lives remembered here forever.
+                  Don’t Let A Weathered Stone Be All That Remains.
                 </h1>
 
                 <p className="mx-auto mt-4 max-w-3xl text-xl font-semibold leading-snug text-stone-100 md:text-2xl">
-                  Don’t let a weathered stone be all that remains.
+                  Lives remembered here forever.
                 </p>
 
                 <p className="mx-auto mt-4 max-w-3xl text-sm leading-6 text-stone-100 md:text-base">
@@ -434,23 +434,36 @@ useEffect(() => {
     </div>
   </div>
 </section>
-<section className="mx-auto mt-12 max-w-4xl rounded-3xl bg-white px-6 py-10 text-center shadow-sm">
+
+
+  <section className="mx-auto mt-12 max-w-4xl rounded-3xl bg-white px-6 py-10 text-center shadow-sm">
   <p className="text-sm font-semibold uppercase tracking-wide text-blue-900">
     The Story Behind MyEMemorial
   </p>
 
   <h2 className="mt-3 text-3xl font-bold text-stone-900">
-    “Who was this person?”
+    "Who was this person?"
   </h2>
 
-  <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-stone-700">
-    That question first came to mind more than fifty years ago while a little boy was standing in a cemetery as a seventh grader. It stayed with him
-    for decades and eventually became the reason MyEMemorial was created.
+  <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-stone-700">
+    More than fifty years ago, a seventh-grade boy standing in a cemetery found
+    himself wondering about the people behind the weathered gravestones and
+    asking:
+  </p>
+
+  <blockquote className="mt-6 border-l-4 border-blue-900 pl-6 text-2xl italic text-stone-900">
+    "Who was this person?"
+  </blockquote>
+
+  <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-stone-700">
+    That question stayed with him throughout his life and eventually inspired
+    the creation of MyEMemorial — a place where future generations can truly
+    know and remember the people who came before them.
   </p>
 
   <a
     href="/our-story"
-    className="mt-6 inline-flex rounded-full bg-blue-950 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-900"
+    className="mt-8 inline-flex rounded-full bg-blue-950 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-900"
   >
     Read Our Story
   </a>
@@ -533,19 +546,18 @@ useEffect(() => {
   </h3>
 
  <p className="mt-3 text-stone-700">
-  The inspiration for MyEMemorial began more than fifty years ago when a little
-  boy standing in a cemetery found himself wondering about the people behind
-  weathered gravestones and asking, “Who was this person?” That question stayed
-  with him throughout his life and eventually led to the creation of
-  MyEMemorial.
+  More than fifty years ago, a seventh-grade boy standing in a cemetery found
+  himself wondering about the people behind weathered gravestones and asking,
+  "Who was this person?" That question stayed with him throughout his life and
+  eventually inspired the creation of MyEMemorial.
 </p>
 
-  <a
-    href="/our-story"
-    className="mt-4 inline-block font-semibold text-blue-900 hover:underline"
-  >
-    Read Our Story →
-  </a>
+<a
+  href="/our-story"
+  className="mt-4 inline-block font-semibold text-blue-900 hover:underline"
+>
+  Read Our Story →
+</a>
 </div>
       <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
         <h3 className="text-base font-bold text-stone-900">
