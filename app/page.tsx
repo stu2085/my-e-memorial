@@ -104,7 +104,7 @@ useEffect(() => {
 </Link>
 
   <Link
-  href="/create?mode=preplan"
+  href="/create?mode=personal"
   className="inline-flex h-[60px] w-[260px] items-center justify-center rounded-full bg-amber-400 px-5 text-sm font-semibold text-stone-900 text-center leading-tight transition hover:bg-amber-300"
 >
   <span className="block">

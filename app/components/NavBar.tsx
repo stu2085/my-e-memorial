@@ -10,13 +10,16 @@ const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
 const searchParams = useSearchParams();
 
+const mode = searchParams.get("mode");
+
 const isCreate =
   pathname === "/create" &&
-  searchParams.get("mode") !== "preplan";
+  mode !== "personal" &&
+  mode !== "preplan";
 
 const isPreplan =
   pathname === "/create" &&
-  searchParams.get("mode") === "preplan";
+  (mode === "personal" || mode === "preplan");
 
 
   useEffect(() => {
@@ -84,9 +87,9 @@ const isPreplan =
   Search E-Memorials
 </Link>
 <Link
-  href="/create?mode=preplan"
+  href="/create?mode=personal"
   onClick={() => {
-    window.location.href = "/create?mode=preplan";
+    window.location.href = "/create?mode=personal";
   }}
   className={`hidden sm:inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ease-in-out ${
     isPreplan

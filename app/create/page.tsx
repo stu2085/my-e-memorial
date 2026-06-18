@@ -178,7 +178,10 @@ type PlanKey = keyof typeof PLAN_LIMITS;
 
 function CreatePageContent() {
   const searchParams = useSearchParams();
-  const isPersonalMode = searchParams.get("mode") === "personal";
+  const mode = searchParams.get("mode");
+
+const isPersonalMode =
+  mode === "personal" || mode === "preplan";
   const [isPaid, setIsPaid] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const MAX_VIDEO_SIZE_BYTES = 1000 * 1000 * 1000; // 1 GB
@@ -225,7 +228,9 @@ useEffect(() => {
   async function verifyPayment() {
     const params = searchParams;
     const mode = params.get("mode");
-    const isPersonalModeFromUrl = mode === "personal";
+
+const isPersonalModeFromUrl =
+  mode === "personal" || mode === "preplan";
 
     const savedDraft = localStorage.getItem("memorialDraft");
     const extraVideosPaid = Number(params.get("extra_videos_paid") || 0);
@@ -1975,8 +1980,8 @@ localStorage.setItem("agreedToTerms", "true");
             body: JSON.stringify({
   plan: selectedPlan,
   amount: planPrices[selectedPlan as keyof typeof planPrices],
-  returnUrl: `${window.location.origin}/create${
-  isPersonalMode ? "?mode=personal" : ""
+ returnUrl: `${window.location.origin}/create${
+  form.isLivingPreplan || isPersonalMode ? "?mode=personal" : ""
 }`,
 }),
           });
