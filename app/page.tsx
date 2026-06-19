@@ -71,7 +71,7 @@ useEffect(() => {
                 </p>
 
                 <h1 className="mx-auto mt-4 max-w-4xl text-3xl font-bold leading-tight md:text-5xl">
-                  Don’t Let A Weathered Stone Be All That Remains.
+                  Don't let a weathered stone be all that remains.
                 </h1>
 
                 <p className="mx-auto mt-4 max-w-3xl text-xl font-semibold leading-snug text-stone-100 md:text-2xl">
