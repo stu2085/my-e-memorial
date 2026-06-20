@@ -63,6 +63,22 @@ export default function RootLayout({
     >
      <body className="min-h-full flex flex-col">
       <FacebookPixel />
+      <script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "MyEMemorial",
+      url: "https://www.myememorial.com",
+      logo: "https://www.myememorial.com/myememorial-logo.png",
+      sameAs: [
+        "https://www.facebook.com/MyEmemorial",
+        "https://www.instagram.com/myememorial/",
+      ],
+    }),
+  }}
+/>
   <Suspense fallback={null}>
   <NavBar />
 </Suspense>
