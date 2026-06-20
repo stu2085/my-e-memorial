@@ -2,9 +2,13 @@
 
 import Script from 'next/script';
 
-const PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID!;
+const PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
 
 export default function FacebookPixel() {
+  if (!PIXEL_ID) {
+    return null;
+  }
+
   return (
     <>
       <Script id="fb-pixel" strategy="afterInteractive">
