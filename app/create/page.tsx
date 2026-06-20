@@ -229,8 +229,8 @@ useEffect(() => {
     const params = searchParams;
     const mode = params.get("mode");
 
-const isPersonalModeFromUrl =
-  mode === "personal" || mode === "preplan";
+    const isPersonalModeFromUrl =
+      mode === "personal" || mode === "preplan";
 
     const savedDraft = localStorage.getItem("memorialDraft");
     const extraVideosPaid = Number(params.get("extra_videos_paid") || 0);
@@ -238,9 +238,16 @@ const isPersonalModeFromUrl =
     const sessionId = params.get("session_id");
     const autoCheckout = params.get("autocheckout");
 
-    if (savedDraft) {
-      const parsedDraft = JSON.parse(savedDraft);
+    const parsedDraft = savedDraft ? JSON.parse(savedDraft) : null;
+    const selectedPlan = parsedDraft?.plan || form.plan || "basic";
 
+    const planPrices = {
+      basic: 4995,
+      plus: 6995,
+      premium: 8995,
+    };
+
+    if (savedDraft) {
       setForm({
         ...initialForm,
         ...parsedDraft,
@@ -313,15 +320,6 @@ const isPersonalModeFromUrl =
       } = await supabase.auth.getUser();
 
       if (user && savedDraft) {
-        const parsedDraft = JSON.parse(savedDraft);
-        const selectedPlan = parsedDraft.plan || "basic";
-
-        const planPrices = {
-          basic: 4995,
-          plus: 6995,
-          premium: 8995,
-        };
-
         const res = await fetch("/api/checkout", {
           method: "POST",
           headers: {
@@ -336,27 +334,26 @@ const isPersonalModeFromUrl =
           }),
         });
 
-       const data = await res.json();
+        const data = await res.json();
 
-if (data.url) {
-  // Facebook Pixel: user started checkout
-  if (
-    typeof window !== "undefined" &&
-    typeof (window as any).fbq === "function"
-  ) {
-    (window as any).fbq("track", "InitiateCheckout", {
-  value: planPrices[selectedPlan as keyof typeof planPrices] / 100,
-  currency: "USD",
-  content_name: selectedPlan,
-});
-  }
+        if (data.url) {
+          if (
+            typeof window !== "undefined" &&
+            typeof (window as any).fbq === "function"
+          ) {
+            (window as any).fbq("track", "InitiateCheckout", {
+              value: planPrices[selectedPlan as keyof typeof planPrices] / 100,
+              currency: "USD",
+              content_name: selectedPlan,
+            });
+          }
 
-  // Give Facebook a fraction of a second to send the event
- setTimeout(() => {
-  window.location.href = data.url;
-}, 2000);
+          setTimeout(() => {
+            window.location.href = data.url;
+          }, 2000);
 
-return;
+          return;
+        }
       }
     }
 
@@ -373,7 +370,23 @@ return;
     });
 
     const data = await res.json();
-    setIsPaid(data.paid === true);
+
+    if (data.paid === true) {
+      setIsPaid(true);
+
+      if (
+        typeof window !== "undefined" &&
+        typeof (window as any).fbq === "function"
+      ) {
+        (window as any).fbq("track", "Purchase", {
+          value: planPrices[selectedPlan as keyof typeof planPrices] / 100,
+          currency: "USD",
+          content_name: selectedPlan,
+        });
+      }
+    } else {
+      setIsPaid(false);
+    }
   }
 
   verifyPayment();
