@@ -344,7 +344,11 @@ if (data.url) {
     typeof window !== "undefined" &&
     typeof (window as any).fbq === "function"
   ) {
-    (window as any).fbq("track", "InitiateCheckout");
+    (window as any).fbq("track", "InitiateCheckout", {
+  value: planPrices[selectedPlan as keyof typeof planPrices] / 100,
+  currency: "USD",
+  content_name: selectedPlan,
+});
   }
 
   // Give Facebook a fraction of a second to send the event
