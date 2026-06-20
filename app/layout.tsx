@@ -5,7 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
-import FacebookPixel from "@/components/FacebookPixel";
+import FacebookPixel from "./components/FacebookPixel";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
