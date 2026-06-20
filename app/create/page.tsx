@@ -336,7 +336,7 @@ const isPersonalModeFromUrl =
           }),
         });
 
-        const data = await res.json();
+       const data = await res.json();
 
 if (data.url) {
   // Facebook Pixel: user started checkout
@@ -347,7 +347,10 @@ if (data.url) {
     (window as any).fbq("track", "InitiateCheckout");
   }
 
-  window.location.href = data.url;
+  // Give Facebook a fraction of a second to send the event
+  setTimeout(() => {
+    window.location.href = data.url;
+  }, 300);
 }
 
 return;
