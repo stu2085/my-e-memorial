@@ -352,10 +352,9 @@ if (data.url) {
   }
 
   // Give Facebook a fraction of a second to send the event
-  setTimeout(() => {
-    window.location.href = data.url;
-  }, 300);
-}
+ setTimeout(() => {
+  window.location.href = data.url;
+}, 2000);
 
 return;
       }
