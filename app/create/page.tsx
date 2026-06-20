@@ -338,11 +338,19 @@ const isPersonalModeFromUrl =
 
         const data = await res.json();
 
-        if (data.url) {
-          window.location.href = data.url;
-        }
+if (data.url) {
+  // Facebook Pixel: user started checkout
+  if (
+    typeof window !== "undefined" &&
+    typeof (window as any).fbq === "function"
+  ) {
+    (window as any).fbq("track", "InitiateCheckout");
+  }
 
-        return;
+  window.location.href = data.url;
+}
+
+return;
       }
     }
 
