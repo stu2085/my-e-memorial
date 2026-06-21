@@ -133,7 +133,15 @@ function parseUrlList(value: string | string[] | null | undefined): string[] {
 function getVideoUrls(value: string | string[] | null | undefined): string[] {
   return parseUrlList(value).filter((videoId) => videoId.length > 15);
 }
+function getFacebookEmbedUrl(url: string) {
+  if (!url.includes("facebook.com") && !url.includes("fb.watch")) {
+    return "";
+  }
 
+  return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(
+    url
+  )}&show_text=false&width=734`;
+}
 function formatDate(value?: string) {
   if (!value) return "-";
 
@@ -1638,9 +1646,18 @@ function showNextPhoto() {
         <p className="text-sm font-semibold text-stone-800">
           Linked Video {index + 1}
         </p>
-<div className="mt-3 flex aspect-video w-full items-center justify-center rounded-2xl bg-stone-200 text-center text-sm font-semibold text-stone-700">
-  ▶ Linked Video
-</div>
+{getFacebookEmbedUrl(url) ? (
+  <iframe
+    src={getFacebookEmbedUrl(url)}
+    className="mt-3 aspect-video w-full rounded-2xl border border-stone-200"
+    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+    allowFullScreen
+  />
+) : (
+  <div className="mt-3 flex aspect-video w-full items-center justify-center rounded-2xl bg-stone-200 text-center text-sm font-semibold text-stone-700">
+    ▶ Linked Video
+  </div>
+)}
         {videoLinkNotes[index] && (
           <p className="mt-2 text-sm text-stone-700">
             {videoLinkNotes[index]}
