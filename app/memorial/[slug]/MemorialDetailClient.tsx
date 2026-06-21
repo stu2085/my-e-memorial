@@ -1646,18 +1646,15 @@ function showNextPhoto() {
         <p className="text-sm font-semibold text-stone-800">
           Linked Video {index + 1}
         </p>
-{getFacebookEmbedUrl(url) ? (
-  <iframe
-    src={getFacebookEmbedUrl(url)}
-    className="mt-3 aspect-video w-full rounded-2xl border border-stone-200"
-    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-    allowFullScreen
-  />
-) : (
-  <div className="mt-3 flex aspect-video w-full items-center justify-center rounded-2xl bg-stone-200 text-center text-sm font-semibold text-stone-700">
-    ▶ Linked Video
-  </div>
-)}
+<div className="mt-3 flex aspect-video w-full items-center justify-center rounded-2xl bg-stone-200 text-center text-sm font-semibold text-stone-700">
+  ▶ External Video Link
+</div>
+
+{url.includes("facebook.com") || url.includes("fb.watch") ? (
+  <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    This Facebook video opens on Facebook. Facebook may show suggested or unrelated videos.
+  </p>
+) : null}
         {videoLinkNotes[index] && (
           <p className="mt-2 text-sm text-stone-700">
             {videoLinkNotes[index]}
