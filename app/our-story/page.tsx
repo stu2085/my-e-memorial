@@ -108,7 +108,7 @@ export default function OurStoryPage() {
 
         <div className="pt-8 text-center">
           <p className="font-semibold text-stone-900">
-            —
+            
           </p>
 
           <p>Founder, MyEMemorial.com</p>
