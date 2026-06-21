@@ -3099,10 +3099,13 @@ if (!res.ok) {
     }}
     className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-stone-50"
   >
-    After Saving, View Memorial
+    Preview Memorial
   </button>
 )}
                   </div>
+                  <p className="mt-2 text-xs text-stone-500">
+  Saving does not make your changes public.
+</p>
                   {successMessage && (
   <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-800">
     <p className="font-semibold">{successMessage}</p>
@@ -3111,9 +3114,10 @@ if (!res.ok) {
   href={`/memorial/${originalSlug}`}
       className="mt-3 inline-flex items-center justify-center rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white hover:bg-green-800"
     >
-      After Saving, View Memorial
+      Published and View Memorial
     </a>
   </div>
+  
 )}
                 </form>
               </div>
