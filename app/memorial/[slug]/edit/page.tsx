@@ -62,6 +62,7 @@ grandchildrenNames: string;
 greatGrandchildrenNames: string
   obituary: string;
   obituaryUrl: string;
+  obituaryImageUrl: string;
   lifeStory: string;
 backupPersonName: string;
   finalRestingType: string;
@@ -100,6 +101,8 @@ newspaperArticles: string;
   plan: string;
   isLivingPreplan: boolean;
 extraVideoSlots: string;
+videoLinkUrls: string[];
+videoLinkNotes: string[];
 backupEmail: string;
 backupPassword: string;
 
@@ -130,8 +133,9 @@ siblingsNames: "",
 childrenNames: "",
 grandchildrenNames: "",
 greatGrandchildrenNames: "",
-  obituary: "",
+    obituary: "",
   obituaryUrl: "",
+  obituaryImageUrl: "",
   lifeStory: "",
 backupPersonName: "",
   finalRestingType: "",
@@ -170,6 +174,8 @@ newspaperArticles: "",
   plan: "basic",
   isLivingPreplan: false,
 extraVideoSlots: "0",
+videoLinkUrls: [],
+videoLinkNotes: [],
 backupEmail: "",
   backupPassword: "",
 };
@@ -229,6 +235,8 @@ const galleryDragSensors = useSensors(
   const [headstonePhoto1File, setHeadstonePhoto1File] = useState<File | null>(null);
   const [headstonePhoto2File, setHeadstonePhoto2File] = useState<File | null>(null);
   const [galleryPhotoFiles, setGalleryPhotoFiles] = useState<File[]>([]);
+  const [obituaryImageFile, setObituaryImageFile] =
+  useState<File | null>(null);
   const [galleryInputResetKey, setGalleryInputResetKey] = useState(0);
   const [newspaperArticleFiles, setNewspaperArticleFiles] = useState<File[]>([]);
   const [videoFiles, setVideoFiles] = useState<File[]>([]);
@@ -238,6 +246,8 @@ const galleryDragSensors = useSensors(
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 const [previewVideoId, setPreviewVideoId] = useState<string | null>(null);
+const [newVideoLinkUrl, setNewVideoLinkUrl] = useState("");
+const [newVideoLinkNote, setNewVideoLinkNote] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [locationStatus, setLocationStatus] = useState("");
@@ -600,6 +610,7 @@ grandchildrenNames: data.grandchildren_names || "",
 greatGrandchildrenNames: data.great_grandchildren_names || "",
         obituary: data.obituary ?? "",
         obituaryUrl: data.obituary_url ?? "",
+        obituaryImageUrl: data.obituary_image_url ?? "",
         lifeStory: data.life_story ?? "",
         backupPersonName: data.backup_person_name ?? "",
         finalRestingType: data.final_resting_type ?? "",
@@ -643,6 +654,8 @@ newspaperArticles: data.newspaper_articles ?? "",
 extraVideoSlots: String(data.extra_video_slots ?? 0),
 backupEmail: "",
 backupPassword: "",
+videoLinkUrls: Array.isArray(data.video_link_urls) ? data.video_link_urls : [],
+videoLinkNotes: Array.isArray(data.video_link_notes) ? data.video_link_notes : [],
 
 });
 
@@ -926,6 +939,7 @@ async function uploadFile(file: File, folderName: string, bucketName: string) {
       let headstonePhoto1Url = form.headstonePhoto1Url;
       let headstonePhoto2Url = form.headstonePhoto2Url;
       let galleryPhotos = splitGalleryPhotos(form.galleryPhotos);
+      let obituaryImageUrl = form.obituaryImageUrl;
 
      let favoriteSongUrls: string[] = [];
 
@@ -945,20 +959,37 @@ if (featuredPhotoFile) {
     "memorial-photos"
   );
 }
-      if (headstonePhoto1File) {
-        headstonePhoto1Url = await uploadFile(headstonePhoto1File, newSlug, "memorial-photos");
-      }
 
-      if (headstonePhoto2File) {
-        headstonePhoto2Url = await uploadFile(headstonePhoto2File, newSlug, "memorial-photos");
-      }
+if (headstonePhoto1File) {
+  headstonePhoto1Url = await uploadFile(
+    headstonePhoto1File,
+    newSlug,
+    "memorial-photos"
+  );
+}
 
-      if (galleryPhotoFiles.length > 0) {
-        const newGalleryUrls = await Promise.all(
-          galleryPhotoFiles.map((file) => uploadFile(file, newSlug, "memorial-photos"))
-        );
-        galleryPhotos = [...galleryPhotos, ...newGalleryUrls];
-      }
+if (headstonePhoto2File) {
+  headstonePhoto2Url = await uploadFile(
+    headstonePhoto2File,
+    newSlug,
+    "memorial-photos"
+  );
+}
+
+if (obituaryImageFile) {
+  obituaryImageUrl = await uploadFile(
+    obituaryImageFile,
+    newSlug,
+    "memorial-photos"
+  );
+}
+
+if (galleryPhotoFiles.length > 0) {
+  const newGalleryUrls = await Promise.all(
+    galleryPhotoFiles.map((file) => uploadFile(file, newSlug, "memorial-photos"))
+  );
+  galleryPhotos = [...galleryPhotos, ...newGalleryUrls];
+}
 let newspaperArticles = splitGalleryPhotos(form.newspaperArticles);
 
 if (newspaperArticleFiles.length > 0) {
@@ -989,6 +1020,7 @@ children_names: form.childrenNames,
 grandchildren_names: form.grandchildrenNames,
         obituary: form.obituary,
         obituary_url: form.obituaryUrl,
+        obituary_image_url: obituaryImageUrl,
         life_story: form.lifeStory,
 backup_person_name: form.backupPersonName,
         final_resting_type: form.finalRestingType || null,
@@ -1043,6 +1075,8 @@ featured_photo_url: featuredPhotoUrl,
         newspaper_articles: newspaperArticles.join(","),
         video_urls: [...existingVideos, ...newPlaybackIds],
 video_notes: videoNotes,
+video_link_urls: form.videoLinkUrls,
+video_link_notes: form.videoLinkNotes,
 backup_email: form.backupEmail,
 backup_password: form.backupPassword,
       };
@@ -2353,12 +2387,12 @@ Hershey Foods Corporation`}
 
       <FormSection
                     title="Memorial Videos"
-                    description="Upload memorial videos to be shown on the memorial page."
+                    description="Upload videos or add links to videos stored online."
                   >
                     <div className="space-y-5">
                       <div>
                         <label className="mb-2 block text-sm font-medium text-stone-700">
-                          Upload Videos
+                          Option 1 — Upload Videos
                         </label>
 
                         <p className="mb-3 text-sm text-stone-600">
@@ -2384,6 +2418,109 @@ Hershey Foods Corporation`}
     {videoFiles.length === 1 ? "" : "s"} selected and ready to upload.
   </p>
 )}
+<div className="mt-6 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
+  <p className="text-sm font-semibold text-stone-700">
+    Option 2 — Add Video Links
+  </p>
+
+  <p className="mt-1 text-sm text-stone-600">
+    Paste links to videos stored on Facebook, Messenger, YouTube, Vimeo, OneDrive, Google Drive, or Dropbox.
+  </p>
+
+ <div className="mt-4 space-y-3">
+  <input
+    type="text"
+    placeholder="Video URL"
+    value={newVideoLinkUrl}
+    onChange={(e) => setNewVideoLinkUrl(e.target.value)}
+    className="w-full rounded-xl border border-stone-300 px-4 py-3"
+  />
+
+  <input
+    type="text"
+    placeholder="Description or memory..."
+    value={newVideoLinkNote}
+    onChange={(e) => setNewVideoLinkNote(e.target.value)}
+    className="w-full rounded-xl border border-stone-300 px-4 py-3"
+  />
+
+  <button
+  type="button"
+  onClick={() => {
+    const trimmedUrl = newVideoLinkUrl.trim();
+    const trimmedNote = newVideoLinkNote.trim();
+
+    if (!trimmedUrl) {
+      alert("Please enter a video link.");
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      videoLinkUrls: [...prev.videoLinkUrls, trimmedUrl],
+      videoLinkNotes: [...prev.videoLinkNotes, trimmedNote],
+    }));
+
+    setNewVideoLinkUrl("");
+    setNewVideoLinkNote("");
+  }}
+  className="rounded-xl bg-stone-900 px-4 py-3 text-sm font-semibold text-white"
+>
+  Add Video Link
+</button>
+</div>
+{form.videoLinkUrls.length > 0 && (
+  <div className="mt-6 space-y-4">
+    {form.videoLinkUrls.map((url, index) => (
+      <div
+        key={index}
+        className="rounded-2xl border border-stone-200 bg-white p-4"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-stone-800">
+              Linked Video {index + 1}
+            </p>
+
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 block break-all text-sm text-blue-600 underline"
+            >
+              {url}
+            </a>
+
+            {form.videoLinkNotes[index] && (
+              <p className="mt-2 text-sm text-stone-600">
+                {form.videoLinkNotes[index]}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setForm((prev) => ({
+                ...prev,
+                videoLinkUrls: prev.videoLinkUrls.filter(
+                  (_, i) => i !== index
+                ),
+                videoLinkNotes: prev.videoLinkNotes.filter(
+                  (_, i) => i !== index
+                ),
+              }));
+            }}
+            className="rounded-full border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+</div>
 {existingVideos.length >=
   ((form.plan === "premium" ? 10 : 
     form.plan === "plus" ? 5 : 2) + paidExtraVideos) && (
@@ -2507,53 +2644,63 @@ Hershey Foods Corporation`}
   .filter((videoId) => videoId.length > 15)
   .map((videoId, index) => (
       <div
-        key={`${videoId}-${index}`}
-        className="rounded-2xl border border-stone-200 bg-stone-50 p-4"
-      >
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <p className="text-sm font-semibold text-stone-800">
-            Video {index + 1}
-          </p>
+  key={`${videoId}-${index}`}
+  className="rounded-2xl border border-stone-200 bg-stone-50 p-4"
+>
+  <div className="mb-3 flex items-center justify-between gap-3">
+    <p className="text-sm font-semibold text-stone-800">
+      Video {index + 1}
+    </p>
 
-          <button
-            type="button"
-            onClick={() => handleRemoveExistingVideo(videoId)}
-            className="rounded-full border border-red-300 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
-          >
-            Delete Video
-          </button>
-        </div>
+    <button
+      type="button"
+      onClick={() => handleRemoveExistingVideo(videoId)}
+      className="rounded-full border border-red-300 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+    >
+      Delete Video
+    </button>
+  </div>
 
-        {previewVideoId === videoId ? (
-          <MuxPlayer
-            playbackId={videoId}
-            streamType="on-demand"
-            className="aspect-video w-full rounded-xl bg-black"
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setPreviewVideoId(videoId)}
-            className="flex aspect-video w-full items-center justify-center rounded-xl bg-stone-200 text-sm font-semibold text-stone-700 hover:bg-stone-300"
-          >
-            Preview Video
-          </button>
-        )}
-<input
-  type="text"
-  placeholder="Video caption or memory..."
-  value={videoNotes[index] || ""}
-  onChange={(e) => {
-    const updated = [...videoNotes];
-    updated[index] = e.target.value;
-    setVideoNotes(updated);
-  }}
-  className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
-/>
-        <p className="mt-2 text-xs text-stone-500">
-          Preview only loads when clicked to keep this edit page fast.
-        </p>
+  {previewVideoId === videoId ? (
+    <MuxPlayer
+      playbackId={videoId}
+      streamType="on-demand"
+      className="aspect-video w-full rounded-xl bg-black"
+    />
+  ) : (
+    <button
+      type="button"
+      onClick={() => setPreviewVideoId(videoId)}
+      className="w-full overflow-hidden rounded-xl border border-stone-300 text-left"
+    >
+      <img
+        src={`https://image.mux.com/${videoId}/thumbnail.jpg?time=1`}
+        alt={`Video ${index + 1}`}
+        className="aspect-video w-full object-cover"
+      />
+
+      <div className="bg-stone-100 px-4 py-3 text-center text-sm font-semibold text-stone-700 hover:bg-stone-200">
+        ▶ Click to Preview Video
       </div>
+    </button>
+  )}
+
+  <input
+    type="text"
+    placeholder="Video caption or memory..."
+    value={videoNotes[index] || ""}
+    onChange={(e) => {
+      const updated = [...videoNotes];
+      updated[index] = e.target.value;
+      setVideoNotes(updated);
+    }}
+    className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
+  />
+
+  <p className="mt-2 text-xs text-stone-500">
+    Preview only loads when clicked to keep this edit page fast.
+  </p>
+</div>
     ))}
   </div>
 )}
@@ -2564,80 +2711,166 @@ Hershey Foods Corporation`}
                   </FormSection>   
 
                   <FormSection
-  title="Obituary"
-  description="Traditional obituary or link to full obituary."
+ title="Obituary"
+description="Enter obituary text, upload an obituary image, or add a link to the original obituary."
 >
-  <TextArea
-    label="Obituary"
-    name="obituary"
-    value={form.obituary}
-    onChange={handleChange}
-    rows={6}
-  />
+  <div className="space-y-6">
+    <div>
+      <p className="mb-2 text-sm font-semibold text-stone-700">
+        Option 1 — Enter Obituary Text
+      </p>
 
-  <Input
-    label="Obituary Link"
-    name="obituaryUrl"
-    value={form.obituaryUrl}
-    onChange={handleChange}
+      <TextArea
+        label="Obituary Text"
+        name="obituary"
+        value={form.obituary}
+        onChange={handleChange}
+        rows={6}
+      />
+    </div>
+
+   <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
+  <p className="text-sm font-semibold text-stone-700">
+    Option 2 — Upload an Obituary Image
+  </p>
+
+  <p className="mt-1 text-sm text-stone-600">
+    Upload a newspaper clipping, screenshot, scan, or JPG image of the obituary if text cannot be copied.
+  </p>
+
+  {form.obituaryImageUrl && (
+    <div className="mt-4 space-y-3">
+      <img
+        src={form.obituaryImageUrl}
+        alt="Uploaded obituary"
+        className="max-h-96 w-full rounded-2xl object-contain bg-white"
+      />
+
+      <button
+        type="button"
+        onClick={() => {
+          if (!confirm("Delete this obituary image?")) return;
+
+          setForm((prev) => ({
+            ...prev,
+            obituaryImageUrl: "",
+          }));
+          setObituaryImageFile(null);
+        }}
+        className="w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
+      >
+        Delete Obituary Image
+      </button>
+    </div>
+  )}
+
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => setObituaryImageFile(e.target.files?.[0] ?? null)}
+    className="mt-4 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3"
   />
+</div>
+
+    <Input
+      label="Original Obituary Website Link (Optional)"
+      name="obituaryUrl"
+      value={form.obituaryUrl}
+      onChange={handleChange}
+    />
+  </div>
+
   <QuickSaveButton isSaving={isSaving} />
-      </FormSection>       
+</FormSection>      
        <FormSection
   title="Headstone Photos"
   description="Photos of the headstone or grave marker."
 >
   <div className="space-y-5">
 
-    <Input
-      label="Headstone Photo 1 URL"
-      name="headstonePhoto1Url"
-      value={form.headstonePhoto1Url}
-      onChange={handleChange}
-    />
-
-    {form.headstonePhoto1Url && (
-      <img
-  src={form.headstonePhoto1Url}
-  alt="Headstone photo 1"
-  className="h-48 w-full rounded-2xl object-cover"
+   <Input
+  label="Headstone Photo 1 URL"
+  name="headstonePhoto1Url"
+  value={form.headstonePhoto1Url}
+  onChange={handleChange}
 />
-    )}
 
-    <input
-      type="file"
-      accept="image/*"
-      onChange={(e) => setHeadstonePhoto1File(e.target.files?.[0] ?? null)}
-      className="w-full rounded-2xl border px-4 py-3"
+{form.headstonePhoto1Url && (
+  <div className="space-y-3">
+    <img
+      src={form.headstonePhoto1Url}
+      alt="Headstone photo 1"
+      className="h-48 w-full rounded-2xl object-cover"
     />
 
-    <Input
-      label="Headstone Photo 2 URL"
-      name="headstonePhoto2Url"
-      value={form.headstonePhoto2Url}
-      onChange={handleChange}
-    />
+    <button
+      type="button"
+      onClick={() => {
+        if (!confirm("Delete headstone photo 1?")) return;
 
-    {form.headstonePhoto2Url && (
-      <img
-  src={form.headstonePhoto2Url}
-  alt="Headstone photo 2"
-  className="h-48 w-full rounded-2xl object-cover"
+        setForm((prev) => ({
+          ...prev,
+          headstonePhoto1Url: "",
+        }));
+        setHeadstonePhoto1File(null);
+      }}
+      className="w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
+    >
+      Delete Headstone Photo 1
+    </button>
+  </div>
+)}
+
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) => setHeadstonePhoto1File(e.target.files?.[0] ?? null)}
+  className="w-full rounded-2xl border px-4 py-3"
 />
-    )}
 
-    <input
-      type="file"
-      accept="image/*"
-      onChange={(e) => setHeadstonePhoto2File(e.target.files?.[0] ?? null)}
-      className="w-full rounded-2xl border px-4 py-3"
+<Input
+  label="Headstone Photo 2 URL"
+  name="headstonePhoto2Url"
+  value={form.headstonePhoto2Url}
+  onChange={handleChange}
+/>
+
+{form.headstonePhoto2Url && (
+  <div className="space-y-3">
+    <img
+      src={form.headstonePhoto2Url}
+      alt="Headstone photo 2"
+      className="h-48 w-full rounded-2xl object-cover"
     />
-    </div>
 
-  
-                    <QuickSaveButton isSaving={isSaving} />
+    <button
+      type="button"
+      onClick={() => {
+        if (!confirm("Delete headstone photo 2?")) return;
+
+        setForm((prev) => ({
+          ...prev,
+          headstonePhoto2Url: "",
+        }));
+        setHeadstonePhoto2File(null);
+      }}
+      className="w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
+    >
+      Delete Headstone Photo 2
+    </button>
+  </div>
+)}
+
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) => setHeadstonePhoto2File(e.target.files?.[0] ?? null)}
+  className="w-full rounded-2xl border px-4 py-3"
+/>
+</div>
+
+<QuickSaveButton isSaving={isSaving} />
 </FormSection>
-
 <FormSection
   title="Final Resting Place"
   description="Tell visitors whether this person was buried or cremated. If known, you can also add a map location."

@@ -27,6 +27,7 @@ type Memorial = {
   death_date?: string;
   obituary?: string;
   obituary_url: string | null;
+  obituary_image_url?: string | null;
   life_story?: string;
 great_grandparents_names?: string;
 grandparents_father_side?: string;
@@ -60,6 +61,8 @@ social_link_5?: string;
   headstone_photo_2?: string;
   gallery_photos?: string | string[];
   gallery_photo_notes?: string[] | null;
+  video_link_urls?: string[] | null;
+video_link_notes?: string[] | null;
   newspaper_articles?: string | string[];
   video_urls?: string | string[];
 video_notes?: string[] | null;
@@ -430,6 +433,21 @@ const videoNotes = useMemo(
       ? data.video_notes
       : [],
   [data?.video_notes]
+);
+const videoLinkUrls = useMemo(
+  () =>
+    Array.isArray(data?.video_link_urls)
+      ? data.video_link_urls.filter(Boolean)
+      : [],
+  [data?.video_link_urls]
+);
+
+const videoLinkNotes = useMemo(
+  () =>
+    Array.isArray(data?.video_link_notes)
+      ? data.video_link_notes
+      : [],
+  [data?.video_link_notes]
 );
   const contributorGalleryPhotos = useMemo(() => {
   return approvedSubmissions.flatMap((submission) => {
@@ -1523,7 +1541,7 @@ function showNextPhoto() {
   </section>
 )}
 
-{videoUrls.length > 0 && (
+{(videoUrls.length > 0 || videoLinkUrls.length > 0) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
     <button
       type="button"
@@ -1606,6 +1624,37 @@ function showNextPhoto() {
     {videoNotes[index]}
   </p>
 )}
+      </div>
+    ))}
+  </div>
+)}
+{videoLinkUrls.length > 0 && (
+  <div className="mt-5 grid gap-4 md:grid-cols-2">
+    {videoLinkUrls.map((url, index) => (
+      <div
+        key={`${url}-${index}`}
+        className="rounded-3xl border border-stone-200 bg-stone-50 p-5 shadow-sm"
+      >
+        <p className="text-sm font-semibold text-stone-800">
+          Linked Video {index + 1}
+        </p>
+<div className="mt-3 flex aspect-video w-full items-center justify-center rounded-2xl bg-stone-200 text-center text-sm font-semibold text-stone-700">
+  ▶ Linked Video
+</div>
+        {videoLinkNotes[index] && (
+          <p className="mt-2 text-sm text-stone-700">
+            {videoLinkNotes[index]}
+          </p>
+        )}
+
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
+        >
+          Open Video Link
+        </a>
       </div>
     ))}
   </div>
@@ -1850,10 +1899,17 @@ function showNextPhoto() {
   )}
   
 </section>   
-{(data.obituary || data.obituary_url) && (
+{(data.obituary || data.obituary_image_url || data.obituary_url) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary</h2>
     {data.obituary && <p className="mt-4 whitespace-pre-line text-stone-700">{data.obituary}</p>}
+    {data.obituary_image_url && (
+  <img
+    src={data.obituary_image_url}
+    alt="Obituary"
+    className="mt-4 w-full rounded-2xl border border-stone-200"
+  />
+)}
     {data.obituary_url && (
       <a href={data.obituary_url} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700">
         View Full Obituary
