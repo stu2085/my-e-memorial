@@ -2196,27 +2196,44 @@ Hershey Foods Corporation`}
       strategy={rectSortingStrategy}
     >
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {splitGalleryPhotos(form.galleryPhotos).map((photo, index) => (
-          <SortableGalleryPhotoCard
-            key={`gallery-${index}`}
-            id={`gallery-${index}`}
-            photo={photo}
-            index={index}
-            note={form.galleryPhotoNotes?.[index] ?? ""}
-            onNoteChange={(photoIndex, value) => {
-              setForm((prev) => {
-                const nextNotes = [...(prev.galleryPhotoNotes ?? [])];
-                nextNotes[photoIndex] = value;
+  {splitGalleryPhotos(form.galleryPhotos).map((photo, index) => (
+    <SortableGalleryPhotoCard
+      key={`gallery-${index}`}
+      id={`gallery-${index}`}
+      photo={photo}
+      index={index}
+      note={form.galleryPhotoNotes?.[index] ?? ""}
+      onNoteChange={(photoIndex, value) => {
+        setForm((prev) => {
+          const nextNotes = [...(prev.galleryPhotoNotes ?? [])];
+          nextNotes[photoIndex] = value;
 
-                return {
-                  ...prev,
-                  galleryPhotoNotes: nextNotes,
-                };
-              });
-            }}
-          />
-        ))}
-      </div>
+          return {
+            ...prev,
+            galleryPhotoNotes: nextNotes,
+          };
+        });
+      }}
+      onDelete={(photoIndex) => {
+        if (!confirm("Delete this gallery photo?")) return;
+
+        setForm((prev) => {
+          const photos = splitGalleryPhotos(prev.galleryPhotos);
+          const notes = [...(prev.galleryPhotoNotes ?? [])];
+
+          photos.splice(photoIndex, 1);
+          notes.splice(photoIndex, 1);
+
+          return {
+            ...prev,
+            galleryPhotos: photos.join(","),
+            galleryPhotoNotes: notes,
+          };
+        });
+      }}
+    />
+  ))}
+</div>
     </SortableContext>
   </DndContext>
 ) : (
@@ -3286,12 +3303,14 @@ function SortableGalleryPhotoCard({
   index,
   note,
   onNoteChange,
+  onDelete,
 }: {
   id: string;
   photo: string;
   index: number;
   note: string;
   onNoteChange: (index: number, value: string) => void;
+  onDelete: (index: number) => void;
 }) {
   const {
     attributes,
@@ -3319,9 +3338,9 @@ function SortableGalleryPhotoCard({
         type="button"
         {...attributes}
         {...listeners}
-        className="mb-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-3 py-2 text-xs font-semibold text-stone-700 active:scale-95"
+        className="mb-2 w-full touch-none rounded-xl border border-stone-300 bg-stone-50 px-3 py-2 text-sm font-semibold text-stone-700 active:scale-95"
       >
-        Drag to reorder
+        ≡ Hold here to reorder
       </button>
 
       <img
@@ -3337,6 +3356,14 @@ function SortableGalleryPhotoCard({
         placeholder="Add a description for this photo..."
         className="mt-3 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
       />
+
+      <button
+        type="button"
+        onClick={() => onDelete(index)}
+        className="mt-3 w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
+      >
+        Delete Photo
+      </button>
     </div>
   );
 }
