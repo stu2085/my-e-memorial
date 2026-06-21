@@ -2398,8 +2398,8 @@ Hershey Foods Corporation`}
                         <p className="mb-3 text-sm text-stone-600">
                           Leave a message, tell a life story, or share memories for loved ones and future generations.
                         </p>
-                        <p className="mt-2 text-xs text-stone-500">
-  After selecting a video, clicking "Save Changes" will upload it.
+                      <p className="mt-2 text-xs text-stone-500">
+  After selecting a video, click "Save Changes" to upload it. Saving does not make your changes public.
 </p>
 
                         <input
@@ -3106,6 +3106,7 @@ if (!res.ok) {
                   <p className="mt-2 text-xs text-stone-500">
   Saving does not make your changes public.
 </p>
+
                   {successMessage && (
   <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-800">
     <p className="font-semibold">{successMessage}</p>
@@ -3114,7 +3115,7 @@ if (!res.ok) {
   href={`/memorial/${originalSlug}`}
       className="mt-3 inline-flex items-center justify-center rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white hover:bg-green-800"
     >
-      Published and View Memorial
+      Publish and View Memorial
     </a>
   </div>
   
@@ -3211,19 +3212,27 @@ function QuickSaveButton({
   isSaving: boolean;
 }) {
   return (
-    <div className="mt-5 flex justify-end border-t border-stone-200 pt-5">
-      <button
-        type="submit"
-        form="edit-memorial-form"
-        formNoValidate
-        disabled={isSaving}
-        className="inline-flex items-center justify-center rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {isSaving ? "Saving..." : "Save Changes"}
-      </button>
-    </div>
+    <>
+      <div className="mt-5 flex justify-end border-t border-stone-200 pt-5">
+        <button
+          type="submit"
+          form="edit-memorial-form"
+          formNoValidate
+          disabled={isSaving}
+          className="inline-flex items-center justify-center rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isSaving ? "Saving..." : "Save Changes"}
+        </button>
+      </div>
+
+      <p className="mt-2 text-right text-xs text-stone-500">
+        Saving does not make your changes public.
+      </p>
+    </>
   );
 }
+        
+  
 function GraveLocationMap({
   lat,
   lng,
