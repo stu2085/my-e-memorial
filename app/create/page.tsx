@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, Suspense, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import SideAd from "../components/SideAd";
 import { supabase } from "../lib/supabase";
@@ -197,10 +197,11 @@ const [draftReady, setDraftReady] = useState(false);
   const [videoFiles, setVideoFiles] = useState<File[]>([]);
   const [videoNotes, setVideoNotes] = useState<string[]>([]);
   const [videoError, setVideoError] = useState("");
-
+const paymentSuccessBoxRef = useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  
  const [adCategoryPair, setAdCategoryPair] = useState<[string, string]>([
   "attorney",
   "estate_planner",
@@ -371,8 +372,16 @@ useEffect(() => {
 
     const data = await res.json();
 
-    if (data.paid === true) {
-      setIsPaid(true);
+   if (data.paid === true) {
+  setIsPaid(true);
+  setSuccessMessage("Payment Successful");
+
+  setTimeout(() => {
+    paymentSuccessBoxRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, 300);
 
       if (
         typeof window !== "undefined" &&
@@ -1040,7 +1049,30 @@ async function handleBuyExtraVideos(extraCount: number) {
     ? "Tell Your Life Story In Your Own Words And In Your Own Way"
     : "Begin preserving a life with dignity and care"}
 </h1>
+{successMessage === "Payment Successful" && (
+  <div
+    ref={paymentSuccessBoxRef}
+    className="mx-auto mt-6 mb-6 max-w-3xl rounded-xl border border-green-300 bg-green-50 p-5 text-center shadow-sm"
+  >
+    <h2 className="text-xl font-bold text-green-800">
+      ✓ Payment Successful
+    </h2>
 
+    <p className="mt-2 text-green-700">
+      Your memorial has not been created yet. Please save it first. After saving,
+      you'll automatically be taken to the Edit page where you can upload photos,
+      videos, music, and additional information.
+    </p>
+
+    <button
+      type="submit"
+      form="create-memorial-form"
+      className="mt-4 rounded-lg bg-green-600 px-6 py-3 font-semibold text-white hover:bg-green-700"
+    >
+      Save Memorial & Begin Editing
+    </button>
+  </div>
+)}
                 <p className="mt-6 text-lg text-white/90">
   {form.isLivingPreplan
     ? "Far better than an obituary or headstone with two dates, here's your opportunity to tell your own story in your own words using photos, videos, music, and moments that mattered the most to you in your life, so future generations can truly know and remember you."
