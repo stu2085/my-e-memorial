@@ -899,7 +899,7 @@ function showNextPhoto() {
 
   {data.death_date && (
     <p>
-      <strong>Died:</strong> {formatDate(data.death_date)}
+      <strong>Date of Passing:</strong> {formatDate(data.death_date)}
     </p>
   )}
 
@@ -1202,7 +1202,7 @@ function showNextPhoto() {
     )}
 
     {data.death_date && (
-      <p><strong>Died:</strong> {formatDate(data.death_date)}</p>
+      <p><strong>Date of Passing:</strong> {formatDate(data.death_date)}</p>
     )}
   </div>
   {(
