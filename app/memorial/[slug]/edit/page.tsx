@@ -2399,7 +2399,9 @@ Hershey Foods Corporation`}
                           Leave a message, tell a life story, or share memories for loved ones and future generations.
                         </p>
                       <p className="mt-2 text-xs text-stone-500">
-  After selecting a video, click "Save Changes" to upload it. Saving does not make your changes public.
+  After selecting a video, click "Save Changes" to upload it. {isPublished
+  ? "Changes become public when you save."
+  : "Saving does not make your changes public."}
 </p>
 
                         <input
@@ -3042,7 +3044,7 @@ description="Enter obituary text, upload an obituary image, or add a link to the
   </p>
   <p className="mt-1">
     {isPublished
-      ? "This memorial is visible to family and friends."
+      ? "This memorial is public. Changes become visible when you save."
       : "This memorial is visible only to you until it is published."}
   </p>
 </div>
@@ -3111,7 +3113,9 @@ if (!res.ok) {
 )}
                   </div>
                   <p className="mt-2 text-xs text-stone-500">
-  Saving does not make your changes public.
+  {isPublished
+  ? "Changes become public when you save."
+  : "Saving does not make your changes public."}
 </p>
 
                   {successMessage && (
@@ -3233,8 +3237,8 @@ function QuickSaveButton({
       </div>
 
       <p className="mt-2 text-right text-xs text-stone-500">
-        Saving does not make your changes public.
-      </p>
+  Saving does not make your changes public.
+</p>
     </>
   );
 }
