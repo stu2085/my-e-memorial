@@ -1747,7 +1747,7 @@ const projectedTotal =
   <p className="mt-3 text-sm text-stone-500">
     This person will be able to edit and publish this memorial if needed.
   </p>
-  <QuickSaveButton isSaving={isSaving} />
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
 </FormSection>
 )}
 <CompactFormSection
@@ -1870,7 +1870,7 @@ const projectedTotal =
                       </div>
                     </div>
 
-                    <QuickSaveButton isSaving={isSaving} />
+                    <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
                   </CompactFormSection>
 
                   
@@ -1965,7 +1965,7 @@ const projectedTotal =
     </div>
   </div>
 
-  <QuickSaveButton isSaving={isSaving} />
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
 </FormSection>
                     
 <FormSection
@@ -1994,7 +1994,7 @@ Naples, Florida`}
     Enter one place per line.
   </p>
 </div>
-  <QuickSaveButton isSaving={isSaving} />
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
 </FormSection>
 <FormSection
   title="Places Worked"
@@ -2022,7 +2022,7 @@ Hershey Foods Corporation`}
     </p>
   </div>
 
-  <QuickSaveButton isSaving={isSaving} />
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
 </FormSection>
                   <FormSection
                     title="Schools and Awards"
@@ -2046,7 +2046,7 @@ Hershey Foods Corporation`}
                         helpText="Example: Purple Heart, Eagle Scout, Teacher of the Year"
                       />
                     </div>
-                    <QuickSaveButton isSaving={isSaving} />
+                    <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
                   </FormSection>
                   <FormSection
   title="Social Media Links"
@@ -2088,7 +2088,7 @@ Hershey Foods Corporation`}
       onChange={handleChange}
     />
   </div>
-  <QuickSaveButton isSaving={isSaving} />
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
 </FormSection>
                 <FormSection
   title="Life Story"
@@ -2101,7 +2101,7 @@ Hershey Foods Corporation`}
     onChange={handleChange}
     rows={8}
   />
-  <QuickSaveButton isSaving={isSaving} />
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
 </FormSection>
 <FormSection
   title="Family History"
@@ -2173,7 +2173,7 @@ Hershey Foods Corporation`}
   
 
   </div>
-  <QuickSaveButton isSaving={isSaving} />
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
 </FormSection>
                   
 <FormSection
@@ -2330,7 +2330,7 @@ Hershey Foods Corporation`}
 </p>
     </div>
 
-  <QuickSaveButton isSaving={isSaving} />
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
 </FormSection>
 
 <FormSection
@@ -2382,7 +2382,7 @@ Hershey Foods Corporation`}
     </p>
   </div>
 
-  <QuickSaveButton isSaving={isSaving} />
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
 </FormSection>
 
       <FormSection
@@ -2709,7 +2709,7 @@ Hershey Foods Corporation`}
                             
                     </div>
 
-                    <QuickSaveButton isSaving={isSaving} />
+                    <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
                   </FormSection>   
 
                   <FormSection
@@ -2782,7 +2782,7 @@ description="Enter obituary text, upload an obituary image, or add a link to the
     />
   </div>
 
-  <QuickSaveButton isSaving={isSaving} />
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
 </FormSection>      
        <FormSection
   title="Headstone Photos"
@@ -2871,7 +2871,7 @@ description="Enter obituary text, upload an obituary image, or add a link to the
 />
 </div>
 
-<QuickSaveButton isSaving={isSaving} />
+<QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
 </FormSection>
 <FormSection
   title="Final Resting Place"
@@ -3219,8 +3219,10 @@ type GraveLocationMapProps = {
 };
 function QuickSaveButton({
   isSaving,
+  isPublished,
 }: {
   isSaving: boolean;
+  isPublished: boolean;
 }) {
   return (
     <>
@@ -3237,7 +3239,9 @@ function QuickSaveButton({
       </div>
 
       <p className="mt-2 text-right text-xs text-stone-500">
-  Saving does not make your changes public.
+  {isPublished
+    ? "Changes become public when you save."
+    : "Saving does not make your changes public."}
 </p>
     </>
   );
