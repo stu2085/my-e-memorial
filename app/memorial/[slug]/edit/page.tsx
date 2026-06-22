@@ -3032,15 +3032,22 @@ description="Enter obituary text, upload an obituary image, or add a link to the
                     </div>
                   </FormSection>
 
-                  
+<div className={`rounded-2xl border px-5 py-4 text-sm ${
+  isPublished
+    ? "border-green-200 bg-green-50 text-green-800"
+    : "border-amber-200 bg-amber-50 text-amber-800"
+}`}>
+  <p className="font-semibold">
+    {isPublished ? "Published" : "Draft — Not Public"}
+  </p>
+  <p className="mt-1">
+    {isPublished
+      ? "This memorial is visible to family and friends."
+      : "This memorial is visible only to you until it is published."}
+  </p>
+</div>
 
-                  
-
-                  
-
-                  
-
-                  <div className="flex flex-wrap gap-3 border-t border-stone-200 pt-6">
+<div className="flex flex-wrap gap-3 border-t border-stone-200 pt-6">
                     <button
                       type="submit"
                       disabled={isSaving}
