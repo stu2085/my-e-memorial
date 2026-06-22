@@ -249,15 +249,15 @@ useEffect(() => {
     };
 
     if (savedDraft) {
-      setForm({
-        ...initialForm,
-        ...parsedDraft,
-        isLivingPreplan:
-          isPersonalModeFromUrl || parsedDraft.isLivingPreplan === true,
-        promotionCategory: isPersonalModeFromUrl
-          ? "personal"
-          : parsedDraft.promotionCategory || "personal",
-      });
+     setForm({
+  ...initialForm,
+  ...parsedDraft,
+  isLivingPreplan:
+    isPersonalModeFromUrl || parsedDraft.isLivingPreplan === true,
+  promotionCategory: isPersonalModeFromUrl
+    ? "personal"
+    : parsedDraft.promotionCategory || "personal",
+});
 
       if (localStorage.getItem("agreedToTerms") === "true") {
         setAgreedToTerms(true);
