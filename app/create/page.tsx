@@ -249,11 +249,10 @@ useEffect(() => {
     };
 
     if (savedDraft) {
-     setForm({
+    setForm({
   ...initialForm,
   ...parsedDraft,
-  isLivingPreplan:
-    isPersonalModeFromUrl || parsedDraft.isLivingPreplan === true,
+  isLivingPreplan: isPersonalModeFromUrl,
   promotionCategory: isPersonalModeFromUrl
     ? "personal"
     : parsedDraft.promotionCategory || "personal",
@@ -403,18 +402,20 @@ useEffect(() => {
 useEffect(() => {
   if (!draftReady) return;
 
-  const isPersonalModeFromUrl = searchParams.get("mode") === "personal";
+  const isPersonalModeFromUrl =
+  searchParams.get("mode") === "personal" ||
+  searchParams.get("mode") === "preplan";
 
   localStorage.setItem(
-    "memorialDraft",
-    JSON.stringify({
-      ...form,
-      isLivingPreplan: isPersonalModeFromUrl || form.isLivingPreplan,
-      promotionCategory: isPersonalModeFromUrl
-        ? "personal"
-        : form.promotionCategory,
-    })
-  );
+  "memorialDraft",
+  JSON.stringify({
+    ...form,
+    isLivingPreplan: isPersonalModeFromUrl,
+    promotionCategory: isPersonalModeFromUrl
+      ? "personal"
+      : form.promotionCategory,
+  })
+);
 }, [draftReady, form, searchParams]);
   function handleChange(
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
