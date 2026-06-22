@@ -40,13 +40,31 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "MyEMemorial | Online Memorials for Loved Ones",
-    description:
-      "Create lasting online memorials with photos, videos, life stories, family history, obituary details, cemetery maps, and contributor approval.",
-    url: "https://www.myememorial.com",
-    siteName: "MyEMemorial",
-    type: "website",
-  },verification: {
+  title: "MyEMemorial | Online Memorials for Loved Ones",
+  description:
+    "Create lasting online memorials with photos, videos, life stories, family history, obituary details, cemetery maps, and contributor approval.",
+  url: "https://www.myememorial.com",
+  siteName: "MyEMemorial",
+  type: "website",
+  images: [
+    {
+      url: "https://www.myememorial.com/myememorial-logo.png",
+      width: 1200,
+      height: 630,
+      alt: "MyEMemorial Logo",
+    },
+  ],
+},
+twitter: {
+  card: "summary_large_image",
+  title: "MyEMemorial | Online Memorials for Loved Ones",
+  description:
+    "Create lasting online memorials with photos, videos, life stories, family history, obituary details, cemetery maps, and contributor approval.",
+  images: [
+    "https://www.myememorial.com/myememorial-logo.png",
+  ],
+},
+verification: {
   google: "8gP9qEPq6SKkkPqnvWnT10HJFGiqva87-j5_VEdBomI",
 },
 };
