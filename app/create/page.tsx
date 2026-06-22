@@ -1099,7 +1099,12 @@ async function handleBuyExtraVideos(extraCount: number) {
               </section>
             )}
 
-            <form onSubmit={handleSubmit} autoComplete="off" className="mt-8 space-y-8">
+            <form
+  id="create-memorial-form"
+  onSubmit={handleSubmit}
+  autoComplete="off"
+  className="mt-8 space-y-8"
+>
               <Section title="Basic Identity">
   <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 p-5">
     <label className="mb-2 block text-sm font-semibold text-stone-800">
