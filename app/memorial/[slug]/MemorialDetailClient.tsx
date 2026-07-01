@@ -1244,44 +1244,59 @@ function showNextPhoto() {
     Family Tree
   </h2>
 
-  <div className="mt-6 space-y-5">
+  <div className="mt-6 flex flex-col items-center space-y-4">
     {data.great_grandparents_names?.trim() && (
       <FamilyTreeCard title="Great Grandparents" value={data.great_grandparents_names} />
     )}
 
-    <div className="grid gap-4 md:grid-cols-2">
-      {data.grandparents_father_side?.trim() && (
-        <FamilyTreeCard title="Grandparents — Father’s Side" value={data.grandparents_father_side} />
-      )}
-
-      {data.grandparents_mother_side?.trim() && (
-        <FamilyTreeCard title="Grandparents — Mother’s Side" value={data.grandparents_mother_side} />
-      )}
-    </div>
-
-    {data.parents_names?.trim() && (
-      <FamilyTreeCard title="Parents" value={data.parents_names} highlight />
+    {(data.grandparents_father_side?.trim() || data.grandparents_mother_side?.trim()) && (
+      <>
+        <div className="h-6 w-px bg-stone-300" />
+        <div className="grid w-full gap-4 md:grid-cols-2">
+          {data.grandparents_father_side?.trim() && (
+            <FamilyTreeCard title="Grandparents — Father’s Side" value={data.grandparents_father_side} />
+          )}
+          {data.grandparents_mother_side?.trim() && (
+            <FamilyTreeCard title="Grandparents — Mother’s Side" value={data.grandparents_mother_side} />
+          )}
+        </div>
+      </>
     )}
 
-    <div className="grid gap-4 md:grid-cols-2">
-      {data.siblings_names?.trim() && (
-        <FamilyTreeCard title="Siblings" value={data.siblings_names} />
-      )}
+    {data.parents_names?.trim() && (
+      <>
+        <div className="h-6 w-px bg-stone-300" />
+        <FamilyTreeCard title="Parents" value={data.parents_names} highlight />
+      </>
+    )}
 
-      {data.children_names?.trim() && (
-        <FamilyTreeCard title="Children" value={data.children_names} />
-      )}
-    </div>
+    {(data.siblings_names?.trim() || data.children_names?.trim()) && (
+      <>
+        <div className="h-6 w-px bg-stone-300" />
+        <div className="grid w-full gap-4 md:grid-cols-2">
+          {data.siblings_names?.trim() && (
+            <FamilyTreeCard title="Siblings" value={data.siblings_names} />
+          )}
+          {data.children_names?.trim() && (
+            <FamilyTreeCard title="Children" value={data.children_names} />
+          )}
+        </div>
+      </>
+    )}
 
-    <div className="grid gap-4 md:grid-cols-2">
-      {data.grandchildren_names?.trim() && (
+    {data.grandchildren_names?.trim() && (
+      <>
+        <div className="h-6 w-px bg-stone-300" />
         <FamilyTreeCard title="Grandchildren" value={data.grandchildren_names} />
-      )}
+      </>
+    )}
 
-      {data.great_grandchildren_names?.trim() && (
+    {data.great_grandchildren_names?.trim() && (
+      <>
+        <div className="h-6 w-px bg-stone-300" />
         <FamilyTreeCard title="Great Grandchildren" value={data.great_grandchildren_names} />
-      )}
-    </div>
+      </>
+    )}
   </div>
 </section>
     
@@ -1494,10 +1509,12 @@ function showNextPhoto() {
             className="block w-full overflow-hidden rounded-3xl"
           >
             <img
-              src={photo.src}
-              alt={`Gallery photo ${index + 1}`}
-              className="w-full rounded-3xl object-cover shadow-md transition duration-300 hover:scale-[1.02]"
-            />
+  src={photo.src}
+  alt={`Gallery photo ${index + 1}`}
+  loading="lazy"
+  decoding="async"
+  className="w-full rounded-3xl object-cover shadow-md transition duration-300 hover:scale-[1.02]"
+/>
           </button>
 
           {photo.attribution && (
