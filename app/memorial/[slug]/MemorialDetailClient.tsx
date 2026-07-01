@@ -160,7 +160,32 @@ function toNumber(value: number | string | null | undefined): number | null {
   const num = Number(value);
   return Number.isFinite(num) ? num : null;
 }
-
+function FamilyTreeCard({
+  title,
+  value,
+  highlight = false,
+}: {
+  title: string;
+  value: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-xl border p-4 ${
+        highlight
+          ? "border-amber-300 bg-amber-50"
+          : "border-stone-200 bg-stone-50"
+      }`}
+    >
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-stone-500">
+        {title}
+      </h3>
+      <p className="mt-2 whitespace-pre-line text-base text-stone-800">
+        {value}
+      </p>
+    </div>
+  );
+}
 export default function MemorialDetailClient() {
   const MAX_CONTRIBUTOR_VIDEO_SIZE_BYTES = 1000 * 1000 * 1000; // 1 GB
   const params = useParams();
@@ -1215,76 +1240,51 @@ function showNextPhoto() {
   data.siblings_names?.trim()
 ) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Family History</h2>
+  <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+    Family Tree
+  </h2>
 
-    <div className="mt-5 space-y-4 text-stone-700">
-      {data.great_grandparents_names?.trim() && (
-        <p className="whitespace-pre-line">
-          <strong>Great Grandparents:</strong><br />
-          {data.great_grandparents_names}
-        </p>
-      )}
+  <div className="mt-6 space-y-5">
+    {data.great_grandparents_names?.trim() && (
+      <FamilyTreeCard title="Great Grandparents" value={data.great_grandparents_names} />
+    )}
 
+    <div className="grid gap-4 md:grid-cols-2">
       {data.grandparents_father_side?.trim() && (
-        <p className="whitespace-pre-line">
-          <strong>Grandparents — Father’s Side:</strong><br />
-          {data.grandparents_father_side}
-        </p>
+        <FamilyTreeCard title="Grandparents — Father’s Side" value={data.grandparents_father_side} />
       )}
 
       {data.grandparents_mother_side?.trim() && (
-        <p className="whitespace-pre-line">
-          <strong>Grandparents — Mother’s Side:</strong><br />
-          {data.grandparents_mother_side}
-        </p>
+        <FamilyTreeCard title="Grandparents — Mother’s Side" value={data.grandparents_mother_side} />
       )}
-
-      {data.parents_names?.trim() && (
-        <p className="whitespace-pre-line">
-          <strong>Parents:</strong><br />
-          {data.parents_names}
-        </p>
-      )}
-
-      {data.siblings_names?.trim() && (
-        <p className="whitespace-pre-line">
-          <strong>Siblings:</strong><br />
-          {data.siblings_names}
-        </p>
-      )}
-      {data.children_names && (
-  <div>
-    <h3 className="font-semibold text-stone-800">
-      Children
-    </h3>
-    <p className="mt-1 whitespace-pre-line text-stone-700">
-      {data.children_names}
-    </p>
-  </div>
-)}
-
-{data.grandchildren_names && (
-  <div>
-    <h3 className="font-semibold text-stone-800">
-      Grandchildren
-    </h3>
-    <p className="mt-1 whitespace-pre-line text-stone-700">
-      {data.grandchildren_names}
-    </p>
-  </div>
-)}
-{data.great_grandchildren_names && (
-  <div>
-    <h3 className="font-semibold text-stone-800">
-      Great Grandchildren
-    </h3>
-    <p className="mt-1 whitespace-pre-line text-stone-700">
-      {data.great_grandchildren_names}
-    </p>
-  </div>
-)}
     </div>
-  </section>
+
+    {data.parents_names?.trim() && (
+      <FamilyTreeCard title="Parents" value={data.parents_names} highlight />
+    )}
+
+    <div className="grid gap-4 md:grid-cols-2">
+      {data.siblings_names?.trim() && (
+        <FamilyTreeCard title="Siblings" value={data.siblings_names} />
+      )}
+
+      {data.children_names?.trim() && (
+        <FamilyTreeCard title="Children" value={data.children_names} />
+      )}
+    </div>
+
+    <div className="grid gap-4 md:grid-cols-2">
+      {data.grandchildren_names?.trim() && (
+        <FamilyTreeCard title="Grandchildren" value={data.grandchildren_names} />
+      )}
+
+      {data.great_grandchildren_names?.trim() && (
+        <FamilyTreeCard title="Great Grandchildren" value={data.great_grandchildren_names} />
+      )}
+    </div>
+  </div>
+</section>
+    
 )}
 </section>
 {data.places_lived?.trim() && (
