@@ -1,5 +1,6 @@
 "use client";
 
+import { optimizeImage } from "../../../lib/optimizeImage";
 import MuxPlayer from "@mux/mux-player-react";
 import Link from "next/link";
 import { useEffect, useState, ChangeEvent, FormEvent, useRef } from "react";
@@ -861,14 +862,21 @@ async function handleSubmissionStatus(
   
 async function uploadFile(file: File, folderName: string, bucketName: string) {
   const safeName = sanitizeFileName(file.name);
-  const filePath = `${folderName}/${Date.now()}-${safeName}`;
+
+  const fileToUpload =
+    bucketName === "memorial-photos"
+      ? await optimizeImage(file)
+      : file;
+
+  const fileExt = fileToUpload.name.split(".").pop();
+  const filePath = `${folderName}/${Date.now()}.${fileExt}`;
 
   const { error } = await supabase.storage
     .from(bucketName)
-    .upload(filePath, file);
+    .upload(filePath, fileToUpload);
 
   if (error) {
-    throw new Error(error.message || "File upload failed.");
+    throw error;
   }
 
   const { data } = supabase.storage

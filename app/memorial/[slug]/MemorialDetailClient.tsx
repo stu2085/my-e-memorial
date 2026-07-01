@@ -1,5 +1,5 @@
 "use client";
-
+import { optimizeImage } from "../../lib/optimizeImage";
 import MuxPlayer from "@mux/mux-player-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -716,9 +716,11 @@ if (submissionPhotos.length > 0) {
 
     const filePath = `submission-photos/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from("memorial-media")
-      .upload(filePath, photo);
+   const optimizedPhoto = await optimizeImage(photo);
+
+const { error: uploadError } = await supabase.storage
+  .from("memorial-media")
+  .upload(filePath, optimizedPhoto);
 
     if (uploadError) {
       console.error(uploadError);
