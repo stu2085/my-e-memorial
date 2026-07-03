@@ -56,8 +56,10 @@ await supabase.from("processed_webhooks").insert({
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+ if (event.type === "checkout.session.completed") {
+  const session = event.data.object as Stripe.Checkout.Session;
+
+  console.log("Stripe checkout completed metadata:", session.metadata);
 
     const advertiserId = session.metadata?.advertiserId;
     const plan = session.metadata?.plan;
@@ -83,22 +85,23 @@ if (
     from: `"MyEMemorial" <help@myememorial.com>`,
     to: customerEmail,
 
-    subject: "Your Extra Memorial Video Purchase Receipt",
+    subject: "Your Video Memory PackReceipt",
 
     html: `
       <p>Hello,</p>
 
       <p>
-        Thank you for your payment. Your additional memorial video purchase has been successfully processed.
+        Thank you for purchasing additional Video Memory time for your memorial.
       </p>
 
       <p><strong>Receipt Details:</strong></p>
 
-      <ul>
-        <li><strong>Additional Videos Purchased:</strong> ${quantity}</li>
-        <li><strong>Amount Paid:</strong> ${memorialAmountPaid}</li>
-        <li><strong>Status:</strong> Paid</li>
-      </ul>
+    <ul>
+  <li><strong>10-Minute Video Memory Packs Purchased:</strong> ${quantity}</li>
+  <li><strong>Video Memory Added:</strong> ${quantity * 10} minutes</li>
+  <li><strong>Amount Paid:</strong> ${memorialAmountPaid}</li>
+  <li><strong>Status:</strong> Paid</li>
+</ul>
 
       <p>
         Your additional video upload capacity is now active.
@@ -115,15 +118,15 @@ if (plan === "extra_videos") {
   const { data: memorial, error: memorialError } =
     await supabase
       .from("memorials")
-      .select("id, extra_video_slots")
+      .select("id, extra_video_minutes")
       .eq("id", memorialId)
       .single();
 
   if (memorialError || !memorial) {
     console.error(
-      "Extra video memorial lookup error:",
-      memorialError
-    );
+  "Video Memory Pack memorial lookup error:",
+  memorialError
+);
 
     return NextResponse.json(
       { error: "Memorial not found." },
@@ -131,24 +134,24 @@ if (plan === "extra_videos") {
     );
   }
 
-  const currentSlots = Number(
-    memorial.extra_video_slots || 0
-  );
+  const currentMinutes = Number(
+  memorial.extra_video_minutes || 0
+);
 
-  const newTotal = currentSlots + quantity;
+const newTotal = currentMinutes + quantity * 10;
 
-  const { error: updateError } = await supabase
-    .from("memorials")
-    .update({
-      extra_video_slots: newTotal,
-    })
-    .eq("id", memorialId);
+const { error: updateError } = await supabase
+  .from("memorials")
+  .update({
+    extra_video_minutes: newTotal,
+  })
+  .eq("id", memorialId);
 
   if (updateError) {
     console.error(
-      "Extra video slot update error:",
-      updateError
-    );
+  "Video Memory Pack update error:",
+  updateError
+);
 
     return NextResponse.json(
       { error: updateError.message },

@@ -101,7 +101,7 @@ newspaperArticles: string;
   mapCountry: string;
   plan: string;
   isLivingPreplan: boolean;
-extraVideoSlots: string;
+extraVideoMinutes: string;
 videoLinkUrls: string[];
 videoLinkNotes: string[];
 backupEmail: string;
@@ -174,7 +174,7 @@ newspaperArticles: "",
   mapCountry: "USA",
   plan: "basic",
   isLivingPreplan: false,
-extraVideoSlots: "0",
+extraVideoMinutes: "0",
 videoLinkUrls: [],
 videoLinkNotes: [],
 backupEmail: "",
@@ -216,7 +216,7 @@ const returnedExtraVideos = Number(searchParams.get("extra_videos_paid") || 0);
 
 const [form, setForm] = useState<MemorialForm>(emptyForm);
 
-const savedExtraVideos = Number(form.extraVideoSlots || 0);
+const savedExtraVideos = Number(form.extraVideoMinutes || 0);
 const paidExtraVideos = savedExtraVideos;
 const galleryDragSensors = useSensors(
   useSensor(PointerSensor),
@@ -244,6 +244,7 @@ const galleryDragSensors = useSensors(
   const [videoError, setVideoError] = useState("");
   const [existingVideos, setExistingVideos] = useState<string[]>([]);
   const [videoNotes, setVideoNotes] = useState<string[]>([]);
+  const [existingVideoDurations, setExistingVideoDurations] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 const [previewVideoId, setPreviewVideoId] = useState<string | null>(null);
@@ -491,30 +492,38 @@ function getVideoDuration(file: File): Promise<number> {
     return;
   }
 
-  // 🔒 2. Plan limit
-  const maxVideos =
-    (form.plan === "premium" ? 10 : form.plan === "plus" ? 5 : 2) + paidExtraVideos;
+  // 🔒 2. Plan minute limit
+const maxVideoMinutes =
+  form.plan === "premium" ? 60 : form.plan === "plus" ? 30 : 15;
 
-  const existingSelectedNames = new Set(videoFiles.map((file) => file.name));
+const existingSelectedNames = new Set(videoFiles.map((file) => file.name));
 
 const newUniqueFiles = files.filter(
   (file) => !existingSelectedNames.has(file.name)
 );
 
-const totalVideos =
-  [...existingVideos, ...videoFiles.map(v => v.name), ...newUniqueFiles.map(v => v.name)].length;
+let selectedVideoSeconds = 0;
 
-    if (totalVideos > maxVideos) {
-    const extraVideosNeeded = totalVideos - maxVideos;
-    const extraVideoTotal = extraVideosNeeded * EXTRA_VIDEO_PRICE;
+for (const file of videoFiles) {
+  selectedVideoSeconds += await getVideoDuration(file);
+}
 
-    setVideoError(
-      `This plan includes ${maxVideos} videos. You selected ${totalVideos}. Add ${extraVideosNeeded} extra video${extraVideosNeeded === 1 ? "" : "s"} for $${extraVideoTotal.toFixed(2)}.`
-    );
+let newVideoSeconds = 0;
 
-    e.target.value = "";
-    return;
-  }
+for (const file of newUniqueFiles) {
+  newVideoSeconds += await getVideoDuration(file);
+}
+
+const totalVideoSeconds = selectedVideoSeconds + newVideoSeconds;
+
+if (totalVideoSeconds > maxVideoMinutes * 60) {
+  setVideoError(
+    `This plan includes ${maxVideoMinutes} minutes of Video Memories. Please remove or shorten a video before adding more.`
+  );
+
+  e.target.value = "";
+  return;
+}
 
   // 🔒 3. Duration check (ADD THIS BACK)
   try {
@@ -546,12 +555,70 @@ const totalVideos =
 }
 
   
+async function handleMoveExistingVideo(index: number, direction: "up" | "down") {
+  const targetIndex = direction === "up" ? index - 1 : index + 1;
 
-  function handleRemoveExistingVideo(videoIdToRemove: string) {
-    setExistingVideos((prev) =>
-      prev.filter((videoId) => videoId !== videoIdToRemove)
-    );
+  if (targetIndex < 0 || targetIndex >= existingVideos.length) return;
+
+  const reorderedVideos = [...existingVideos];
+  const reorderedNotes = [...videoNotes];
+
+  [reorderedVideos[index], reorderedVideos[targetIndex]] = [
+    reorderedVideos[targetIndex],
+    reorderedVideos[index],
+  ];
+
+  [reorderedNotes[index], reorderedNotes[targetIndex]] = [
+    reorderedNotes[targetIndex],
+    reorderedNotes[index],
+  ];
+
+  setExistingVideos(reorderedVideos);
+  setVideoNotes(reorderedNotes);
+
+  for (let i = 0; i < reorderedVideos.length; i++) {
+    const { error } = await supabase
+      .from("memorial_videos")
+      .update({ sort_order: i })
+      .eq("memorial_id", memorialId)
+      .eq("playback_id", reorderedVideos[i]);
+
+    if (error) {
+      console.error("UPDATE VIDEO SORT ORDER ERROR:", error);
+      setVideoError("Could not update video order.");
+      return;
+    }
   }
+}
+  async function handleRemoveExistingVideo(videoIdToRemove: string) {
+  if (!memorialId) return;
+
+  const confirmed = window.confirm(
+    "Delete this video from the memorial?"
+  );
+
+  if (!confirmed) return;
+
+  const { error } = await supabase
+    .from("memorial_videos")
+    .delete()
+    .eq("memorial_id", memorialId)
+    .eq("playback_id", videoIdToRemove);
+
+  if (error) {
+    console.error("DELETE MEMORIAL VIDEO ERROR:", error);
+    setVideoError("Could not delete this video.");
+    return;
+  }
+
+  setExistingVideos((prev) =>
+    prev.filter((videoId) => videoId !== videoIdToRemove)
+  );
+
+  setVideoNotes((prev) =>
+    prev.filter((_, index) => existingVideos[index] !== videoIdToRemove)
+  );
+}
 
   useEffect(() => {
     async function loadMemorial() {
@@ -652,7 +719,7 @@ newspaperArticles: data.newspaper_articles ?? "",
       mapCountry: data.map_country ?? "USA",
       plan: data.plan ?? "standard",
     isLivingPreplan: data.is_living_preplan ?? false,  
-extraVideoSlots: String(data.extra_video_slots ?? 0),
+extraVideoMinutes: String(data.extra_video_minutes ?? 0),
 backupEmail: "",
 backupPassword: "",
 videoLinkUrls: Array.isArray(data.video_link_urls) ? data.video_link_urls : [],
@@ -660,26 +727,27 @@ videoLinkNotes: Array.isArray(data.video_link_notes) ? data.video_link_notes : [
 
 });
 
-const loadedVideos =
-  Array.isArray(data.video_urls)
-    ? data.video_urls
-        .filter(Boolean)
-        .filter((videoId: string) => videoId.length > 15)
-    : typeof data.video_urls === "string"
-      ? data.video_urls
-          .split(",")
-          .map((item: string) => item.trim())
-          .filter(Boolean)
-          .filter((videoId: string) => videoId.length > 15)
-      : [];
+const { data: videosData, error: videosError } = await supabase
+  .from("memorial_videos")
+  .select(
+    "id, memorial_id, playback_id, duration_seconds, note, sort_order, original_filename, file_size, processing_status, created_at"
+  )
+  .eq("memorial_id", data.id)
+  .order("sort_order", { ascending: true });
+
+if (videosError) {
+  console.error("LOAD MEMORIAL VIDEOS ERROR:", videosError);
+}
+
+const loadedVideos = (videosData || []).map((video) => video.playback_id);
+const loadedVideoNotes = (videosData || []).map((video) => video.note || "");
+const loadedVideoDurations = (videosData || []).map(
+  (video) => video.duration_seconds || 0
+);
 
 setExistingVideos(loadedVideos);
-
-setVideoNotes(
-  Array.isArray(data.video_notes)
-    ? data.video_notes
-    : []
-);
+setVideoNotes(loadedVideoNotes);
+setExistingVideoDurations(loadedVideoDurations);
 
 setIsLoading(false);
     }
@@ -704,10 +772,24 @@ setIsLoading(false);
 
       
 
-  async function uploadVideos(): Promise<string[]> {
+  async function uploadVideos(): Promise<
+  {
+  playbackId: string;
+  durationSeconds: number;
+  note: string;
+  originalFilename: string;
+  fileSize: number;
+}[]
+> {
     if (videoFiles.length === 0) return [];
 
-    const playbackIds: string[] = [];
+    const uploadedVideos: {
+  playbackId: string;
+  durationSeconds: number;
+  note: string;
+  originalFilename: string;
+  fileSize: number;
+}[] = [];
 
     for (const file of videoFiles) {
       try {
@@ -770,14 +852,22 @@ setIsLoading(false);
           continue;
         }
 
-        playbackIds.push(playbackId);
+        const duration = await getVideoDuration(file);
+
+uploadedVideos.push({
+  playbackId,
+  durationSeconds: Math.round(duration),
+  note: videoNotes[videoFiles.indexOf(file)] || "",
+  originalFilename: file.name,
+  fileSize: file.size,
+});
       } catch (err) {
         console.error("VIDEO UPLOAD ERROR:", err);
         setVideoError("One or more videos failed to upload.");
       }
     }
 
-    return playbackIds;
+    return uploadedVideos;
   }
 async function loadSubmissions(currentMemorialId: number) {
   const { data, error } = await supabase
@@ -1081,8 +1171,7 @@ featured_photo_url: featuredPhotoUrl,
         gallery_photos: galleryPhotos.join(","),
         gallery_photo_notes: form.galleryPhotoNotes ?? [],
         newspaper_articles: newspaperArticles.join(","),
-        video_urls: [...existingVideos, ...newPlaybackIds],
-video_notes: videoNotes,
+        
 video_link_urls: form.videoLinkUrls,
 video_link_notes: form.videoLinkNotes,
 backup_email: form.backupEmail,
@@ -1117,7 +1206,50 @@ if (!res.ok) {
   setErrorMessage(result.error || "Could not save memorial.");
   return;
 }
+if (newPlaybackIds.length > 0) {
+  const startingSortOrder = existingVideos.length;
 
+  const newVideoRows = newPlaybackIds.map((video, index) => ({
+    memorial_id: memorialId,
+    playback_id: video.playbackId,
+    duration_seconds: video.durationSeconds,
+    note: video.note,
+    sort_order: startingSortOrder + index,
+    original_filename: video.originalFilename ?? null,
+    file_size: video.fileSize ?? null,
+    processing_status: "ready",
+  }));
+
+  const { error: insertVideoError } = await supabase
+    .from("memorial_videos")
+    .insert(newVideoRows);
+
+  if (insertVideoError) {
+    console.error("INSERT MEMORIAL VIDEOS ERROR:", insertVideoError);
+    setErrorMessage(
+      "The memorial was saved, but the new videos could not be attached."
+    );
+    return;
+  }
+}
+const existingVideoUpdates = existingVideos.map((playbackId, index) => ({
+  playback_id: playbackId,
+  note: videoNotes[index] || "",
+}));
+
+for (const video of existingVideoUpdates) {
+  const { error: updateVideoError } = await supabase
+    .from("memorial_videos")
+    .update({
+      note: video.note,
+    })
+    .eq("memorial_id", memorialId)
+    .eq("playback_id", video.playback_id);
+
+  if (updateVideoError) {
+    console.error("UPDATE MEMORIAL VIDEO NOTE ERROR:", updateVideoError);
+  }
+}
       setForm((prev) => {
   const savedSongs = [
     ...(prev.favoriteSongUrls?.length > 0
@@ -1141,7 +1273,10 @@ if (!res.ok) {
   };
 });
 
-      setExistingVideos([...existingVideos, ...newPlaybackIds]);
+      setExistingVideos([
+  ...existingVideos,
+  ...newPlaybackIds.map((video) => video.playbackId),
+]);
       setFavoriteSongFiles([]);
       setHeadstonePhoto1File(null);
       setHeadstonePhoto2File(null);
@@ -1169,7 +1304,7 @@ if (!res.ok) {
   }
 async function handleBuyExtraVideos(extraCount: number, submissionId?: number) {
   if (!(isOwner || isBackupUnlocked)) {
-    alert("You do not have permission to purchase extra videos for this memorial.");
+    alert("You do not have permission to purchase additional Video Memory time for this memorial.");
     return;
   }
 
@@ -1179,7 +1314,7 @@ async function handleBuyExtraVideos(extraCount: number, submissionId?: number) {
   }
 
   try {
-    const amount = Math.round(extraCount * EXTRA_VIDEO_PRICE * 100);
+    const amount = extraCount * 995;
 
     const res = await fetch("/api/checkout", {
       method: "POST",
@@ -1602,77 +1737,51 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
   );
 })()}
           {submission.status === "pending" && (() => {
-  const baseLimit =
-    form.plan === "premium"
-      ? 10
-      : form.plan === "plus"
-      ? 5
-      : 2;
+ const baseLimitMinutes =
+  form.plan === "premium"
+    ? 60
+    : form.plan === "plus"
+      ? 30
+      : 15;
 
-  const effectiveLimit =
-    baseLimit + Number(form.extraVideoSlots || 0);
+const effectiveLimitMinutes =
+  baseLimitMinutes + Number(form.extraVideoMinutes || 0);
 
-  const submissionVideos = (() => {
-    if (Array.isArray(submission.video_urls)) {
-      return submission.video_urls.filter(Boolean);
+const existingVideoSeconds = existingVideoDurations.reduce(
+  (total, seconds) => total + Number(seconds || 0),
+  0
+);
+
+const submissionVideos = (() => {
+  if (Array.isArray(submission.video_urls)) {
+    return submission.video_urls.filter(Boolean);
+  }
+
+  if (typeof submission.video_urls === "string") {
+    try {
+      return JSON.parse(submission.video_urls).filter(Boolean);
+    } catch {
+      return submission.video_urls
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
     }
+  }
 
-    if (typeof submission.video_urls === "string") {
-      try {
-        return JSON.parse(submission.video_urls).filter(Boolean);
-      } catch {
-        return submission.video_urls
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean);
-      }
-    }
+  return [];
+})();
 
-    return [];
-  })();
+const contributorVideoSeconds =
+  submissionVideos.length * 5 * 60;
 
-  const contributorVideoCount = submissionVideos.length;
+const projectedTotalSeconds =
+  existingVideoSeconds + contributorVideoSeconds;
 
-  const approvedContributorVideoCount = submissions
-  .filter(
-    (s) =>
-      s.status === "approved" &&
-      s.id !== submission.id
-  )
-  .reduce((total, approvedSubmission) => {
-    let approvedVideos: string[] = [];
+const projectedTotalMinutes =
+  Math.ceil(projectedTotalSeconds / 60);
 
-    if (Array.isArray(approvedSubmission.video_urls)) {
-      approvedVideos =
-        approvedSubmission.video_urls.filter(Boolean);
-    } else if (
-      typeof approvedSubmission.video_urls === "string"
-    ) {
-      try {
-        approvedVideos = JSON.parse(
-          approvedSubmission.video_urls
-        ).filter(Boolean);
-      } catch {
-        approvedVideos =
-          approvedSubmission.video_urls
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean);
-      }
-    }
-
-    return total + approvedVideos.length;
-  }, 0);
-
-const currentVideoCount =
-  existingVideos.length +
-  approvedContributorVideoCount;
-
-const projectedTotal =
-  currentVideoCount + contributorVideoCount;
-
-  const needsExtraVideoPurchase =
-    projectedTotal > effectiveLimit;
+const needsExtraVideoPurchase =
+  projectedTotalMinutes > effectiveLimitMinutes;
 
   return (
     <div className="mt-4 flex flex-wrap gap-2">
@@ -1695,13 +1804,13 @@ const projectedTotal =
           type="button"
           onClick={() =>
   handleBuyExtraVideos(
-    projectedTotal - effectiveLimit,
-    submission.id
-  )
+  Math.ceil((projectedTotalMinutes - effectiveLimitMinutes) / 10),
+  submission.id
+)
 }
           className="rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-stone-900 hover:bg-amber-400"
         >
-          Approve With Extra Video — $9.95
+          Approve With 10-Minute Video Memory Pack — $9.95
         </button>
       )}
 
@@ -2541,11 +2650,11 @@ Hershey Foods Corporation`}
     </div>
     <div>
       <p className="text-sm font-semibold text-stone-800">
-        Need more video space?
-      </p>
-      <p className="text-xs text-stone-600">
-        Add extra videos anytime for $9.95 each.
-      </p>
+  Need more room for Video Memories?
+</p>
+<p className="text-xs text-stone-600">
+  Add a 10-minute Video Memory Pack anytime for $9.95.
+</p>
     </div>
   </div>
 
@@ -2557,7 +2666,7 @@ Hershey Foods Corporation`}
   ((form.plan === "premium" ? 10 : 
     form.plan === "plus" ? 5 : 2) + paidExtraVideos) && (
   <p className="mt-2 text-sm text-amber-600">
- You’ve reached your current video limit. Save your memorial first. After saving, you may purchase additional video slots and then upload more videos.
+ You’ve reached your current video limit. Save your memorial first. After saving, you may purchase additional video minutes and then upload more videos.
   </p>
 )}
 {existingVideos.length > 0 &&
@@ -2602,13 +2711,17 @@ Hershey Foods Corporation`}
                         <div className="mt-2 text-sm text-stone-600">
   {(() => {
     const limit =
-      (form.plan === "premium" ? 10 : form.plan === "plus" ? 5 : 2) +
-      paidExtraVideos;
+      (form.plan === "premium" ? 60 : form.plan === "plus" ? 30 : 15) +
+paidExtraVideos;
 
-    const current = existingVideos.length;
-    const selected = videoFiles.length;
-    const total = current + selected;
-    const remaining = Math.max(limit - total, 0);
+    const current = existingVideoDurations.reduce(
+  (sum, seconds) => sum + seconds,
+  0
+) / 60;
+
+const selected = 0;
+const total = current + selected;
+const remaining = Math.max(limit - total, 0);
 
     return (
       <div>
@@ -2616,18 +2729,36 @@ Hershey Foods Corporation`}
           className={`mt-2 text-sm ${
             total > limit ? "text-red-600" : "text-stone-600"
           }`}
-        >
-          Videos: {current}
-          {selected > 0 && ` + ${selected} selected`}
-          {" = "}
-          {total} / {limit}
-        </div>
+       >
+  Video Memories: {current.toFixed(1)} minutes
+  {selected > 0 &&
+    ` + ${selected.toFixed(1)} minutes selected`}
+  {" = "}
+  {total.toFixed(1)} / {limit} minutes
+</div>
 
         {paidExtraVideos > 0 && (
-          <p className="mt-1 text-sm text-green-700">
-            You have purchased {paidExtraVideos} extra video slot{paidExtraVideos === 1 ? "" : "s"}.
-          </p>
-        )}
+  <p className="mt-1 text-sm text-green-700">
+    You have purchased {paidExtraVideos} extra Video Memory minute{paidExtraVideos === 1 ? "" : "s"}.
+  </p>
+)}
+<div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+  <p className="text-sm font-semibold text-stone-900">
+    Need more Video Memory time?
+  </p>
+
+  <p className="mt-1 text-sm text-stone-700">
+    Purchase an additional 10 minutes for $9.95.
+  </p>
+
+  <button
+    type="button"
+    onClick={() => handleBuyExtraVideos(1)}
+    className="mt-3 rounded-full bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+  >
+    Purchase 10 More Minutes
+  </button>
+</div>
       </div>
     );
   })()}
@@ -2638,9 +2769,9 @@ Hershey Foods Corporation`}
 
    
 
-                        <p className="mt-1 text-sm text-stone-500">
-                          MP4 recommended. Basic allows 2 videos, Plus allows 5, and Premium allows 10. Extra videos are $9.95 each.
-                        </p>
+                       <p className="mt-1 text-sm text-stone-500">
+  MP4 recommended. Basic includes 15 minutes of Video Memories, Plus includes 30 minutes, and Premium includes 60 minutes. Each individual video may be up to 5 minutes long.
+</p>
 
                         {videoError && (
                           <p className="mt-2 text-sm text-red-600">{videoError}</p>
@@ -2662,13 +2793,33 @@ Hershey Foods Corporation`}
       Video {index + 1}
     </p>
 
-    <button
-      type="button"
-      onClick={() => handleRemoveExistingVideo(videoId)}
-      className="rounded-full border border-red-300 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
-    >
-      Delete Video
-    </button>
+    <div className="flex flex-wrap justify-end gap-2">
+  <button
+    type="button"
+    onClick={() => handleMoveExistingVideo(index, "up")}
+    disabled={index === 0}
+    className="rounded-full border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+  >
+    ↑ Up
+  </button>
+
+  <button
+    type="button"
+    onClick={() => handleMoveExistingVideo(index, "down")}
+    disabled={index === existingVideos.length - 1}
+    className="rounded-full border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+  >
+    ↓ Down
+  </button>
+
+  <button
+    type="button"
+    onClick={() => handleRemoveExistingVideo(videoId)}
+    className="rounded-full border border-red-300 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+  >
+    Delete Video
+  </button>
+</div>
   </div>
 
   {previewVideoId === videoId ? (

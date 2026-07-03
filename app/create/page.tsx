@@ -157,17 +157,17 @@ const PLAN_LIMITS = {
   basic: {
     label: "Basic Memorial",
     galleryPhotos: 50,
-    videos: 2,
+    videoMinutes: 15,
   },
   plus: {
     label: "Plus Memorial",
     galleryPhotos: 150,
-    videos: 5,
+    videoMinutes: 30,
   },
   premium: {
     label: "Premium Memorial",
     galleryPhotos: Infinity,
-    videos: 10,
+    videoMinutes: 60,
   },
 };
 
@@ -595,16 +595,27 @@ useEffect(() => {
     (file) => !existingNames.has(file.name)
   );
 
- const maxVideos = limits.videos + paidExtraVideos;
-const totalVideos = videoFiles.length + newUniqueFiles.length;
-const [videoNotes, setVideoNotes] = useState<string[]>([]);
-if (totalVideos > maxVideos) {
-    setVideoError(
-      `${limits.label} allows up to ${maxVideos} videos. You selected ${totalVideos}.`
-    );
-    e.target.value = "";
-    return;
-  }
+  const maxTotalVideoSeconds = limits.videoMinutes * 60;
+
+let existingVideoSeconds = 0;
+
+for (const file of videoFiles) {
+  existingVideoSeconds += await getVideoDuration(file);
+}
+
+let newVideoSeconds = 0;
+
+for (const file of newUniqueFiles) {
+  newVideoSeconds += await getVideoDuration(file);
+}
+
+if (existingVideoSeconds + newVideoSeconds > maxTotalVideoSeconds) {
+  setVideoError(
+    `${limits.label} allows up to ${limits.videoMinutes} minutes of Video Memories.`
+  );
+  e.target.value = "";
+  return;
+}
 
   for (const file of newUniqueFiles) {
     const duration = await getVideoDuration(file);
@@ -631,67 +642,81 @@ e.target.value = "";
 
 
   async function uploadVideos(slug: string) {
-    if (videoFiles.length === 0) return [];
-    const oversizedFile = videoFiles.find(
-  (file) => file.size > MAX_VIDEO_SIZE_BYTES
-);
+  if (videoFiles.length === 0) return [];
 
-if (oversizedFile) {
-  throw new Error(
-    `"${oversizedFile.name}" is too large. Maximum video size is 1 GB.`
+  const oversizedFile = videoFiles.find(
+    (file) => file.size > MAX_VIDEO_SIZE_BYTES
   );
-}
-for (const file of videoFiles) {
-  const duration = await getVideoDuration(file);
 
-  if (duration > 300) {
+  if (oversizedFile) {
     throw new Error(
-      `"${file.name}" is longer than 5 minutes. Please remove it before saving.`
+      `"${oversizedFile.name}" is too large. Maximum video size is 1 GB.`
     );
   }
-}
-    const playbackIds: string[] = [];
 
-    for (const file of videoFiles) {
-      const uploadRes = await fetch("/api/mux-upload", {
-        method: "POST",
-      });
+  const uploadedVideos: {
+    playbackId: string;
+    durationSeconds: number;
+    note: string;
+    originalFilename: string;
+  fileSize: number;
+  }[] = [];
 
-      const uploadData = await uploadRes.json();
+  for (let index = 0; index < videoFiles.length; index++) {
+    const file = videoFiles[index];
+    const duration = await getVideoDuration(file);
 
-      if (!uploadRes.ok || !uploadData.uploadUrl || !uploadData.uploadId) {
-        throw new Error(uploadData.error || "Could not create Mux upload.");
-      }
-
-      const putRes = await fetch(uploadData.uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: {
-          "Content-Type": file.type,
-        },
-      });
-
-      if (!putRes.ok) {
-        throw new Error(`Mux upload failed for ${file.name}.`);
-      }
-
-      const playbackRes = await fetch("/api/mux-playback", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ uploadId: uploadData.uploadId }),
-      });
-
-      const playbackData = await playbackRes.json();
-
-      if (playbackData.playbackId) {
-        playbackIds.push(playbackData.playbackId);
-      }
+    if (duration > 300) {
+      throw new Error(
+        `"${file.name}" is longer than 5 minutes. Please remove it before saving.`
+      );
     }
 
-    return playbackIds;
+    const uploadRes = await fetch("/api/mux-upload", {
+      method: "POST",
+    });
+
+    const uploadData = await uploadRes.json();
+
+    if (!uploadRes.ok || !uploadData.uploadUrl || !uploadData.uploadId) {
+      throw new Error(uploadData.error || "Could not create Mux upload.");
+    }
+
+    const putRes = await fetch(uploadData.uploadUrl, {
+      method: "PUT",
+      body: file,
+      headers: {
+        "Content-Type": file.type,
+      },
+    });
+
+    if (!putRes.ok) {
+      throw new Error(`Mux upload failed for ${file.name}.`);
+    }
+
+    const playbackRes = await fetch("/api/mux-playback", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ uploadId: uploadData.uploadId }),
+    });
+
+    const playbackData = await playbackRes.json();
+
+    if (playbackData.playbackId) {
+      uploadedVideos.push({
+  playbackId: playbackData.playbackId,
+  durationSeconds: Math.round(duration),
+  note: videoNotes[index] || "",
+  originalFilename: file.name,
+  fileSize: file.size,
+});
+    }
   }
+
+  return uploadedVideos;
+}
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -724,11 +749,17 @@ for (const file of videoFiles) {
         );
       }
 
-      if (videoFiles.length > limits.videos) {
-        throw new Error(
-          `${limits.label} allows up to ${limits.videos} video${limits.videos === 1 ? "" : "s"}.`
-        );
-      }
+      let totalVideoSeconds = 0;
+
+for (const file of videoFiles) {
+  totalVideoSeconds += await getVideoDuration(file);
+}
+
+if (totalVideoSeconds > limits.videoMinutes * 60) {
+  throw new Error(
+    `${limits.label} allows up to ${limits.videoMinutes} minutes of Video Memories.`
+  );
+}
 
       if (
         (form.finalRestingType === "buried" || form.finalRestingType === "cremated") &&
@@ -842,7 +873,7 @@ if (form.betaCode.trim()) {
 //   throw new Error("You must be logged in before creating a memorial.");
 // }
 
-      const { error } = await supabase
+      const { data: createdMemorial, error } = await supabase
         .from("memorials")
         .insert({
           slug,
@@ -905,8 +936,8 @@ featured_photo_url: featuredPhotoUrl,
           headstone_photo_2: headstonePhoto2Url,
           gallery_photos: galleryPhotoUrls.join(","),
           favorite_song_url: favoriteSongUrl,
-          video_urls: uploadedVideoUrls,
-video_notes: videoNotes,
+          video_urls: uploadedVideoUrls.map((video) => video.playbackId),
+video_notes: uploadedVideoUrls.map((video) => video.note),
 final_resting_type: form.finalRestingType,
           ashes_location_description: form.ashesLocationDescription,
           backup_person_name: form.backupPersonName,
@@ -918,12 +949,35 @@ beta_code_used: usingBetaCode
   promotion_category: usingBetaCode
   ? form.promotionCategory
   : null,
-        });
+                })
+        .select("id")
+        .single();
 
       if (error) {
         console.error("SUPABASE INSERT ERROR:", error);
         throw new Error(error.message);
       }
+      if (createdMemorial && uploadedVideoUrls.length > 0) {
+  const { error: videoInsertError } = await supabase
+    .from("memorial_videos")
+    .insert(
+      uploadedVideoUrls.map((video, index) => ({
+        memorial_id: createdMemorial.id,
+        playback_id: video.playbackId,
+        duration_seconds: video.durationSeconds,
+        note: video.note,
+        sort_order: index,
+        original_filename: video.originalFilename,
+file_size: video.fileSize,
+processing_status: "ready",
+      }))
+    );
+
+  if (videoInsertError) {
+    console.error("VIDEO INSERT ERROR:", videoInsertError);
+    throw new Error(videoInsertError.message);
+  }
+}
 if (usingBetaCode && form.betaCode.trim()) {
   const enteredCode = form.betaCode.trim().toUpperCase();
 
@@ -1739,8 +1793,8 @@ Hershey Foods Corporation`}
                 <h2 className="text-2xl font-bold text-stone-900">Memorial Videos</h2>
 
                 <p className="mt-2 text-sm text-stone-600">
-                  Basic allows 2 videos, Plus allows 5 videos, and Premium allows 10 videos. Each video must be 5 minutes or less.
-                </p>
+  Basic includes 15 minutes of Video Memories, Plus includes 30 minutes, and Premium includes 60 minutes. Each individual video must be 5 minutes or less.
+</p>
 
                 <div className="mt-6">
                   <label className="mb-2 block text-sm font-semibold text-stone-800">
@@ -1864,7 +1918,7 @@ Hershey Foods Corporation`}
 
                     <ul className="mt-5 space-y-2 text-sm leading-6">
                       <li>✔ Up to 50 photos</li>
-                      <li>✔ Up to 2 videos (up to 5 minutes each)</li>
+                      <li>✔ 15 minutes of Video Memories</li>
                       <li>✔ Background music</li>
                       <li>✔ Life story & obituary</li>
                       <li>✔ Unlimited contributors</li>
@@ -1891,7 +1945,7 @@ Hershey Foods Corporation`}
                     <ul className="mt-5 space-y-2 text-sm leading-6">
                       <li>✔ Everything in Basic</li>
                       <li>✔ Up to 150 photos</li>
-                      <li>✔ Up to 5 videos (up to 5 minutes each)</li>
+                      <li>✔ 30 minutes of Video Memories</li>
                     </ul>
                   </button>
 
@@ -1913,7 +1967,7 @@ Hershey Foods Corporation`}
                     <ul className="mt-5 space-y-2 text-sm leading-6">
                       <li>✔ Everything in Plus</li>
                       <li>✔ Unlimited photos</li>
-                      <li>✔ Up to 10 videos (up to 5 minutes each)</li>
+                      <li>✔ 60 minutes of Video Memories</li>
                     </ul>
                   </button>
                 </div>

@@ -41,7 +41,7 @@ if (plan === "extra_videos") {
 
   if (!Number.isInteger(safeQuantity) || safeQuantity < 1 || safeQuantity > 20) {
     return NextResponse.json(
-      { error: "Invalid extra video quantity." },
+      { error: "Invalid Video Memory Pack quantity." },
       { status: 400 }
     );
   }
@@ -69,14 +69,14 @@ if (checkoutType !== "upgrade") {
               name: isRenewal
                 ? "Advertiser Renewal"
                 : plan === "extra_videos"
-                  ? "Extra Memorial Video Uploads"
+                  ? "10-Minute Video Memory Pack"
                   : plan === "advertiser"
   ? "MyEMemorial Advertising"
   : "Create a Memorial",
               description: isRenewal
                 ? "Renew advertising placement on MyEMemorial"
                 : plan === "extra_videos"
-                  ? "Additional video uploads for this memorial"
+                  ? "Additional Video Memory time for this memorial"
                   : plan === "advertiser"
   ? "Advertising placement on MyEMemorial"
   : "Permanent memorial page on MyEMemorial",

@@ -184,41 +184,40 @@ useEffect(() => {
 
                 <div className="mt-6 grid gap-6 md:grid-cols-3">
                   <PlanCard
-                    title="Basic Memorial"
-                    price="$49.95"
-                    items={[
-  "Up to 50 photos",
-  "Up to 2 five minute videos",
-  "Favorite music",
-  "Life story & obituary",
-  "Cemetery map",
-  "Contributor approval",
-]}
-                  />
+  title="Basic Memorial"
+  price="$49.95"
+  items={[
+    "Up to 50 photos",
+    "Up to 15 minutes of Video Memories",
+    "Favorite music",
+    "Life story & obituary",
+    "Cemetery map",
+    "Contributor approval",
+  ]}
+/>
 
-                  <PlanCard
-                    title="Plus Memorial"
-                    price="$69.95"
-                    dark
-                    badge="Most Popular"
-                    items={[
-                      "Everything in Basic",
-                      "Up to 150 photos",
-                      "Up to 5 five minute videos",
-                      
-                    ]}
-                  />
+<PlanCard
+  title="Plus Memorial"
+  price="$69.95"
+  dark
+  badge="Most Popular"
+  items={[
+    "Everything in Basic",
+    "Up to 150 photos",
+    "Up to 30 minutes of Video Memories",
+  ]}
+/>
 
-                                    <PlanCard
-                    title="Premium Memorial"
-                    price="$89.95"
-                    items={[
-                      "Everything in Plus",
-                      "Unlimited photos",
-                      "Up to 10 five minute videos",
-                      "Best for larger families",
-                    ]}
-                  />
+<PlanCard
+  title="Premium Memorial"
+  price="$89.95"
+  items={[
+    "Everything in Plus",
+    "Unlimited photos",
+    "Up to 60 minutes of Video Memories",
+    "Best for larger families",
+  ]}
+/>
                 </div>
 
                 <p className="mt-4 text-center text-sm leading-6 text-stone-500">

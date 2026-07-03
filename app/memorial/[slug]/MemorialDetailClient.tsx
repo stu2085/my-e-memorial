@@ -13,7 +13,19 @@ const GraveLocationMap = dynamic(
   () => import("../../components/GraveLocationMap"),
   { ssr: false }
 );
-
+type MemorialVideo = {
+  id: number;
+ memorial_id: number;
+  playback_id: string;
+  duration_seconds: number;
+  note: string | null;
+  sort_order: number;
+  original_filename: string | null;
+  file_size: number | null;
+  processing_status: string | null;
+  
+  created_at: string;
+};
 type Memorial = {
   id?: number;
   slug?: string;
@@ -66,6 +78,7 @@ video_link_notes?: string[] | null;
   newspaper_articles?: string | string[];
   video_urls?: string | string[];
 video_notes?: string[] | null;
+memorial_videos?: MemorialVideo[];
   grave_lat?: number | string | null;
   grave_lng?: number | string | null;
   grave_latitude?: number | string | null;
@@ -84,7 +97,10 @@ type ApprovedSubmission = {
   submitter_name: string | null;
   message: string | null;
   photo_urls: string[] | string | null;
-  video_urls: string[] | string | null;
+  video_urls?: string | string[];
+video_notes?: string[] | null;
+memorial_videos?: MemorialVideo[];
+  
   created_at: string | null;
 };
 
@@ -350,7 +366,28 @@ if (memorialData?.is_published === false && !isOwnerUser) {
         return;
       }
 
-      setData((memorialData as Memorial) ?? null);
+      let memorialVideosData: MemorialVideo[] = [];
+
+if (memorialData?.id) {
+  const { data: videosData, error: videosError } = await supabase
+    .from("memorial_videos")
+    .select(
+      "id, memorial_id, playback_id, duration_seconds, note, sort_order, original_filename, file_size, processing_status, created_at"
+    )
+    .eq("memorial_id", memorialData.id)
+    .order("sort_order", { ascending: true });
+
+  if (videosError) {
+    console.error("LOAD MEMORIAL VIDEOS ERROR:", videosError);
+  } else {
+    memorialVideosData = (videosData as MemorialVideo[]) || [];
+  }
+}
+
+setData({
+  ...(memorialData as Memorial),
+  memorial_videos: memorialVideosData,
+});
       const description =
   memorialData?.obituary?.slice(0, 155) ||
   memorialData?.life_story?.slice(0, 155) ||
@@ -456,16 +493,14 @@ const newspaperArticles = useMemo(
   [data?.newspaper_articles]
 );
 
-const videoUrls = useMemo(
-  () => getVideoUrls(data?.video_urls),
-  [data?.video_urls]
-);
-const videoNotes = useMemo(
+const memorialVideos = useMemo(
   () =>
-    Array.isArray(data?.video_notes)
-      ? data.video_notes
+    Array.isArray(data?.memorial_videos)
+      ? [...data.memorial_videos].sort(
+          (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
+        )
       : [],
-  [data?.video_notes]
+  [data?.memorial_videos]
 );
 const videoLinkUrls = useMemo(
   () =>
@@ -1568,7 +1603,7 @@ function showNextPhoto() {
   </section>
 )}
 
-{(videoUrls.length > 0 || videoLinkUrls.length > 0) && (
+{(memorialVideos.length > 0 || videoLinkUrls.length > 0) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
     <button
       type="button"
@@ -1586,111 +1621,75 @@ function showNextPhoto() {
 
     {showMemorialVideos && (
   <div className="mt-5 grid gap-4 md:grid-cols-2">
-    {videoUrls.map((videoId, index) => (
-      <div
-        key={`${videoId}-${index}`}
-        className="overflow-hidden rounded-3xl border border-stone-200 bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm"
-      >
-        <p className="mb-4 text-sm font-semibold text-stone-700">
-          Memorial Video {index + 1}
-        </p>
+  {memorialVideos.map((video, index) => (
+    <div
+      key={video.id}
+      className="overflow-hidden rounded-3xl border border-stone-200 bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm"
+    >
+      <p className="mb-4 text-sm font-semibold text-stone-700">
+        Memorial Video {index + 1}
+      </p>
 
-        {showMemorialVideos === true &&
-        currentSongIndex === index + 1000 ? (
-          <MuxPlayer
-            playbackId={videoId}
-            streamType="on-demand"
-            className="aspect-video w-full rounded-xl bg-black"
-            onPlay={(event) => {
-              const currentPlayer =
-                event.currentTarget as HTMLElement & {
-                  pause?: () => void;
-                };
+      {showMemorialVideos === true &&
+      currentSongIndex === index + 1000 ? (
+        <MuxPlayer
+          playbackId={video.playback_id}
+          streamType="on-demand"
+          className="aspect-video w-full rounded-xl bg-black"
+          onPlay={(event) => {
+            const currentPlayer =
+              event.currentTarget as HTMLElement & {
+                pause?: () => void;
+              };
 
-              document
-                .querySelectorAll("mux-player")
-                .forEach((player) => {
-                  if (player !== currentPlayer) {
-                    try {
-                      (
-                        player as HTMLElement & {
-                          pause?: () => void;
-                        }
-                      ).pause?.();
-                    } catch {}
-                  }
-                });
+            document
+              .querySelectorAll("mux-player")
+              .forEach((player) => {
+                if (player !== currentPlayer) {
+                  try {
+                    (
+                      player as HTMLElement & {
+                        pause?: () => void;
+                      }
+                    ).pause?.();
+                  } catch {}
+                }
+              });
 
-              pauseBackgroundMusicForVideo();
-            }}
-            onPause={resumeBackgroundMusicAfterVideo}
-            onEnded={resumeBackgroundMusicAfterVideo}
-          />
-        ) : (
-          <button
-  type="button"
-  onClick={() => setCurrentSongIndex(index + 1000)}
-  className="group relative block aspect-video w-full overflow-hidden rounded-xl bg-stone-200"
->
-  <img
-    src={`https://image.mux.com/${videoId}/thumbnail.jpg?time=5`}
-    alt={`Memorial video ${index + 1} thumbnail`}
-    className="h-full w-full object-cover transition group-hover:scale-105"
-    loading="lazy"
-  />
-
-  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-    <div className="rounded-full bg-black/65 px-5 py-4 text-2xl text-white shadow-lg">
-      ▶
-    </div>
-  </div>
-</button>
-        )}
-        {videoNotes[index] && (
-  <p className="mt-3 text-sm italic text-stone-600">
-    {videoNotes[index]}
-  </p>
-)}
-      </div>
-    ))}
-  </div>
-)}
-{videoLinkUrls.length > 0 && (
-  <div className="mt-5 grid gap-4 md:grid-cols-2">
-    {videoLinkUrls.map((url, index) => (
-      <div
-        key={`${url}-${index}`}
-        className="rounded-3xl border border-stone-200 bg-stone-50 p-5 shadow-sm"
-      >
-        <p className="text-sm font-semibold text-stone-800">
-          Linked Video {index + 1}
-        </p>
-<div className="mt-3 flex aspect-video w-full items-center justify-center rounded-2xl bg-stone-200 text-center text-sm font-semibold text-stone-700">
-  ▶ External Video Link
-</div>
-
-{url.includes("facebook.com") || url.includes("fb.watch") ? (
-  <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
-    This Facebook video opens on Facebook. Facebook may show suggested or unrelated videos.
-  </p>
-) : null}
-        {videoLinkNotes[index] && (
-          <p className="mt-2 text-sm text-stone-700">
-            {videoLinkNotes[index]}
-          </p>
-        )}
-
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-flex rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
+            pauseBackgroundMusicForVideo();
+          }}
+          onPause={resumeBackgroundMusicAfterVideo}
+          onEnded={resumeBackgroundMusicAfterVideo}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setCurrentSongIndex(index + 1000)}
+          className="group relative block aspect-video w-full overflow-hidden rounded-xl bg-stone-200"
         >
-          Open Video Link
-        </a>
-      </div>
-    ))}
-  </div>
+          <img
+            src={`https://image.mux.com/${video.playback_id}/thumbnail.jpg?time=5`}
+            alt={`Memorial video ${index + 1} thumbnail`}
+            className="h-full w-full object-cover transition group-hover:scale-105"
+            loading="lazy"
+          />
+
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <div className="rounded-full bg-black/65 px-5 py-4 text-2xl text-white shadow-lg">
+              ▶
+            </div>
+          </div>
+        </button>
+      )}
+
+      {video.note && (
+        <p className="mt-3 text-sm italic text-stone-600">
+          {video.note}
+        </p>
+      )}
+    </div>
+  ))}
+</div>
 )}
   </section>
 )}

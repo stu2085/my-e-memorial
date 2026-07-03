@@ -71,7 +71,7 @@ export async function POST(req: Request) {
 
     const { data: memorial, error: memorialError } = await supabaseAdmin
       .from("memorials")
-      .select("id, owner_id, plan, extra_video_slots, video_urls")
+      .select("id, owner_id, plan, extra_video_minutes, video_urls")
       .eq("id", submission.memorial_id)
       .single();
 
@@ -111,7 +111,7 @@ export async function POST(req: Request) {
         }, 0) || 0;
 
       const baseLimit = getBaseVideoLimit(memorial.plan);
-      const extraSlots = Number(memorial.extra_video_slots || 0);
+      const extraSlots = Number(memorial.extra_video_minutes || 0);
       const effectiveLimit = baseLimit + extraSlots;
 
       const projectedTotal =

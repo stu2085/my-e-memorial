@@ -63,7 +63,7 @@ export async function POST(req: Request) {
 
     const { data: memorial, error: memorialError } = await supabaseAdmin
       .from("memorials")
-      .select("id, owner_id, plan, extra_video_slots, video_urls")
+     .select("id, owner_id, plan, extra_video_minutes")
       .eq("id", submission.memorial_id)
       .single();
 
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     }
 
     if (status === "approved") {
-      const existingMemorialVideos = parseVideoUrls(memorial.video_urls);
+      
       const submittedVideos = parseVideoUrls(submission.video_urls);
 
       const { data: approvedSubmissions, error: approvedError } =
@@ -100,20 +100,18 @@ export async function POST(req: Request) {
         }, 0) || 0;
 
       const baseLimit = getBaseVideoLimit(memorial.plan);
-      const extraSlots = Number(memorial.extra_video_slots || 0);
-      const effectiveLimit = baseLimit + extraSlots;
+const extraMinutes = Number(memorial.extra_video_minutes || 0);
+const effectiveLimit = baseLimit + extraMinutes;
 
-      const projectedTotal =
-        existingMemorialVideos.length +
-        approvedContributorVideoCount +
-        submittedVideos.length;
+const projectedTotal =
+  approvedContributorVideoCount + submittedVideos.length;
 
       if (submittedVideos.length > 0 && projectedTotal > effectiveLimit) {
         const extraVideosNeeded = projectedTotal - effectiveLimit;
 
         return NextResponse.json(
           {
-            error: `This memorial has reached its video limit. Purchase ${extraVideosNeeded} extra video slot${
+            error: `This memorial has reached its video limit. Purchase ${extraVideosNeeded} additional video minute${
               extraVideosNeeded === 1 ? "" : "s"
             } to approve this submission.`,
             needsExtraVideoPurchase: true,
