@@ -493,8 +493,11 @@ function getVideoDuration(file: File): Promise<number> {
   }
 
   // 🔒 2. Plan minute limit
-const maxVideoMinutes =
+const baseVideoMinutes =
   form.plan === "premium" ? 60 : form.plan === "plus" ? 30 : 15;
+
+const maxVideoMinutes =
+  baseVideoMinutes + Number(form.extraVideoMinutes || 0);
 
 const existingSelectedNames = new Set(videoFiles.map((file) => file.name));
 
@@ -514,7 +517,13 @@ for (const file of newUniqueFiles) {
   newVideoSeconds += await getVideoDuration(file);
 }
 
-const totalVideoSeconds = selectedVideoSeconds + newVideoSeconds;
+const existingVideoSeconds = existingVideoDurations.reduce(
+  (total, seconds) => total + Number(seconds || 0),
+  0
+);
+
+const totalVideoSeconds =
+  existingVideoSeconds + selectedVideoSeconds + newVideoSeconds;
 
 if (totalVideoSeconds > maxVideoMinutes * 60) {
   setVideoError(
