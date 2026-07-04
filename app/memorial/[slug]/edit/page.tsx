@@ -4,6 +4,7 @@ import {
   reorderVideoMemoryState,
   removeVideoMemoryState,
 } from "../../../../lib/videoMemoryState";
+
 import {
   loadMemorialVideos,
   deleteMemorialVideo,
@@ -14,6 +15,7 @@ import {
 } from "../../../../lib/videoMemoryDatabase";
 import { uploadVideoMemories } from "../../../../lib/videoMemoryUpload";
 import { getVideoDuration } from "../../../../lib/videoMemoryUtils";
+import ExistingVideoList from "../../../components/ExistingVideoList";
 import { optimizeImage } from "../../../lib/optimizeImage";
 import MuxPlayer from "@mux/mux-player-react";
 import Link from "next/link";
@@ -592,10 +594,12 @@ async function handleMoveExistingVideo(index: number, direction: "up" | "down") 
 
   if (!confirmed) return;
 
-  const { error } = await deleteMemorialVideo(
-    memorialId,
-    videoIdToRemove
-  );
+  const { data, error } = await deleteMemorialVideo(
+  memorialId,
+  videoIdToRemove
+);
+
+
 
   if (error) {
     console.error("DELETE MEMORIAL VIDEO ERROR:", error);
@@ -2394,7 +2398,8 @@ Hershey Foods Corporation`}
     </p>
   </div>
 
-  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+ <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+
 </FormSection>
 
       <FormSection
@@ -2681,97 +2686,26 @@ const remaining = Math.max(limit - total, 0);
                         )}
                       </div>
 
-                      {existingVideos.length > 0 && (
-  <div className="mt-6 grid gap-6 md:grid-cols-2">
-    {existingVideos
-  .filter(Boolean)
-  .filter((videoId) => videoId.length > 15)
-  .map((videoId, index) => (
-      <div
-  key={`${videoId}-${index}`}
-  className="rounded-2xl border border-stone-200 bg-stone-50 p-4"
->
-  <div className="mb-3 flex items-center justify-between gap-3">
-    <p className="text-sm font-semibold text-stone-800">
-      Video {index + 1}
-    </p>
+                     <ExistingVideoList
+  existingVideos={existingVideos}
+  videoNotes={videoNotes}
+  previewVideoId={previewVideoId}
+  onPreviewVideo={setPreviewVideoId}
+  onVideoNoteChange={(index, note) => {
+    const updated = [...videoNotes];
+    updated[index] = note;
+    setVideoNotes(updated);
+  }}
+  onMoveVideo={handleMoveExistingVideo}
+  onRemoveVideo={(videoId) => {
+  
+  handleRemoveExistingVideo(videoId);
+}}
+/>
 
-    <div className="flex flex-wrap justify-end gap-2">
-  <button
-    type="button"
-    onClick={() => handleMoveExistingVideo(index, "up")}
-    disabled={index === 0}
-    className="rounded-full border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
-  >
-    ↑ Up
-  </button>
-
-  <button
-    type="button"
-    onClick={() => handleMoveExistingVideo(index, "down")}
-    disabled={index === existingVideos.length - 1}
-    className="rounded-full border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
-  >
-    ↓ Down
-  </button>
-
-  <button
-    type="button"
-    onClick={() => handleRemoveExistingVideo(videoId)}
-    className="rounded-full border border-red-300 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
-  >
-    Delete Video
-  </button>
-</div>
-  </div>
-
-  {previewVideoId === videoId ? (
-    <MuxPlayer
-      playbackId={videoId}
-      streamType="on-demand"
-      className="aspect-video w-full rounded-xl bg-black"
-    />
-  ) : (
-    <button
-      type="button"
-      onClick={() => setPreviewVideoId(videoId)}
-      className="w-full overflow-hidden rounded-xl border border-stone-300 text-left"
-    >
-      <img
-        src={`https://image.mux.com/${videoId}/thumbnail.jpg?time=1`}
-        alt={`Video ${index + 1}`}
-        className="aspect-video w-full object-cover"
-      />
-
-      <div className="bg-stone-100 px-4 py-3 text-center text-sm font-semibold text-stone-700 hover:bg-stone-200">
-        ▶ Click to Preview Video
-      </div>
-    </button>
-  )}
-
-  <input
-    type="text"
-    placeholder="Video caption or memory..."
-    value={videoNotes[index] || ""}
-    onChange={(e) => {
-      const updated = [...videoNotes];
-      updated[index] = e.target.value;
-      setVideoNotes(updated);
-    }}
-    className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
-  />
-
-  <p className="mt-2 text-xs text-stone-500">
-    Preview only loads when clicked to keep this edit page fast.
-  </p>
-</div>
-    ))}
-  </div>
-)}
                             
-                    </div>
-
                     <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+                    </div>
                   </FormSection>   
 
                   <FormSection

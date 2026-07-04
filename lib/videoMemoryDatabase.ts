@@ -18,7 +18,8 @@ export async function deleteMemorialVideo(
     .from("memorial_videos")
     .delete()
     .eq("memorial_id", memorialId)
-    .eq("playback_id", playbackId);
+    .eq("playback_id", playbackId)
+    .select();
 }
 
 export async function updateMemorialVideoOrder(
