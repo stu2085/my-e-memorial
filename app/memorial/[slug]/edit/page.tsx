@@ -1,5 +1,19 @@
 "use client";
 
+import {
+  reorderVideoMemoryState,
+  removeVideoMemoryState,
+} from "../../../../lib/videoMemoryState";
+import {
+  loadMemorialVideos,
+  deleteMemorialVideo,
+  updateMemorialVideoOrder,
+  insertMemorialVideos,
+  buildMemorialVideoRows,
+  updateMemorialVideoNotes,
+} from "../../../../lib/videoMemoryDatabase";
+import { uploadVideoMemories } from "../../../../lib/videoMemoryUpload";
+import { getVideoDuration } from "../../../../lib/videoMemoryUtils";
 import { optimizeImage } from "../../../lib/optimizeImage";
 import MuxPlayer from "@mux/mux-player-react";
 import Link from "next/link";
@@ -245,6 +259,7 @@ const galleryDragSensors = useSensors(
   const [existingVideos, setExistingVideos] = useState<string[]>([]);
   const [videoNotes, setVideoNotes] = useState<string[]>([]);
   const [existingVideoDurations, setExistingVideoDurations] = useState<number[]>([]);
+  const [selectedVideoDurations, setSelectedVideoDurations] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 const [previewVideoId, setPreviewVideoId] = useState<string | null>(null);
@@ -446,33 +461,7 @@ async function handleBackupLogin() {
       setMapSearchStatus("Could not search that location.");
     }
   }
-function getVideoDuration(file: File): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const video = document.createElement("video");
-    const url = URL.createObjectURL(file);
 
-    video.preload = "metadata";
-
-    video.onloadedmetadata = () => {
-      URL.revokeObjectURL(url);
-
-      if (!Number.isFinite(video.duration) || video.duration <= 0) {
-        reject(new Error("Could not read video duration"));
-        return;
-      }
-
-      resolve(video.duration);
-    };
-
-    video.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Could not read video duration"));
-    };
-
-    video.src = url;
-    video.load();
-  });
-}
   async function handleVideoChange(e: ChangeEvent<HTMLInputElement>) {
   setVideoError("");
 
@@ -565,32 +554,29 @@ if (totalVideoSeconds > maxVideoMinutes * 60) {
 
   
 async function handleMoveExistingVideo(index: number, direction: "up" | "down") {
-  const targetIndex = direction === "up" ? index - 1 : index + 1;
+  if (!memorialId) return;
 
-  if (targetIndex < 0 || targetIndex >= existingVideos.length) return;
+  const state = reorderVideoMemoryState(
+    existingVideos,
+    videoNotes,
+    index,
+    direction
+  );
 
-  const reorderedVideos = [...existingVideos];
-  const reorderedNotes = [...videoNotes];
+  if (!state.changed) return;
 
-  [reorderedVideos[index], reorderedVideos[targetIndex]] = [
-    reorderedVideos[targetIndex],
-    reorderedVideos[index],
-  ];
-
-  [reorderedNotes[index], reorderedNotes[targetIndex]] = [
-    reorderedNotes[targetIndex],
-    reorderedNotes[index],
-  ];
+  const reorderedVideos = state.existingVideos;
+  const reorderedNotes = state.videoNotes;
 
   setExistingVideos(reorderedVideos);
   setVideoNotes(reorderedNotes);
 
   for (let i = 0; i < reorderedVideos.length; i++) {
-    const { error } = await supabase
-      .from("memorial_videos")
-      .update({ sort_order: i })
-      .eq("memorial_id", memorialId)
-      .eq("playback_id", reorderedVideos[i]);
+    const { error } = await updateMemorialVideoOrder(
+      memorialId,
+      reorderedVideos[i],
+      i
+    );
 
     if (error) {
       console.error("UPDATE VIDEO SORT ORDER ERROR:", error);
@@ -602,17 +588,14 @@ async function handleMoveExistingVideo(index: number, direction: "up" | "down") 
   async function handleRemoveExistingVideo(videoIdToRemove: string) {
   if (!memorialId) return;
 
-  const confirmed = window.confirm(
-    "Delete this video from the memorial?"
-  );
+  const confirmed = window.confirm("Delete this video from the memorial?");
 
   if (!confirmed) return;
 
-  const { error } = await supabase
-    .from("memorial_videos")
-    .delete()
-    .eq("memorial_id", memorialId)
-    .eq("playback_id", videoIdToRemove);
+  const { error } = await deleteMemorialVideo(
+    memorialId,
+    videoIdToRemove
+  );
 
   if (error) {
     console.error("DELETE MEMORIAL VIDEO ERROR:", error);
@@ -620,17 +603,18 @@ async function handleMoveExistingVideo(index: number, direction: "up" | "down") 
     return;
   }
 
-  setExistingVideos((prev) =>
-    prev.filter((videoId) => videoId !== videoIdToRemove)
+  const state = removeVideoMemoryState(
+    existingVideos,
+    videoNotes,
+    videoIdToRemove
   );
 
-  setVideoNotes((prev) =>
-    prev.filter((_, index) => existingVideos[index] !== videoIdToRemove)
-  );
+  setExistingVideos(state.existingVideos);
+  setVideoNotes(state.videoNotes);
 }
 
-  useEffect(() => {
-    async function loadMemorial() {
+useEffect(() => {
+  async function loadMemorial() {
       if (!slug) {
         setIsLoading(false);
         setErrorMessage("Missing memorial slug.");
@@ -736,13 +720,8 @@ videoLinkNotes: Array.isArray(data.video_link_notes) ? data.video_link_notes : [
 
 });
 
-const { data: videosData, error: videosError } = await supabase
-  .from("memorial_videos")
-  .select(
-    "id, memorial_id, playback_id, duration_seconds, note, sort_order, original_filename, file_size, processing_status, created_at"
-  )
-  .eq("memorial_id", data.id)
-  .order("sort_order", { ascending: true });
+const { data: videosData, error: videosError } =
+  await loadMemorialVideos(data.id);
 
 if (videosError) {
   console.error("LOAD MEMORIAL VIDEOS ERROR:", videosError);
@@ -781,103 +760,8 @@ setIsLoading(false);
 
       
 
-  async function uploadVideos(): Promise<
-  {
-  playbackId: string;
-  durationSeconds: number;
-  note: string;
-  originalFilename: string;
-  fileSize: number;
-}[]
-> {
-    if (videoFiles.length === 0) return [];
-
-    const uploadedVideos: {
-  playbackId: string;
-  durationSeconds: number;
-  note: string;
-  originalFilename: string;
-  fileSize: number;
-}[] = [];
-
-    for (const file of videoFiles) {
-      try {
-       if (file.size > MAX_VIDEO_SIZE_BYTES) {
-  throw new Error(
-    `"${file.name}" is too large. Maximum video size is 1 GB.`
-  );
-} 
-        const uploadRes = await fetch("/api/mux-upload", {
-          method: "POST",
-        });
-
-        if (!uploadRes.ok) {
-          const errorText = await uploadRes.text();
-          console.error("MUX UPLOAD API ERROR:", errorText);
-          throw new Error("Could not create Mux upload URL.");
-        }
-
-        const uploadText = await uploadRes.text();
-        if (!uploadText) {
-          throw new Error("Mux upload API returned empty response.");
-        }
-
-        const { uploadUrl, uploadId } = JSON.parse(uploadText);
-
-        const muxRes = await fetch(uploadUrl, {
-          method: "PUT",
-          headers: {
-            "Content-Type": file.type || "application/octet-stream",
-          },
-          body: file,
-        });
-
-        if (!muxRes.ok) {
-          throw new Error(`Mux upload failed for ${file.name}`);
-        }
-
-        let playbackId = "";
-
-        for (let attempt = 0; attempt < 10; attempt++) {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-
-          const playbackRes = await fetch("/api/mux-playback", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ uploadId }),
-          });
-
-          const playbackData = await playbackRes.json();
-
-          if (playbackData.playbackId) {
-            playbackId = playbackData.playbackId;
-            break;
-          }
-        }
-
-        if (!playbackId) {
-          continue;
-        }
-
-        const duration = await getVideoDuration(file);
-
-uploadedVideos.push({
-  playbackId,
-  durationSeconds: Math.round(duration),
-  note: videoNotes[videoFiles.indexOf(file)] || "",
-  originalFilename: file.name,
-  fileSize: file.size,
-});
-      } catch (err) {
-        console.error("VIDEO UPLOAD ERROR:", err);
-        setVideoError("One or more videos failed to upload.");
-      }
-    }
-
-    return uploadedVideos;
-  }
+  
+  
 async function loadSubmissions(currentMemorialId: number) {
   const { data, error } = await supabase
     .from("memorial_submissions")
@@ -1218,20 +1102,14 @@ if (!res.ok) {
 if (newPlaybackIds.length > 0) {
   const startingSortOrder = existingVideos.length;
 
-  const newVideoRows = newPlaybackIds.map((video, index) => ({
-    memorial_id: memorialId,
-    playback_id: video.playbackId,
-    duration_seconds: video.durationSeconds,
-    note: video.note,
-    sort_order: startingSortOrder + index,
-    original_filename: video.originalFilename ?? null,
-    file_size: video.fileSize ?? null,
-    processing_status: "ready",
-  }));
+  const newVideoRows = buildMemorialVideoRows(
+  memorialId,
+  newPlaybackIds,
+  startingSortOrder
+);
 
-  const { error: insertVideoError } = await supabase
-    .from("memorial_videos")
-    .insert(newVideoRows);
+  const { error: insertVideoError } =
+  await insertMemorialVideos(newVideoRows);
 
   if (insertVideoError) {
     console.error("INSERT MEMORIAL VIDEOS ERROR:", insertVideoError);
@@ -1246,18 +1124,17 @@ const existingVideoUpdates = existingVideos.map((playbackId, index) => ({
   note: videoNotes[index] || "",
 }));
 
-for (const video of existingVideoUpdates) {
-  const { error: updateVideoError } = await supabase
-    .from("memorial_videos")
-    .update({
-      note: video.note,
-    })
-    .eq("memorial_id", memorialId)
-    .eq("playback_id", video.playback_id);
+const { error: updateVideoError } =
+  await updateMemorialVideoNotes(
+    memorialId,
+    existingVideoUpdates
+  );
 
-  if (updateVideoError) {
-    console.error("UPDATE MEMORIAL VIDEO NOTE ERROR:", updateVideoError);
-  }
+if (updateVideoError) {
+  console.error(
+    "UPDATE MEMORIAL VIDEO NOTE ERROR:",
+    updateVideoError
+  );
 }
       setForm((prev) => {
   const savedSongs = [
@@ -1293,6 +1170,7 @@ for (const video of existingVideoUpdates) {
       setGalleryInputResetKey((prev) => prev + 1);
       setNewspaperArticleFiles([]);
       setVideoFiles([]);
+      setSelectedVideoDurations([]);
 
       setSuccessMessage(
   videoFiles.length > 0
@@ -1401,6 +1279,14 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
     console.error(err);
     alert("Error starting upgrade checkout.");
   }
+}
+async function uploadVideos() {
+  return uploadVideoMemories({
+    videoFiles,
+    videoNotes,
+    maxVideoSizeBytes: MAX_VIDEO_SIZE_BYTES,
+    onError: setVideoError,
+  });
 }
   const displayName =
   [form.firstName, form.middleName, form.lastName]
@@ -2719,16 +2605,24 @@ Hershey Foods Corporation`}
 )}
                         <div className="mt-2 text-sm text-stone-600">
   {(() => {
-    const limit =
-      (form.plan === "premium" ? 60 : form.plan === "plus" ? 30 : 15) +
-paidExtraVideos;
+    
 
-    const current = existingVideoDurations.reduce(
-  (sum, seconds) => sum + seconds,
-  0
-) / 60;
+const limit =
+  (form.plan === "premium" ? 60 : form.plan === "plus" ? 30 : 15) +
+  paidExtraVideos;
 
-const selected = 0;
+const current =
+  existingVideoDurations.reduce(
+    (sum, seconds) => sum + Number(seconds || 0),
+    0
+  ) / 60;
+
+const selected =
+  selectedVideoDurations.reduce(
+    (sum, seconds) => sum + Number(seconds || 0),
+    0
+  ) / 60;
+
 const total = current + selected;
 const remaining = Math.max(limit - total, 0);
 
