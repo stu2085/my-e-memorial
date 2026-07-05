@@ -769,18 +769,43 @@ if (submissionPhotos.length > 0) {
   setUploadingPhotos(true);
 
   for (const photo of submissionPhotos) {
-    const fileExt = photo.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(2)}.${fileExt}`;
+  let optimizedPhoto: File;
 
-    const filePath = `submission-photos/${fileName}`;
+  try {
+    optimizedPhoto = await optimizeImage(photo);
+  } catch (err) {
+    console.error("PHOTO OPTIMIZATION FAILED", err);
 
-   const optimizedPhoto = await optimizeImage(photo);
+    alert(
+      err instanceof Error
+        ? err.message
+        : `"${photo.name}" could not be processed. Please try another photo.`
+    );
+
+    setUploadingPhotos(false);
+    return;
+  }
+
+  if (optimizedPhoto.type !== "image/jpeg") {
+    alert(
+      `"${photo.name}" could not be converted to JPG. Please try saving it as a JPG or PNG and upload it again.`
+    );
+
+    setUploadingPhotos(false);
+    return;
+  }
+
+const fileName = `${Date.now()}-${Math.random()
+  .toString(36)
+  .substring(2)}.jpg`;
+
+const filePath = `submission-photos/${fileName}`;
 
 const { error: uploadError } = await supabase.storage
   .from("memorial-media")
-  .upload(filePath, optimizedPhoto);
+  .upload(filePath, optimizedPhoto, {
+    contentType: "image/jpeg",
+  });
 
     if (uploadError) {
       console.error(uploadError);

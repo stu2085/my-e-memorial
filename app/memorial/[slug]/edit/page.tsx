@@ -1,5 +1,27 @@
 "use client";
 
+import EditActionButtons from "../../../components/EditActionButtons";
+import SubmissionPhotoViewerModal from "../../../components/SubmissionPhotoViewerModal";
+import SchoolsAndAwardsSection from "../../../components/SchoolsAndAwardsSection";
+import PlacesWorkedSection from "../../../components/PlacesWorkedSection";
+import PlacesLivedSection from "../../../components/PlacesLivedSection";
+import VisitorContributionsSection from "../../../components/VisitorContributionsSection";
+import PlanSection from "../../../components/PlanSection";
+import NewspaperArticlesSection from "../../../components/NewspaperArticlesSection";
+import HeadstonePhotosSection from "../../../components/HeadstonePhotosSection";
+import FinalRestingPlaceSection from "../../../components/FinalRestingPlaceSection";
+import BackupPersonSection from "../../../components/BackupPersonSection";
+
+import LifeStorySection from "../../../components/LifeStorySection";
+import ObituarySection from "../../../components/ObituarySection";
+import BasicInformationSection from "../../../components/BasicInformationSection";
+
+import FamilyHistorySection from "../../../components/FamilyHistorySection";
+import FavoriteSongsSection from "../../../components/FavoriteSongsSection";
+import GallerySection from "../../../components/GallerySection";
+
+import VideoMemoriesEditor from "../../../components/VideoMemoriesEditor";
+import VideoUploadSection from "../../../components/VideoUploadSection";
 import {
   reorderVideoMemoryState,
   removeVideoMemoryState,
@@ -15,9 +37,9 @@ import {
 } from "../../../../lib/videoMemoryDatabase";
 import { uploadVideoMemories } from "../../../../lib/videoMemoryUpload";
 import { getVideoDuration } from "../../../../lib/videoMemoryUtils";
-import ExistingVideoList from "../../../components/ExistingVideoList";
+
 import { optimizeImage } from "../../../lib/optimizeImage";
-import MuxPlayer from "@mux/mux-player-react";
+
 import Link from "next/link";
 import { useEffect, useState, ChangeEvent, FormEvent, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
@@ -28,17 +50,12 @@ import {
   closestCenter,
   PointerSensor,
   TouchSensor,
+
   useSensor,
   useSensors,
   DragEndEvent,
 } from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  rectSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+
 const PLAN_PRICES = {
   basic: 4995,
   plus: 6995,
@@ -1292,11 +1309,45 @@ async function uploadVideos() {
     onError: setVideoError,
   });
 }
+async function handlePublishMemorial() {
+  if (!memorialId) return;
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    alert("You must be logged in to publish this memorial.");
+    return;
+  }
+
+  const res = await fetch("/api/memorials/publish", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({
+      memorialId,
+    }),
+  });
+
+  const result = await res.json();
+
+  if (!res.ok) {
+    alert(result.error || "Error publishing memorial.");
+    return;
+  }
+
+  alert("Memorial published successfully.");
+  window.location.reload();
+}
   const displayName =
   [form.firstName, form.middleName, form.lastName]
     .filter(Boolean)
     .join(" ")
     .trim() || "Unnamed Memorial";
+
 
  return (
   <main className="min-h-screen bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100 px-4 py-8 md:px-6 md:py-10 lg:px-8">
@@ -1445,1688 +1496,179 @@ async function uploadVideos() {
 
                 <form id="edit-memorial-form" onSubmit={handleSubmit} className="space-y-8">
                   
-                  <FormSection
-  
-  title="Plan"
-  description="View the current plan or upgrade this memorial."
->
-  <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-    <p className="text-sm text-stone-600">Current Plan</p>
-    <p className="text-lg font-semibold text-stone-900 capitalize">
-      {form.plan}
-    </p>
-
-    {form.plan === "basic" && (
-      <div className="mt-4 flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={() => handleUpgradePlan("plus")}
-          className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
-        >
-          Upgrade to Plus — $20.00
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleUpgradePlan("premium")}
-          className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
-        >
-          Upgrade to Premium — $40.00
-        </button>
-      </div>
-    )}
-
-    {form.plan === "plus" && (
-      <div className="mt-4">
-        <button
-          type="button"
-          onClick={() => handleUpgradePlan("premium")}
-          className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
-        >
-          Upgrade to Premium — $20.00
-        </button>
-      </div>
-    )}
-
-    {form.plan === "premium" && (
-      <p className="mt-3 text-sm text-green-700">
-        This memorial already has the highest plan.
-      </p>
-    )}
-  </div>
-</FormSection>
-<FormSection
-  title="Visitor Contributions"
-  description="Review memories, stories, corrections, or information submitted by visitors."
->
-  {submissionsMessage && (
-    <div className="mb-4 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-700">
-      {submissionsMessage}
-    </div>
-  )}
-
-  {submissions.length === 0 ? (
-    <p className="text-sm text-stone-500">
-      No visitor contributions have been submitted yet.
-    </p>
-  ) : (
-    <div className="space-y-4">
-      {submissions.map((submission) => (
-        <div
-          key={submission.id}
-          className="rounded-2xl border border-stone-200 bg-white p-4"
-        >
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-stone-900">
-                {submission.submitter_name || "Anonymous visitor"}
-              </p>
-
-              {submission.submitter_email && (
-                <p className="text-xs text-stone-500">
-                  {submission.submitter_email}
-                </p>
-              )}
-
-              <p className="mt-1 text-xs text-stone-500">
-                Status: {submission.status}
-              </p>
-            </div>
-
-            {submission.created_at && (
-              <p className="text-xs text-stone-400">
-                {new Date(submission.created_at).toLocaleString()}
-              </p>
-            )}
-          </div>
-
-          <p className="mt-4 whitespace-pre-line text-sm leading-6 text-stone-700">
-            {submission.message}
-          </p>
-{(() => {
-  if (submission.status !== "pending") return null;
-
-  let submittedPhotos: string[] = [];
-
-  if (Array.isArray(submission.photo_urls)) {
-    submittedPhotos = submission.photo_urls;
-  } else if (typeof submission.photo_urls === "string") {
-    try {
-      submittedPhotos = JSON.parse(submission.photo_urls);
-    } catch {
-      submittedPhotos = [];
-    }
-  }
-
-  submittedPhotos = submittedPhotos.filter(Boolean);
-
-  if (submittedPhotos.length === 0) return null;
-
-  return (
-  <div className="mt-4">
-    <p className="mb-3 text-sm font-semibold text-stone-800">
-      Submitted Photos
-    </p>
-
-    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
-      {submittedPhotos.map((photoUrl, index) => (
-        <button
-  key={`${photoUrl}-${index}`}
-  type="button"
-  onClick={() =>
-    setSubmissionPhotoViewer({
-      photos: submittedPhotos,
-      index,
-    })
-  }
-  className="block overflow-hidden rounded-xl border border-stone-200 bg-stone-50 text-left"
->
-  <img
-    src={photoUrl}
-    alt={`Submitted photo ${index + 1}`}
-    className="h-20 w-full object-cover transition hover:scale-105"
-  />
-</button>
-      ))}
-    </div>
-  </div>
-);
-})()}
-{(() => {
-  let submittedVideos: string[] = [];
-
-  if (Array.isArray(submission.video_urls)) {
-    submittedVideos = submission.video_urls;
-  } else if (typeof submission.video_urls === "string") {
-    try {
-      submittedVideos = JSON.parse(submission.video_urls);
-    } catch {
-      submittedVideos = submission.video_urls
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
-    }
-  }
-
-  submittedVideos = submittedVideos
-  .filter(Boolean)
-  .filter((videoId) => videoId.length > 15);
-
-  if (submittedVideos.length === 0) return null;
-
-  return (
-    <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-      {submittedVideos.map((playbackId, index) => (
-        <div
-          key={`${playbackId}-${index}`}
-          className="overflow-hidden rounded-2xl border border-stone-200 bg-stone-50 p-4"
-        >
-          <p className="mb-3 text-sm font-semibold text-stone-800">
-            Submitted Video {index + 1}
-          </p>
-
-          <MuxPlayer
-            playbackId={playbackId}
-            streamType="on-demand"
-            className="aspect-video w-full rounded-xl bg-black"
-          />
-        </div>
-      ))}
-    </div>
-  );
-})()}
-          {submission.status === "pending" && (() => {
- const baseLimitMinutes =
-  form.plan === "premium"
-    ? 60
-    : form.plan === "plus"
-      ? 30
-      : 15;
-
-const effectiveLimitMinutes =
-  baseLimitMinutes + Number(form.extraVideoMinutes || 0);
-
-const existingVideoSeconds = existingVideoDurations.reduce(
-  (total, seconds) => total + Number(seconds || 0),
-  0
-);
-
-const submissionVideos = (() => {
-  if (Array.isArray(submission.video_urls)) {
-    return submission.video_urls.filter(Boolean);
-  }
-
-  if (typeof submission.video_urls === "string") {
-    try {
-      return JSON.parse(submission.video_urls).filter(Boolean);
-    } catch {
-      return submission.video_urls
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
-    }
-  }
-
-  return [];
-})();
-
-const contributorVideoSeconds =
-  submissionVideos.length * 5 * 60;
-
-const projectedTotalSeconds =
-  existingVideoSeconds + contributorVideoSeconds;
-
-const projectedTotalMinutes =
-  Math.ceil(projectedTotalSeconds / 60);
-
-const needsExtraVideoPurchase =
-  projectedTotalMinutes > effectiveLimitMinutes;
-
-  return (
-    <div className="mt-4 flex flex-wrap gap-2">
-
-      {!needsExtraVideoPurchase ? (
-        <button
-          type="button"
-          onClick={() =>
-            handleSubmissionStatus(
-              submission.id,
-              "approved"
-            )
-          }
-          className="rounded-full bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-700"
-        >
-          Approve
-        </button>
-      ) : (
-        <button
-          type="button"
-          onClick={() =>
-  handleBuyExtraVideos(
-  Math.ceil((projectedTotalMinutes - effectiveLimitMinutes) / 10),
-  submission.id
-)
-}
-          className="rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-stone-900 hover:bg-amber-400"
-        >
-          Approve With 10-Minute Video Memory Pack — $9.95
-        </button>
-      )}
-
-      <button
-        type="button"
-        onClick={() =>
-          handleSubmissionStatus(
-            submission.id,
-            "rejected"
-          )
-        }
-        className="rounded-full border border-red-300 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
-      >
-        Reject
-      </button>
-    </div>
-  );
-})()}
-        </div>
-      ))}
-    </div>
-  )}
-</FormSection>
+                 <PlanSection
+  plan={form.plan}
+  handleUpgradePlan={handleUpgradePlan}
+/>
+<VisitorContributionsSection
+  submissionsMessage={submissionsMessage}
+  submissions={submissions}
+  form={form}
+  existingVideoDurations={existingVideoDurations}
+  setSubmissionPhotoViewer={setSubmissionPhotoViewer}
+  handleSubmissionStatus={handleSubmissionStatus}
+  handleBuyExtraVideos={handleBuyExtraVideos}
+/>
 {form.isLivingPreplan && (
-<FormSection
-  title="Backup Person"
-  description="Assign a trusted person who can manage and publish this memorial."
->
-  <div className="grid gap-5 md:grid-cols-2">
-    <Input
-  label="Backup Person Name"
-  name="backupPersonName"
-  value={form.backupPersonName}
-  onChange={handleChange}
+<BackupPersonSection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSaving}
+  isPublished={isPublished}
 />
-    <Input
-      label="Backup Email"
-      name="backupEmail"
-      value={form.backupEmail}
-      onChange={handleChange}
-    />
-
-    <Input
-      label="Backup Password"
-      name="backupPassword"
-      value={form.backupPassword}
-      onChange={handleChange}
-    />
-  </div>
-
-  <p className="mt-3 text-sm text-stone-500">
-    This person will be able to edit and publish this memorial if needed.
-  </p>
-  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-</FormSection>
 )}
-<CompactFormSection
-  title={form.firstName ? `${form.firstName}'s Favorite Songs` : "Favorite Songs"}
-  description="Add up to 5 favorite songs and a short note about each one.  Tip: Record song on phone using Quickvoice or similar app and upload that file."
->
-                    <div className="space-y-3">
-                      <Input
-                        label="Favorite Song URL"
-                        name="favoriteSongUrl"
-                        value={form.favoriteSongUrl}
-                        onChange={handleChange}
-                      />
-
-                      <div>
-                        <label className="mb-2 block text-sm font-medium text-stone-700">
-                          Upload Music File
-                        </label>
-<p className="mb-2 text-xs text-stone-500">
-  Upload MP3, M4A, AAC, or WAV audio files. Most phone recordings are supported.
-</p>
-                        {(form.favoriteSongUrls?.length > 0 || form.favoriteSongUrl) && (
-  <div className="mb-4 space-y-3">
-    {(form.favoriteSongUrls?.length > 0
-      ? form.favoriteSongUrls
-      : [form.favoriteSongUrl]
-    ).map((song, index) => (
-      <div
-        key={`${song}-${index}`}
-        className="rounded-xl border border-stone-200 bg-white p-2"
-      >
-        <div className="mb-1 flex items-center justify-between gap-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-stone-600">
-            Song {index + 1}
-          </p>
-
-          <button
-            type="button"
-           onClick={() => {
-  setForm((prev) => {
-    const currentSongs =
-      prev.favoriteSongUrls?.length > 0
-        ? prev.favoriteSongUrls
-        : prev.favoriteSongUrl
-          ? [prev.favoriteSongUrl]
-          : [];
-
-    const nextSongs = currentSongs.filter((_, i) => i !== index);
-
-    const nextNotes = (prev.favoriteSongNotes ?? []).filter(
-      (_, i) => i !== index
-    );
-
-    return {
-      ...prev,
-      favoriteSongUrl: nextSongs[0] ?? "",
-      favoriteSongUrls: nextSongs,
-      favoriteSongNotes: nextNotes,
-    };
-  });
-}}
-            className="rounded-full border border-red-300 px-2 py-0.5 text-[11px] font-semibold text-red-600 hover:bg-red-50"
-          >
-            Delete Song
-          </button>
-        </div>
-
-        <audio controls className="w-full">
-          <source src={song} />
-          Your browser does not support the audio element.
-        </audio>
-        <p className="mt-3 text-sm font-semibold text-stone-700">
-  Song Note
-</p>
-        <textarea
-  value={form.favoriteSongNotes?.[index] ?? ""}
-  onChange={(e) => {
-    const value = e.target.value;
-
-    setForm((prev) => {
-      const nextNotes = [...(prev.favoriteSongNotes ?? [])];
-      nextNotes[index] = value;
-
-      return {
-        ...prev,
-        favoriteSongNotes: nextNotes,
-      };
-    });
-  }}
-  rows={2}
-  placeholder="What was special about this song?"
- className="mt-2 block w-full rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-stone-900"
+<FavoriteSongsSection
+  firstName={form.firstName}
+  favoriteSongUrl={form.favoriteSongUrl}
+  favoriteSongUrls={form.favoriteSongUrls}
+  favoriteSongNotes={form.favoriteSongNotes}
+  isSaving={isSaving}
+  isPublished={isPublished}
+  handleChange={handleChange}
+  setForm={setForm}
+  setFavoriteSongFiles={setFavoriteSongFiles}
 />
-      </div>
-    ))}
-  </div>
-)}
-
-                       <input
-  type="file"
-  accept=".mp3,.m4a,.aac,.wav,audio/*"
-  multiple
-  onChange={(e) => {
-    const files = Array.from(e.target.files || []).slice(0, 5);
-    setFavoriteSongFiles(files);
-  }}
-  className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
-/>
-
-<p className="mt-2 text-xs text-stone-500">
-  <Link
-    href="/how-to-add-music"
-    target="_blank"
-    className="font-semibold text-stone-700 underline hover:text-stone-900"
-  >
-    Need help recording music from your phone?
-  </Link>
-</p>
-                        
-                      </div>
-                    </div>
-
-                    <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-                  </CompactFormSection>
 
                   
 
    
-<FormSection
-  title="Basic Information"
-  description="Core details about this person."
->
-  <div className="space-y-5">
-
-    <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-      <label className="block text-sm font-semibold text-stone-800">
-        Featured Memorial Photo
-      </label>
-
-      <p className="mt-1 text-xs text-stone-500">
-        This photo will appear at the top of the public memorial page.
-      </p>
-
-      {form.featuredPhotoUrl && (
-        <img
-          src={form.featuredPhotoUrl}
-          alt="Featured memorial photo"
-          className="mt-4 h-48 w-48 rounded-3xl object-cover shadow-sm"
-        />
-      )}
-
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) =>
-          setFeaturedPhotoFile(e.target.files?.[0] ?? null)
-        }
-        className="mt-4 w-full rounded-2xl border bg-white px-4 py-3"
-      />
-    </div>
-
-    <div className="grid gap-5 md:grid-cols-2">
-
-      <Input
-        label="First Name"
-        name="firstName"
-        value={form.firstName}
-        onChange={handleChange}
-      />
-
-      <Input
-        label="Middle Name"
-        name="middleName"
-        value={form.middleName}
-        onChange={handleChange}
-      />
-
-      <Input
-        label="Last Name"
-        name="lastName"
-        value={form.lastName}
-        onChange={handleChange}
-      />
-
-      <Input
-        label="Maiden Name"
-        name="maidenName"
-        value={form.maidenName}
-        onChange={handleChange}
-      />
-
-      <Input
-        label="Nickname"
-        name="nickname"
-        value={form.nickname}
-        onChange={handleChange}
-      />
-
-      <Input
-        label="Birth Date"
-        name="birthDate"
-        type="date"
-        value={form.birthDate}
-        onChange={handleChange}
-      />
-
-      <Input
-        label="Death Date"
-        name="deathDate"
-        type="date"
-        value={form.deathDate}
-        onChange={handleChange}
-      />
-
-    </div>
-  </div>
-
-  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-</FormSection>
+<BasicInformationSection
+  form={form}
+  handleChange={handleChange}
+  setFeaturedPhotoFile={setFeaturedPhotoFile}
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
                     
-<FormSection
-  title="Places Lived"
-  description="Cities, states, and countries associated with this person."
->
-  
-  <div>
-  <label className="mb-2 block text-sm font-semibold text-stone-800">
-    Places Lived
-  </label>
+<PlacesLivedSection
+  placesLived={form.placesLived}
+  handleChange={handleChange}
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
+<PlacesWorkedSection
+  placesWorked={form.placesWorked}
+  handleChange={handleChange}
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
+                 <SchoolsAndAwardsSection
+  schoolsAttended={form.schoolsAttended}
+  awardsWon={form.awardsWon}
+  handleChange={handleChange}
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
+                 
 
-  <textarea
-    name="placesLived"
-    value={form.placesLived}
-    onChange={handleChange}
-    rows={5}
-    placeholder={`Example:
-Lancaster, Pennsylvania
-Philadelphia, Pennsylvania
-Naples, Florida`}
-    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
-  />
-
-  <p className="mt-2 text-xs text-stone-500">
-    Enter one place per line.
-  </p>
-</div>
-  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-</FormSection>
-<FormSection
-  title="Places Worked"
-  description="Employers, occupations, or businesses associated with this person."
->
-  <div>
-    <label className="mb-2 block text-sm font-semibold text-stone-800">
-      Places Worked
-    </label>
-
-    <textarea
-      name="placesWorked"
-      value={form.placesWorked}
-      onChange={handleChange}
-      rows={5}
-      placeholder={`Example:
-Armstrong World Industries
-Stum's Repair Service
-Hershey Foods Corporation`}
-      className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
-    />
-
-    <p className="mt-2 text-xs text-stone-500">
-      Enter one employer, job, or workplace per line.
-    </p>
-  </div>
-
-  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-</FormSection>
-                  <FormSection
-                    title="Schools and Awards"
-                    description="Separate multiple items with commas."
-                  >
-                    <div className="space-y-5">
-                      <TextArea
-                        label="Schools Attended"
-                        name="schoolsAttended"
-                        value={form.schoolsAttended}
-                        onChange={handleChange}
-                        rows={3}
-                        helpText="Example: Lancaster Catholic, Penn State, Temple University"
-                      />
-                      <TextArea
-                        label="Awards Won"
-                        name="awardsWon"
-                        value={form.awardsWon}
-                        onChange={handleChange}
-                        rows={3}
-                        helpText="Example: Purple Heart, Eagle Scout, Teacher of the Year"
-                      />
-                    </div>
-                    <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-                  </FormSection>
-                  <FormSection
-  title="Social Media Links"
-  description="Add up to 5 social media pages for this memorial."
->
-  <div className="space-y-5">
-    <Input
-      label="Social Media Link 1"
-      name="socialLink1"
-      value={form.socialLink1}
-      onChange={handleChange}
-    />
-
-    <Input
-      label="Social Media Link 2"
-      name="socialLink2"
-      value={form.socialLink2}
-      onChange={handleChange}
-    />
-
-    <Input
-      label="Social Media Link 3"
-      name="socialLink3"
-      value={form.socialLink3}
-      onChange={handleChange}
-    />
-
-    <Input
-      label="Social Media Link 4"
-      name="socialLink4"
-      value={form.socialLink4}
-      onChange={handleChange}
-    />
-
-    <Input
-      label="Social Media Link 5"
-      name="socialLink5"
-      value={form.socialLink5}
-      onChange={handleChange}
-    />
-  </div>
-  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-</FormSection>
-                <FormSection
-  title="Life Story"
-  description="Tell the story of their life."
->
-  <TextArea
-    label="Life Story"
-    name="lifeStory"
-    value={form.lifeStory}
-    onChange={handleChange}
-    rows={8}
-  />
-  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-</FormSection>
-<FormSection
-  title="Family History"
-  description="Add family names for future generations and genealogy research."
->
-  <div className="space-y-5">
-    <TextArea
-      label="Great Grandparents Names"
-      name="greatGrandparentsNames"
-      value={form.greatGrandparentsNames}
-      onChange={handleChange}
-      rows={3}
-    />
-
-    <TextArea
-      label="Grandparents Names — Father’s Side"
-      name="grandparentsFatherSide"
-      value={form.grandparentsFatherSide}
-      onChange={handleChange}
-      rows={3}
-    />
-
-    <TextArea
-      label="Grandparents Names — Mother’s Side"
-      name="grandparentsMotherSide"
-      value={form.grandparentsMotherSide}
-      onChange={handleChange}
-      rows={3}
-    />
-
-    <TextArea
-      label="Parents Names"
-      name="parentsNames"
-      value={form.parentsNames}
-      onChange={handleChange}
-      rows={3}
-    />
-
-    <TextArea
-      label="Siblings Names"
-      name="siblingsNames"
-      value={form.siblingsNames}
-      onChange={handleChange}
-      rows={3}
-      placeholder={`Mother's siblings:\nFather's siblings:`}
-    />
-    <TextArea
-  label="Children's Names"
-  name="childrenNames"
-  value={form.childrenNames}
-  onChange={handleChange}
-  rows={3}
+<LifeStorySection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSaving}
+  isPublished={isPublished}
 />
 
-<TextArea
-  label="Grandchildren"
-  name="grandchildrenNames"
-  value={form.grandchildrenNames}
-  onChange={handleChange}
-  rows={3}
+<FamilyHistorySection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSaving}
+  isPublished={isPublished}
 />
- <TextArea
-  label="Great Grandchildren"
-  name="greatGrandchildrenNames"
-  value={form.greatGrandchildrenNames}
-  onChange={handleChange}
-  rows={3}
-/>
-  
-
-  </div>
-  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-</FormSection>
                   
-<FormSection
-  title="Gallery Photos"
-  description="Photos from life, family, and memories."
->
-  <input
-    type="hidden"
-    name="galleryPhotos"
-    value={form.galleryPhotos}
-    onChange={handleChange}
-  />
-
-  {splitGalleryPhotos(form.galleryPhotos).length > 0 ? (
-  <DndContext
-    sensors={galleryDragSensors}
-    collisionDetection={closestCenter}
-    onDragEnd={(event: DragEndEvent) => {
-      const { active, over } = event;
-
-      if (!over || active.id === over.id) return;
-
-      const photos = splitGalleryPhotos(form.galleryPhotos);
-
-      const oldIndex = photos.findIndex(
-        (_, index) => `gallery-${index}` === active.id
-      );
-
-      const newIndex = photos.findIndex(
-        (_, index) => `gallery-${index}` === over.id
-      );
-
-      if (oldIndex === -1 || newIndex === -1) return;
-
-      const reorderedPhotos = arrayMove(photos, oldIndex, newIndex);
-
-      const reorderedNotes = arrayMove(
-        form.galleryPhotoNotes ?? [],
-        oldIndex,
-        newIndex
-      );
-
-      setForm((prev) => ({
-        ...prev,
-        galleryPhotos: reorderedPhotos.join(","),
-        galleryPhotoNotes: reorderedNotes,
-      }));
-    }}
-  >
-    <SortableContext
-      items={splitGalleryPhotos(form.galleryPhotos).map(
-        (_, index) => `gallery-${index}`
-      )}
-      strategy={rectSortingStrategy}
-    >
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-  {splitGalleryPhotos(form.galleryPhotos).map((photo, index) => (
-    <SortableGalleryPhotoCard
-      key={`gallery-${index}`}
-      id={`gallery-${index}`}
-      photo={photo}
-      index={index}
-      note={form.galleryPhotoNotes?.[index] ?? ""}
-      onNoteChange={(photoIndex, value) => {
-        setForm((prev) => {
-          const nextNotes = [...(prev.galleryPhotoNotes ?? [])];
-          nextNotes[photoIndex] = value;
-
-          return {
-            ...prev,
-            galleryPhotoNotes: nextNotes,
-          };
-        });
-      }}
-      onDelete={(photoIndex) => {
-        if (!confirm("Delete this gallery photo?")) return;
-
-        setForm((prev) => {
-          const photos = splitGalleryPhotos(prev.galleryPhotos);
-          const notes = [...(prev.galleryPhotoNotes ?? [])];
-
-          photos.splice(photoIndex, 1);
-          notes.splice(photoIndex, 1);
-
-          return {
-            ...prev,
-            galleryPhotos: photos.join(","),
-            galleryPhotoNotes: notes,
-          };
-        });
-      }}
-    />
-  ))}
-</div>
-    </SortableContext>
-  </DndContext>
-) : (
-  <p className="text-sm text-stone-500">
-    No gallery photos uploaded yet.
-  </p>
-)}
-
-  <div className="mt-4">
-    <label className="text-sm font-medium text-stone-700">
-      Upload Gallery Photos
-    </label>
-    <input
-  key={`gallery-upload-${galleryInputResetKey}`}
-  type="file"
-  accept="image/*"
-  multiple
-  onChange={(e) => {
-    const files = Array.from(e.target.files ?? []);
-
-    const galleryPhotoLimit =
-      form.plan === "premium"
-        ? Infinity
-        : form.plan === "plus"
-        ? 150
-        : 50;
-
-    const existingGalleryPhotoCount =
-      splitGalleryPhotos(form.galleryPhotos).length;
-
-    const totalGalleryPhotoCount =
-      existingGalleryPhotoCount + files.length;
-
-    if (
-      Number.isFinite(galleryPhotoLimit) &&
-      totalGalleryPhotoCount > galleryPhotoLimit
-    ) {
-      alert(
-        `${form.plan === "plus" ? "Plus" : "Basic"} Memorial allows up to ${galleryPhotoLimit} gallery photos. This memorial already has ${existingGalleryPhotoCount}, and you selected ${files.length}.`
-      );
-
-      e.target.value = "";
-      setGalleryPhotoFiles([]);
-      return;
-    }
-
-    setGalleryPhotoFiles(files);
-  }}
-  className="w-full rounded-2xl border border-stone-300 px-4 py-3"
+<GallerySection
+  form={form}
+  setForm={setForm}
+  handleChange={handleChange}
+  splitGalleryPhotos={splitGalleryPhotos}
+  galleryDragSensors={galleryDragSensors}
+  galleryInputResetKey={galleryInputResetKey}
+  galleryPhotoFiles={galleryPhotoFiles}
+  setGalleryPhotoFiles={setGalleryPhotoFiles}
+  isSaving={isSaving}
+  isPublished={isPublished}
 />
 
-<p className="mt-2 text-sm text-stone-600">
-  {form.plan === "premium"
-    ? `${splitGalleryPhotos(form.galleryPhotos).length + galleryPhotoFiles.length} gallery photo${
-        splitGalleryPhotos(form.galleryPhotos).length + galleryPhotoFiles.length === 1 ? "" : "s"
-      } used. Premium allows unlimited photos.`
-    : `${splitGalleryPhotos(form.galleryPhotos).length + galleryPhotoFiles.length} of ${
-        form.plan === "plus" ? 150 : 50
-      } gallery photos used.`}
-</p>
-    </div>
-
-  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-</FormSection>
-
-<FormSection
-  title="Newspaper Articles"
-  description="Upload obituary clippings, newspaper articles, announcements, or other public records."
->
-  <input
-    type="hidden"
-    name="newspaperArticles"
-    value={form.newspaperArticles}
-    onChange={handleChange}
-  />
-
-  {splitGalleryPhotos(form.newspaperArticles).length > 0 ? (
-    <div className="space-y-3">
-      {splitGalleryPhotos(form.newspaperArticles).map((article, index) => (
-        <a
-          key={`${article}-${index}`}
-          href={article}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-50"
-        >
-          View Newspaper Article {index + 1}
-        </a>
-      ))}
-    </div>
-  ) : (
-    <p className="text-sm text-stone-500">
-      No newspaper articles uploaded yet.
-    </p>
-  )}
-
-  <div className="mt-4">
-    <label className="text-sm font-medium text-stone-700">
-      Upload Newspaper Articles
-    </label>
-    <input
-      type="file"
-      accept="image/*,.pdf"
-      multiple
-      onChange={(e) =>
-        setNewspaperArticleFiles(Array.from(e.target.files ?? []))
-      }
-      className="w-full rounded-2xl border border-stone-300 px-4 py-3"
-    />
-    <p className="mt-2 text-sm text-stone-500">
-      PDF or image files are supported.
-    </p>
-  </div>
-
- <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-
-</FormSection>
-
-      <FormSection
-                    title="Memorial Videos"
-                    description="Upload videos or add links to videos stored online."
-                  >
-                    <div className="space-y-5">
-                      <div>
-                        <label className="mb-2 block text-sm font-medium text-stone-700">
-                          Option 1 — Upload Videos
-                        </label>
-
-                        <p className="mb-3 text-sm text-stone-600">
-                          Leave a message, tell a life story, or share memories for loved ones and future generations.
-                        </p>
-                      <p className="mt-2 text-xs text-stone-500">
-  After selecting a video, click "Save Changes" to upload it. {isPublished
-  ? "Changes become public when you save."
-  : "Saving does not make your changes public."}
-</p>
-
-                        <input
-  
-  key={videoFiles.length}
-  type="file"
-  accept="video/*"
-  multiple
-  disabled={false}
-  onChange={handleVideoChange}
-  className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
-/>
-{videoFiles.length > 0 && (
-  <p className="mt-2 text-sm font-medium text-green-700">
-    {videoFiles.length} video
-    {videoFiles.length === 1 ? "" : "s"} selected and ready to upload.
-  </p>
-)}
-<div className="mt-6 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
-  <p className="text-sm font-semibold text-stone-700">
-    Option 2 — Add Video Links
-  </p>
-
-  <p className="mt-1 text-sm text-stone-600">
-    Paste links to videos stored on Facebook, Messenger, YouTube, Vimeo, OneDrive, Google Drive, or Dropbox.
-  </p>
-
- <div className="mt-4 space-y-3">
-  <input
-    type="text"
-    placeholder="Video URL"
-    value={newVideoLinkUrl}
-    onChange={(e) => setNewVideoLinkUrl(e.target.value)}
-    className="w-full rounded-xl border border-stone-300 px-4 py-3"
-  />
-
-  <input
-    type="text"
-    placeholder="Description or memory..."
-    value={newVideoLinkNote}
-    onChange={(e) => setNewVideoLinkNote(e.target.value)}
-    className="w-full rounded-xl border border-stone-300 px-4 py-3"
-  />
-
-  <button
-  type="button"
-  onClick={() => {
-    const trimmedUrl = newVideoLinkUrl.trim();
-    const trimmedNote = newVideoLinkNote.trim();
-
-    if (!trimmedUrl) {
-      alert("Please enter a video link.");
-      return;
-    }
-
-    setForm((prev) => ({
-      ...prev,
-      videoLinkUrls: [...prev.videoLinkUrls, trimmedUrl],
-      videoLinkNotes: [...prev.videoLinkNotes, trimmedNote],
-    }));
-
-    setNewVideoLinkUrl("");
-    setNewVideoLinkNote("");
-  }}
-  className="rounded-xl bg-stone-900 px-4 py-3 text-sm font-semibold text-white"
->
-  Add Video Link
-</button>
-</div>
-{form.videoLinkUrls.length > 0 && (
-  <div className="mt-6 space-y-4">
-    {form.videoLinkUrls.map((url, index) => (
-      <div
-        key={index}
-        className="rounded-2xl border border-stone-200 bg-white p-4"
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-stone-800">
-              Linked Video {index + 1}
-            </p>
-
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 block break-all text-sm text-blue-600 underline"
-            >
-              {url}
-            </a>
-
-            {form.videoLinkNotes[index] && (
-              <p className="mt-2 text-sm text-stone-600">
-                {form.videoLinkNotes[index]}
-              </p>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              setForm((prev) => ({
-                ...prev,
-                videoLinkUrls: prev.videoLinkUrls.filter(
-                  (_, i) => i !== index
-                ),
-                videoLinkNotes: prev.videoLinkNotes.filter(
-                  (_, i) => i !== index
-                ),
-              }));
-            }}
-            className="rounded-full border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    ))}
-  </div>
-)}
-</div>
-{existingVideos.length >=
-  ((form.plan === "premium" ? 10 : 
-    form.plan === "plus" ? 5 : 2) + paidExtraVideos) && (
-  <div className="mt-3 flex items-center justify-between rounded-xl border border-stone-300 bg-stone-50 p-4">
-  <div className="flex items-center gap-3">
-    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-200">
-      🎥
-    </div>
-    <div>
-      <p className="text-sm font-semibold text-stone-800">
-  Need more room for Video Memories?
-</p>
-<p className="text-xs text-stone-600">
-  Add a 10-minute Video Memory Pack anytime for $9.95.
-</p>
-    </div>
-  </div>
-
-  
-</div>
-    )}
-{/* 🔒 Max reached message */}
-{existingVideos.length >=
-  ((form.plan === "premium" ? 10 : 
-    form.plan === "plus" ? 5 : 2) + paidExtraVideos) && (
-  <p className="mt-2 text-sm text-amber-600">
- You’ve reached your current video limit. Save your memorial first. After saving, you may purchase additional video minutes and then upload more videos.
-  </p>
-)}
-{existingVideos.length > 0 &&
-  existingVideos.length >=
-  ((form.plan === "premium" ? 10 : 
-    form.plan === "plus" ? 5 : 2) + paidExtraVideos) && (
-  <div className="mt-3 flex flex-wrap gap-2">
-    <button
-      type="button"
-      onClick={() => handleBuyExtraVideos(1)}
-      className="rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-amber-400"
-    >
-      Buy 1 — $9.95
-    </button>
-
-    <button
-      type="button"
-      onClick={() => handleBuyExtraVideos(3)}
-      className="rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-amber-400"
-    >
-      Buy 3 — $29.85
-    </button>
-
-    <button
-      type="button"
-      onClick={() => handleBuyExtraVideos(5)}
-      className="rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-stone-900 hover:bg-amber-400"
-    >
-      Buy 5 — $49.75
-    </button>
-  </div>
-)}
-{/* 🔴 Error message */}
-{/* 🔴 Error / extra video message */}
-{videoError && (
-  <div className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-3">
-    <p className="text-sm text-red-700">{videoError}</p>
-
-    
-  </div>
-)}
-                        <div className="mt-2 text-sm text-stone-600">
-  {(() => {
-    
-
-const limit =
-  (form.plan === "premium" ? 60 : form.plan === "plus" ? 30 : 15) +
-  paidExtraVideos;
-
-const current =
-  existingVideoDurations.reduce(
-    (sum, seconds) => sum + Number(seconds || 0),
-    0
-  ) / 60;
-
-const selected =
-  selectedVideoDurations.reduce(
-    (sum, seconds) => sum + Number(seconds || 0),
-    0
-  ) / 60;
-
-const total = current + selected;
-const remaining = Math.max(limit - total, 0);
-
-    return (
-      <div>
-        <div
-          className={`mt-2 text-sm ${
-            total > limit ? "text-red-600" : "text-stone-600"
-          }`}
-       >
-  Video Memories: {current.toFixed(1)} minutes
-  {selected > 0 &&
-    ` + ${selected.toFixed(1)} minutes selected`}
-  {" = "}
-  {total.toFixed(1)} / {limit} minutes
-</div>
-
-        {paidExtraVideos > 0 && (
-  <p className="mt-1 text-sm text-green-700">
-    You have purchased {paidExtraVideos} extra Video Memory minute{paidExtraVideos === 1 ? "" : "s"}.
-  </p>
-)}
-<div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-  <p className="text-sm font-semibold text-stone-900">
-    Need more Video Memory time?
-  </p>
-
-  <p className="mt-1 text-sm text-stone-700">
-    Purchase an additional 10 minutes for $9.95.
-  </p>
-
-  <button
-    type="button"
-    onClick={() => handleBuyExtraVideos(1)}
-    className="mt-3 rounded-full bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700"
-  >
-    Purchase 10 More Minutes
-  </button>
-</div>
-      </div>
-    );
-  })()}
-</div>
-    {/* existing content ABOVE stays */}
-
-   
-
-   
-
-                       <p className="mt-1 text-sm text-stone-500">
-  MP4 recommended. Basic includes 15 minutes of Video Memories, Plus includes 30 minutes, and Premium includes 60 minutes. Each individual video may be up to 5 minutes long.
-</p>
-
-                        {videoError && (
-                          <p className="mt-2 text-sm text-red-600">{videoError}</p>
-                        )}
-                      </div>
-
-                     <ExistingVideoList
-  existingVideos={existingVideos}
-  videoNotes={videoNotes}
-  previewVideoId={previewVideoId}
-  onPreviewVideo={setPreviewVideoId}
-  onVideoNoteChange={(index, note) => {
-    const updated = [...videoNotes];
-    updated[index] = note;
-    setVideoNotes(updated);
-  }}
-  onMoveVideo={handleMoveExistingVideo}
-  onRemoveVideo={(videoId) => {
-  
-  handleRemoveExistingVideo(videoId);
-}}
+<NewspaperArticlesSection
+  newspaperArticles={form.newspaperArticles}
+  handleChange={handleChange}
+  splitGalleryPhotos={splitGalleryPhotos}
+  setNewspaperArticleFiles={setNewspaperArticleFiles}
+  isSaving={isSaving}
+  isPublished={isPublished}
 />
 
-                            
-                    <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-                    </div>
-                  </FormSection>   
-
-                  <FormSection
- title="Obituary"
-description="Enter obituary text, upload an obituary image, or add a link to the original obituary."
->
-  <div className="space-y-6">
-    <div>
-      <p className="mb-2 text-sm font-semibold text-stone-700">
-        Option 1 — Enter Obituary Text
-      </p>
-
-      <TextArea
-        label="Obituary Text"
-        name="obituary"
-        value={form.obituary}
-        onChange={handleChange}
-        rows={6}
-      />
-    </div>
-
-   <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
-  <p className="text-sm font-semibold text-stone-700">
-    Option 2 — Upload an Obituary Image
-  </p>
-
-  <p className="mt-1 text-sm text-stone-600">
-    Upload a newspaper clipping, screenshot, scan, or JPG image of the obituary if text cannot be copied.
-  </p>
-
-  {form.obituaryImageUrl && (
-    <div className="mt-4 space-y-3">
-      <img
-        src={form.obituaryImageUrl}
-        alt="Uploaded obituary"
-        className="max-h-96 w-full rounded-2xl object-contain bg-white"
-      />
-
-      <button
-        type="button"
-        onClick={() => {
-          if (!confirm("Delete this obituary image?")) return;
-
-          setForm((prev) => ({
-            ...prev,
-            obituaryImageUrl: "",
-          }));
-          setObituaryImageFile(null);
-        }}
-        className="w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
-      >
-        Delete Obituary Image
-      </button>
-    </div>
-  )}
-
-  <input
-    type="file"
-    accept="image/*"
-    onChange={(e) => setObituaryImageFile(e.target.files?.[0] ?? null)}
-    className="mt-4 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3"
-  />
-</div>
-
-    <Input
-      label="Original Obituary Website Link (Optional)"
-      name="obituaryUrl"
-      value={form.obituaryUrl}
-      onChange={handleChange}
-    />
-  </div>
-
-  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-</FormSection>      
-       <FormSection
-  title="Headstone Photos"
-  description="Photos of the headstone or grave marker."
->
+  
   <div className="space-y-5">
-
-   <Input
-  label="Headstone Photo 1 URL"
-  name="headstonePhoto1Url"
-  value={form.headstonePhoto1Url}
-  onChange={handleChange}
-/>
-
-{form.headstonePhoto1Url && (
-  <div className="space-y-3">
-    <img
-      src={form.headstonePhoto1Url}
-      alt="Headstone photo 1"
-      className="h-48 w-full rounded-2xl object-cover"
+    <VideoUploadSection
+      isPublished={isPublished}
+      videoFiles={videoFiles}
+      handleVideoChange={handleVideoChange}
+      newVideoLinkUrl={newVideoLinkUrl}
+      setNewVideoLinkUrl={setNewVideoLinkUrl}
+      newVideoLinkNote={newVideoLinkNote}
+      setNewVideoLinkNote={setNewVideoLinkNote}
+      form={form}
+      setForm={setForm}
+      existingVideosLength={existingVideos.length}
+      paidExtraVideos={paidExtraVideos}
+      handleBuyExtraVideos={handleBuyExtraVideos}
+      videoError={videoError}
+      existingVideoDurations={existingVideoDurations}
+      selectedVideoDurations={selectedVideoDurations}
     />
 
-    <button
-      type="button"
-      onClick={() => {
-        if (!confirm("Delete headstone photo 1?")) return;
-
-        setForm((prev) => ({
-          ...prev,
-          headstonePhoto1Url: "",
-        }));
-        setHeadstonePhoto1File(null);
-      }}
-      className="w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
-    >
-      Delete Headstone Photo 1
-    </button>
-  </div>
-)}
-
-<input
-  type="file"
-  accept="image/*"
-  onChange={(e) => setHeadstonePhoto1File(e.target.files?.[0] ?? null)}
-  className="w-full rounded-2xl border px-4 py-3"
-/>
-
-<Input
-  label="Headstone Photo 2 URL"
-  name="headstonePhoto2Url"
-  value={form.headstonePhoto2Url}
-  onChange={handleChange}
-/>
-
-{form.headstonePhoto2Url && (
-  <div className="space-y-3">
-    <img
-      src={form.headstonePhoto2Url}
-      alt="Headstone photo 2"
-      className="h-48 w-full rounded-2xl object-cover"
+    <VideoMemoriesEditor
+      existingVideos={existingVideos}
+      videoNotes={videoNotes}
+      previewVideoId={previewVideoId}
+      setPreviewVideoId={setPreviewVideoId}
+      setVideoNotes={setVideoNotes}
+      handleMoveExistingVideo={handleMoveExistingVideo}
+      handleRemoveExistingVideo={handleRemoveExistingVideo}
+      isSaving={isSaving}
+      isPublished={isPublished}
     />
-
-    <button
-      type="button"
-      onClick={() => {
-        if (!confirm("Delete headstone photo 2?")) return;
-
-        setForm((prev) => ({
-          ...prev,
-          headstonePhoto2Url: "",
-        }));
-        setHeadstonePhoto2File(null);
-      }}
-      className="w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
-    >
-      Delete Headstone Photo 2
-    </button>
   </div>
-)}
 
-<input
-  type="file"
-  accept="image/*"
-  onChange={(e) => setHeadstonePhoto2File(e.target.files?.[0] ?? null)}
-  className="w-full rounded-2xl border px-4 py-3"
+
+                 <ObituarySection
+  form={form}
+  handleChange={handleChange}
+  setForm={setForm}
+  setObituaryImageFile={setObituaryImageFile}
+  isSaving={isSaving}
+  isPublished={isPublished}
 />
-</div>
+       <HeadstonePhotosSection
+  form={form}
+  handleChange={handleChange}
+  setForm={setForm}
+  setHeadstonePhoto1File={setHeadstonePhoto1File}
+  setHeadstonePhoto2File={setHeadstonePhoto2File}
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
+<FinalRestingPlaceSection
+  form={form}
+  handleChange={handleChange}
+  handleDispositionChange={handleDispositionChange}
+  handleCenterMap={handleCenterMap}
+  handleUseCurrentLocation={handleUseCurrentLocation}
+  mapSearchStatus={mapSearchStatus}
+  locationStatus={locationStatus}
+  setForm={setForm}
+/>
 
-<QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-</FormSection>
-<FormSection
-  title="Final Resting Place"
-  description="Tell visitors whether this person was buried or cremated. If known, you can also add a map location."
->
-                    <div className="space-y-6">
-                      <div>
-                        <label className="mb-2 block text-sm font-semibold text-stone-800">
-                          Was this person buried or cremated?
-                        </label>
-                        <select
-                          name="finalRestingType"
-                          value={form.finalRestingType}
-                          onChange={handleDispositionChange}
-                          className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
-                        >
-                          <option value="">Not specified</option>
-                          <option value="buried">Buried</option>
-                          <option value="cremated">Cremated</option>
-                        </select>
-                      </div>
-
-                      {form.finalRestingType === "buried" && (
-                        <div className="grid gap-5 md:grid-cols-2">
-                          <Input
-                            label="Cemetery Name"
-                            name="cemeteryName"
-                            value={form.cemeteryName}
-                            onChange={handleChange}
-                          />
-                          <Input
-                            label="Section"
-                            name="graveSection"
-                            value={form.graveSection}
-                            onChange={handleChange}
-                          />
-                          <Input
-                            label="Row"
-                            name="graveRow"
-                            value={form.graveRow}
-                            onChange={handleChange}
-                          />
-                          <Input
-                            label="Plot / Lot / Grave"
-                            name="gravePlot"
-                            value={form.gravePlot}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      )}
-
-                      {form.finalRestingType === "cremated" && (
-                        <TextArea
-                          label="Where were the ashes scattered or placed?"
-                          name="ashesLocationDescription"
-                          value={form.ashesLocationDescription}
-                          onChange={handleChange}
-                          rows={4}
-                          helpText="Example: Ashes were scattered at the family farm in Lancaster County, Pennsylvania."
-                        />
-                      )}
-
-                      {(form.finalRestingType === "buried" || form.finalRestingType === "cremated") && (
-                        <>
-                          <div className="border-t border-stone-200 pt-6">
-                            <h3 className="text-xl font-semibold text-stone-900">
-                              Map Location
-                            </h3>
-                            <p className="mt-2 text-sm text-stone-600">
-                              {form.finalRestingType === "buried"
-                                ? "You may place a pin at the burial location"
-                                : "You may enter an address or place a pin at grave location or where the ashes were scattered, kept, or memorialized."}
-                            </p>
-<p className="mb-2 text-sm text-stone-600">
-  
-</p>
-                            <div className="mt-4 grid gap-4 md:grid-cols-2">
-                              <Input label="Street Address" name="mapStreet" value={form.mapStreet} onChange={handleChange} />
-<Input label="City" name="mapCity" value={form.mapCity} onChange={handleChange} />
-<Input label="State" name="mapState" value={form.mapState} onChange={handleChange} />
-<Input label="ZIP Code" name="mapZip" value={form.mapZip} onChange={handleChange} />
-<Input label="Country" name="mapCountry" value={form.mapCountry} onChange={handleChange} />
-                            </div>
-
-                            <div className="mt-4 flex flex-wrap gap-3">
-                              <button
-                                type="button"
-                                onClick={handleCenterMap}
-                                className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-700 transition hover:bg-stone-50"
-                              >
-                                Center Map
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={handleUseCurrentLocation}
-                                className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-700 transition hover:bg-stone-50"
-                              >
-                                Use My Current Location
-                              </button>
-                            </div>
-
-                            {mapSearchStatus && (
-                              <p className="mt-3 text-sm text-stone-500">{mapSearchStatus}</p>
-                            )}
-
-                            {locationStatus && (
-                              <p className="mt-3 text-sm text-stone-500">{locationStatus}</p>
-                            )}
-
-                            <div className="mt-4 overflow-hidden rounded-2xl">
-                              <GraveLocationMap
-                                key={`${form.graveLat || "none"}-${form.graveLng || "none"}-edit`}
-                                lat={form.graveLat ? Number(form.graveLat) : null}
-                                lng={form.graveLng ? Number(form.graveLng) : null}
-                                readOnly={false}
-                                height="420px"
-                                onChange={(lat, lng) =>
-                                  setForm((prev) => ({
-                                    ...prev,
-                                    graveLat: String(lat),
-                                    graveLng: String(lng),
-                                  }))
-                                }
-                              />
-                            </div>
-
-                            <div className="mt-4 grid gap-5 md:grid-cols-2">
-                              <Input
-                                label="Latitude"
-                                name="graveLat"
-                                value={form.graveLat}
-                                onChange={handleChange}
-                              />
-                              <Input
-                                label="Longitude"
-                                name="graveLng"
-                                value={form.graveLng}
-                                onChange={handleChange}
-                              />
-                            </div>
-
-                            <div className="mt-5">
-                              <TextArea
-                                label={form.finalRestingType === "buried" ? "Directions Note" : "Location Note"}
-                                name="graveDirections"
-                                value={form.graveDirections}
-                                onChange={handleChange}
-                                rows={4}
-                                helpText={
-                                  form.finalRestingType === "buried"
-                                    ? "Example: Near the large oak tree, third row from the chapel side"
-                                    : "Example: Overlook above the lake near the family cabin"
-                                }
-                              />
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </FormSection>
-
-<div className={`rounded-2xl border px-5 py-4 text-sm ${
-  isPublished
-    ? "border-green-200 bg-green-50 text-green-800"
-    : "border-amber-200 bg-amber-50 text-amber-800"
-}`}>
-  <p className="font-semibold">
-    {isPublished ? "Published" : "Draft — Not Public"}
-  </p>
-  <p className="mt-1">
-    {isPublished
-      ? "This memorial is public. Changes become visible when you save."
-      : "This memorial is visible only to you until it is published."}
-  </p>
-</div>
-
-<div className="flex flex-wrap gap-3 border-t border-stone-200 pt-6">
-                    <button
-                      type="submit"
-                      disabled={isSaving}
-                      className="inline-flex items-center justify-center rounded-full bg-black px-6 py-3 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-gray-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {isSaving ? "Saving..." : "Save Changes"}
-                    </button>
-                    {(isOwner || isBackupUnlocked) && !isPublished && (
-                    <button
-  type="button"
-  onClick={async () => {
-    if (!memorialId) return;
-
-    const {
-  data: { session },
-} = await supabase.auth.getSession();
-
-if (!session?.access_token) {
-  alert("You must be logged in to publish this memorial.");
-  return;
-}
-
-const res = await fetch("/api/memorials/publish", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${session.access_token}`,
-  },
-  body: JSON.stringify({
-    memorialId,
-  }),
-});
-
-const result = await res.json();
-
-if (!res.ok) {
-  alert(result.error || "Error publishing memorial.");
-  return;
-}
-
-    alert("Memorial published successfully.");
-
-    window.location.reload();
-  }}
-  className="inline-flex items-center justify-center rounded-full bg-green-600 px-6 py-3 text-sm font-semibold text-white hover:bg-green-700"
->
-  Publish Memorial
-</button>
-)}
-
-                    {!successMessage && (
-  <button
-    type="button"
-    onClick={() => {
-      window.location.href = `/memorial/${originalSlug}`;
-    }}
-    className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-stone-50"
-  >
-    Preview Memorial
-  </button>
-)}
-                  </div>
-                  <p className="mt-2 text-xs text-stone-500">
-  {isPublished
-  ? "Changes become public when you save."
-  : "Saving does not make your changes public."}
-</p>
-
-                  {successMessage && (
-  <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-800">
-    <p className="font-semibold">{successMessage}</p>
-
-    <a
-  href={`/memorial/${originalSlug}`}
-      className="mt-3 inline-flex items-center justify-center rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white hover:bg-green-800"
-    >
-      Publish and View Memorial
-    </a>
-  </div>
-  
-)}
+<EditActionButtons
+  isPublished={isPublished}
+  isSaving={isSaving}
+  isOwner={isOwner}
+  isBackupUnlocked={isBackupUnlocked}
+  successMessage={successMessage}
+  originalSlug={originalSlug}
+  handlePublishMemorial={handlePublishMemorial}
+/>
+                 
                 </form>
               </div>
             </section>
@@ -3145,63 +1687,10 @@ if (!res.ok) {
 </div>
 </div>
 
-    {submissionPhotoViewer && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-    <button
-      type="button"
-      onClick={() => setSubmissionPhotoViewer(null)}
-      className="absolute right-4 top-4 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-900"
-    >
-      Close
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        setSubmissionPhotoViewer((prev) =>
-          prev
-            ? {
-                ...prev,
-                index:
-                  prev.index === 0
-                    ? prev.photos.length - 1
-                    : prev.index - 1,
-              }
-            : prev
-        )
-      }
-      className="absolute left-4 rounded-full bg-white px-4 py-3 text-xl font-bold text-stone-900"
-    >
-      ‹
-    </button>
-
-    <img
-      src={submissionPhotoViewer.photos[submissionPhotoViewer.index]}
-      alt="Submitted photo preview"
-      className="max-h-[85vh] max-w-[90vw] rounded-2xl object-contain shadow-2xl"
-    />
-
-    <button
-      type="button"
-      onClick={() =>
-        setSubmissionPhotoViewer((prev) =>
-          prev
-            ? {
-                ...prev,
-                index:
-                  prev.index === prev.photos.length - 1
-                    ? 0
-                    : prev.index + 1,
-              }
-            : prev
-        )
-      }
-      className="absolute right-4 rounded-full bg-white px-4 py-3 text-xl font-bold text-stone-900"
-    >
-      ›
-    </button>
-  </div>
-)}
+    <SubmissionPhotoViewerModal
+  submissionPhotoViewer={submissionPhotoViewer}
+  setSubmissionPhotoViewer={setSubmissionPhotoViewer}
+/>
   </main>
   );
 }
@@ -3213,35 +1702,7 @@ type GraveLocationMapProps = {
   readOnly?: boolean;
   height?: string;
 };
-function QuickSaveButton({
-  isSaving,
-  isPublished,
-}: {
-  isSaving: boolean;
-  isPublished: boolean;
-}) {
-  return (
-    <>
-      <div className="mt-5 flex justify-end border-t border-stone-200 pt-5">
-        <button
-          type="submit"
-          form="edit-memorial-form"
-          formNoValidate
-          disabled={isSaving}
-          className="inline-flex items-center justify-center rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isSaving ? "Saving..." : "Save Changes"}
-        </button>
-      </div>
 
-      <p className="mt-2 text-right text-xs text-stone-500">
-  {isPublished
-    ? "Changes become public when you save."
-    : "Saving does not make your changes public."}
-</p>
-    </>
-  );
-}
         
   
 function GraveLocationMap({
@@ -3433,194 +1894,3 @@ function GraveLocationMap({
   );
 }
 
-function FormSection({
-  title,
-  description,
-  children,
-}: {
-  title: React.ReactNode;
-  description?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-[1.5rem] border border-stone-200/80 bg-stone-50/70 p-6 transition hover:shadow-sm md:p-7">
-      <div className="mb-5">
-        <h2 className="text-2xl font-bold tracking-tight text-stone-900">
-          {title}
-        </h2>
-        {description && (
-          <p className="mt-2 leading-7 text-stone-600">{description}</p>
-        )}
-      </div>
-
-      {children}
-    </section>
-  );
-}
-
-
-function CompactFormSection({
-  title,
-  description,
-  children,
-}: {
-  title: React.ReactNode;
-  description?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-[1.25rem] border border-stone-200/80 bg-stone-50/70 p-4 transition hover:shadow-sm md:p-5">
-      <div className="mb-3">
-        <h2 className="text-xl font-bold tracking-tight text-stone-900">
-          {title}
-        </h2>
-        {description && (
-          <p className="mt-1 text-sm leading-6 text-stone-600">
-            {description}
-          </p>
-        )}
-      </div>
-
-      {children}
-    </section>
-  );
-}
-
-type ChangeHandler = (
-  e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-) => void;
-
-function Input({
-  label,
-  name,
-  value,
-  onChange,
-  type = "text",
-}: {
-  label: string;
-  name: keyof MemorialForm;
-  value: string;
-  onChange: ChangeHandler;
-  type?: string;
-}) {
-  return (
-    <div>
-      <label className="mb-2 block text-sm font-semibold text-stone-800">
-        {label}
-      </label>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
-      />
-    </div>
-  );
-}
-
-function TextArea({
-  label,
-  name,
-  value,
-  onChange,
-  rows = 4,
-  helpText,
-  placeholder,
-}: {
-  label: string;
-  name: keyof MemorialForm;
-  value: string;
-  onChange: ChangeHandler;
-  rows?: number;
-  helpText?: string;
-  placeholder?: string;
-}) {
-  return (
-    <div>
-      <label className="mb-2 block text-sm font-semibold text-stone-800">
-        {label}
-      </label>
-      <textarea
-        name={name}
-        value={value}
-        onChange={onChange}
-        rows={rows}
-        placeholder={placeholder}
-        className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
-      />
-      {helpText && <p className="mt-2 text-sm text-stone-500">{helpText}</p>}
-    </div>
-  );
-}
-
-function SortableGalleryPhotoCard({
-  id,
-  photo,
-  index,
-  note,
-  onNoteChange,
-  onDelete,
-}: {
-  id: string;
-  photo: string;
-  index: number;
-  note: string;
-  onNoteChange: (index: number, value: string) => void;
-  onDelete: (index: number) => void;
-}) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`rounded-2xl border border-stone-200 bg-white p-3 ${
-        isDragging ? "opacity-60 shadow-lg" : ""
-      }`}
-    >
-      <button
-        type="button"
-        {...attributes}
-        {...listeners}
-        className="mb-2 w-full touch-none rounded-xl border border-stone-300 bg-stone-50 px-3 py-2 text-sm font-semibold text-stone-700 active:scale-95"
-      >
-        ≡ Hold here to reorder
-      </button>
-
-      <img
-        src={photo}
-        alt={`Gallery photo ${index + 1}`}
-        className="h-36 w-full rounded-2xl object-cover"
-      />
-
-      <textarea
-        value={note}
-        onChange={(e) => onNoteChange(index, e.target.value)}
-        rows={3}
-        placeholder="Add a description for this photo..."
-        className="mt-3 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
-      />
-
-      <button
-        type="button"
-        onClick={() => onDelete(index)}
-        className="mt-3 w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
-      >
-        Delete Photo
-      </button>
-    </div>
-  );
-}

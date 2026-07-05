@@ -1,7 +1,18 @@
 export async function optimizeImage(file: File): Promise<File> {
-  if (!file.type.startsWith("image/")) return file;
+  if (!file.type.startsWith("image/")) {
+    throw new Error("This file is not an image.");
+  }
 
-  const imageBitmap = await createImageBitmap(file);
+  let imageBitmap: ImageBitmap;
+
+  try {
+    imageBitmap = await createImageBitmap(file);
+  } catch (error) {
+    console.error("IMAGE DECODE FAILED", error);
+    throw new Error(
+      `"${file.name}" could not be processed. Please try saving it as a JPG or PNG and upload it again.`
+    );
+  }
 
   const maxSize = 2400;
   let { width, height } = imageBitmap;
@@ -19,28 +30,41 @@ export async function optimizeImage(file: File): Promise<File> {
   canvas.height = height;
 
   const ctx = canvas.getContext("2d");
-  if (!ctx) return file;
+
+  if (!ctx) {
+    imageBitmap.close();
+    throw new Error(`"${file.name}" could not be processed.`);
+  }
 
   ctx.drawImage(imageBitmap, 0, 0, width, height);
+  imageBitmap.close();
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, "image/jpeg", 0.82)
   );
 
-  if (!blob) return file;
+  if (!blob) {
+    throw new Error(`"${file.name}" could not be converted to JPG.`);
+  }
 
-  const newName = file.name.replace(/\.[^.]+$/, "") + ".jpg";
-console.log("OPTIMIZE IMAGE RESULT", {
-  originalName: file.name,
-  originalSizeMB: (file.size / 1024 / 1024).toFixed(2),
-  originalWidth: imageBitmap.width,
-  originalHeight: imageBitmap.height,
-  newWidth: width,
-  newHeight: height,
-  newSizeMB: (blob.size / 1024 / 1024).toFixed(2),
-});
-  return new File([blob], newName, {
+  const baseName =
+    file.name.replace(/\.[^.]+$/, "") || `photo-${Date.now()}`;
+
+  const optimizedFile = new File([blob], `${baseName}.jpg`, {
     type: "image/jpeg",
     lastModified: Date.now(),
   });
+
+  console.log("OPTIMIZE IMAGE RESULT", {
+    originalName: file.name,
+    originalType: file.type,
+    originalSizeMB: (file.size / 1024 / 1024).toFixed(2),
+    newName: optimizedFile.name,
+    newType: optimizedFile.type,
+    newSizeMB: (optimizedFile.size / 1024 / 1024).toFixed(2),
+    newWidth: width,
+    newHeight: height,
+  });
+
+  return optimizedFile;
 }
