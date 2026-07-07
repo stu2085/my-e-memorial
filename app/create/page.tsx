@@ -1,4 +1,12 @@
 "use client";
+
+import LifeStorySection from "../components/LifeStorySection";
+import ObituarySection from "../components/ObituarySection";
+import FamilyHistorySection from "../components/FamilyHistorySection";
+import SocialMediaSection from "../components/SocialMediaSection";
+import PlacesLivedSection from "../components/PlacesLivedSection";
+import PlacesWorkedSection from "../components/PlacesWorkedSection";
+import SchoolsAndAwardsSection from "../components/SchoolsAndAwardsSection";
 import { optimizeImage } from "../lib/optimizeImage";
 
 import { ChangeEvent, FormEvent, Suspense, useEffect, useRef, useState } from "react";
@@ -1360,109 +1368,25 @@ async function handleBuyExtraVideos(extraCount: number) {
     </div>
   </Section>
 )}
-              <Section title="Life Story">
-                <div className="grid grid-cols-1 gap-6">
-                  
-                  <TextArea
-                    label="Obituary"
-                    name="obituary"
-                    value={form.obituary}
-                    onChange={handleChange}
-                    rows={6}
-                    placeholder="Enter obituary text..."
-                  />
-<Input
-  label="Obituary Link (optional)"
-  name="obituaryUrl"
-  value={form.obituaryUrl}
-  onChange={handleChange}
+             <ObituarySection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
 />
-                  <TextArea
-                    label="Life Story"
-                    name="lifeStory"
-                    value={form.lifeStory}
-                    onChange={handleChange}
-                    rows={8}
-                    placeholder="Share the person's story, accomplishments, and memories..."
-                  />
-                  
-                </div>
-              </Section>
-<Section title="Family History">
-  <div className="grid grid-cols-1 gap-6">
-    <TextArea
-      label="Great Grandparents Names"
-      name="greatGrandparentsNames"
-      value={form.greatGrandparentsNames}
-      onChange={handleChange}
-      rows={3}
-      placeholder="Enter great grandparents names..."
-    />
 
-    <TextArea
-      label="Grandparents Names — Father’s Side"
-      name="grandparentsFatherSide"
-      value={form.grandparentsFatherSide}
-      onChange={handleChange}
-      rows={3}
-      placeholder="Enter grandparents on father’s side..."
-    />
-
-    <TextArea
-      label="Grandparents Names — Mother’s Side"
-      name="grandparentsMotherSide"
-      value={form.grandparentsMotherSide}
-      onChange={handleChange}
-      rows={3}
-      placeholder="Enter grandparents on mother’s side..."
-    />
-
-    <TextArea
-      label="Parents Names"
-      name="parentsNames"
-      value={form.parentsNames}
-      onChange={handleChange}
-      rows={3}
-      placeholder="Enter parents names..."
-    />
-
-    <TextArea
-      label="Siblings Names"
-      name="siblingsNames"
-      value={form.siblingsNames}
-      onChange={handleChange}
-      rows={3}
-      placeholder="Enter siblings names..."
-    />
-
-    <TextArea
-      label="Children Names"
-      name="childrenNames"
-      value={form.childrenNames}
-      onChange={handleChange}
-      rows={3}
-      placeholder="Enter children names..."
-    />
-
-    <TextArea
-      label="Grandchildren Names"
-      name="grandchildrenNames"
-      value={form.grandchildrenNames}
-      onChange={handleChange}
-      rows={3}
-      placeholder="Enter grandchildren names..."
-    />
-
-    <TextArea
-      label="Great Grandchildren Names"
-      name="greatGrandchildrenNames"
-      value={form.greatGrandchildrenNames}
-      onChange={handleChange}
-      rows={3}
-      placeholder="Enter great grandchildren names..."
-    />
-  </div>
-</Section>
+<LifeStorySection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
+<FamilyHistorySection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
 
               <Section title="Favorite Song">
                 <div>
@@ -1615,108 +1539,27 @@ async function handleBuyExtraVideos(extraCount: number) {
                   />
                 </div>
               </Section>
-<Section title="Social Media Links">
-  <div className="grid grid-cols-1 gap-6">
-    <Input
-      label="Social Media Link 1"
-      name="socialLink1"
-      value={form.socialLink1}
-      onChange={handleChange}
-    />
+<SocialMediaSection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
 
-    <Input
-      label="Social Media Link 2"
-      name="socialLink2"
-      value={form.socialLink2}
-      onChange={handleChange}
-    />
+<PlacesWorkedSection
+  placesWorked={form.placesWorked}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
 
-    <Input
-      label="Social Media Link 3"
-      name="socialLink3"
-      value={form.socialLink3}
-      onChange={handleChange}
-    />
-
-    <Input
-      label="Social Media Link 4"
-      name="socialLink4"
-      value={form.socialLink4}
-      onChange={handleChange}
-    />
-
-    <Input
-      label="Social Media Link 5"
-      name="socialLink5"
-      value={form.socialLink5}
-      onChange={handleChange}
-    />
-
-    <p className="text-sm text-stone-500">
-      Add links to Facebook, Instagram, X/Twitter, TikTok, YouTube, LinkedIn, or other memorial-related social pages.
-    </p>
-  </div>
-</Section>
-             <Section title="Places Lived, Places Worked, Schools Attended & Awards Won">
-  <div className="grid grid-cols-1 gap-6">
-    <div>
-  <label className="mb-2 block text-sm font-semibold text-stone-800">
-    Places Lived
-  </label>
-
-  <textarea
-    name="placesLived"
-    value={form.placesLived}
-    onChange={handleChange}
-    rows={5}
-    placeholder={`Example:
-Lancaster, Pennsylvania
-Philadelphia, Pennsylvania
-Naples, Florida`}
-    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
-  />
-
-  <p className="mt-2 text-xs text-stone-500">
-    Enter one place per line.
-  </p>
-</div>
-<div>
-  <label className="mb-2 block text-sm font-semibold text-stone-800">
-    Places Worked
-  </label>
-
-  <textarea
-    name="placesWorked"
-    value={form.placesWorked}
-    onChange={handleChange}
-    rows={5}
-    placeholder={`Example:
-Armstrong World Industries
-Stum's Repair Service
-Hershey Foods Corporation`}
-    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
-  />
-
-  <p className="mt-2 text-xs text-stone-500">
-    Enter one employer, job, or workplace per line.
-  </p>
-</div>
-    <Input
-      label="Schools Attended"
-      name="schoolsAttended"
-      value={form.schoolsAttended}
-      onChange={handleChange}
-    />
-
-    <Input
-      label="Awards Won"
-      name="awardsWon"
-      value={form.awardsWon}
-      onChange={handleChange}
-    />
-  </div>
-</Section>
-
+<SchoolsAndAwardsSection
+  schoolsAttended={form.schoolsAttended}
+  awardsWon={form.awardsWon}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
               <Section title="Photo Uploads">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div>
