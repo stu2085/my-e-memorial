@@ -1,5 +1,7 @@
 "use client";
 
+
+import FavoriteSongsSection from "../components/FavoriteSongsSection";
 import FinalRestingPlaceSection from "../components/FinalRestingPlaceSection";
 import HeadstonePhotosSection from "../components/HeadstonePhotosSection";
 import BackupPersonSection from "../components/BackupPersonSection";
@@ -1195,85 +1197,10 @@ async function handleBuyExtraVideos(extraCount: number) {
 )}
         
 {form.isLivingPreplan && (
-  <Section title="Personal E-Memorial Backup Person">
-    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-      <p className="text-sm font-semibold text-amber-900">
-        This personal E-Memorial will be saved but not published.
-      </p>
-      <p className="mt-2 text-sm leading-6 text-amber-800">
-        Your backup person will be responsible for completing and publishing this memorial upon your passing.
-      </p>
-    </div>
-
-    <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-      <Input
-        label="Backup Person Name"
-        name="backupPersonName"
-        value={form.backupPersonName}
-        onChange={handleChange}
-      />
-<Input
-  label="Your Street Address"
-  name="creatorStreet"
-  value={form.creatorStreet}
-  onChange={handleChange}
+  <BackupPersonSection
+  form={form}
+  handleChange={handleChange}
 />
-
-<Input
-  label="Your City"
-  name="creatorCity"
-  value={form.creatorCity}
-  onChange={handleChange}
-/>
-
-<div>
-  <label className="mb-2 block text-sm font-semibold text-stone-800">
-    Your State
-  </label>
-
-  <select
-    name="creatorState"
-    value={form.creatorState}
-    onChange={handleChange}
-    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
-  >
-    <option value="">Select a state</option>
-
-    {US_STATES.map((state) => (
-      <option key={state} value={state}>
-        {state}
-      </option>
-    ))}
-  </select>
-</div>
-
-<Input
-  label="Your ZIP Code"
-  name="creatorZip"
-  value={form.creatorZip}
-  onChange={handleChange}
-/>
-      <Input
-        label="Backup Person Email"
-        name="backupPersonEmail"
-        value={form.backupPersonEmail}
-        onChange={handleChange}
-      />
-<Input
-  label="Backup Person Password"
-  name="backupPassword"
-  value={form.backupPassword}
-  onChange={handleChange}
-  autoComplete="new-password"
-/>
-      <Input
-        label="Backup Person Username"
-        name="backupPersonUsername"
-        value={form.backupPersonUsername}
-        onChange={handleChange}
-      />
-    </div>
-  </Section>
 )}
              <ObituarySection
   form={form}
@@ -1295,28 +1222,19 @@ async function handleBuyExtraVideos(extraCount: number) {
   isPublished={false}
 />
 
-              <Section title="Favorite Song">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-stone-800">
-                    Upload Favorite Song
-                  </label>
-
-                  <input
-                    type="file"
-                    accept=".mp3,.m4a,.wav,.mp4,audio/*,video/mp4"
-                    onChange={(e) => setFavoriteSongFile(e.target.files?.[0] ?? null)}
-                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
-                  />
-<div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-  Audio uploads are not permanently saved until payment is completed. If you leave this page before checkout, you may need to select the file again.
-</div>
-                  <p className="mt-2 text-sm text-stone-600">
-                    Please only upload music for which you hold the rights or that is royalty-free.
-                    By uploading, you confirm you have the legal right to share this audio.
-                    We recommend using licensed or royalty-free tracks.
-                  </p>
-                </div>
-              </Section>
+              <FavoriteSongsSection
+  firstName={form.firstName}
+  favoriteSongUrl=""
+favoriteSongUrls={[]}
+favoriteSongNotes={[]}
+  handleChange={handleChange}
+  setForm={setForm}
+  setFavoriteSongFiles={(filesOrUpdater) => {
+  if (Array.isArray(filesOrUpdater)) {
+    setFavoriteSongFile(filesOrUpdater[0] ?? null);
+  }
+}}
+/>
 
               <FinalRestingPlaceSection
   form={form}

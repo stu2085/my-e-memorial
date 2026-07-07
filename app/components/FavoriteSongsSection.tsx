@@ -3,16 +3,19 @@ import QuickSaveButton from "./QuickSaveButton";
 
 type FavoriteSongsSectionProps = {
   firstName: string;
-  favoriteSongUrl: string;
-  favoriteSongUrls: string[];
-  favoriteSongNotes: string[];
-  isSaving: boolean;
-  isPublished: boolean;
-  handleChange: (
+  favoriteSongUrl?: string;
+  favoriteSongUrls?: string[];
+  favoriteSongNotes?: string[];
+
+  isSaving?: boolean;
+  isPublished?: boolean;
+
+  handleChange?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
+
   setForm: React.Dispatch<React.SetStateAction<any>>;
-  setFavoriteSongFiles: React.Dispatch<React.SetStateAction<File[]>>;
+  setFavoriteSongFiles?: React.Dispatch<React.SetStateAction<File[]>>;
 };
 
 export default function FavoriteSongsSection({
@@ -27,11 +30,11 @@ export default function FavoriteSongsSection({
   setFavoriteSongFiles,
 }: FavoriteSongsSectionProps) {
   const songsToShow =
-    favoriteSongUrls?.length > 0
-      ? favoriteSongUrls
-      : favoriteSongUrl
-        ? [favoriteSongUrl]
-        : [];
+  favoriteSongUrls && favoriteSongUrls.length > 0
+    ? favoriteSongUrls
+    : favoriteSongUrl
+      ? [favoriteSongUrl]
+      : [];
 
   return (
     <section className="rounded-3xl border border-stone-200 bg-white/90 p-5 shadow-sm">
@@ -55,8 +58,8 @@ export default function FavoriteSongsSection({
 
           <input
             name="favoriteSongUrl"
-            value={favoriteSongUrl}
-            onChange={handleChange}
+            value={favoriteSongUrl ?? ""}
+onChange={handleChange}
             className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
           />
         </div>
@@ -155,7 +158,7 @@ export default function FavoriteSongsSection({
             multiple
             onChange={(e) => {
               const files = Array.from(e.target.files || []).slice(0, 5);
-              setFavoriteSongFiles(files);
+              setFavoriteSongFiles?.(files);
             }}
             className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
           />
@@ -172,7 +175,9 @@ export default function FavoriteSongsSection({
         </div>
       </div>
 
-      <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+      {typeof isSaving === "boolean" && typeof isPublished === "boolean" && (
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+)}
     </section>
   );
 }
