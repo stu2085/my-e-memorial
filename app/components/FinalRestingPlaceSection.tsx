@@ -1,7 +1,13 @@
+"use client";
+
 import FormSection from "./FormSection";
 import Input from "./Input";
 import TextArea from "./TextArea";
-import GraveLocationMap from "./GraveLocationMap";
+import dynamic from "next/dynamic";
+
+const GraveLocationMap = dynamic(() => import("./GraveLocationMap"), {
+  ssr: false,
+});
 
 type Props = {
   form: any;

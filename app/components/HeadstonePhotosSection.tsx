@@ -3,15 +3,15 @@ import Input from "./Input";
 import QuickSaveButton from "./QuickSaveButton";
 
 type Props = {
-  form: any;
-  handleChange: (
+  form?: any;
+  handleChange?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
-  setForm: React.Dispatch<React.SetStateAction<any>>;
-  setHeadstonePhoto1File: React.Dispatch<React.SetStateAction<File | null>>;
-  setHeadstonePhoto2File: React.Dispatch<React.SetStateAction<File | null>>;
-  isSaving: boolean;
-  isPublished: boolean;
+  setForm?: React.Dispatch<React.SetStateAction<any>>;
+  setHeadstonePhoto1File?: React.Dispatch<React.SetStateAction<File | null>>;
+  setHeadstonePhoto2File?: React.Dispatch<React.SetStateAction<File | null>>;
+  isSaving?: boolean;
+  isPublished?: boolean;
 };
 
 export default function HeadstonePhotosSection({
@@ -23,6 +23,42 @@ export default function HeadstonePhotosSection({
   isSaving,
   isPublished,
 }: Props) {
+  if (!form || !handleChange) {
+    return (
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-stone-800">
+            Headstone Photo 1
+          </label>
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              setHeadstonePhoto1File?.(e.target.files?.[0] ?? null)
+            }
+            className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-stone-800">
+            Headstone Photo 2
+          </label>
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              setHeadstonePhoto2File?.(e.target.files?.[0] ?? null)
+            }
+            className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <FormSection
       title="Headstone Photos"
@@ -47,6 +83,7 @@ export default function HeadstonePhotosSection({
             <button
               type="button"
               onClick={() => {
+                if (!setForm || !setHeadstonePhoto1File) return;
                 if (!confirm("Delete headstone photo 1?")) return;
 
                 setForm((prev: any) => ({
@@ -67,7 +104,7 @@ export default function HeadstonePhotosSection({
           type="file"
           accept="image/*"
           onChange={(e) =>
-            setHeadstonePhoto1File(e.target.files?.[0] ?? null)
+            setHeadstonePhoto1File?.(e.target.files?.[0] ?? null)
           }
           className="w-full rounded-2xl border px-4 py-3"
         />
@@ -90,6 +127,7 @@ export default function HeadstonePhotosSection({
             <button
               type="button"
               onClick={() => {
+                if (!setForm || !setHeadstonePhoto2File) return;
                 if (!confirm("Delete headstone photo 2?")) return;
 
                 setForm((prev: any) => ({
@@ -110,13 +148,15 @@ export default function HeadstonePhotosSection({
           type="file"
           accept="image/*"
           onChange={(e) =>
-            setHeadstonePhoto2File(e.target.files?.[0] ?? null)
+            setHeadstonePhoto2File?.(e.target.files?.[0] ?? null)
           }
           className="w-full rounded-2xl border px-4 py-3"
         />
       </div>
 
-      <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+      {typeof isSaving === "boolean" && typeof isPublished === "boolean" && (
+        <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+      )}
     </FormSection>
   );
 }

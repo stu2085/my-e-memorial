@@ -15,16 +15,16 @@ import SortableGalleryPhotoCard from "./SortableGalleryPhotoCard";
 import QuickSaveButton from "./QuickSaveButton";
 
 type GallerySectionProps = {
-  form: any;
-  setForm: React.Dispatch<React.SetStateAction<any>>;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  splitGalleryPhotos: (value: string) => string[];
-  galleryDragSensors: any;
-  galleryInputResetKey: number;
-  galleryPhotoFiles: File[];
-  setGalleryPhotoFiles: React.Dispatch<React.SetStateAction<File[]>>;
-  isSaving: boolean;
-  isPublished: boolean;
+  form?: any;
+  setForm?: React.Dispatch<React.SetStateAction<any>>;
+  handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  splitGalleryPhotos?: (value: string) => string[];
+  galleryDragSensors?: any;
+  galleryInputResetKey?: number;
+  galleryPhotoFiles?: File[];
+  setGalleryPhotoFiles?: React.Dispatch<React.SetStateAction<File[]>>;
+  isSaving?: boolean;
+  isPublished?: boolean;
 };
 
 export default function GallerySection({
@@ -39,16 +39,21 @@ export default function GallerySection({
   isSaving,
   isPublished,
 }: GallerySectionProps) {
+  const galleryPhotos =
+    splitGalleryPhotos?.(form?.galleryPhotos ?? "") ?? [];
+
+  const selectedGalleryFiles =
+    galleryPhotoFiles ?? [];
   return (
     <>
       <input
         type="hidden"
         name="galleryPhotos"
-        value={form.galleryPhotos}
-        onChange={handleChange}
+        value={form?.galleryPhotos ?? ""}
+onChange={handleChange}
       />
 
-      {splitGalleryPhotos(form.galleryPhotos).length > 0 ? (
+      {galleryPhotos.length > 0 ? (
         <DndContext
           sensors={galleryDragSensors}
           collisionDetection={closestCenter}
@@ -57,7 +62,7 @@ export default function GallerySection({
 
             if (!over || active.id === over.id) return;
 
-            const photos = splitGalleryPhotos(form.galleryPhotos);
+            const photos = galleryPhotos;
 
             const oldIndex = photos.findIndex(
               (_, index) => `gallery-${index}` === active.id
@@ -77,7 +82,7 @@ export default function GallerySection({
               newIndex
             );
 
-            setForm((prev: any) => ({
+            setForm?.((prev: any) => ({
               ...prev,
               galleryPhotos: reorderedPhotos.join(","),
               galleryPhotoNotes: reorderedNotes,
@@ -85,14 +90,11 @@ export default function GallerySection({
           }}
         >
           <SortableContext
-            items={splitGalleryPhotos(form.galleryPhotos).map(
-              (_, index) => `gallery-${index}`
-            )}
+            items={galleryPhotos.map((_, index) => `gallery-${index}`)}
             strategy={rectSortingStrategy}
           >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {splitGalleryPhotos(form.galleryPhotos).map(
-                (photo, index) => (
+              {galleryPhotos.map((photo, index) => (
                   <SortableGalleryPhotoCard
                     key={`gallery-${index}`}
                     id={`gallery-${index}`}
@@ -100,7 +102,7 @@ export default function GallerySection({
                     index={index}
                     note={form.galleryPhotoNotes?.[index] ?? ""}
                     onNoteChange={(photoIndex, value) => {
-                      setForm((prev: any) => {
+                      setForm?.((prev: any) => {
                         const nextNotes = [
                           ...(prev.galleryPhotoNotes ?? []),
                         ];
@@ -115,10 +117,8 @@ export default function GallerySection({
                     onDelete={(photoIndex) => {
                       if (!confirm("Delete this gallery photo?")) return;
 
-                      setForm((prev: any) => {
-                        const photos = splitGalleryPhotos(
-                          prev.galleryPhotos
-                        );
+                      setForm?.((prev: any) => {
+                        const photos = splitGalleryPhotos?.(prev.galleryPhotos ?? "") ?? [];
                         const notes = [
                           ...(prev.galleryPhotoNotes ?? []),
                         ];
@@ -165,9 +165,7 @@ export default function GallerySection({
                 ? 150
                 : 50;
 
-            const existingGalleryPhotoCount = splitGalleryPhotos(
-              form.galleryPhotos
-            ).length;
+            const existingGalleryPhotoCount = galleryPhotos.length;
 
             const totalGalleryPhotoCount =
               existingGalleryPhotoCount + files.length;
@@ -181,35 +179,29 @@ export default function GallerySection({
               );
 
               e.target.value = "";
-              setGalleryPhotoFiles([]);
+              setGalleryPhotoFiles?.([]);
               return;
             }
 
-            setGalleryPhotoFiles(files);
+            setGalleryPhotoFiles?.(files);
           }}
           className="w-full rounded-2xl border border-stone-300 px-4 py-3"
         />
 
         <p className="mt-2 text-sm text-stone-600">
-          {form.plan === "premium"
-            ? `${
-                splitGalleryPhotos(form.galleryPhotos).length +
-                galleryPhotoFiles.length
-              } gallery photo${
-                splitGalleryPhotos(form.galleryPhotos).length +
-                  galleryPhotoFiles.length ===
-                1
-                  ? ""
-                  : "s"
-              } used. Premium allows unlimited photos.`
-            : `${
-                splitGalleryPhotos(form.galleryPhotos).length +
-                galleryPhotoFiles.length
-              } of ${form.plan === "plus" ? 150 : 50} gallery photos used.`}
-        </p>
+  {form.plan === "premium"
+    ? `${galleryPhotos.length + selectedGalleryFiles.length} gallery photo${
+        galleryPhotos.length + selectedGalleryFiles.length === 1 ? "" : "s"
+      } used. Premium allows unlimited photos.`
+    : `${galleryPhotos.length + selectedGalleryFiles.length} of ${
+        form.plan === "plus" ? 150 : 50
+      } gallery photos used.`}
+</p>
       </div>
 
-      <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+      {typeof isSaving === "boolean" && typeof isPublished === "boolean" && (
+  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+)}
     </>
   );
 }

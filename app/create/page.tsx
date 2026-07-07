@@ -1,5 +1,9 @@
 "use client";
 
+import FinalRestingPlaceSection from "../components/FinalRestingPlaceSection";
+import HeadstonePhotosSection from "../components/HeadstonePhotosSection";
+import BackupPersonSection from "../components/BackupPersonSection";
+import BasicInformationSection from "../components/BasicInformationSection";
 import LifeStorySection from "../components/LifeStorySection";
 import ObituarySection from "../components/ObituarySection";
 import FamilyHistorySection from "../components/FamilyHistorySection";
@@ -1174,119 +1178,22 @@ async function handleBuyExtraVideos(extraCount: number) {
   autoComplete="off"
   className="mt-8 space-y-8"
 >
-              <Section title="Basic Identity">
-  <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 p-5">
-    <label className="mb-2 block text-sm font-semibold text-stone-800">
-      Featured Memorial Photo
-    </label>
-
-    <p className="mb-4 text-sm text-stone-600">
-      This photo will appear at the top of the public memorial page.
-    </p>
-
-    <input
-      type="file"
-      accept="image/*"
-      onChange={(e) => setFeaturedPhoto(e.target.files?.[0] ?? null)}
-      className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
-    />
-    <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-  Uploads are not permanently saved until payment is completed. If you leave this page before checkout, uploaded files may need to be selected again.
-</div>
-  </div>
-
-  <Grid>
-                  <Input label="First Name" name="firstName" value={form.firstName} onChange={handleChange} required autoComplete="new-password" />
-
-<Input label="Middle Name" name="middleName" value={form.middleName} onChange={handleChange} autoComplete="new-password" />
-
-<Input label="Last Name" name="lastName" value={form.lastName} onChange={handleChange} required autoComplete="new-password" />
-                 
-                  <Input label="Maiden Name" name="maidenName" value={form.maidenName} onChange={handleChange} autoComplete="off"/>
-                  <Input label="Nickname" name="nickname" value={form.nickname} onChange={handleChange} autoComplete="off"/>
-
-                  <Select
-                    label="Gender"
-                    name="gender"
-                    value={form.gender}
-                    onChange={handleChange}
-                    options={["Male", "Female", "Other", "Prefer not to say"]}
-                  />
-
-                  <Input label="Birth Date" name="birthDate" type="date" value={form.birthDate} onChange={handleChange} />
-                  <Input label="Death Date" name="deathDate" type="date" value={form.deathDate} onChange={handleChange} />
-                </Grid>
-              </Section>
+              <BasicInformationSection
+  form={form}
+  handleChange={handleChange}
+  setFeaturedPhotoFile={setFeaturedPhoto}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
      {form.isLivingPreplan && (
-<Section
-  title="Backup Person Access"
->
-  <Grid>
-    <Input
-  label="Backup Person Name"
-  name="backupPersonName"
-  value={form.backupPersonName}
-  onChange={handleChange}
-/>
-    <Input
-      label="Backup Email"
-      name="backupEmail"
-      value={form.backupEmail}
-      onChange={handleChange}
-      autoComplete="off"
-    />
-<Input
-  label="Backup Person Password"
-  name="backupPassword"
-  value={form.backupPassword}
-  onChange={handleChange}
-  autoComplete="new-password"
-/>
-    
-    <Input
-  label="Backup Street Address"
-  name="backupStreet"
-  value={form.backupStreet}
-  onChange={handleChange}
-/>
-
-<Input
-  label="Backup City"
-  name="backupCity"
-  value={form.backupCity}
-  onChange={handleChange}
-/>
-
-<div>
-  <label className="mb-2 block text-sm font-semibold text-stone-800">
-    Backup State
-  </label>
-
-  <select
-    name="backupState"
-    value={form.backupState}
-    onChange={handleChange}
-    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
-  >
-    <option value="">Select a state</option>
-
-    {US_STATES.map((state) => (
-      <option key={state} value={state}>
-        {state}
-      </option>
-    ))}
-  </select>
-</div>
-
-<Input
-  label="Backup ZIP Code"
-  name="backupZip"
-  value={form.backupZip}
-  onChange={handleChange}
-/>
-  </Grid>
-</Section>
-)}         
+  <BackupPersonSection
+    form={form}
+    handleChange={handleChange}
+    isSaving={isSubmitting}
+    isPublished={false}
+  />
+)}
+        
 {form.isLivingPreplan && (
   <Section title="Personal E-Memorial Backup Person">
     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
@@ -1411,134 +1318,16 @@ async function handleBuyExtraVideos(extraCount: number) {
                 </div>
               </Section>
 
-              <Section title="Final Resting Place">
-                <Grid>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-stone-800">
-                      Was this person buried or cremated?
-                    </label>
-
-                    <select
-                      name="finalRestingType"
-                      value={form.finalRestingType}
-                      onChange={handleChange}
-                      className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
-                    >
-                      <option value="">Not specified</option>
-                      <option value="buried">Buried</option>
-                      <option value="cremated">Cremated</option>
-                    </select>
-                  </div>
-                </Grid>
-
-                {form.finalRestingType === "buried" && (
-                  <div className="mt-6 grid gap-4 md:grid-cols-2">
-                    <Input label="Cemetery Name" name="cemeteryName" value={form.cemeteryName} onChange={handleChange} />
-                    <Input label="Grave Section" name="graveSection" value={form.graveSection} onChange={handleChange} />
-                    <Input label="Grave Row" name="graveRow" value={form.graveRow} onChange={handleChange} />
-                    <Input label="Grave Plot" name="gravePlot" value={form.gravePlot} onChange={handleChange} />
-                  </div>
-                )}
-
-                {form.finalRestingType === "cremated" && (
-                  <div className="mt-6">
-                    <TextArea
-                      label="Where were the ashes scattered or placed?"
-                      name="ashesLocationDescription"
-                      value={form.ashesLocationDescription}
-                      onChange={handleChange}
-                      rows={4}
-                      placeholder="Example: Ashes were scattered at the family farm in Lancaster County, PA."
-                    />
-                  </div>
-                )}
-
-                <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <Input label="Street Address (recommended for map)" name="mapStreet" value={form.mapStreet} onChange={handleChange} />
-                  <Input label="City (recommended for map)" name="mapCity" value={form.mapCity} onChange={handleChange} />
-                  <div>
-  <label className="mb-2 block text-sm font-semibold text-stone-800">
-    State (recommended for map)
-  </label>
-
-  <select
-    name="mapState"
-    value={form.mapState}
-    onChange={handleChange}
-    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
-  >
-    <option value="">Select a state</option>
-    {US_STATES.map((state) => (
-      <option key={state} value={state}>
-        {state}
-      </option>
-    ))}
-  </select>
-</div>
-                  <Input label="ZIP Code (recommended for map)" name="mapZip" value={form.mapZip} onChange={handleChange} />
-                  <Input label="Country (recommended for map)" name="mapCountry" value={form.mapCountry} onChange={handleChange} />
-                </div>
-
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={handleCenterMap}
-                    className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-700 transition hover:bg-stone-50"
-                  >
-                    Center Map
-                  </button>
-                </div>
-
-                {mapSearchStatus && (
-                  <p className="mt-3 text-sm text-stone-500">
-                    {mapSearchStatus}
-                  </p>
-                )}
-
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold text-stone-900">Location Map</h3>
-                  <p className="mt-1 text-sm text-stone-600">
-                    {form.finalRestingType === "cremated"
-                      ? "Use the map to mark where ashes were scattered or placed."
-                      : "Use the map to mark the burial location."}
-                  </p>
-
-                  <div className="mt-4">
-                    <GraveLocationMap
-                      lat={form.graveLat ? Number(form.graveLat) : null}
-                      lng={form.graveLng ? Number(form.graveLng) : null}
-                      onChange={(lat, lng) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          graveLat: String(lat),
-                          graveLng: String(lng),
-                        }))
-                      }
-                      readOnly={false}
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <Input label="Latitude" name="graveLat" value={form.graveLat} onChange={handleChange} />
-                  <Input label="Longitude" name="graveLng" value={form.graveLng} onChange={handleChange} />
-                </div>
-
-                <div className="mt-6">
-                  <TextArea
-                    label={form.finalRestingType === "cremated" ? "Location Note" : "Directions Note"}
-                    name="graveDirections"
-                    value={form.graveDirections}
-                    onChange={handleChange}
-                    rows={4}
-                    placeholder={
-                      form.finalRestingType === "cremated"
-                        ? "Example: Overlook above the lake near the family cabin."
-                        : "Example: Near the large oak tree, third row from the chapel side."
-                    }
-                  />
-                </div>
-              </Section>
+              <FinalRestingPlaceSection
+  form={form}
+  handleChange={handleChange}
+  handleDispositionChange={handleChange}
+  handleCenterMap={handleCenterMap}
+  handleUseCurrentLocation={() => {}}
+  mapSearchStatus={mapSearchStatus}
+  locationStatus=""
+  setForm={setForm}
+/>
 <SocialMediaSection
   form={form}
   handleChange={handleChange}
@@ -1561,76 +1350,62 @@ async function handleBuyExtraVideos(extraCount: number) {
   isPublished={false}
 />
               <Section title="Photo Uploads">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-stone-800">
-                      Headstone Photo 1
-                    </label>
+  <div className="space-y-6">
+    <HeadstonePhotosSection
+      setHeadstonePhoto1File={setHeadstonePhoto1}
+      setHeadstonePhoto2File={setHeadstonePhoto2}
+    />
 
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setHeadstonePhoto1(e.target.files?.[0] ?? null)}
-                      className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
-                    />
-                  </div>
+    <div>
+      <label className="mb-2 block text-sm font-semibold text-stone-800">
+        Gallery Photos
+      </label>
 
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-stone-800">
-                      Headstone Photo 2
-                    </label>
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={(e) => {
+          const files = Array.from(e.target.files ?? []);
+          const selectedPlan = form.plan as PlanKey;
+          const limit = PLAN_LIMITS[selectedPlan]?.galleryPhotos ?? 50;
 
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setHeadstonePhoto2(e.target.files?.[0] ?? null)}
-                      className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
-                    />
-                  </div>
+          if (Number.isFinite(limit) && files.length > limit) {
+            alert(
+              `${PLAN_LIMITS[selectedPlan].label} allows up to ${limit} gallery photos. You selected ${files.length}.`
+            );
+            e.target.value = "";
+            setGalleryPhotos([]);
+            return;
+          }
 
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-stone-800">
-                      Gallery Photos
-                    </label>
+          setGalleryPhotos(files);
+        }}
+        className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
+      />
 
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={(e) => {
-  const files = Array.from(e.target.files ?? []);
-  const selectedPlan = form.plan as PlanKey;
-  const limit = PLAN_LIMITS[selectedPlan]?.galleryPhotos ?? 50;
+      <p className="mt-2 text-sm text-stone-600">
+        {form.plan === "premium"
+          ? `${galleryPhotos.length} gallery photo${
+              galleryPhotos.length === 1 ? "" : "s"
+            } selected. Premium allows unlimited photos.`
+          : `${galleryPhotos.length} of ${
+              form.plan === "plus" ? 150 : 50
+            } gallery photos selected.`}
+      </p>
 
-  if (Number.isFinite(limit) && files.length > limit) {
-    alert(
-      `${PLAN_LIMITS[selectedPlan].label} allows up to ${limit} gallery photos. You selected ${files.length}.`
-    );
-    e.target.value = "";
-    setGalleryPhotos([]);
-    return;
-  }
+      <p className="mt-2 text-sm text-stone-500">
+        You can select multiple gallery images at once.
+      </p>
 
-  setGalleryPhotos(files);
-}}
-                      className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
-                    />
-<p className="mt-2 text-sm text-stone-600">
-  {form.plan === "premium"
-    ? `${galleryPhotos.length} gallery photo${galleryPhotos.length === 1 ? "" : "s"} selected. Premium allows unlimited photos.`
-    : `${galleryPhotos.length} of ${
-        form.plan === "plus" ? 150 : 50
-      } gallery photos selected.`}
-</p>
-                    <p className="mt-2 text-sm text-stone-500">
-                      You can select multiple gallery images at once.
-                    </p>
-                    <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-  Photo uploads are not permanently saved until payment is completed. If you leave this page before checkout, uploaded files may need to be selected again.
-</div>
-                  </div>
-                </div>
-              </Section>
+      <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        Photo uploads are not permanently saved until payment is completed. If
+        you leave this page before checkout, uploaded files may need to be
+        selected again.
+      </div>
+    </div>
+  </div>
+</Section>
 
               <section className="rounded-3xl bg-white p-8 shadow-sm">
                 <h2 className="text-2xl font-bold text-stone-900">Memorial Videos</h2>
