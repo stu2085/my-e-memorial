@@ -68,7 +68,9 @@ const customerEmail = session.customer_details?.email;
 const canSendCustomerEmail =
   customerEmail &&
   !customerEmail.toLowerCase().endsWith("@example.com");
-const checkoutType = session.metadata?.type;
+const checkoutType =
+  session.metadata?.checkoutType ||
+  session.metadata?.type;
 const fromPlan = session.metadata?.fromPlan;
 const toPlan = session.metadata?.toPlan;
 
@@ -404,6 +406,8 @@ const billingPlanLabel =
     `,
   });
 }
-  return NextResponse.json({ received: true });
+    return NextResponse.json({ received: true });
 }
-  }
+
+return NextResponse.json({ received: true });
+}

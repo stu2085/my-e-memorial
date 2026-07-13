@@ -95,7 +95,7 @@ if (checkoutType !== "upgrade") {
         memorialId: memorialId ? String(memorialId) : "",
         submissionId: submissionId ? String(submissionId) : "",
         quantity: quantity ? String(quantity) : "",
-        type: checkoutType
+        checkoutType: checkoutType
   ? String(checkoutType)
   : isRenewal
     ? "renewal"
