@@ -1,6 +1,15 @@
 "use client";
 
 
+import { SlugEngine } from "../../lib/memorial-engine/SlugEngine";
+import { ValidationEngine } from "../../lib/memorial-engine/ValidationEngine";
+import { PersistenceEngine } from "../../lib/memorial-engine/PersistenceEngine";
+import { MediaEngine } from "../../lib/memorial-engine/MediaEngine";
+
+
+import type { UploadProgress } from "../../lib/photo-engine/uploadProgress";
+import type { GalleryPhoto } from "../../lib/photo-engine/GalleryPhoto";
+
 import CreateVideoMemoriesSection from "../components/CreateVideoMemoriesSection";
 import CreateGallerySection from "../components/CreateGallerySection";
 import FavoriteSongsSection from "../components/FavoriteSongsSection";
@@ -15,7 +24,7 @@ import SocialMediaSection from "../components/SocialMediaSection";
 
 import PlacesWorkedSection from "../components/PlacesWorkedSection";
 import SchoolsAndAwardsSection from "../components/SchoolsAndAwardsSection";
-import { optimizeImage } from "../lib/optimizeImage";
+
 
 import { ChangeEvent, FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -205,7 +214,13 @@ const [paidExtraVideos, setPaidExtraVideos] = useState(0);
 const [featuredPhoto, setFeaturedPhoto] = useState<File | null>(null);
   const [headstonePhoto1, setHeadstonePhoto1] = useState<File | null>(null);
   const [headstonePhoto2, setHeadstonePhoto2] = useState<File | null>(null);
-  const [galleryPhotos, setGalleryPhotos] = useState<File[]>([]);
+  const [galleryPhotos, setGalleryPhotos] = useState<GalleryPhoto[]>([]);
+  const [galleryUploadProgress, setGalleryUploadProgress] =
+  useState<UploadProgress | null>(null);
+  const [isGalleryUploading, setIsGalleryUploading] = useState(false);
+
+
+
   const [favoriteSongFile, setFavoriteSongFile] = useState<File | null>(null);
 const [draftReady, setDraftReady] = useState(false);
   const [videoFiles, setVideoFiles] = useState<File[]>([]);
@@ -490,91 +505,11 @@ useEffect(() => {
     }
   }
 
-  function makeSlug() {
-    const fullName = `${form.firstName} ${form.middleName} ${form.lastName}`
-      .replace(/\s+/g, " ")
-      .trim();
+  
 
-    return fullName
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-");
-  }
+  
 
-  async function generateUniqueSlug(baseSlug: string) {
-    let candidate = baseSlug;
-    let counter = 2;
-
-    while (true) {
-      const { data, error } = await supabase
-        .from("memorials")
-        .select("id")
-        .eq("slug", candidate)
-        .maybeSingle();
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (!data) {
-        return candidate;
-      }
-
-      candidate = `${baseSlug}-${counter}`;
-      counter += 1;
-    }
-  }
-
-  async function uploadFile(file: File, folder: string, bucket: string) {
-  const fileToUpload =
-    bucket === "memorial-photos" ? await optimizeImage(file) : file;
-
-  const fileExt = fileToUpload.name.split(".").pop();
-  const fileName = `${Date.now()}-${Math.random()
-    .toString(36)
-    .slice(2)}.${fileExt}`;
-  const filePath = `${folder}/${fileName}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from(bucket)
-    .upload(filePath, fileToUpload);
-
-  if (uploadError) {
-    throw new Error(uploadError.message);
-  }
-
-  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-
-  return data.publicUrl;
-}
-
-  function getVideoDuration(file: File): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const video = document.createElement("video");
-    const url = URL.createObjectURL(file);
-
-    video.preload = "metadata";
-
-    video.onloadedmetadata = () => {
-      URL.revokeObjectURL(url);
-
-      if (!Number.isFinite(video.duration) || video.duration <= 0) {
-        reject(new Error(`Could not read video duration for ${file.name}`));
-        return;
-      }
-
-      resolve(video.duration);
-    };
-
-    video.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error(`Could not read video duration for ${file.name}`));
-    };
-
-    video.src = url;
-    video.load();
-  });
-}
+  
 
  async function handleVideoChange(e: ChangeEvent<HTMLInputElement>) {
   const files = Array.from(e.target.files || []);
@@ -613,13 +548,13 @@ useEffect(() => {
 let existingVideoSeconds = 0;
 
 for (const file of videoFiles) {
-  existingVideoSeconds += await getVideoDuration(file);
+  existingVideoSeconds += await MediaEngine.getVideoDuration(file)
 }
 
 let newVideoSeconds = 0;
 
 for (const file of newUniqueFiles) {
-  newVideoSeconds += await getVideoDuration(file);
+  newVideoSeconds += await MediaEngine.getVideoDuration(file);
 }
 
 if (existingVideoSeconds + newVideoSeconds > maxTotalVideoSeconds) {
@@ -631,7 +566,7 @@ if (existingVideoSeconds + newVideoSeconds > maxTotalVideoSeconds) {
 }
 
   for (const file of newUniqueFiles) {
-    const duration = await getVideoDuration(file);
+    const duration = await MediaEngine.getVideoDuration(file);
 
     if (duration > 300) {
       setVideoError(
@@ -654,82 +589,7 @@ e.target.value = "";
 }
 
 
-  async function uploadVideos(slug: string) {
-  if (videoFiles.length === 0) return [];
-
-  const oversizedFile = videoFiles.find(
-    (file) => file.size > MAX_VIDEO_SIZE_BYTES
-  );
-
-  if (oversizedFile) {
-    throw new Error(
-      `"${oversizedFile.name}" is too large. Maximum video size is 1 GB.`
-    );
-  }
-
-  const uploadedVideos: {
-    playbackId: string;
-    durationSeconds: number;
-    note: string;
-    originalFilename: string;
-  fileSize: number;
-  }[] = [];
-
-  for (let index = 0; index < videoFiles.length; index++) {
-    const file = videoFiles[index];
-    const duration = await getVideoDuration(file);
-
-    if (duration > 300) {
-      throw new Error(
-        `"${file.name}" is longer than 5 minutes. Please remove it before saving.`
-      );
-    }
-
-    const uploadRes = await fetch("/api/mux-upload", {
-      method: "POST",
-    });
-
-    const uploadData = await uploadRes.json();
-
-    if (!uploadRes.ok || !uploadData.uploadUrl || !uploadData.uploadId) {
-      throw new Error(uploadData.error || "Could not create Mux upload.");
-    }
-
-    const putRes = await fetch(uploadData.uploadUrl, {
-      method: "PUT",
-      body: file,
-      headers: {
-        "Content-Type": file.type,
-      },
-    });
-
-    if (!putRes.ok) {
-      throw new Error(`Mux upload failed for ${file.name}.`);
-    }
-
-    const playbackRes = await fetch("/api/mux-playback", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ uploadId: uploadData.uploadId }),
-    });
-
-    const playbackData = await playbackRes.json();
-
-    if (playbackData.playbackId) {
-      uploadedVideos.push({
-  playbackId: playbackData.playbackId,
-  durationSeconds: Math.round(duration),
-  note: videoNotes[index] || "",
-  originalFilename: file.name,
-  fileSize: file.size,
-});
-    }
-  }
-
-  return uploadedVideos;
-}
+  
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -739,40 +599,30 @@ e.target.value = "";
     setSuccessMessage("");
 
     try {
-      const baseSlug = makeSlug();
-
-      if (!form.firstName.trim() || !form.lastName.trim()) {
-        throw new Error("Please enter both a first and last name before continuing.");
-      }
-
-      if (!form.plan) {
-        throw new Error("Please choose a memorial plan before continuing.");
-      }
+      const baseSlug = SlugEngine.createBaseSlug({
+  firstName: form.firstName,
+  middleName: form.middleName,
+  lastName: form.lastName,
+});
 
       let selectedPlan = form.plan as PlanKey;
-      const limits = PLAN_LIMITS[selectedPlan];
+const limits = PLAN_LIMITS[selectedPlan];
 
-      if (!limits) {
-        throw new Error("Please choose a valid memorial plan before continuing.");
-      }
+ValidationEngine.validateBasicMemorial({
+  firstName: form.firstName,
+  lastName: form.lastName,
+  selectedPlan: form.plan,
+  planLimits: limits,
+  isPaid,
+  galleryPhotos,
+});
 
-      if (galleryPhotos.length > limits.galleryPhotos) {
-        throw new Error(
-          `${limits.label} allows up to ${limits.galleryPhotos} gallery photos.`
-        );
-      }
-
-      let totalVideoSeconds = 0;
-
-for (const file of videoFiles) {
-  totalVideoSeconds += await getVideoDuration(file);
-}
-
-if (totalVideoSeconds > limits.videoMinutes * 60) {
-  throw new Error(
-    `${limits.label} allows up to ${limits.videoMinutes} minutes of Video Memories.`
-  );
-}
+      await ValidationEngine.validateVideos({
+  videoFiles,
+  getVideoDuration: MediaEngine.getVideoDuration,
+  maximumVideoMinutes: limits.videoMinutes,
+  planLabel: limits.label,
+});
 
       if (
         (form.finalRestingType === "buried" || form.finalRestingType === "cremated") &&
@@ -781,51 +631,55 @@ if (totalVideoSeconds > limits.videoMinutes * 60) {
         throw new Error("Please center the map or place a pin before saving the final resting place.");
       }
 
-      const slug = await generateUniqueSlug(baseSlug);
-      const uploadedVideoUrls = await uploadVideos(slug);
+      const slug = await SlugEngine.createUniqueSlug(baseSlug);
+      const uploadedVideoUrls =
+  await MediaEngine.uploadVideos({
+    videoFiles,
+    videoNotes,
+  });
       const folder = slug;
 
-      let featuredPhotoUrl = "";
-let headstonePhoto1Url = "";
-let headstonePhoto2Url = "";
-let galleryPhotoUrls: string[] = [];
-let favoriteSongUrl = "";
-if (featuredPhoto) {
-  featuredPhotoUrl = await uploadFile(
+      const featuredPhotoUrl =
+  await MediaEngine.uploadOptionalFile(
     featuredPhoto,
     folder,
     "memorial-photos"
   );
-}
-      if (headstonePhoto1) {
-        headstonePhoto1Url = await uploadFile(
-          headstonePhoto1,
-          folder,
-          "memorial-photos"
-        );
-      }
 
-      if (headstonePhoto2) {
-        headstonePhoto2Url = await uploadFile(
-          headstonePhoto2,
-          folder,
-          "memorial-photos"
-        );
-      }
+const headstonePhoto1Url =
+  await MediaEngine.uploadOptionalFile(
+    headstonePhoto1,
+    folder,
+    "memorial-photos"
+  );
+
+const headstonePhoto2Url =
+  await MediaEngine.uploadOptionalFile(
+    headstonePhoto2,
+    folder,
+    "memorial-photos"
+  );
+
+let galleryPhotoUrls: string[] = [];
+let favoriteSongUrl = "";
 
       if (galleryPhotos.length > 0) {
-        galleryPhotoUrls = await Promise.all(
-          galleryPhotos.map((file) => uploadFile(file, folder, "memorial-photos"))
-        );
-      }
+  galleryPhotoUrls =
+  await MediaEngine.uploadSelectedGalleryPhotos({
+    photos: galleryPhotos,
+    slug,
+    setGalleryPhotos,
+    setGalleryUploadProgress,
+    setIsGalleryUploading,
+  });
+}
 
-      if (favoriteSongFile) {
-        favoriteSongUrl = await uploadFile(
-          favoriteSongFile,
-          folder,
-          "memorial-audio"
-        );
-      }
+      favoriteSongUrl =
+  await MediaEngine.uploadOptionalFile(
+    favoriteSongFile,
+    folder,
+    "memorial-audio"
+  );
 
       const fullName = [
   form.firstName,
@@ -886,128 +740,44 @@ if (form.betaCode.trim()) {
 //   throw new Error("You must be logged in before creating a memorial.");
 // }
 
-      const { data: createdMemorial, error } = await supabase
-        .from("memorials")
-        .insert({
-          slug,
-          full_name: fullName,
-          first_name: form.firstName,
-          middle_name: form.middleName,
-          last_name: form.lastName,
-          owner_id: authUser?.id ?? null,
-          backup_email: form.backupEmail,
-backup_password: form.backupPassword,
-backup_street: form.backupStreet,
-backup_city: form.backupCity,
-backup_state: form.backupState,
-backup_zip: form.backupZip,
-creator_street: form.creatorStreet,
-creator_city: form.creatorCity,
-creator_state: form.creatorState,
-creator_zip: form.creatorZip,
-          maiden_name: form.maidenName,
-          nickname: form.nickname,
-          gender: form.gender,
-          plan: selectedPlan,
-          is_living_preplan: form.isLivingPreplan,
-          is_published:
-  form.isLivingPreplan || requiresReview ? false : true,
-  needs_review: requiresReview,
-          birth_date: form.birthDate || null,
-          death_date: form.deathDate || null,
-          obituary: form.obituary,
-          obituary_url: form.obituaryUrl,
-          life_story: form.lifeStory,
-          great_grandparents_names: form.greatGrandparentsNames,
-grandparents_father_side: form.grandparentsFatherSide,
-grandparents_mother_side: form.grandparentsMotherSide,
-parents_names: form.parentsNames,
-siblings_names: form.siblingsNames,
-          cemetery_name: form.cemeteryName,
-          grave_section: form.graveSection,
-          grave_row: form.graveRow,
-          grave_plot: form.gravePlot,
-          grave_lat: form.graveLat ? Number(form.graveLat) : null,
-          grave_lng: form.graveLng ? Number(form.graveLng) : null,
-          grave_directions: form.graveDirections,
-          map_street: form.mapStreet,
-          map_city: form.mapCity,
-          map_state: form.mapState,
-          map_zip: form.mapZip,
-          map_country: form.mapCountry,
-          places_lived: form.placesLived,
-          places_worked: form.placesWorked,
-          schools_attended: form.schoolsAttended,
-          awards_won: form.awardsWon,
-          social_link_1: form.socialLink1,
-social_link_2: form.socialLink2,
-social_link_3: form.socialLink3,
-social_link_4: form.socialLink4,
-social_link_5: form.socialLink5,
-featured_photo_url: featuredPhotoUrl,
-          headstone_photo_1: headstonePhoto1Url,
-          headstone_photo_2: headstonePhoto2Url,
-          gallery_photos: galleryPhotoUrls.join(","),
-          favorite_song_url: favoriteSongUrl,
-          video_urls: uploadedVideoUrls.map((video) => video.playbackId),
-video_notes: uploadedVideoUrls.map((video) => video.note),
-final_resting_type: form.finalRestingType,
-          ashes_location_description: form.ashesLocationDescription,
-          backup_person_name: form.backupPersonName,
-          payment_status: usingBetaCode ? "free_beta" : "paid",
-payment_source: usingBetaCode ? "beta_code" : "stripe",
-beta_code_used: usingBetaCode
-  ? form.betaCode.trim().toUpperCase()
-  : null,
-  promotion_category: usingBetaCode
-  ? form.promotionCategory
-  : null,
-                })
-        .select("id")
-        .single();
+      const memorialData = PersistenceEngine.buildMemorialData({
+  slug,
+  form,
+  fullName,
+  ownerId: authUser?.id ?? null,
+  selectedPlan,
+  requiresReview,
+  usingBetaCode,
+  featuredPhotoUrl,
+  headstonePhoto1Url,
+  headstonePhoto2Url,
+  galleryPhotoUrls,
+  favoriteSongUrl,
+  uploadedVideos: uploadedVideoUrls,
+});
 
-      if (error) {
-        console.error("SUPABASE INSERT ERROR:", error);
-        throw new Error(error.message);
-      }
-      if (createdMemorial && uploadedVideoUrls.length > 0) {
-  const { error: videoInsertError } = await supabase
-    .from("memorial_videos")
-    .insert(
-      uploadedVideoUrls.map((video, index) => ({
-        memorial_id: createdMemorial.id,
-        playback_id: video.playbackId,
-        duration_seconds: video.durationSeconds,
-        note: video.note,
-        sort_order: index,
-        original_filename: video.originalFilename,
-file_size: video.fileSize,
-processing_status: "ready",
-      }))
-    );
+const createResult = await PersistenceEngine.createMemorial({
+  slug,
+  memorialData,
+});
 
-  if (videoInsertError) {
-    console.error("VIDEO INSERT ERROR:", videoInsertError);
-    throw new Error(videoInsertError.message);
-  }
+if (!createResult.success || !createResult.memorialId) {
+  throw new Error(
+    createResult.error || "The memorial could not be created."
+  );
 }
+
+const createdMemorial = {
+  id: createResult.memorialId,
+};
+      await PersistenceEngine.createMemorialVideos({
+  memorialId: createdMemorial.id,
+  videos: uploadedVideoUrls,
+});
 if (usingBetaCode && form.betaCode.trim()) {
-  const enteredCode = form.betaCode.trim().toUpperCase();
-
-  const { data: promoCode } = await supabase
-    .from("promo_codes")
-    .select("id, uses_count")
-    .eq("code", enteredCode)
-    .maybeSingle();
-
-  if (promoCode) {
-    await supabase
-      .from("promo_codes")
-      .update({
-        uses_count: Number(promoCode.uses_count || 0) + 1,
-      })
-      .eq("id", promoCode.id);
-  }
+  await PersistenceEngine.incrementPromoCodeUsage(
+    form.betaCode
+  );
 }
       localStorage.removeItem("memorialDraft");
 localStorage.removeItem("paidExtraVideos");
@@ -1026,7 +796,7 @@ if (requiresReview) {
   );
 }
 
-window.location.assign(`/memorial/${slug}`);
+window.location.assign(`/memorial/${slug}/edit`);
       return;
     } catch (error) {
       console.error("CREATE MEMORIAL ERROR:", error);
@@ -1185,6 +955,7 @@ async function handleBuyExtraVideos(extraCount: number) {
   setFeaturedPhotoFile={setFeaturedPhoto}
   isSaving={isSubmitting}
   isPublished={false}
+  isPaid={isPaid}
 />
      {form.isLivingPreplan && (
   <BackupPersonSection
@@ -1194,18 +965,12 @@ async function handleBuyExtraVideos(extraCount: number) {
     isPublished={false}
   />
 )}
-        
-{form.isLivingPreplan && (
-  <BackupPersonSection
-  form={form}
-  handleChange={handleChange}
-/>
-)}
              <ObituarySection
   form={form}
   handleChange={handleChange}
   isSaving={isSubmitting}
   isPublished={false}
+  isPaid={isPaid}
 />
 
 <LifeStorySection
@@ -1224,15 +989,16 @@ async function handleBuyExtraVideos(extraCount: number) {
               <FavoriteSongsSection
   firstName={form.firstName}
   favoriteSongUrl=""
-favoriteSongUrls={[]}
-favoriteSongNotes={[]}
+  favoriteSongUrls={[]}
+  favoriteSongNotes={[]}
   handleChange={handleChange}
   setForm={setForm}
+  isPaid={isPaid}
   setFavoriteSongFiles={(filesOrUpdater) => {
-  if (Array.isArray(filesOrUpdater)) {
-    setFavoriteSongFile(filesOrUpdater[0] ?? null);
-  }
-}}
+    if (Array.isArray(filesOrUpdater)) {
+      setFavoriteSongFile(filesOrUpdater[0] ?? null);
+    }
+  }}
 />
 
               <FinalRestingPlaceSection
@@ -1269,9 +1035,10 @@ favoriteSongNotes={[]}
               <Section title="Photo Uploads">
   <div className="space-y-6">
     <HeadstonePhotosSection
-      setHeadstonePhoto1File={setHeadstonePhoto1}
-      setHeadstonePhoto2File={setHeadstonePhoto2}
-    />
+  setHeadstonePhoto1File={setHeadstonePhoto1}
+  setHeadstonePhoto2File={setHeadstonePhoto2}
+  isPaid={isPaid}
+/>
 
     <div>
   <label className="mb-2 block text-sm font-semibold text-stone-800">
@@ -1279,21 +1046,19 @@ favoriteSongNotes={[]}
   </label>
 
   <CreateGallerySection
-    form={form}
-    galleryPhotos={galleryPhotos}
-    setGalleryPhotos={setGalleryPhotos}
-    PLAN_LIMITS={PLAN_LIMITS}
-  />
+  form={form}
+  galleryPhotos={galleryPhotos}
+  setGalleryPhotos={setGalleryPhotos}
+  galleryUploadProgress={galleryUploadProgress}
+  isPaid={isPaid}
+  PLAN_LIMITS={PLAN_LIMITS}
+/>
 
   <p className="mt-2 text-sm text-stone-500">
     You can select multiple gallery images at once.
   </p>
 
-  <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-    Photo uploads are not permanently saved until payment is completed. If you
-    leave this page before checkout, uploaded files may need to be selected
-    again.
-  </div>
+  
 </div>
   </div>
 </Section>

@@ -6,12 +6,17 @@ import QuickSaveButton from "./QuickSaveButton";
 type Props = {
   form: any;
   handleChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => void;
   setForm?: React.Dispatch<React.SetStateAction<any>>;
-  setObituaryImageFile?: React.Dispatch<React.SetStateAction<File | null>>;
+  setObituaryImageFile?: React.Dispatch<
+    React.SetStateAction<File | null>
+  >;
   isSaving: boolean;
   isPublished: boolean;
+  isPaid?: boolean;
 };
 
 export default function ObituarySection({
@@ -21,6 +26,7 @@ export default function ObituarySection({
   setObituaryImageFile,
   isSaving,
   isPublished,
+  isPaid = true,
 }: Props) {
   return (
     <FormSection
@@ -53,40 +59,48 @@ export default function ObituarySection({
       obituary if text cannot be copied.
     </p>
 
-    {form.obituaryImageUrl && (
-      <div className="mt-4 space-y-3">
-        <img
-          src={form.obituaryImageUrl}
-          alt="Uploaded obituary"
-          className="max-h-96 w-full rounded-2xl bg-white object-contain"
-        />
+       {form.obituaryImageUrl && (
+  <div className="mt-4 space-y-3">
+    <img
+      src={form.obituaryImageUrl}
+      alt="Uploaded obituary"
+      className="max-h-96 w-full rounded-2xl bg-white object-contain"
+    />
 
-        <button
-          type="button"
-          onClick={() => {
-            if (!confirm("Delete this obituary image?")) return;
+    <button
+      type="button"
+      onClick={() => {
+        if (!confirm("Delete this obituary image?")) return;
 
-            setForm((prev: any) => ({
-              ...prev,
-              obituaryImageUrl: "",
-            }));
+        setForm((prev: any) => ({
+          ...prev,
+          obituaryImageUrl: "",
+        }));
 
-            setObituaryImageFile(null);
-          }}
-          className="w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
-        >
-          Delete Obituary Image
-        </button>
-      </div>
+        setObituaryImageFile(null);
+      }}
+      className="w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
+    >
+      Delete Obituary Image
+    </button>
+  </div>
+)}
+
+    {!isPaid && (
+      <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        Choose a memorial plan and complete payment before uploading an obituary
+        image.
+      </p>
     )}
 
     <input
       type="file"
       accept="image/*"
+      disabled={!isPaid}
       onChange={(e) =>
         setObituaryImageFile(e.target.files?.[0] ?? null)
       }
-      className="mt-4 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3"
+      className="mt-4 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400"
     />
   </div>
 )}

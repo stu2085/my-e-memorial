@@ -9,6 +9,7 @@ type FavoriteSongsSectionProps = {
 
   isSaving?: boolean;
   isPublished?: boolean;
+  isPaid?: boolean;
 
   handleChange?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -25,16 +26,17 @@ export default function FavoriteSongsSection({
   favoriteSongNotes,
   isSaving,
   isPublished,
+  isPaid = true,
   handleChange,
   setForm,
   setFavoriteSongFiles,
 }: FavoriteSongsSectionProps) {
   const songsToShow =
-  favoriteSongUrls && favoriteSongUrls.length > 0
-    ? favoriteSongUrls
-    : favoriteSongUrl
-      ? [favoriteSongUrl]
-      : [];
+    favoriteSongUrls && favoriteSongUrls.length > 0
+      ? favoriteSongUrls
+      : favoriteSongUrl
+        ? [favoriteSongUrl]
+        : [];
 
   return (
     <section className="rounded-3xl border border-stone-200 bg-white/90 p-5 shadow-sm">
@@ -45,8 +47,8 @@ export default function FavoriteSongsSection({
 
         <p className="mt-1 text-sm text-stone-600">
           Add up to 5 favorite songs and a short note about each one. Tip:
-          Record song on phone using Quickvoice or similar app and upload that
-          file.
+          Record a song on your phone using QuickVoice or a similar app and
+          upload that file.
         </p>
       </div>
 
@@ -59,7 +61,7 @@ export default function FavoriteSongsSection({
           <input
             name="favoriteSongUrl"
             value={favoriteSongUrl ?? ""}
-onChange={handleChange}
+            onChange={handleChange}
             className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
           />
         </div>
@@ -73,6 +75,12 @@ onChange={handleChange}
             Upload MP3, M4A, AAC, or WAV audio files. Most phone recordings are
             supported.
           </p>
+
+          {!isPaid && (
+            <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Complete payment to unlock music-file uploads.
+            </div>
+          )}
 
           {songsToShow.length > 0 && (
             <div className="mb-4 space-y-3">
@@ -156,11 +164,21 @@ onChange={handleChange}
             type="file"
             accept=".mp3,.m4a,.aac,.wav,audio/*"
             multiple
+            disabled={!isPaid}
             onChange={(e) => {
+              if (!isPaid) {
+                e.target.value = "";
+                return;
+              }
+
               const files = Array.from(e.target.files || []).slice(0, 5);
               setFavoriteSongFiles?.(files);
             }}
-            className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+            className={`w-full rounded-xl border px-3 py-2 text-sm outline-none transition ${
+              isPaid
+                ? "border-stone-300 bg-white text-stone-900 focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+                : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400 opacity-70"
+            }`}
           />
 
           <p className="mt-2 text-xs text-stone-500">
@@ -175,9 +193,13 @@ onChange={handleChange}
         </div>
       </div>
 
-      {typeof isSaving === "boolean" && typeof isPublished === "boolean" && (
-  <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
-)}
+      {typeof isSaving === "boolean" &&
+        typeof isPublished === "boolean" && (
+          <QuickSaveButton
+            isSaving={isSaving}
+            isPublished={isPublished}
+          />
+        )}
     </section>
   );
 }

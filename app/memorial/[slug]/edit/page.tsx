@@ -274,9 +274,10 @@ const galleryDragSensors = useSensors(
   const [galleryInputResetKey, setGalleryInputResetKey] = useState(0);
   const [newspaperArticleFiles, setNewspaperArticleFiles] = useState<File[]>([]);
   const [videoFiles, setVideoFiles] = useState<File[]>([]);
-  const [videoError, setVideoError] = useState("");
-  const [existingVideos, setExistingVideos] = useState<string[]>([]);
-  const [videoNotes, setVideoNotes] = useState<string[]>([]);
+const [selectedVideoNotes, setSelectedVideoNotes] = useState<string[]>([]);
+const [videoError, setVideoError] = useState("");
+const [existingVideos, setExistingVideos] = useState<string[]>([]);
+const [videoNotes, setVideoNotes] = useState<string[]>([]);
   const [existingVideoDurations, setExistingVideoDurations] = useState<number[]>([]);
   const [selectedVideoDurations, setSelectedVideoDurations] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -566,9 +567,15 @@ if (totalVideoSeconds > maxVideoMinutes * 60) {
     return;
   }
 
-  // ✅ Passed all checks
-  setVideoFiles((prev) => [...prev, ...newUniqueFiles]);
-  e.target.value = "";
+  // Passed all checks
+setVideoFiles((prev) => [...prev, ...newUniqueFiles]);
+
+setSelectedVideoNotes((prev) => [
+  ...prev,
+  ...newUniqueFiles.map(() => ""),
+]);
+
+e.target.value = "";
 }
 
   
@@ -1180,18 +1187,25 @@ if (updateVideoError) {
   };
 });
 
-      setExistingVideos([
-  ...existingVideos,
+      setExistingVideos((prev) => [
+  ...prev,
   ...newPlaybackIds.map((video) => video.playbackId),
 ]);
-      setFavoriteSongFiles([]);
-      setHeadstonePhoto1File(null);
-      setHeadstonePhoto2File(null);
-      setGalleryPhotoFiles([]);
-      setGalleryInputResetKey((prev) => prev + 1);
-      setNewspaperArticleFiles([]);
-      setVideoFiles([]);
-      setSelectedVideoDurations([]);
+
+setVideoNotes((prev) => [
+  ...prev,
+  ...selectedVideoNotes,
+]);
+
+setFavoriteSongFiles([]);
+setHeadstonePhoto1File(null);
+setHeadstonePhoto2File(null);
+setGalleryPhotoFiles([]);
+setGalleryInputResetKey((prev) => prev + 1);
+setNewspaperArticleFiles([]);
+setVideoFiles([]);
+setSelectedVideoNotes([]);
+setSelectedVideoDurations([]);
 
       setSuccessMessage(
   videoFiles.length > 0
@@ -1304,7 +1318,7 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
 async function uploadVideos() {
   return uploadVideoMemories({
     videoFiles,
-    videoNotes,
+    videoNotes: selectedVideoNotes,
     maxVideoSizeBytes: MAX_VIDEO_SIZE_BYTES,
     onError: setVideoError,
   });
@@ -1600,22 +1614,26 @@ async function handlePublishMemorial() {
   
   <div className="space-y-5">
     <VideoUploadSection
-      isPublished={isPublished}
-      videoFiles={videoFiles}
-      handleVideoChange={handleVideoChange}
-      newVideoLinkUrl={newVideoLinkUrl}
-      setNewVideoLinkUrl={setNewVideoLinkUrl}
-      newVideoLinkNote={newVideoLinkNote}
-      setNewVideoLinkNote={setNewVideoLinkNote}
-      form={form}
-      setForm={setForm}
-      existingVideosLength={existingVideos.length}
-      paidExtraVideos={paidExtraVideos}
-      handleBuyExtraVideos={handleBuyExtraVideos}
-      videoError={videoError}
-      existingVideoDurations={existingVideoDurations}
-      selectedVideoDurations={selectedVideoDurations}
-    />
+  isPublished={isPublished}
+  videoFiles={videoFiles}
+  setVideoFiles={setVideoFiles}
+  selectedVideoNotes={selectedVideoNotes}
+  setSelectedVideoNotes={setSelectedVideoNotes}
+  handleVideoChange={handleVideoChange}
+  newVideoLinkUrl={newVideoLinkUrl}
+  setNewVideoLinkUrl={setNewVideoLinkUrl}
+  newVideoLinkNote={newVideoLinkNote}
+  setNewVideoLinkNote={setNewVideoLinkNote}
+  form={form}
+  setForm={setForm}
+  existingVideosLength={existingVideos.length}
+  paidExtraVideos={paidExtraVideos}
+  handleBuyExtraVideos={handleBuyExtraVideos}
+  videoError={videoError}
+  existingVideoDurations={existingVideoDurations}
+  selectedVideoDurations={selectedVideoDurations}
+  setSelectedVideoDurations={setSelectedVideoDurations}
+/>
 
     <VideoMemoriesEditor
       existingVideos={existingVideos}

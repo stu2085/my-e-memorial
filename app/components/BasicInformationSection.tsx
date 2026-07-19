@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import FormSection from "./FormSection";
 import Input from "./Input";
 import QuickSaveButton from "./QuickSaveButton";
@@ -5,11 +8,16 @@ import QuickSaveButton from "./QuickSaveButton";
 type Props = {
   form: any;
   handleChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => void;
-  setFeaturedPhotoFile: React.Dispatch<React.SetStateAction<File | null>>;
+  setFeaturedPhotoFile: React.Dispatch<
+    React.SetStateAction<File | null>
+  >;
   isSaving: boolean;
   isPublished: boolean;
+  isPaid?: boolean;
 };
 
 export default function BasicInformationSection({
@@ -18,7 +26,39 @@ export default function BasicInformationSection({
   setFeaturedPhotoFile,
   isSaving,
   isPublished,
+  isPaid = true,
 }: Props) {
+  const [featuredPhotoPreview, setFeaturedPhotoPreview] = useState<
+    string | null
+  >(null);
+
+  useEffect(() => {
+    return () => {
+      if (featuredPhotoPreview) {
+        URL.revokeObjectURL(featuredPhotoPreview);
+      }
+    };
+  }, [featuredPhotoPreview]);
+
+  function handleFeaturedPhotoChange(
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const file = e.target.files?.[0] ?? null;
+
+    setFeaturedPhotoFile(file);
+
+    setFeaturedPhotoPreview((currentPreview) => {
+      if (currentPreview) {
+        URL.revokeObjectURL(currentPreview);
+      }
+
+      return file ? URL.createObjectURL(file) : null;
+    });
+  }
+
+  const displayedFeaturedPhoto =
+    featuredPhotoPreview || form.featuredPhotoUrl;
+
   return (
     <FormSection
       title="Basic Information"
@@ -34,21 +74,35 @@ export default function BasicInformationSection({
             This photo will appear at the top of the public memorial page.
           </p>
 
-          {form.featuredPhotoUrl && (
-            <img
-              src={form.featuredPhotoUrl}
-              alt="Featured memorial photo"
-              className="mt-4 h-48 w-48 rounded-3xl object-cover shadow-sm"
-            />
+          {displayedFeaturedPhoto && (
+            <div className="mt-4">
+              <img
+                src={displayedFeaturedPhoto}
+                alt="Featured memorial photo"
+                className="h-48 w-48 rounded-3xl object-cover shadow-sm"
+              />
+
+              {featuredPhotoPreview && (
+                <p className="mt-2 text-xs font-medium text-green-700">
+                  New photo selected. Click Save Changes to keep it.
+                </p>
+              )}
+            </div>
+          )}
+
+          {!isPaid && (
+            <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Choose a memorial plan and complete payment before uploading
+              photos.
+            </p>
           )}
 
           <input
             type="file"
             accept="image/*"
-            onChange={(e) =>
-              setFeaturedPhotoFile(e.target.files?.[0] ?? null)
-            }
-            className="mt-4 w-full rounded-2xl border bg-white px-4 py-3"
+            disabled={!isPaid}
+            onChange={handleFeaturedPhotoChange}
+            className="mt-4 w-full rounded-2xl border bg-white px-4 py-3 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400"
           />
         </div>
 
