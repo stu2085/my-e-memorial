@@ -129,7 +129,11 @@ export default function FamilyHistorySection({
         />
       </div>
 
-      <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+      <QuickSaveButton
+  sectionId="family-history"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
     </section>
   );
 }

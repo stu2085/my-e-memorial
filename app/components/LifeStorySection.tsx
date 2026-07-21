@@ -30,7 +30,11 @@ export default function LifeStorySection({
         rows={8}
       />
 
-      <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+      <QuickSaveButton
+  sectionId="life-story"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
     </FormSection>
   );
 }

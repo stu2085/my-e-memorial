@@ -5,13 +5,14 @@ import { SlugEngine } from "../../lib/memorial-engine/SlugEngine";
 import { ValidationEngine } from "../../lib/memorial-engine/ValidationEngine";
 import { PersistenceEngine } from "../../lib/memorial-engine/PersistenceEngine";
 import { MediaEngine } from "../../lib/memorial-engine/MediaEngine";
-
+import PlacesLivedSection from "../components/PlacesLivedSection";
 
 import type { UploadProgress } from "../../lib/photo-engine/uploadProgress";
 import type { GalleryPhoto } from "../../lib/photo-engine/GalleryPhoto";
 
 import CreateVideoMemoriesSection from "../components/CreateVideoMemoriesSection";
 import CreateGallerySection from "../components/CreateGallerySection";
+import NewspaperArticlesSection from "../components/NewspaperArticlesSection";
 import FavoriteSongsSection from "../components/FavoriteSongsSection";
 import FinalRestingPlaceSection from "../components/FinalRestingPlaceSection";
 import HeadstonePhotosSection from "../components/HeadstonePhotosSection";
@@ -56,6 +57,7 @@ type FormState = {
   deathDate: string;
   obituary: string;
   obituaryUrl: string;
+  newspaperArticles: string;
   lifeStory: string;
   greatGrandparentsNames: string;
 grandparentsFatherSide: string;
@@ -121,6 +123,7 @@ const initialForm: FormState = {
   deathDate: "",
   obituary: "",
   obituaryUrl: "",
+  newspaperArticles: "",
   lifeStory: "",
   greatGrandparentsNames: "",
 grandparentsFatherSide: "",
@@ -215,6 +218,8 @@ const [featuredPhoto, setFeaturedPhoto] = useState<File | null>(null);
   const [headstonePhoto1, setHeadstonePhoto1] = useState<File | null>(null);
   const [headstonePhoto2, setHeadstonePhoto2] = useState<File | null>(null);
   const [galleryPhotos, setGalleryPhotos] = useState<GalleryPhoto[]>([]);
+  const [newspaperArticleFiles, setNewspaperArticleFiles] =
+  useState<File[]>([]);
   const [galleryUploadProgress, setGalleryUploadProgress] =
   useState<UploadProgress | null>(null);
   const [isGalleryUploading, setIsGalleryUploading] = useState(false);
@@ -661,6 +666,7 @@ const headstonePhoto2Url =
   );
 
 let galleryPhotoUrls: string[] = [];
+let newspaperArticleUrls = splitGalleryPhotos(form.newspaperArticles);
 let favoriteSongUrl = "";
 
       if (galleryPhotos.length > 0) {
@@ -672,6 +678,24 @@ let favoriteSongUrl = "";
     setGalleryUploadProgress,
     setIsGalleryUploading,
   });
+}
+if (newspaperArticleFiles.length > 0) {
+  const uploadedNewspaperArticleUrls = await Promise.all(
+    newspaperArticleFiles.map((file) =>
+      MediaEngine.uploadOptionalFile(
+        file,
+        folder,
+        "memorial-articles"
+      )
+    )
+  );
+
+  newspaperArticleUrls = [
+    ...newspaperArticleUrls,
+    ...uploadedNewspaperArticleUrls.filter(
+      (url): url is string => Boolean(url)
+    ),
+  ];
 }
 
       favoriteSongUrl =
@@ -752,7 +776,8 @@ if (form.betaCode.trim()) {
   headstonePhoto1Url,
   headstonePhoto2Url,
   galleryPhotoUrls,
-  favoriteSongUrl,
+newspaperArticleUrls,
+favoriteSongUrl,
   uploadedVideos: uploadedVideoUrls,
 });
 
@@ -786,6 +811,7 @@ setFeaturedPhoto(null);
 setHeadstonePhoto1(null);
 setHeadstonePhoto2(null);
 setGalleryPhotos([]);
+setNewspaperArticleFiles([]);
 setFavoriteSongFile(null);
 setVideoFiles([]);
 setVideoError("");
@@ -946,135 +972,11 @@ async function handleBuyExtraVideos(extraCount: number) {
             <form
   id="create-memorial-form"
   onSubmit={handleSubmit}
+  
   autoComplete="off"
   className="mt-8 space-y-8"
 >
-              <BasicInformationSection
-  form={form}
-  handleChange={handleChange}
-  setFeaturedPhotoFile={setFeaturedPhoto}
-  isSaving={isSubmitting}
-  isPublished={false}
-  isPaid={isPaid}
-/>
-     {form.isLivingPreplan && (
-  <BackupPersonSection
-    form={form}
-    handleChange={handleChange}
-    isSaving={isSubmitting}
-    isPublished={false}
-  />
-)}
-             <ObituarySection
-  form={form}
-  handleChange={handleChange}
-  isSaving={isSubmitting}
-  isPublished={false}
-  isPaid={isPaid}
-/>
-
-<LifeStorySection
-  form={form}
-  handleChange={handleChange}
-  isSaving={isSubmitting}
-  isPublished={false}
-/>
-<FamilyHistorySection
-  form={form}
-  handleChange={handleChange}
-  isSaving={isSubmitting}
-  isPublished={false}
-/>
-
-              <FavoriteSongsSection
-  firstName={form.firstName}
-  favoriteSongUrl=""
-  favoriteSongUrls={[]}
-  favoriteSongNotes={[]}
-  handleChange={handleChange}
-  setForm={setForm}
-  isPaid={isPaid}
-  setFavoriteSongFiles={(filesOrUpdater) => {
-    if (Array.isArray(filesOrUpdater)) {
-      setFavoriteSongFile(filesOrUpdater[0] ?? null);
-    }
-  }}
-/>
-
-              <FinalRestingPlaceSection
-  form={form}
-  handleChange={handleChange}
-  handleDispositionChange={handleChange}
-  handleCenterMap={handleCenterMap}
-  handleUseCurrentLocation={() => {}}
-  mapSearchStatus={mapSearchStatus}
-  locationStatus=""
-  setForm={setForm}
-/>
-<SocialMediaSection
-  form={form}
-  handleChange={handleChange}
-  isSaving={isSubmitting}
-  isPublished={false}
-/>
-
-<PlacesWorkedSection
-  placesWorked={form.placesWorked}
-  handleChange={handleChange}
-  isSaving={isSubmitting}
-  isPublished={false}
-/>
-
-<SchoolsAndAwardsSection
-  schoolsAttended={form.schoolsAttended}
-  awardsWon={form.awardsWon}
-  handleChange={handleChange}
-  isSaving={isSubmitting}
-  isPublished={false}
-/>
-              <Section title="Photo Uploads">
-  <div className="space-y-6">
-    <HeadstonePhotosSection
-  setHeadstonePhoto1File={setHeadstonePhoto1}
-  setHeadstonePhoto2File={setHeadstonePhoto2}
-  isPaid={isPaid}
-/>
-
-    <div>
-  <label className="mb-2 block text-sm font-semibold text-stone-800">
-    Gallery Photos
-  </label>
-
-  <CreateGallerySection
-  form={form}
-  galleryPhotos={galleryPhotos}
-  setGalleryPhotos={setGalleryPhotos}
-  galleryUploadProgress={galleryUploadProgress}
-  isPaid={isPaid}
-  PLAN_LIMITS={PLAN_LIMITS}
-/>
-
-  <p className="mt-2 text-sm text-stone-500">
-    You can select multiple gallery images at once.
-  </p>
-
-  
-</div>
-  </div>
-</Section>
-
-             <CreateVideoMemoriesSection
-  isPaid={isPaid}
-  videoFiles={videoFiles}
-  videoNotes={videoNotes}
-  videoError={videoError}
-  form={form}
-  handleVideoChange={handleVideoChange}
-  setVideoFiles={setVideoFiles}
-  setVideoNotes={setVideoNotes}
-/>
-
-              <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-3xl bg-white p-8 shadow-sm">
                 <h2 className="text-2xl font-bold text-stone-900">
                   Choose a Memorial Plan
                 </h2>
@@ -1159,7 +1061,6 @@ async function handleBuyExtraVideos(extraCount: number) {
                   Contributors may add photos and text for free, subject to memorial owner approval.
                 </p>
               </section>
-
               <section
   id="promo-access"
   className="scroll-mt-6 rounded-3xl bg-white p-8 shadow-sm"
@@ -1396,6 +1297,153 @@ setSuccessMessage(
                   </button>
                 </div>
               </section>
+              <BasicInformationSection
+  form={form}
+  handleChange={handleChange}
+  setFeaturedPhotoFile={setFeaturedPhoto}
+  isSaving={isSubmitting}
+  isPublished={false}
+  isPaid={isPaid}
+/>
+{form.isLivingPreplan && (
+ <BackupPersonSection
+    form={form}
+    handleChange={handleChange}
+    isSaving={isSubmitting}
+    isPublished={false}
+  />
+  )}
+<LifeStorySection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
+<FamilyHistorySection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
+<SocialMediaSection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
+<PlacesLivedSection
+  placesLived={form.placesLived}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
+<PlacesWorkedSection
+  placesWorked={form.placesWorked}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
+<SchoolsAndAwardsSection
+  schoolsAttended={form.schoolsAttended}
+  awardsWon={form.awardsWon}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
+<NewspaperArticlesSection
+  newspaperArticles={form.newspaperArticles}
+  handleChange={handleChange}
+  splitGalleryPhotos={splitGalleryPhotos}
+  setNewspaperArticles={(value) =>
+  setForm((previousForm) => ({
+    ...previousForm,
+    newspaperArticles: value,
+  }))
+}
+  setNewspaperArticleFiles={setNewspaperArticleFiles}
+  isSaving={isSubmitting}
+  isPublished={false}
+/>
+  <FavoriteSongsSection
+  firstName={form.firstName}
+  favoriteSongUrl=""
+  favoriteSongUrls={[]}
+  favoriteSongNotes={[]}
+  handleChange={handleChange}
+  setForm={setForm}
+  isPaid={isPaid}
+  setFavoriteSongFiles={(filesOrUpdater) => {
+    if (Array.isArray(filesOrUpdater)) {
+      setFavoriteSongFile(filesOrUpdater[0] ?? null);
+    }
+  }}
+/>
+ <Section title="Photo Gallery">
+  <div>
+    <CreateGallerySection
+      form={form}
+      galleryPhotos={galleryPhotos}
+      setGalleryPhotos={setGalleryPhotos}
+      galleryUploadProgress={galleryUploadProgress}
+      isPaid={isPaid}
+      PLAN_LIMITS={PLAN_LIMITS}
+    />
+
+    <p className="mt-2 text-sm text-stone-500">
+      You can select multiple gallery images at once.
+    </p>
+  </div>
+</Section>
+<CreateVideoMemoriesSection
+  isPaid={isPaid}
+  videoFiles={videoFiles}
+  videoNotes={videoNotes}
+  videoError={videoError}
+  form={form}
+  handleVideoChange={handleVideoChange}
+  setVideoFiles={setVideoFiles}
+  setVideoNotes={setVideoNotes}
+/>
+<HeadstonePhotosSection
+  setHeadstonePhoto1File={setHeadstonePhoto1}
+  setHeadstonePhoto2File={setHeadstonePhoto2}
+  isPaid={isPaid}
+/>
+ <ObituarySection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSubmitting}
+  isPublished={false}
+  isPaid={isPaid}
+/>
+   <FinalRestingPlaceSection
+  form={form}
+  handleChange={handleChange}
+  handleDispositionChange={handleChange}
+  handleCenterMap={handleCenterMap}
+  handleUseCurrentLocation={() => {}}
+  mapSearchStatus={mapSearchStatus}
+  locationStatus=""
+  setForm={setForm}
+/>
+     
+ 
+
+                    
+
+           
+
+
+
+
+
+             
+
+             
+
+              
+
+              
               
             </form>
           </div>
@@ -1420,6 +1468,12 @@ export default function CreatePage() {
       <CreatePageContent />
     </Suspense>
   );
+}
+function splitGalleryPhotos(value: string): string[] {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 function Section({
   title,

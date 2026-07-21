@@ -60,9 +60,10 @@ export default function SocialMediaSection({
       </div>
 
       <QuickSaveButton
-        isSaving={isSaving}
-        isPublished={isPublished}
-      />
+  sectionId="social-media"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
     </FormSection>
   );
 }

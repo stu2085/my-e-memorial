@@ -44,9 +44,10 @@ Naples, Florida`}
       </div>
 
       <QuickSaveButton
-        isSaving={isSaving}
-        isPublished={isPublished}
-      />
+  sectionId="places-lived"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
     </FormSection>
   );
 }

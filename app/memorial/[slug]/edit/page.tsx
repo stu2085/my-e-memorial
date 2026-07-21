@@ -11,7 +11,7 @@ import NewspaperArticlesSection from "../../../components/NewspaperArticlesSecti
 import HeadstonePhotosSection from "../../../components/HeadstonePhotosSection";
 import FinalRestingPlaceSection from "../../../components/FinalRestingPlaceSection";
 import BackupPersonSection from "../../../components/BackupPersonSection";
-
+import { SaveFeedbackProvider } from "../../../components/SaveFeedbackContext";
 import LifeStorySection from "../../../components/LifeStorySection";
 import ObituarySection from "../../../components/ObituarySection";
 import BasicInformationSection from "../../../components/BasicInformationSection";
@@ -265,6 +265,8 @@ const galleryDragSensors = useSensors(
   const [originalSlug, setOriginalSlug] = useState(slug);
 
   const [favoriteSongFiles, setFavoriteSongFiles] = useState<File[]>([]);
+const [selectedFavoriteSongNotes, setSelectedFavoriteSongNotes] =
+  useState<string[]>([]);
   const [featuredPhotoFile, setFeaturedPhotoFile] = useState<File | null>(null);
   const [headstonePhoto1File, setHeadstonePhoto1File] = useState<File | null>(null);
   const [headstonePhoto2File, setHeadstonePhoto2File] = useState<File | null>(null);
@@ -287,6 +289,7 @@ const [newVideoLinkUrl, setNewVideoLinkUrl] = useState("");
 const [newVideoLinkNote, setNewVideoLinkNote] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+const [savedSection, setSavedSection] = useState("");
   const [locationStatus, setLocationStatus] = useState("");
   const [mapSearchStatus, setMapSearchStatus] = useState("");
 const [backupLoginEmail, setBackupLoginEmail] = useState("");
@@ -897,8 +900,13 @@ async function uploadFile(file: File, folderName: string, bucketName: string) {
   return data.publicUrl;
 }
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+     
   e.preventDefault();
+const nativeEvent = e.nativeEvent as SubmitEvent;
+const submitter = nativeEvent.submitter as HTMLButtonElement | null;
+const submittedSection = submitter?.value || "general";
 
+setSavedSection(submittedSection);
   if (!(isOwner || isBackupUnlocked)) {
     setErrorMessage("You do not have permission to edit this memorial.");
     return;
@@ -1085,7 +1093,10 @@ favorite_song_urls: [
       : []),
   ...favoriteSongUrls,
 ].filter(Boolean).slice(0, 5),
-favorite_song_notes: form.favoriteSongNotes ?? [],
+favorite_song_notes: [
+  ...(form.favoriteSongNotes ?? []),
+  ...selectedFavoriteSongNotes,
+].slice(0, 5),
 featured_photo_url: featuredPhotoUrl,
         headstone_photo_1: headstonePhoto1Url,
         headstone_photo_2: headstonePhoto2Url,
@@ -1177,14 +1188,21 @@ if (updateVideoError) {
     .slice(0, 5);
 
   
-  return {
-    ...prev,
-    favoriteSongUrl: savedSongs[0] ?? "",
-    favoriteSongUrls: savedSongs,
+  const savedSongNotes = [
+  ...(prev.favoriteSongNotes ?? []),
+  ...selectedFavoriteSongNotes,
+].slice(0, 5);
+
+return {
+  ...prev,
+  favoriteSongUrl: savedSongs[0] ?? "",
+  favoriteSongUrls: savedSongs,
+  favoriteSongNotes: savedSongNotes,
   headstonePhoto1Url,
-        headstonePhoto2Url,
-        galleryPhotos: galleryPhotos.join(","),
-  };
+  headstonePhoto2Url,
+  galleryPhotos: galleryPhotos.join(","),
+  newspaperArticles: newspaperArticles.join(","),
+};
 });
 
       setExistingVideos((prev) => [
@@ -1198,6 +1216,7 @@ setVideoNotes((prev) => [
 ]);
 
 setFavoriteSongFiles([]);
+setSelectedFavoriteSongNotes([]);
 setHeadstonePhoto1File(null);
 setHeadstonePhoto2File(null);
 setGalleryPhotoFiles([]);
@@ -1508,7 +1527,15 @@ async function handlePublishMemorial() {
                   </div>
                 )}
 
-                <form id="edit-memorial-form" onSubmit={handleSubmit} className="space-y-8">
+                <SaveFeedbackProvider
+  savedSection={savedSection}
+  successMessage={successMessage}
+>
+  <form
+    id="edit-memorial-form"
+    onSubmit={handleSubmit}
+    className="space-y-8"
+  >
                   
                  <PlanSection
   plan={form.plan}
@@ -1531,17 +1558,7 @@ async function handlePublishMemorial() {
   isPublished={isPublished}
 />
 )}
-<FavoriteSongsSection
-  firstName={form.firstName}
-  favoriteSongUrl={form.favoriteSongUrl}
-  favoriteSongUrls={form.favoriteSongUrls}
-  favoriteSongNotes={form.favoriteSongNotes}
-  isSaving={isSaving}
-  isPublished={isPublished}
-  handleChange={handleChange}
-  setForm={setForm}
-  setFavoriteSongFiles={setFavoriteSongFiles}
-/>
+
 
                   
 
@@ -1553,13 +1570,26 @@ async function handlePublishMemorial() {
   isSaving={isSaving}
   isPublished={isPublished}
 />
-                    
+<LifeStorySection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
+<FamilyHistorySection
+  form={form}
+  handleChange={handleChange}
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
 <PlacesLivedSection
   placesLived={form.placesLived}
   handleChange={handleChange}
   isSaving={isSaving}
   isPublished={isPublished}
 />
+   
+
 <PlacesWorkedSection
   placesWorked={form.placesWorked}
   handleChange={handleChange}
@@ -1573,21 +1603,38 @@ async function handlePublishMemorial() {
   isSaving={isSaving}
   isPublished={isPublished}
 />
-                 
-
-<LifeStorySection
-  form={form}
+   <NewspaperArticlesSection
+  newspaperArticles={form.newspaperArticles}
   handleChange={handleChange}
+  splitGalleryPhotos={splitGalleryPhotos}
+  setNewspaperArticles={(value) =>
+  setForm((previousForm) => ({
+    ...previousForm,
+    newspaperArticles: value,
+  }))
+}
+  setNewspaperArticleFiles={setNewspaperArticleFiles}
   isSaving={isSaving}
   isPublished={isPublished}
-/>
+  
+/>             
 
-<FamilyHistorySection
-  form={form}
-  handleChange={handleChange}
+ <FavoriteSongsSection
+  firstName={form.firstName}
+  favoriteSongUrl={form.favoriteSongUrl}
+  favoriteSongUrls={form.favoriteSongUrls}
+  favoriteSongNotes={form.favoriteSongNotes}
+  favoriteSongFiles={favoriteSongFiles}
+  setFavoriteSongFiles={setFavoriteSongFiles}
+  selectedFavoriteSongNotes={selectedFavoriteSongNotes}
+  setSelectedFavoriteSongNotes={setSelectedFavoriteSongNotes}
   isSaving={isSaving}
   isPublished={isPublished}
-/>
+  handleChange={handleChange}
+  setForm={setForm}
+/>                
+
+
                   
 <GallerySection
   form={form}
@@ -1602,14 +1649,7 @@ async function handlePublishMemorial() {
   isPublished={isPublished}
 />
 
-<NewspaperArticlesSection
-  newspaperArticles={form.newspaperArticles}
-  handleChange={handleChange}
-  splitGalleryPhotos={splitGalleryPhotos}
-  setNewspaperArticleFiles={setNewspaperArticleFiles}
-  isSaving={isSaving}
-  isPublished={isPublished}
-/>
+
 
   
   <div className="space-y-5">
@@ -1649,20 +1689,21 @@ async function handlePublishMemorial() {
   </div>
 
 
-                 <ObituarySection
-  form={form}
-  handleChange={handleChange}
-  setForm={setForm}
-  setObituaryImageFile={setObituaryImageFile}
-  isSaving={isSaving}
-  isPublished={isPublished}
-/>
+       
        <HeadstonePhotosSection
   form={form}
   handleChange={handleChange}
   setForm={setForm}
   setHeadstonePhoto1File={setHeadstonePhoto1File}
   setHeadstonePhoto2File={setHeadstonePhoto2File}
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
+          <ObituarySection
+  form={form}
+  handleChange={handleChange}
+  setForm={setForm}
+  setObituaryImageFile={setObituaryImageFile}
   isSaving={isSaving}
   isPublished={isPublished}
 />
@@ -1687,7 +1728,11 @@ async function handlePublishMemorial() {
   handlePublishMemorial={handlePublishMemorial}
 />
                  
-                </form>
+                
+               
+  </form>
+</SaveFeedbackProvider>
+                
               </div>
             </section>
                    </>

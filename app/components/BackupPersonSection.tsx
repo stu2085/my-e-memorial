@@ -118,7 +118,11 @@ export default function BackupPersonSection({
       )}
 
       {typeof isSaving === "boolean" && typeof isPublished === "boolean" && (
-        <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+        <QuickSaveButton
+  sectionId="backup-person"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
       )}
     </FormSection>
   );

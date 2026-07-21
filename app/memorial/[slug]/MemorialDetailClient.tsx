@@ -342,6 +342,20 @@ if (platform === "whatsapp") {
         .select("*")
         .eq("slug", slug)
         .maybeSingle();
+        console.log(
+  "PUBLIC MEMORIAL RAW DATA:",
+  JSON.stringify(
+    {
+      slug,
+      id: memorialData?.id,
+      full_name: memorialData?.full_name,
+      newspaper_articles: memorialData?.newspaper_articles,
+      error,
+    },
+    null,
+    2
+  )
+);
         const {
   data: { user },
 } = await supabase.auth.getUser();
@@ -489,6 +503,7 @@ ogTags.forEach((tag) => {
 
 
 const newspaperArticles = useMemo(
+  
   () => getGalleryPhotos(data?.newspaper_articles),
   [data?.newspaper_articles]
 );
@@ -1160,6 +1175,283 @@ function showNextPhoto() {
   <MobileAd memorialZip={data.map_zip} pageType="memorial" />
 </div>
 
+<section className="rounded-2xl bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm">
+  <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+    Basic Information
+  </h2>
+
+  <div className="mt-5 grid gap-3 text-stone-700 sm:grid-cols-2">
+    {data.first_name?.trim() && (
+      <p>
+        <strong>First Name:</strong> {data.first_name}
+      </p>
+    )}
+
+    {data.middle_name?.trim() && (
+      <p>
+        <strong>Middle Name:</strong> {data.middle_name}
+      </p>
+    )}
+
+    {data.last_name?.trim() && (
+      <p>
+        <strong>Last Name:</strong> {data.last_name}
+      </p>
+    )}
+
+    {data.maiden_name?.trim() && (
+      <p>
+        <strong>Maiden Name:</strong> {data.maiden_name}
+      </p>
+    )}
+
+    {data.nickname?.trim() && (
+      <p>
+        <strong>Nickname:</strong> {data.nickname}
+      </p>
+    )}
+
+    {data.birth_date && (
+      <p>
+        <strong>Born:</strong> {formatDate(data.birth_date)}
+      </p>
+    )}
+
+    {data.death_date && (
+      <p>
+        <strong>Date of Passing:</strong> {formatDate(data.death_date)}
+      </p>
+    )}
+  </div>
+</section>
+{data.life_story?.trim() && (
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+      Life Story
+    </h2>
+
+        <p className="mt-4 whitespace-pre-line text-stone-700">
+      {data.life_story}
+    </p>
+  </section>
+)}
+
+{(
+  data.great_grandparents_names?.trim() ||
+  data.grandparents_father_side?.trim() ||
+  data.grandparents_mother_side?.trim() ||
+  data.parents_names?.trim() ||
+  data.siblings_names?.trim() ||
+  data.children_names?.trim() ||
+  data.grandchildren_names?.trim() ||
+  data.great_grandchildren_names?.trim()
+) && (
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+      Family Tree
+    </h2>
+
+    <div className="mt-6 flex flex-col items-center space-y-4">
+      {data.great_grandparents_names?.trim() && (
+        <FamilyTreeCard
+          title="Great Grandparents"
+          value={data.great_grandparents_names}
+        />
+      )}
+
+      {(data.grandparents_father_side?.trim() ||
+        data.grandparents_mother_side?.trim()) && (
+        <>
+          <div className="h-6 w-px bg-stone-300" />
+
+          <div className="grid w-full gap-4 md:grid-cols-2">
+            {data.grandparents_father_side?.trim() && (
+              <FamilyTreeCard
+                title="Grandparents — Father’s Side"
+                value={data.grandparents_father_side}
+              />
+            )}
+
+            {data.grandparents_mother_side?.trim() && (
+              <FamilyTreeCard
+                title="Grandparents — Mother’s Side"
+                value={data.grandparents_mother_side}
+              />
+            )}
+          </div>
+        </>
+      )}
+
+      {data.parents_names?.trim() && (
+        <>
+          <div className="h-6 w-px bg-stone-300" />
+
+          <FamilyTreeCard
+            title="Parents"
+            value={data.parents_names}
+            highlight
+          />
+        </>
+      )}
+
+      {(data.siblings_names?.trim() || data.children_names?.trim()) && (
+        <>
+          <div className="h-6 w-px bg-stone-300" />
+
+          <div className="grid w-full gap-4 md:grid-cols-2">
+            {data.siblings_names?.trim() && (
+              <FamilyTreeCard
+                title="Siblings"
+                value={data.siblings_names}
+              />
+            )}
+
+            {data.children_names?.trim() && (
+              <FamilyTreeCard
+                title="Children"
+                value={data.children_names}
+              />
+            )}
+          </div>
+        </>
+      )}
+
+      {data.grandchildren_names?.trim() && (
+        <>
+          <div className="h-6 w-px bg-stone-300" />
+
+          <FamilyTreeCard
+            title="Grandchildren"
+            value={data.grandchildren_names}
+          />
+        </>
+      )}
+
+      {data.great_grandchildren_names?.trim() && (
+        <>
+          <div className="h-6 w-px bg-stone-300" />
+
+          <FamilyTreeCard
+            title="Great Grandchildren"
+            value={data.great_grandchildren_names}
+          />
+        </>
+      )}
+    </div>
+  </section>
+)}
+{data.places_lived?.trim() && (
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <button
+      type="button"
+      onClick={() => setShowPlacesLived((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Places Lived
+      </h2>
+
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showPlacesLived ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showPlacesLived && (
+  <div className="mt-5 whitespace-pre-line text-stone-700">
+    {data.places_lived}
+  </div>
+)}
+  </section>
+)}
+
+{data.places_worked && (
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <button
+      type="button"
+      onClick={() => setShowPlacesWorked((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Places Worked
+      </h2>
+
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showPlacesWorked ? "▲" : "▼"}
+      </span>
+    </button>
+  
+
+    {showPlacesWorked && (
+      <div className="mt-5 whitespace-pre-line text-stone-700">
+        {data.places_worked}
+      </div>
+    )}
+    </section>
+)}
+{(data.schools_attended || data.awards_won) && (
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <button
+      type="button"
+      onClick={() => setShowSchoolsAwards((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Schools and Awards
+      </h2>
+
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showSchoolsAwards ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showSchoolsAwards && (
+      <div className="mt-5 space-y-3 text-stone-700">
+      {data.schools_attended && (
+        <p><strong>Schools:</strong> {Array.isArray(data.schools_attended) ? data.schools_attended.join(", ") : data.schools_attended}</p>
+      )}
+      {data.awards_won && (
+        <p><strong>Awards:</strong> {Array.isArray(data.awards_won) ? data.awards_won.join(", ") : data.awards_won}</p>
+      )}
+      </div>
+    )}
+  </section>
+)}
+<p className="rounded bg-yellow-100 p-3">
+  
+</p>
+{newspaperArticles.length > 0 && (
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <button
+      type="button"
+      onClick={() => setShowNewspaperArticles((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Newspaper Articles
+      </h2>
+
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showNewspaperArticles ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showNewspaperArticles && (
+      <div className="mt-5 space-y-3">
+      {newspaperArticles.map((article, index) => (
+        <a
+          key={`${article}-${index}`}
+          href={article}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block rounded-2xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm font-semibold text-stone-800 transition hover:bg-stone-100"
+        >
+          View Newspaper Article {index + 1}
+        </a>
+      ))}
+      </div>
+    )}
+  </section>
+)}
 {(data.favorite_song_url ||
   (data.favorite_song_urls && data.favorite_song_urls.length > 0)) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
@@ -1168,12 +1460,13 @@ function showNextPhoto() {
         <button
           type="button"
           onClick={() => {
-  setTimeout(() => {
+            setTimeout(() => {
               const firstAudio = songAudioRefs.current[0];
 
               if (firstAudio) {
                 setCurrentSongIndex(0);
                 firstAudio.currentTime = 0;
+
                 firstAudio.play().catch((err) => {
                   console.error("Audio play failed:", err);
                 });
@@ -1200,214 +1493,74 @@ function showNextPhoto() {
         {showFavoriteSongs ? "▲" : "▼"}
       </button>
     </div>
-<p className="mt-2 text-xs text-stone-500">
-          Tap play to begin. Songs will continue automatically.
-        </p>
+
+    <p className="mt-2 text-xs text-stone-500">
+      Tap play to begin. Songs will continue automatically.
+    </p>
+
     <div className={showFavoriteSongs ? "mt-4 space-y-2" : "hidden"}>
-          {(data.favorite_song_urls && data.favorite_song_urls.length > 0
-            ? data.favorite_song_urls
-            : data.favorite_song_url
-              ? [data.favorite_song_url]
-              : []
-          ).map((song, index) => (
-            <div
-              key={`${song}-${index}`}
-              className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2"
-            >
-              <audio
-                ref={(element) => {
-                  songAudioRefs.current[index] = element;
+      {(data.favorite_song_urls && data.favorite_song_urls.length > 0
+        ? data.favorite_song_urls
+        : data.favorite_song_url
+          ? [data.favorite_song_url]
+          : []
+      ).map((song, index) => (
+        <div
+          key={`${song}-${index}`}
+          className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2"
+        >
+          <audio
+            ref={(element) => {
+              songAudioRefs.current[index] = element;
 
-                  if (index === currentSongIndex) {
-                    backgroundAudioRef.current = element;
+              if (index === currentSongIndex) {
+                backgroundAudioRef.current = element;
+              }
+            }}
+            controls
+            preload="auto"
+            className="w-full"
+            src={song}
+            onPlay={() => {
+              setCurrentSongIndex(index);
+            }}
+            onEnded={() => {
+              const nextIndex = index + 1;
+
+              if (nextIndex < songAudioRefs.current.length) {
+                setCurrentSongIndex(nextIndex);
+
+                setTimeout(() => {
+                  const nextAudio = songAudioRefs.current[nextIndex];
+
+                  if (nextAudio) {
+                    nextAudio.currentTime = 0;
+
+                    nextAudio.play().catch((err) => {
+                      console.error("Autoplay failed:", err);
+                    });
                   }
-                }}
-                controls
-                preload="auto"
-                className="w-full"
-                src={song}
-                onPlay={() => {
-                  setCurrentSongIndex(index);
-                }}
-                onEnded={() => {
-                  const nextIndex = index + 1;
+                }, 250);
+              }
+            }}
+          />
 
-                  if (nextIndex < songAudioRefs.current.length) {
-                    setCurrentSongIndex(nextIndex);
-
-                    setTimeout(() => {
-                      const nextAudio = songAudioRefs.current[nextIndex];
-
-                      if (nextAudio) {
-                        nextAudio.currentTime = 0;
-                        nextAudio.play().catch((err) =>
-                          console.error("Autoplay failed:", err)
-                        );
-                      }
-                    }, 250);
-                  }
-                }}
-              />
-
-              {data.favorite_song_notes?.[index] && (
-                <p className="mt-1 whitespace-pre-line text-xs leading-5 text-stone-600">
-                  {data.favorite_song_notes[index]}
-                </p>
-              )}
-            </div>
-          ))}
-                </div>
+          {data.favorite_song_notes?.[index] && (
+            <p className="mt-1 whitespace-pre-line text-xs leading-5 text-stone-600">
+              {data.favorite_song_notes[index]}
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
   </section>
 )}
 
-<section className="rounded-2xl bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm">
-  <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Basic Information</h2>
 
-  <div className="mt-5 grid gap-3 text-stone-700 sm:grid-cols-2">
-    {data.first_name?.trim() && (
-      <p><strong>First Name:</strong> {data.first_name}</p>
-    )}
 
-    {data.middle_name?.trim() && (
-      <p><strong>Middle Name:</strong> {data.middle_name}</p>
-    )}
 
-    {data.last_name?.trim() && (
-      <p><strong>Last Name:</strong> {data.last_name}</p>
-    )}
 
-    {data.maiden_name?.trim() && (
-      <p><strong>Maiden Name:</strong> {data.maiden_name}</p>
-    )}
-
-    {data.nickname?.trim() && (
-      <p><strong>Nickname:</strong> {data.nickname}</p>
-    )}
-
-    {data.birth_date && (
-      <p><strong>Born:</strong> {formatDate(data.birth_date)}</p>
-    )}
-
-    {data.death_date && (
-      <p><strong>Date of Passing:</strong> {formatDate(data.death_date)}</p>
-    )}
-  </div>
-  {(
-  data.great_grandparents_names?.trim() ||
-  data.grandparents_father_side?.trim() ||
-  data.grandparents_mother_side?.trim() ||
-  data.parents_names?.trim() ||
-  data.siblings_names?.trim()
-) && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
-  <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-    Family Tree
-  </h2>
-
-  <div className="mt-6 flex flex-col items-center space-y-4">
-    {data.great_grandparents_names?.trim() && (
-      <FamilyTreeCard title="Great Grandparents" value={data.great_grandparents_names} />
-    )}
-
-    {(data.grandparents_father_side?.trim() || data.grandparents_mother_side?.trim()) && (
-      <>
-        <div className="h-6 w-px bg-stone-300" />
-        <div className="grid w-full gap-4 md:grid-cols-2">
-          {data.grandparents_father_side?.trim() && (
-            <FamilyTreeCard title="Grandparents — Father’s Side" value={data.grandparents_father_side} />
-          )}
-          {data.grandparents_mother_side?.trim() && (
-            <FamilyTreeCard title="Grandparents — Mother’s Side" value={data.grandparents_mother_side} />
-          )}
-        </div>
-      </>
-    )}
-
-    {data.parents_names?.trim() && (
-      <>
-        <div className="h-6 w-px bg-stone-300" />
-        <FamilyTreeCard title="Parents" value={data.parents_names} highlight />
-      </>
-    )}
-
-    {(data.siblings_names?.trim() || data.children_names?.trim()) && (
-      <>
-        <div className="h-6 w-px bg-stone-300" />
-        <div className="grid w-full gap-4 md:grid-cols-2">
-          {data.siblings_names?.trim() && (
-            <FamilyTreeCard title="Siblings" value={data.siblings_names} />
-          )}
-          {data.children_names?.trim() && (
-            <FamilyTreeCard title="Children" value={data.children_names} />
-          )}
-        </div>
-      </>
-    )}
-
-    {data.grandchildren_names?.trim() && (
-      <>
-        <div className="h-6 w-px bg-stone-300" />
-        <FamilyTreeCard title="Grandchildren" value={data.grandchildren_names} />
-      </>
-    )}
-
-    {data.great_grandchildren_names?.trim() && (
-      <>
-        <div className="h-6 w-px bg-stone-300" />
-        <FamilyTreeCard title="Great Grandchildren" value={data.great_grandchildren_names} />
-      </>
-    )}
-  </div>
-</section>
-    
-)}
-</section>
-{data.places_lived?.trim() && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <button
-      type="button"
-      onClick={() => setShowPlacesLived((current) => !current)}
-      className="flex w-full items-center justify-between gap-4 text-left"
-    >
-      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-        Places Lived
-      </h2>
-
-      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
-        {showPlacesLived ? "▲" : "▼"}
-      </span>
-    </button>
-
-    {showPlacesLived && (
-      <div className="mt-5 whitespace-pre-line text-stone-700">
-      {data.places_lived}
-      </div>
-    )}
-    </section>
-)}
-{data.places_worked && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <button
-      type="button"
-      onClick={() => setShowPlacesWorked((current) => !current)}
-      className="flex w-full items-center justify-between gap-4 text-left"
-    >
-      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-        Places Worked
-      </h2>
-
-      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
-        {showPlacesWorked ? "▲" : "▼"}
-      </span>
-    </button>
-
-    {showPlacesWorked && (
-      <div className="mt-5 whitespace-pre-line text-stone-700">
-        {data.places_worked}
-      </div>
-    )}
-  </section>
-)}
+  
 
 {(
   data.social_link_1 ||
@@ -1501,45 +1654,9 @@ function showNextPhoto() {
     )}
   </section>
 )}
-{(data.schools_attended || data.awards_won) && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <button
-      type="button"
-      onClick={() => setShowSchoolsAwards((current) => !current)}
-      className="flex w-full items-center justify-between gap-4 text-left"
-    >
-      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-        Schools and Awards
-      </h2>
-
-      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
-        {showSchoolsAwards ? "▲" : "▼"}
-      </span>
-    </button>
-
-    {showSchoolsAwards && (
-      <div className="mt-5 space-y-3 text-stone-700">
-      {data.schools_attended && (
-        <p><strong>Schools:</strong> {Array.isArray(data.schools_attended) ? data.schools_attended.join(", ") : data.schools_attended}</p>
-      )}
-      {data.awards_won && (
-        <p><strong>Awards:</strong> {Array.isArray(data.awards_won) ? data.awards_won.join(", ") : data.awards_won}</p>
-      )}
-      </div>
-    )}
-  </section>
-)}
-
-{data.life_story?.trim() && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-  Life Story
-</h2>
-    <p className="mt-4 whitespace-pre-line text-stone-700">{data.life_story}</p>
-  </section>
 
 
-)}
+
 {combinedGalleryPhotos.length > 0 && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
     <button
@@ -1594,39 +1711,7 @@ function showNextPhoto() {
     )}
   </section>
 )}
-{newspaperArticles.length > 0 && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <button
-      type="button"
-      onClick={() => setShowNewspaperArticles((current) => !current)}
-      className="flex w-full items-center justify-between gap-4 text-left"
-    >
-      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-        Newspaper Articles
-      </h2>
 
-      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
-        {showNewspaperArticles ? "▲" : "▼"}
-      </span>
-    </button>
-
-    {showNewspaperArticles && (
-      <div className="mt-5 space-y-3">
-      {newspaperArticles.map((article, index) => (
-        <a
-          key={`${article}-${index}`}
-          href={article}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block rounded-2xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm font-semibold text-stone-800 transition hover:bg-stone-100"
-        >
-          View Newspaper Article {index + 1}
-        </a>
-      ))}
-      </div>
-    )}
-  </section>
-)}
 
 {(memorialVideos.length > 0 || videoLinkUrls.length > 0) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
@@ -1721,30 +1806,7 @@ function showNextPhoto() {
 
 
 
-{(data.headstone_photo_1 || data.headstone_photo_2) && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <button
-      type="button"
-      onClick={() => setShowHeadstonePhotos((current) => !current)}
-      className="flex w-full items-center justify-between gap-4 text-left"
-    >
-      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-        Headstone Photos
-      </h2>
 
-      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
-        {showHeadstonePhotos ? "▲" : "▼"}
-      </span>
-    </button>
-
-    {showHeadstonePhotos && (
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
-      {data.headstone_photo_1 && <img src={data.headstone_photo_1} alt="Headstone photo 1" className="w-full rounded-2xl object-cover shadow-sm" />}
-      {data.headstone_photo_2 && <img src={data.headstone_photo_2} alt="Headstone photo 2" className="w-full rounded-2xl object-cover shadow-sm" />}
-      </div>
-    )}
-  </section>
-)}
 
 {approvedSubmissions.length > 0 && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
@@ -1955,7 +2017,31 @@ function showNextPhoto() {
     </div>
   )}
   
-</section>   
+</section>
+{(data.headstone_photo_1 || data.headstone_photo_2) && (
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
+    <button
+      type="button"
+      onClick={() => setShowHeadstonePhotos((current) => !current)}
+      className="flex w-full items-center justify-between gap-4 text-left"
+    >
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        Headstone Photos
+      </h2>
+
+      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
+        {showHeadstonePhotos ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {showHeadstonePhotos && (
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+      {data.headstone_photo_1 && <img src={data.headstone_photo_1} alt="Headstone photo 1" className="w-full rounded-2xl object-cover shadow-sm" />}
+      {data.headstone_photo_2 && <img src={data.headstone_photo_2} alt="Headstone photo 2" className="w-full rounded-2xl object-cover shadow-sm" />}
+      </div>
+    )}
+  </section>
+)}   
 {(data.obituary || data.obituary_image_url || data.obituary_url) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary</h2>

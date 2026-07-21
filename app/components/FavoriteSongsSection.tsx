@@ -7,6 +7,9 @@ type FavoriteSongsSectionProps = {
   favoriteSongUrls?: string[];
   favoriteSongNotes?: string[];
 
+  favoriteSongFiles?: File[];
+  selectedFavoriteSongNotes?: string[];
+
   isSaving?: boolean;
   isPublished?: boolean;
   isPaid?: boolean;
@@ -17,6 +20,9 @@ type FavoriteSongsSectionProps = {
 
   setForm: React.Dispatch<React.SetStateAction<any>>;
   setFavoriteSongFiles?: React.Dispatch<React.SetStateAction<File[]>>;
+  setSelectedFavoriteSongNotes?: React.Dispatch<
+    React.SetStateAction<string[]>
+  >;
 };
 
 export default function FavoriteSongsSection({
@@ -24,12 +30,15 @@ export default function FavoriteSongsSection({
   favoriteSongUrl,
   favoriteSongUrls,
   favoriteSongNotes,
+  favoriteSongFiles = [],
+  selectedFavoriteSongNotes = [],
   isSaving,
   isPublished,
   isPaid = true,
   handleChange,
   setForm,
   setFavoriteSongFiles,
+  setSelectedFavoriteSongNotes,
 }: FavoriteSongsSectionProps) {
   const songsToShow =
     favoriteSongUrls && favoriteSongUrls.length > 0
@@ -37,6 +46,7 @@ export default function FavoriteSongsSection({
       : favoriteSongUrl
         ? [favoriteSongUrl]
         : [];
+        const selectedSongs = favoriteSongFiles;
 
   return (
     <section className="rounded-3xl border border-stone-200 bg-white/90 p-5 shadow-sm">
@@ -159,6 +169,69 @@ export default function FavoriteSongsSection({
               ))}
             </div>
           )}
+{selectedSongs.length > 0 && (
+  <div className="mb-4 space-y-3">
+    <h3 className="text-sm font-semibold text-stone-700">
+      Selected Songs (not yet uploaded)
+    </h3>
+
+    {selectedSongs.map((file, index) => (
+      <div
+        key={`${file.name}-${index}`}
+        className="rounded-xl border border-blue-200 bg-blue-50 p-3"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="font-medium text-stone-900">{file.name}</p>
+
+            <p className="text-xs text-stone-500">
+              {(file.size / 1024 / 1024).toFixed(2)} MB
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setFavoriteSongFiles?.((prev) =>
+                prev.filter((_, i) => i !== index)
+              );
+
+              setSelectedFavoriteSongNotes?.((prev) =>
+                prev.filter((_, i) => i !== index)
+              );
+            }}
+            className="rounded border border-red-300 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+          >
+            Remove
+          </button>
+        </div>
+
+        <audio
+          controls
+          className="mt-3 w-full"
+          src={URL.createObjectURL(file)}
+        />
+
+        <textarea
+          rows={2}
+          placeholder="What made this song special?"
+          value={selectedFavoriteSongNotes[index] ?? ""}
+          onChange={(e) => {
+            const value = e.target.value;
+
+            setSelectedFavoriteSongNotes?.((prev) => {
+              const notes = [...prev];
+              notes[index] = value;
+              return notes;
+            });
+          }}
+          className="mt-3 w-full rounded-xl border border-blue-300 bg-white px-3 py-2 text-sm text-stone-900"
+        />
+      </div>
+    ))}
+  </div>
+)}
+
 
           <input
             type="file"
@@ -171,8 +244,15 @@ export default function FavoriteSongsSection({
                 return;
               }
 
-              const files = Array.from(e.target.files || []).slice(0, 5);
-              setFavoriteSongFiles?.(files);
+              const existingCount = songsToShow.length;
+const availableSlots = Math.max(0, 5 - existingCount);
+
+const files = Array.from(e.target.files || []).slice(0, availableSlots);
+
+setFavoriteSongFiles?.(files);
+setSelectedFavoriteSongNotes?.(
+  new Array(files.length).fill("")
+);
             }}
             className={`w-full rounded-xl border px-3 py-2 text-sm outline-none transition ${
               isPaid
@@ -196,9 +276,10 @@ export default function FavoriteSongsSection({
       {typeof isSaving === "boolean" &&
         typeof isPublished === "boolean" && (
           <QuickSaveButton
-            isSaving={isSaving}
-            isPublished={isPublished}
-          />
+  sectionId="favorite-songs"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
         )}
     </section>
   );

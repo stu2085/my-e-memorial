@@ -161,6 +161,7 @@ export default function BasicInformationSection({
       </div>
 
       <QuickSaveButton
+      sectionId="basic-information"
         isSaving={isSaving}
         isPublished={isPublished}
       />

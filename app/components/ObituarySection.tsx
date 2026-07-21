@@ -113,7 +113,11 @@ export default function ObituarySection({
         />
       </div>
 
-      <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+      <QuickSaveButton
+  sectionId="obituary"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
     </FormSection>
   );
 }

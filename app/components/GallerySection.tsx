@@ -361,9 +361,10 @@ export default function GallerySection({
       {typeof isSaving === "boolean" &&
         typeof isPublished === "boolean" && (
           <QuickSaveButton
-            isSaving={isSaving}
-            isPublished={isPublished}
-          />
+  sectionId="gallery"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
         )}
     </>
   );

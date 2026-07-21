@@ -1,4 +1,4 @@
-import { supabase } from "./supabaseClient";
+import { supabase } from "../app/lib/supabase";
 
 export async function loadMemorialVideos(memorialId: number) {
   return await supabase

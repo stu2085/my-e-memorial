@@ -82,6 +82,7 @@ type BuildMemorialDataOptions = {
   headstonePhoto1Url: string;
   headstonePhoto2Url: string;
   galleryPhotoUrls: string[];
+  newspaperArticleUrls: string[];
   favoriteSongUrl: string;
   uploadedVideos: Array<{
     playbackId: string;
@@ -101,6 +102,7 @@ export class PersistenceEngine {
   headstonePhoto1Url,
   headstonePhoto2Url,
   galleryPhotoUrls,
+  newspaperArticleUrls,
   favoriteSongUrl,
   uploadedVideos,
 }: BuildMemorialDataOptions): MemorialInsertData {
@@ -164,6 +166,7 @@ export class PersistenceEngine {
     headstone_photo_1: headstonePhoto1Url,
     headstone_photo_2: headstonePhoto2Url,
     gallery_photos: galleryPhotoUrls.join(","),
+    newspaper_articles: newspaperArticleUrls.join(","),
     favorite_song_url: favoriteSongUrl,
     video_urls: uploadedVideos.map((video) => video.playbackId),
     video_notes: uploadedVideos.map((video) => video.note),

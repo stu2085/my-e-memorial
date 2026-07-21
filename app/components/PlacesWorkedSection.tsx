@@ -44,9 +44,10 @@ Hershey Foods Corporation`}
       </div>
 
       <QuickSaveButton
-        isSaving={isSaving}
-        isPublished={isPublished}
-      />
+  sectionId="places-worked"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
     </FormSection>
   );
 }

@@ -47,9 +47,10 @@ export default function SchoolsAndAwardsSection({
       </div>
 
       <QuickSaveButton
-        isSaving={isSaving}
-        isPublished={isPublished}
-      />
+  sectionId="schools-and-awards"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
     </FormSection>
   );
 }

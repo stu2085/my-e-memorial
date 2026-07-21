@@ -309,9 +309,10 @@ export default function HeadstonePhotosSection({
       {typeof isSaving === "boolean" &&
         typeof isPublished === "boolean" && (
           <QuickSaveButton
-            isSaving={isSaving}
-            isPublished={isPublished}
-          />
+  sectionId="headstone-photos"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
         )}
     </FormSection>
   );

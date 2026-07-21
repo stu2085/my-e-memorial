@@ -42,7 +42,11 @@ export default function VideoMemoriesEditor({
         }}
       />
 
-      <QuickSaveButton isSaving={isSaving} isPublished={isPublished} />
+      <QuickSaveButton
+  sectionId="video-memories"
+  isSaving={isSaving}
+  isPublished={isPublished}
+/>
     </>
   );
 }
