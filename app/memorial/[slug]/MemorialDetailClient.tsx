@@ -1674,41 +1674,26 @@ function showNextPhoto() {
     </button>
 
     {showPhotoGallery && (
-      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-      {combinedGalleryPhotos.map((photo, index) => (
-        <div
-          key={`${photo}-${index}`}
-          className="rounded-3xl border border-stone-200 bg-stone-50 p-3 shadow-sm"
-        >
-          <button
-            type="button"
-            onClick={() => setSelectedPhotoIndex(index)}
-            className="block w-full overflow-hidden rounded-3xl"
-          >
-            <img
-  src={photo.src}
-  alt={`Gallery photo ${index + 1}`}
-  loading="lazy"
-  decoding="async"
-  className="w-full rounded-3xl object-cover shadow-md transition duration-300 hover:scale-[1.02]"
-/>
-          </button>
-
-          {photo.attribution && (
-  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">
-    {photo.attribution}
-  </p>
+  <div className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5">
+    {combinedGalleryPhotos.map((photo, index) => (
+      <button
+        key={`${photo.src}-${index}`}
+        type="button"
+        onClick={() => setSelectedPhotoIndex(index)}
+        className="group aspect-square w-full overflow-hidden rounded-xl border border-stone-200 bg-stone-100 shadow-sm"
+        aria-label={`Open gallery photo ${index + 1}`}
+      >
+        <img
+          src={photo.src}
+          alt={`Gallery photo ${index + 1}`}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+        />
+      </button>
+    ))}
+  </div>
 )}
-
-{photo.note && (
-  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-700">
-    {photo.note}
-  </p>
-)}
-        </div>
-      ))}
-          </div>
-    )}
   </section>
 )}
 
