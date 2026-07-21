@@ -76,18 +76,26 @@ export async function POST(req: NextRequest) {
     const data = await res.json();
 
     if (
-      data.status !== "OK" ||
-      !Array.isArray(data.results) ||
-      data.results.length === 0
-    ) {
-      return NextResponse.json(
-        {
-          error: "No matching location found.",
-          google_status: data.status,
-        },
-        { status: 404 }
-      );
-    }
+  data.status !== "OK" ||
+  !Array.isArray(data.results) ||
+  data.results.length === 0
+) {
+  console.error("Google geocoding error:", {
+    status: data.status,
+    errorMessage: data.error_message,
+    address,
+  });
+
+  return NextResponse.json(
+    {
+      error:
+        data.error_message ||
+        `Google geocoding returned ${data.status || "an unknown error"}.`,
+      google_status: data.status,
+    },
+    { status: data.status === "ZERO_RESULTS" ? 404 : 502 }
+  );
+}
 
     const location = data.results[0].geometry?.location;
 

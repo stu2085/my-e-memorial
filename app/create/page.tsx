@@ -463,52 +463,77 @@ useEffect(() => {
   }
 
   async function handleCenterMap() {
-    const street = form.mapStreet.trim();
-    const city = form.mapCity.trim();
-    const state = form.mapState.trim();
-    const zip = form.mapZip.trim();
-    const country = form.mapCountry.trim() || "USA";
+  try {
+    const street = String(form.mapStreet ?? "").trim();
+    const city = String(form.mapCity ?? "").trim();
+    const state = String(form.mapState ?? "").trim();
+    const zip = String(form.mapZip ?? "").trim();
+    const country = String(form.mapCountry ?? "").trim() || "USA";
 
     if (!street && !city && !state && !zip) {
-      setMapSearchStatus("Enter at least a city and state, or a full address.");
+      setMapSearchStatus(
+        "Enter at least a city and state, or a full address."
+      );
       return;
     }
 
     setMapSearchStatus("Searching for location...");
 
-    try {
-      const res = await fetch("/api/geocode", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          street,
-          city,
-          state,
-          zip,
-          country,
-        }),
-      });
+    const res = await fetch("/api/geocode", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        street,
+        city,
+        state,
+        zip,
+        country,
+      }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        setMapSearchStatus(data.error || "No matching location found.");
-        return;
-      }
-
-      setForm((prev) => ({
-        ...prev,
-        graveLat: Number(data.lat).toFixed(6),
-        graveLng: Number(data.lng).toFixed(6),
-      }));
-
-      setMapSearchStatus("Map centered on the address. You can now zoom in and place the pin.");
-    } catch {
-      setMapSearchStatus("Could not search that location.");
+    if (!res.ok) {
+      setMapSearchStatus(
+        data.error || "No matching location found."
+      );
+      return;
     }
+
+    const nextLat = Number(data.lat);
+    const nextLng = Number(data.lng);
+
+    if (
+      !Number.isFinite(nextLat) ||
+      !Number.isFinite(nextLng)
+    ) {
+      setMapSearchStatus(
+        "The location service returned invalid coordinates."
+      );
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      graveLat: nextLat.toFixed(6),
+      graveLng: nextLng.toFixed(6),
+    }));
+
+    setMapSearchStatus(
+      "Map centered on the address. You can now zoom in and place the pin."
+    );
+  } catch (error) {
+    console.error("Geocoding failed:", error);
+
+    setMapSearchStatus(
+      error instanceof Error
+        ? `Could not search that location: ${error.message}`
+        : "Could not search that location."
+    );
   }
+}
 
   
 

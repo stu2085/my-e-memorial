@@ -240,19 +240,18 @@ export default function FinalRestingPlaceSection({
 
             <div className="mt-4 overflow-hidden rounded-2xl">
               <GraveLocationMap
-                key={`${form.graveLat || "none"}-${form.graveLng || "none"}-edit`}
-                lat={form.graveLat ? Number(form.graveLat) : null}
-                lng={form.graveLng ? Number(form.graveLng) : null}
-                readOnly={false}
-                height="420px"
-                onChange={(lat, lng) =>
-                  setForm((prev: any) => ({
-                    ...prev,
-                    graveLat: String(lat),
-                    graveLng: String(lng),
-                  }))
-                }
-              />
+  lat={form.graveLat ? Number(form.graveLat) : null}
+  lng={form.graveLng ? Number(form.graveLng) : null}
+  readOnly={false}
+  height="420px"
+  onChange={(lat, lng) =>
+    setForm((prev: any) => ({
+      ...prev,
+      graveLat: String(lat),
+      graveLng: String(lng),
+    }))
+  }
+/>
             </div>
 
             <div className="mt-4 grid gap-5 md:grid-cols-2">
