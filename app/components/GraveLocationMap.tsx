@@ -128,27 +128,28 @@ export default function GraveLocationMap({
   }, []);
 
   useEffect(() => {
-    const map = mapRef.current;
+  const map = mapRef.current;
 
-    if (!map || lat == null || lng == null) return;
+  if (!map || lat == null || lng == null) return;
 
-    const nextLat = Number(lat);
-    const nextLng = Number(lng);
+  const nextLat = Number(lat);
+  const nextLng = Number(lng);
 
-    if (
-      !Number.isFinite(nextLat) ||
-      !Number.isFinite(nextLng)
-    ) {
+  if (!Number.isFinite(nextLat) || !Number.isFinite(nextLng)) {
+    return;
+  }
+
+  if (markerRef.current) {
+    markerRef.current.setLatLng([nextLat, nextLng]);
+  } else {
+    markerRef.current = L.marker([nextLat, nextLng]).addTo(map);
+  }
+
+  const timeoutId = window.setTimeout(() => {
+    const mapContainer = map.getContainer();
+
+    if (!mapContainer || !mapContainer.isConnected) {
       return;
-    }
-
-    if (markerRef.current) {
-      markerRef.current.setLatLng([nextLat, nextLng]);
-    } else {
-      markerRef.current = L.marker([
-        nextLat,
-        nextLng,
-      ]).addTo(map);
     }
 
     map.invalidateSize();
@@ -156,15 +157,12 @@ export default function GraveLocationMap({
     map.setView([nextLat, nextLng], 19, {
       animate: false,
     });
+  }, 100);
 
-    window.setTimeout(() => {
-      map.invalidateSize();
-
-      map.setView([nextLat, nextLng], 19, {
-        animate: false,
-      });
-    }, 100);
-  }, [lat, lng]);
+  return () => {
+    window.clearTimeout(timeoutId);
+  };
+}, [lat, lng]);
 
   return (
     <div

@@ -230,6 +230,8 @@ const [showFavoriteSongs, setShowFavoriteSongs] = useState(false);
   const songAudioRefs = useRef<(HTMLAudioElement | null)[]>([]);
   const touchStartXRef = useRef<number | null>(null);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
+  const [slideshowMusicVolume, setSlideshowMusicVolume] = useState(0.7);
+const [isSlideshowMusicMuted, setIsSlideshowMusicMuted] = useState(false);
 const [copied, setCopied] = useState(false);
 const [submitterName, setSubmitterName] = useState("");
 const [submitterEmail, setSubmitterEmail] = useState("");
@@ -678,6 +680,50 @@ useEffect(() => {
 
   return () => clearInterval(timer);
 }, [isSlideshowPlaying, selectedPhotoIndex, combinedGalleryPhotos.length]);
+
+useEffect(() => {
+  songAudioRefs.current.forEach((audio) => {
+    if (!audio) return;
+
+    audio.volume = slideshowMusicVolume;
+    audio.muted = isSlideshowMusicMuted;
+  });
+}, [slideshowMusicVolume, isSlideshowMusicMuted, currentSongIndex]);
+
+function toggleSlideshowWithMusic() {
+  if (isSlideshowPlaying) {
+    setIsSlideshowPlaying(false);
+
+    const currentAudio = songAudioRefs.current[currentSongIndex];
+
+    if (currentAudio && !currentAudio.paused) {
+      currentAudio.pause();
+    }
+
+    return;
+  }
+
+  setIsSlideshowPlaying(true);
+
+  const currentAudio =
+    songAudioRefs.current[currentSongIndex] ??
+    songAudioRefs.current[0];
+
+  if (!currentAudio) {
+    return;
+  }
+
+  const audioIndex = songAudioRefs.current.indexOf(currentAudio);
+
+  if (audioIndex >= 0) {
+    setCurrentSongIndex(audioIndex);
+  }
+
+  currentAudio.play().catch((error) => {
+    console.error("Could not start slideshow music:", error);
+  });
+}
+
   function getContributorVideoDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
@@ -1525,24 +1571,35 @@ function showNextPhoto() {
               setCurrentSongIndex(index);
             }}
             onEnded={() => {
-              const nextIndex = index + 1;
+  const availableSongs = songAudioRefs.current.filter(
+    (audio): audio is HTMLAudioElement => audio !== null
+  );
 
-              if (nextIndex < songAudioRefs.current.length) {
-                setCurrentSongIndex(nextIndex);
+  if (availableSongs.length === 0) {
+    return;
+  }
 
-                setTimeout(() => {
-                  const nextAudio = songAudioRefs.current[nextIndex];
+  const nextIndex =
+    index >= availableSongs.length - 1
+      ? 0
+      : index + 1;
 
-                  if (nextAudio) {
-                    nextAudio.currentTime = 0;
+  setCurrentSongIndex(nextIndex);
 
-                    nextAudio.play().catch((err) => {
-                      console.error("Autoplay failed:", err);
-                    });
-                  }
-                }, 250);
-              }
-            }}
+  setTimeout(() => {
+    const nextAudio = songAudioRefs.current[nextIndex];
+
+    if (!nextAudio) {
+      return;
+    }
+
+    nextAudio.currentTime = 0;
+
+    nextAudio.play().catch((error) => {
+      console.error("Could not continue memorial playlist:", error);
+    });
+  }, 250);
+}}
           />
 
           {data.favorite_song_notes?.[index] && (
@@ -1674,6 +1731,10 @@ function showNextPhoto() {
     </button>
 
     {showPhotoGallery && (
+      <>
+      <p className="mt-5 text-center text-sm italic text-stone-600">
+  💡 Click any photo to enlarge it and discover more memories.
+</p>
   <div className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5">
     {combinedGalleryPhotos.map((photo, index) => (
       <button
@@ -1692,7 +1753,8 @@ function showNextPhoto() {
         />
       </button>
     ))}
-  </div>
+      </div>
+  </>
 )}
   </section>
 )}
@@ -2301,46 +2363,59 @@ function showNextPhoto() {
     >
       Next →
     </button>
-    <div className="mt-4 text-center">
+    <div className="mt-4 flex flex-col items-center gap-3">
   <button
     type="button"
-    onClick={() => setIsSlideshowPlaying((current) => !current)}
-   className="rounded-full bg-stone-200 px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-300 sm:text-sm"
+    onClick={toggleSlideshowWithMusic}
+   className="rounded-full bg-blue-600 px-8 py-3 text-base font-bold text-white shadow-md transition hover:bg-blue-700 hover:shadow-lg"
   >
-    {isSlideshowPlaying ? "Pause Slideshow" : "Start Slideshow"}
+    {isSlideshowPlaying ? "Pause Presentation" : "▶ Experience Their Life"}
   </button>
+
+  {isSlideshowPlaying && songAudioRefs.current.some(Boolean) && (
+    <div className="flex flex-wrap items-center justify-center gap-3 rounded-full bg-stone-100 px-4 py-2">
+      <button
+        type="button"
+        onClick={() => {
+          setIsSlideshowMusicMuted((current) => !current);
+        }}
+        className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-stone-800 shadow-sm hover:bg-stone-200"
+        aria-label={
+          isSlideshowMusicMuted
+            ? "Unmute slideshow music"
+            : "Mute slideshow music"
+        }
+      >
+        {isSlideshowMusicMuted ? "🔇 Unmute" : "🔊 Mute"}
+      </button>
+
+      <label className="flex items-center gap-2 text-xs font-semibold text-stone-700">
+        Volume
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value={slideshowMusicVolume}
+          onChange={(event) => {
+            const nextVolume = Number(event.target.value);
+
+            setSlideshowMusicVolume(nextVolume);
+
+            if (nextVolume > 0 && isSlideshowMusicMuted) {
+              setIsSlideshowMusicMuted(false);
+            }
+          }}
+          className="w-28 sm:w-36"
+          aria-label="Slideshow music volume"
+        />
+      </label>
+    </div>
+  )}
 </div>
   </div>
 )}
-{isOwner && selectedPhoto && (
-  <div className="mt-4 text-center">
-    <button
-      type="button"
-      onClick={async () => {
-        const { error } = await supabase
-          .from("memorials")
-          .update({ featured_photo_url: selectedPhoto })
-          .eq("id", data.id);
 
-        if (error) {
-          console.error(error);
-          alert("Could not set featured photo.");
-          return;
-        }
-
-        setData({
-          ...data,
-          featured_photo_url: selectedPhoto,
-        });
-
-        alert("Featured photo updated.");
-      }}
-      className="rounded-full bg-amber-400 px-5 py-2 text-sm font-semibold text-stone-900 hover:bg-amber-300"
-    >
-      ⭐ Make Featured Photo
-    </button>
-  </div>
-)}
       {selectedPhotoNote && (
         <p className="mt-4 whitespace-pre-line text-center text-sm leading-6 text-stone-700">
           {selectedPhotoNote}
