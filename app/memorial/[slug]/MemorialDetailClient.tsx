@@ -239,6 +239,14 @@ const [submissionMessage, setSubmissionMessage] = useState("");
 const [submissionPhotos, setSubmissionPhotos] = useState<File[]>([]);
 const [isSlideshowPlaying, setIsSlideshowPlaying] = useState(false);
 const [photoFadeKey, setPhotoFadeKey] = useState(0);
+const [displayedPhoto, setDisplayedPhoto] = useState<string | null>(null);
+const [previousDisplayedPhoto, setPreviousDisplayedPhoto] =
+  useState<string | null>(null);
+
+const displayedPhotoRef = useRef<string | null>(null);
+const crossFadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+  null
+);
 const [submissionVideo, setSubmissionVideo] = useState<File | null>(null);
 const [uploadingVideo, setUploadingVideo] = useState(false);
 const [uploadingPhotos, setUploadingPhotos] = useState(false);
@@ -557,6 +565,51 @@ const combinedGalleryPhotos = useMemo(() => {
 
   return [...ownerPhotos, ...contributorGalleryPhotos];
 }, [galleryPhotos, data?.gallery_photo_notes, contributorGalleryPhotos]);
+useEffect(() => {
+  const nextPhoto =
+    selectedPhotoIndex !== null
+      ? combinedGalleryPhotos[selectedPhotoIndex]?.src ?? null
+      : null;
+
+  if (!nextPhoto) {
+    displayedPhotoRef.current = null;
+    setDisplayedPhoto(null);
+    setPreviousDisplayedPhoto(null);
+    return;
+  }
+
+  const currentPhoto = displayedPhotoRef.current;
+
+  if (!currentPhoto) {
+    displayedPhotoRef.current = nextPhoto;
+    setDisplayedPhoto(nextPhoto);
+    return;
+  }
+
+  if (currentPhoto === nextPhoto) {
+    return;
+  }
+
+  setPreviousDisplayedPhoto(currentPhoto);
+  setDisplayedPhoto(nextPhoto);
+  displayedPhotoRef.current = nextPhoto;
+
+  if (crossFadeTimeoutRef.current) {
+    clearTimeout(crossFadeTimeoutRef.current);
+  }
+
+  crossFadeTimeoutRef.current = setTimeout(() => {
+    setPreviousDisplayedPhoto(null);
+  }, 1000);
+}, [selectedPhotoIndex, combinedGalleryPhotos]);
+
+useEffect(() => {
+  return () => {
+    if (crossFadeTimeoutRef.current) {
+      clearTimeout(crossFadeTimeoutRef.current);
+    }
+  };
+}, []);
 
   const graveLat = toNumber(data?.grave_lat ?? data?.grave_latitude ?? null);
   const graveLng = toNumber(data?.grave_lng ?? data?.grave_longitude ?? null);
@@ -699,6 +752,20 @@ function toggleSlideshowWithMusic() {
     if (currentAudio && !currentAudio.paused) {
       currentAudio.pause();
     }
+    function endPresentation() {
+  setIsSlideshowPlaying(false);
+
+  songAudioRefs.current.forEach((audio) => {
+    if (!audio) return;
+
+    audio.pause();
+    audio.currentTime = 0;
+  });
+
+  setCurrentSongIndex(0);
+  setSelectedPhotoIndex(0);
+  setPhotoFadeKey((current) => current + 1);
+}
 
     return;
   }
@@ -2331,12 +2398,25 @@ function showNextPhoto() {
   }}
 >
     
-      <img
-  key={photoFadeKey}
-  src={selectedPhoto}
-  alt="Enlarged memorial photo"
-  className="max-h-[75vh] max-w-full rounded-2xl object-contain opacity-100 transition-opacity duration-500"
-/>
+     <div className="relative h-[75vh] w-full overflow-hidden rounded-2xl">
+  {previousDisplayedPhoto && (
+    <img
+      src={previousDisplayedPhoto}
+      alt=""
+      aria-hidden="true"
+      className="memorial-photo-crossfade-out absolute inset-0 h-full w-full object-contain"
+    />
+  )}
+
+  {displayedPhoto && (
+    <img
+      key={displayedPhoto}
+      src={displayedPhoto}
+      alt="Enlarged memorial photo"
+      className="memorial-photo-crossfade-in absolute inset-0 h-full w-full object-contain"
+    />
+  )}
+</div>
 {selectedPhotoAttribution && (
   <p className="mt-3 text-center text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">
     {selectedPhotoAttribution}
