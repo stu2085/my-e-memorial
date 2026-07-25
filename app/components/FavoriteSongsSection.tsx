@@ -69,11 +69,34 @@ export default function FavoriteSongsSection({
           </label>
 
           <input
-            name="favoriteSongUrl"
-            value={favoriteSongUrl ?? ""}
-            onChange={handleChange}
-            className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
-          />
+  name="favoriteSongUrl"
+  value={favoriteSongUrl ?? ""}
+  onChange={(e) => {
+    const value = e.target.value;
+
+    setForm((prev: any) => {
+      const currentSongs =
+        prev.favoriteSongUrls?.length > 0
+          ? [...prev.favoriteSongUrls]
+          : prev.favoriteSongUrl
+            ? [prev.favoriteSongUrl]
+            : [];
+
+      if (value.trim()) {
+        currentSongs[0] = value;
+      } else {
+        currentSongs.shift();
+      }
+
+      return {
+        ...prev,
+        favoriteSongUrl: value,
+        favoriteSongUrls: currentSongs,
+      };
+    });
+  }}
+  className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+/>
         </div>
 
         <div>
