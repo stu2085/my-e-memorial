@@ -19,6 +19,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const turnstileRef = useRef<HTMLDivElement | null>(null);
+  const submitLockRef = useRef(false);
   const isChoiceMode = mode === "choice";
   useEffect(() => {
   async function checkUser() {
@@ -99,6 +100,13 @@ if (!captchaRes.ok) {
 }
 if (isSignupMode && password !== confirmPassword) {
   setMessage("Passwords do not match.");
+
+  const turnstile = (window as any).turnstile;
+
+  if (turnstile) {
+    turnstile.reset();
+  }
+
   setIsSubmitting(false);
   return;
 }

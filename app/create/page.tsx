@@ -208,6 +208,7 @@ function CreatePageContent() {
 
 const isPersonalMode =
   mode === "personal" || mode === "preplan";
+  const isGiftFlow = Boolean(searchParams.get("gift"));
   const [isPaid, setIsPaid] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const MAX_VIDEO_SIZE_BYTES = 1000 * 1000 * 1000; // 1 GB
@@ -272,6 +273,7 @@ useEffect(() => {
     const promoFromUrl = params.get("promo");
     const sessionId = params.get("session_id");
     const autoCheckout = params.get("autocheckout");
+    const giftToken = params.get("gift");
 
     const parsedDraft = savedDraft ? JSON.parse(savedDraft) : null;
     const selectedPlan = parsedDraft?.plan || form.plan || "basic";
@@ -343,11 +345,68 @@ useEffect(() => {
       setPaidExtraVideos(Number(localStorage.getItem("paidExtraVideos") || 0));
     }
 
-    if (!sessionId && autoCheckout !== "1") {
+   if (!sessionId && autoCheckout !== "1" && !giftToken) {
+  setIsPaid(false);
+  return;
+}
+if (giftToken) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    setIsPaid(false);
+    setSuccessMessage(
+      "Please sign in with the email address that received this Gift."
+    );
+    return;
+  }
+
+  try {
+    const giftResponse = await fetch(
+      `/api/gift-claim/${encodeURIComponent(giftToken)}/access`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      }
+    );
+
+    const giftResult = await giftResponse.json();
+
+    if (!giftResponse.ok || giftResult.valid !== true) {
       setIsPaid(false);
+      setSuccessMessage(
+        giftResult.error || "This Gift could not be verified."
+      );
       return;
     }
 
+    setForm((prev) => ({
+      ...prev,
+      plan: giftResult.plan,
+    }));
+
+    setIsPaid(true);
+    setSuccessMessage(
+      `Your gifted ${
+        giftResult.plan === "premium"
+          ? "Premium"
+          : giftResult.plan === "plus"
+            ? "Plus"
+            : "Basic"
+      } Memorial is ready to create.`
+    );
+
+    return;
+  } catch (error) {
+    console.error("Gift access error:", error);
+
+    setIsPaid(false);
+    setSuccessMessage("This Gift could not be verified.");
+    return;
+  }
+}
     if (autoCheckout === "1") {
       const {
         data: { user },
@@ -988,11 +1047,11 @@ async function handleBuyExtraVideos(extraCount: number) {
               </section>
             )}
 
-            {successMessage && (
-              <section className="mt-6 rounded-3xl border border-green-200 bg-green-50 p-4 shadow-sm">
-                <p className="text-sm text-green-700">{successMessage}</p>
-              </section>
-            )}
+            {successMessage && !isGiftFlow && (
+  <section className="mt-6 rounded-3xl border border-green-200 bg-green-50 p-4 shadow-sm">
+    <p className="text-sm text-green-700">{successMessage}</p>
+  </section>
+)}
 
             <form
   id="create-memorial-form"
@@ -1001,6 +1060,7 @@ async function handleBuyExtraVideos(extraCount: number) {
   autoComplete="off"
   className="mt-8 space-y-8"
 >
+  {!isGiftFlow && (
   <section className="rounded-3xl bg-white p-8 shadow-sm">
                 <h2 className="text-2xl font-bold text-stone-900">
                   Choose a Memorial Plan
@@ -1086,6 +1146,7 @@ async function handleBuyExtraVideos(extraCount: number) {
                   Contributors may add photos and text for free, subject to memorial owner approval.
                 </p>
               </section>
+              )}
               <section
   id="promo-access"
   className="scroll-mt-6 rounded-3xl bg-white p-8 shadow-sm"

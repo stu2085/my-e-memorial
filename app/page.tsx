@@ -82,48 +82,82 @@ useEffect(() => {
                   A place for lasting memorials with photos, videos, loved one's favorite songs and life stories for today's friends, families and future generations.
                 </p>
 
-                <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
-  <Link
-  href="/create"
-  className="inline-flex h-[60px] w-[260px] items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-stone-900 text-center leading-tight transition hover:bg-stone-200"
->
-  <span className="block">
-    <span className="block">Create an E-Memorial</span>
-    <span className="block">for a Loved one</span>
-  </span>
-</Link>
+                <div className="mx-auto mt-8 max-w-5xl">
+  <h2 className="text-xl font-bold text-white md:text-2xl">
+    Choose the type of memorial you&apos;d like to create
+  </h2>
 
-  <Link
-  href="/search"
-  className="inline-flex h-[60px] w-[260px] items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-stone-900 text-center leading-tight transition hover:bg-stone-200"
->
-  <span className="block">
-    <span className="block">Search</span>
-    <span className="block">Memorials</span>
-  </span>
-</Link>
+  <div className="mt-6 grid gap-5 md:grid-cols-2">
+    {/* Memorials for someone who has passed away */}
+    <div className="rounded-3xl border border-white/30 bg-black/35 p-5 shadow-lg backdrop-blur-sm md:p-6">
+      <div className="text-3xl">🕊️</div>
 
-  <Link
-  href="/create?mode=personal"
-  className="inline-flex h-[60px] w-[260px] items-center justify-center rounded-full bg-amber-400 px-5 text-sm font-semibold text-stone-900 text-center leading-tight transition hover:bg-amber-300"
->
-  <span className="block">
-    <span className="block">Create Your Own Future</span>
-    <span className="block">Personal E-Memorial</span>
-  </span>
-</Link>
+      <h3 className="mt-3 text-xl font-bold leading-tight text-white">
+        Memorials for Someone
+        <span className="block">Who Has Passed Away</span>
+      </h3>
 
-  <Link
-  href="/search"
-  className="inline-flex h-[60px] w-[260px] items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-stone-900 text-center leading-tight transition hover:bg-stone-200"
->
-  <span className="block">
-    <span className="block">Contact</span>
-    <span className="block">Us</span>
-  </span>
-</Link>
- 
+      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-stone-200">
+        Honor and preserve the life story of someone who has passed away.
+      </p>
 
+      <div className="mt-5 flex flex-col items-center gap-3">
+        <Link
+          href="/create"
+          className="inline-flex h-[60px] w-full max-w-[300px] items-center justify-center rounded-full bg-white px-5 text-center text-sm font-semibold leading-tight text-stone-900 transition hover:bg-stone-200"
+        >
+          <span>
+            <span className="block">Create a Memorial</span>
+          </span>
+        </Link>
+
+        <Link
+          href="/gift"
+          className="inline-flex h-[60px] w-full max-w-[300px] items-center justify-center rounded-full bg-white px-5 text-center text-sm font-semibold leading-tight text-stone-900 transition hover:bg-stone-200"
+        >
+          <span>
+            <span className="block">🎁 Gift a Memorial</span>
+          </span>
+        </Link>
+      </div>
+    </div>
+
+    {/* Personal E-Memorials for the living */}
+    <div className="rounded-3xl border border-amber-200/50 bg-amber-50/95 p-5 shadow-lg md:p-6">
+      <div className="text-3xl">❤️</div>
+
+      <h3 className="mt-3 text-xl font-bold leading-tight text-stone-900">
+        Personal E-Memorials
+        <span className="block">for the Living</span>
+      </h3>
+
+      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-stone-700">
+        Preserve a person&apos;s story while they can still help tell it themselves.
+      </p>
+
+      <div className="mt-5 flex flex-col items-center gap-3">
+        <Link
+          href="/create?mode=personal"
+          className="inline-flex h-[60px] w-full max-w-[300px] items-center justify-center rounded-full bg-amber-400 px-5 text-center text-sm font-semibold leading-tight text-stone-900 transition hover:bg-amber-300"
+        >
+          <span>
+            <span className="block">Create Your Own</span>
+            <span className="block">Personal E-Memorial</span>
+          </span>
+        </Link>
+
+        <Link
+          href="/gift?type=personal"
+          className="inline-flex h-[60px] w-full max-w-[300px] items-center justify-center rounded-full bg-amber-400 px-5 text-center text-sm font-semibold leading-tight text-stone-900 transition hover:bg-amber-300"
+        >
+          <span>
+            <span className="block">🎁 Gift a</span>
+            <span className="block">Personal E-Memorial</span>
+          </span>
+        </Link>
+      </div>
+    </div>
+  </div>
 </div>
   
               </div>
