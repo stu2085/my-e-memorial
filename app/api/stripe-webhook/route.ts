@@ -82,7 +82,7 @@ if (
   plan === "extra_videos" &&
   canSendCustomerEmail
 ) {
-  const recipientMailResult = await transporter.sendMail({
+  await transporter.sendMail({
     from: `"MyEMemorial" <help@myememorial.com>`,
     to: customerEmail,
 
@@ -113,12 +113,6 @@ if (
       <p>Thank you,<br/>MyEMemorial</p>
     `,
   });
- console.log("Recipient email result:", {
-  accepted: recipientMailResult.accepted,
-  rejected: recipientMailResult.rejected,
-  response: recipientMailResult.response,
-  messageId: recipientMailResult.messageId,
-}); 
 }
 
 if (plan === "extra_videos") {
@@ -469,7 +463,6 @@ if (giftPurchaserEmail) {
     to: giftPurchaserEmail,
     subject: "Your MyEMemorial Gift Purchase Confirmation",
     html: `
-  
   <table
     role="presentation"
     width="100%"
@@ -789,9 +782,7 @@ const giftRecipientEmail = gift.recipient_email;
 
 if (giftRecipientEmail && gift.claim_token) {
   const claimUrl =
-  `${siteUrl}/gift/claim/${gift.claim_token}`;
-
-console.log("Recipient claim URL:", claimUrl);
+    `${siteUrl}/gift/claim/${gift.claim_token}`;
 
   const personalMessageHtml = gift.personal_message
     ? `
@@ -847,7 +838,7 @@ const recipientIntro =
       memories, photos, videos, stories, and legacy of someone you love
       for future generations.
     `;
-  const recipientMailResult = await transporter.sendMail({
+  await transporter.sendMail({
     from: `"MyEMemorial" <help@myememorial.com>`,
     to: giftRecipientEmail,
     subject: `${gift.purchaser_name} gifted you a MyEMemorial`,
@@ -897,16 +888,7 @@ const recipientIntro =
             A Gift from MyEMemorial
           </div>
 
-         <table
-  role="presentation"
-  width="100%"
-  cellpadding="0"
-  cellspacing="0"
-  border="0"
-  style="width: 100%; border-collapse: collapse;"
->
-  <tr>
-    <td style="padding: 24px 48px;">
+          <div style="padding: 18px 22px;">
             <div style="text-align: center; margin-bottom: 28px;">
               <img
                 src="${giftLogoUrl}"
@@ -951,102 +933,70 @@ const recipientIntro =
              ${recipientIntro} 
             </p>
 
-            <table
-  role="presentation"
-  width="100%"
-  cellpadding="0"
-  cellspacing="0"
-  border="0"
+            <div
+              style="
+                padding: 22px;
+                background-color: #faf7f2;
+                border: 1px solid #eee4d7;
+                border-radius: 12px;
+              "
+            >
+              <h2
+                style="
+                  margin: 0 0 10px;
+                  color: #082454;
+                  font-size: 19px;
+                  line-height: 1.4;
+                "
+              >
+                Your MyEMemorial has already been paid for.
+              </h2>
+
+            <p
   style="
-    width: 100%;
-    border-collapse: separate;
-    background-color: #faf7f2;
-    border: 1px solid #eee4d7;
-    border-radius: 12px;
+    margin: 0;
+    color: #334155;
+    font-size: 15px;
+    line-height: 1.7;
   "
 >
-  <tr>
-    <td
-      style="
-        padding: 22px 24px;
-        color: #172554;
-        font-family: Arial, Helvetica, sans-serif;
-      "
-    >
-      <h2
-        style="
-          margin: 0 0 10px;
-          color: #082454;
-          font-size: 19px;
-          line-height: 1.4;
-        "
-      >
-        Your MyEMemorial has already been paid for.
-      </h2>
+  ${recipientInstructions}
+</p>
 
-      <p
-        style="
-          margin: 0;
-          color: #334155;
-          font-size: 15px;
-          line-height: 1.7;
-        "
-      >
-        ${recipientInstructions}
-      </p>
+              ${personalMessageHtml}
 
-      ${personalMessageHtml}
+              <div style="margin: 28px 0 18px; text-align: center;">
+                <a
+                  href="${claimUrl}"
+                  style="
+                    display: inline-block;
+                    min-width: 230px;
+                    padding: 15px 28px;
+                    background-color: #c98a00;
+                    color: #ffffff;
+                    text-decoration: none;
+                    border-radius: 8px;
+                    font-size: 17px;
+                    font-weight: 700;
+                    text-align: center;
+                  "
+                >
+                  Accept Your Gift
+                </a>
+              </div>
 
-      <table
-        role="presentation"
-        cellpadding="0"
-        cellspacing="0"
-        border="0"
-        align="center"
-        style="margin: 28px auto 18px;"
-      >
-        <tr>
-          <td
-  align="center"
-  bgcolor="#c98a00"
-  style="
-    background-color: #c98a00;
-    border-radius: 8px;
-  "
->
-  <a
-    href="${claimUrl}"
-    style="
-      display: inline-block;
-      padding: 15px 32px;
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 17px;
-      font-weight: 700;
-      font-family: Arial, Helvetica, sans-serif;
-      border-radius: 8px;
-    "
-  >
-    Accept Your Gift
-  </a>
-</td>
-        </tr>
-      </table>
-
-      <p
-        style="
-          margin: 0;
-          color: #475569;
-          text-align: center;
-          font-size: 13px;
-          line-height: 1.6;
-        "
-      >
-        Secure. Private. Yours to keep forever.
-      </p>
-    </td>
-  </tr>
-</table>
+              <p
+                style="
+                  margin: 0;
+                  color: #475569;
+                  text-align: center;
+                  font-size: 13px;
+                  line-height: 1.6;
+                "
+              >
+                Secure. Private. Yours to keep forever.
+              </p>
+            </div>
 
             <p
               style="
@@ -1072,9 +1022,7 @@ const recipientIntro =
             >
               If you were not expecting this email, you may safely ignore it.
             </p>
-    </td>
-  </tr>
-</table>
+          </div>
 
           <div
             style="
@@ -1095,13 +1043,7 @@ const recipientIntro =
       </div>
     `,
   });
-console.log("Recipient gift email result:", {
-  accepted: recipientMailResult.accepted,
-  rejected: recipientMailResult.rejected,
-  pending: recipientMailResult.pending,
-  response: recipientMailResult.response,
-  messageId: recipientMailResult.messageId,
-});
+
   const { error: recipientEmailUpdateError } = await supabase
     .from("memorial_gifts")
     .update({
