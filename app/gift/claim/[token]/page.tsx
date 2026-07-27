@@ -26,8 +26,13 @@ const shouldAutomaticallyClaim =
   const [isLoading, setIsLoading] = useState(true);
 const [signedInEmail, setSignedInEmail] = useState<string | null>(null);
 const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+const [accountExists, setAccountExists] = useState<boolean | null>(null);
+const [isCheckingAccount, setIsCheckingAccount] = useState(false);
+const [password, setPassword] = useState("");
+const [confirmPassword, setConfirmPassword] = useState("");
 const [isClaiming, setIsClaiming] = useState(false);
 const [claimError, setClaimError] = useState("");
+const [giftAccepted, setGiftAccepted] = useState(false);
 
 const automaticClaimStartedRef = useRef(false);
 useEffect(() => {
@@ -60,6 +65,30 @@ useEffect(() => {
         }
 
         setGift(result.gift);
+
+        if (!result.gift.claimed) {
+          setIsCheckingAccount(true);
+
+          try {
+            const accountResponse = await fetch(
+              `/api/gift-claim/${encodeURIComponent(token)}/account-status`
+            );
+
+            const accountResult = await accountResponse.json();
+
+            if (!accountResponse.ok) {
+              setError(
+                accountResult.error ||
+                  "Could not check the recipient account."
+              );
+              return;
+            }
+
+            setAccountExists(accountResult.accountExists);
+          } finally {
+            setIsCheckingAccount(false);
+          }
+        }
       } catch (error) {
         console.error("Gift claim page error:", error);
         setError("Could not load this gift invitation.");
@@ -120,19 +149,96 @@ async function handleClaimGift() {
       return;
     }
 
-    const createParams = new URLSearchParams({
-  gift: token,
-  plan: result.plan,
-});
+    setGift((currentGift) =>
+      currentGift
+        ? {
+            ...currentGift,
+            claimed: true,
+          }
+        : currentGift
+    );
 
-if (gift?.giftType === "personal") {
-  createParams.set("mode", "personal");
-}
-
-window.location.assign(`/create?${createParams.toString()}`);
+    setGiftAccepted(true);
   } catch (error) {
     console.error("Claim gift error:", error);
     setClaimError("Could not claim this gift.");
+  } finally {
+    setIsClaiming(false);
+  }
+}
+
+async function handleAcceptGift() {
+  setClaimError("");
+
+  if (!gift) {
+    setClaimError("This gift invitation could not be found.");
+    return;
+  }
+
+  if (accountExists === null) {
+    setClaimError(
+      "We are still checking your account. Please try again in a moment."
+    );
+    return;
+  }
+
+  if (!password) {
+    setClaimError("Please enter your password.");
+    return;
+  }
+
+  if (!accountExists && password !== confirmPassword) {
+    setClaimError("Passwords do not match.");
+    return;
+  }
+
+  if (!accountExists && password.length < 6) {
+    setClaimError("Your password must contain at least 6 characters.");
+    return;
+  }
+
+  setIsClaiming(true);
+
+  try {
+    if (accountExists) {
+      const { error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email: gift.recipientEmail,
+          password,
+        });
+
+      if (signInError) {
+        setClaimError(
+          "The password you entered is incorrect. Please try again."
+        );
+        return;
+      }
+    } else {
+      const { data: signUpData, error: signUpError } =
+        await supabase.auth.signUp({
+          email: gift.recipientEmail,
+          password,
+        });
+
+      if (signUpError) {
+        setClaimError(signUpError.message);
+        return;
+      }
+
+      if (!signUpData.session) {
+        setClaimError(
+          "Your account was created, but your email must be confirmed before the gift can be accepted."
+        );
+        return;
+      }
+    }
+
+    setSignedInEmail(gift.recipientEmail);
+
+    await handleClaimGift();
+  } catch (error) {
+    console.error("Accept gift error:", error);
+    setClaimError("Could not accept this gift.");
   } finally {
     setIsClaiming(false);
   }
@@ -243,89 +349,100 @@ const loginUrl =
           </p>
         )}
 
-       {gift.claimed ? (
+       {giftAccepted ||
+(gift.claimed &&
+  signedInEmail?.toLowerCase() ===
+    gift.recipientEmail.toLowerCase()) ? (
+  <div className="mt-8 rounded-2xl border border-blue-200 bg-blue-50 p-6">
+    <h2 className="text-2xl font-bold text-stone-900">
+      🎁 Your Gift Has Been Accepted!
+    </h2>
+
+    <p className="mt-3 leading-7 text-stone-700">
+      Welcome to the MyEMemorial family.
+    </p>
+
+    <p className="mt-3 text-sm leading-6 text-stone-700">
+      Your {gift.plan} MyEMemorial has been successfully added to your
+      account.
+    </p>
+
+    <p className="mt-3 text-sm leading-6 text-stone-700">
+      Nothing else is required. Your gift has already been fully paid for.
+    </p>
+
+    <button
+      type="button"
+      onClick={handleContinueGift}
+      className="mt-6 w-full rounded-full bg-stone-900 px-6 py-4 text-center font-semibold text-white hover:bg-stone-700"
+    >
+      Continue to MyEMemorial
+    </button>
+  </div>
+) : gift.claimed ? (
   signedInEmail ? (
-    signedInEmail.toLowerCase() ===
-    gift.recipientEmail.toLowerCase() ? (
-      <div className="mt-8 rounded-2xl border border-blue-200 bg-blue-50 p-5">
-        <p className="font-semibold text-stone-900">
-  Your Gift has been accepted.
-</p>
+    <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-5">
+      <p className="font-semibold text-red-800">
+        You are signed in with a different email address.
+      </p>
 
-<p className="mt-2 text-sm leading-6 text-stone-700">
-  Your MyEMemorial is ready whenever you would like to continue.
-</p>
+      <p className="mt-2 text-sm leading-6 text-red-700">
+        This gift was sent to{" "}
+        <strong>{gift.recipientEmail}</strong>, but you are signed in as{" "}
+        <strong>{signedInEmail}</strong>.
+      </p>
 
-        <button
-          type="button"
-          onClick={handleContinueGift}
-          className="mt-5 w-full rounded-full bg-stone-900 px-6 py-4 text-center font-semibold text-white hover:bg-stone-700"
-        >
-          Continue Creating Your Memorial
-        </button>
-      </div>
-    ) : (
-      <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-5">
-        <p className="font-semibold text-red-800">
-          You are signed in with a different email address.
-        </p>
-
-        <p className="mt-2 text-sm text-red-700">
-          This Gift was sent to{" "}
-          <strong>{gift.recipientEmail}</strong>, but you are signed in
-          as <strong>{signedInEmail}</strong>.
-        </p>
-
-        <button
-          type="button"
-          onClick={handleSwitchAccount}
-          className="mt-5 w-full rounded-full bg-stone-900 px-6 py-3 text-center font-semibold text-white hover:bg-stone-700"
-        >
-          Log Out and Use the Gift Recipient Email
-        </button>
-      </div>
-    )
+      <button
+        type="button"
+        onClick={handleSwitchAccount}
+        className="mt-5 w-full rounded-full bg-stone-900 px-6 py-3 text-center font-semibold text-white hover:bg-stone-700"
+      >
+        Log Out and Use the Gift Recipient Email
+      </button>
+    </div>
   ) : (
     <a
       href={loginUrl}
       className="mt-8 block w-full rounded-full bg-stone-900 px-6 py-4 text-center font-semibold text-white hover:bg-stone-700"
     >
-      Sign In to Continue Your Memorial
+      Sign In to Continue Your MyEMemorial
     </a>
   )
 ) : signedInEmail ? (
-  signedInEmail.toLowerCase() === gift.recipientEmail.toLowerCase() ? (
-  <div className="mt-8">
-    {claimError && (
-      <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-5">
-        <p className="font-semibold text-red-700">
-          We could not finish accepting your Gift.
-        </p>
+  signedInEmail.toLowerCase() ===
+  gift.recipientEmail.toLowerCase() ? (
+    <div className="mt-8">
+      {claimError && (
+        <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-5">
+          <p className="font-semibold text-red-700">
+            We could not finish accepting your gift.
+          </p>
 
-        <p className="mt-2 text-sm text-red-600">
-          {claimError}
-        </p>
-      </div>
-    )}
+          <p className="mt-2 text-sm text-red-600">
+            {claimError}
+          </p>
+        </div>
+      )}
 
-    <button
-      type="button"
-      onClick={handleClaimGift}
-      disabled={isClaiming}
-      className="w-full rounded-full bg-stone-900 px-6 py-4 text-center font-semibold text-white hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
-    >
-      {isClaiming ? "Accepting Your Gift..." : "Accept Your Gift"}
-    </button>
-  </div>
+      <button
+        type="button"
+        onClick={handleClaimGift}
+        disabled={isClaiming}
+        className="w-full rounded-full bg-stone-900 px-6 py-4 text-center font-semibold text-white hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {isClaiming ? "Accepting My Gift..." : "Accept My Gift"}
+      </button>
+    </div>
   ) : (
     <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-5">
       <p className="font-semibold text-red-800">
         You are signed in with a different email address.
       </p>
 
-      <p className="mt-2 text-sm text-red-700">
-        This Gift was sent to <strong>{gift.recipientEmail}</strong>, but
-        you are signed in as <strong>{signedInEmail}</strong>.
+      <p className="mt-2 text-sm leading-6 text-red-700">
+        This gift was sent to{" "}
+        <strong>{gift.recipientEmail}</strong>, but you are signed in as{" "}
+        <strong>{signedInEmail}</strong>.
       </p>
 
       <button
@@ -337,13 +454,109 @@ const loginUrl =
       </button>
     </div>
   )
+) : isCheckingAccount ? (
+  <div className="mt-8 rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center">
+    <p className="font-semibold text-stone-700">
+      Preparing your gift...
+    </p>
+  </div>
+) : accountExists === null ? (
+  <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-5">
+    <p className="font-semibold text-red-700">
+      We could not prepare your account.
+    </p>
+
+    <p className="mt-2 text-sm text-red-600">
+      Please refresh this page and try again.
+    </p>
+  </div>
 ) : (
-  <a
-    href={loginUrl}
-    className="mt-8 block w-full rounded-full bg-stone-900 px-6 py-4 text-center font-semibold text-white hover:bg-stone-700"
+  <form
+    className="mt-8 rounded-2xl border border-stone-200 bg-stone-50 p-6"
+    onSubmit={(event) => {
+      event.preventDefault();
+      void handleAcceptGift();
+    }}
   >
-    Accept Your Gift
-  </a>
+    <h2 className="text-2xl font-bold text-stone-900">
+      {accountExists ? "Welcome Back" : "Welcome to MyEMemorial"}
+    </h2>
+
+    <p className="mt-2 text-sm leading-6 text-stone-600">
+      {accountExists
+        ? "Enter your password to securely accept your gift."
+        : "Choose a password to securely accept and begin your gift."}
+    </p>
+
+    <label
+      htmlFor="gift-email"
+      className="mt-6 block text-sm font-semibold text-stone-700"
+    >
+      Email address
+    </label>
+
+    <input
+      id="gift-email"
+      type="email"
+      value={gift.recipientEmail}
+      readOnly
+      className="mt-2 w-full rounded-xl border border-stone-300 bg-stone-100 px-4 py-3 text-stone-700"
+    />
+
+    <label
+      htmlFor="gift-password"
+      className="mt-5 block text-sm font-semibold text-stone-700"
+    >
+      Password
+    </label>
+
+    <input
+      id="gift-password"
+      type="password"
+      value={password}
+      onChange={(event) => setPassword(event.target.value)}
+      autoComplete={accountExists ? "current-password" : "new-password"}
+      required
+      className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none focus:border-blue-600"
+    />
+
+    {!accountExists && (
+      <>
+        <label
+          htmlFor="gift-confirm-password"
+          className="mt-5 block text-sm font-semibold text-stone-700"
+        >
+          Confirm password
+        </label>
+
+        <input
+          id="gift-confirm-password"
+          type="password"
+          value={confirmPassword}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+          autoComplete="new-password"
+          required
+          className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none focus:border-blue-600"
+        />
+      </>
+    )}
+
+    {claimError && (
+      <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4">
+        <p className="text-sm font-semibold text-red-700">
+          {claimError}
+        </p>
+      </div>
+    )}
+
+    <button
+      type="submit"
+      disabled={isClaiming}
+      className="mt-6 w-full rounded-full bg-stone-900 px-6 py-4 text-center font-semibold text-white hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {isClaiming ? "Accepting My Gift..." : "Accept My Gift"}
+    </button>
+  </form>
 )}
       </div>
     </main>
