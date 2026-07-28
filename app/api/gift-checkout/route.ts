@@ -91,7 +91,8 @@ const claimToken = crypto.randomBytes(32).toString("hex");
       );
     }
 
-    const baseUrl = "http://localhost:3000";
+    const baseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
