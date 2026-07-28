@@ -455,7 +455,7 @@ const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 const giftLogoUrl =
-  "https://myememorial.com/images/myememorial-full-logo.jpg";
+  "https://myememorial.com/Images/myememorial-full-logo.jpg";
 
 if (giftPurchaserEmail) {
   await transporter.sendMail({
