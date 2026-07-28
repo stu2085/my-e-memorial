@@ -57,7 +57,7 @@ const isPreplan =
       {/* Logo */}
 <a href="/" className="flex shrink-0 items-center">
   <img
-    src="/myememorial-logo.png"
+    src="/Images/myememorial-full-logo.jpg"
     alt="MyEMemorial"
    className="h-24 w-auto max-w-none object-contain sm:h-40"
   />
