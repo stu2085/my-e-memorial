@@ -11,9 +11,10 @@ function LoginContent() {
   const router = useRouter();
   const redirectTo = searchParams.get("redirect") || "/create";
   const mode = searchParams.get("mode") || "login";
+  const prefilledEmail = searchParams.get("email") || "";
   const isSignupMode = mode === "signup";
 const [isSubmitting, setIsSubmitting] = useState(false);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(prefilledEmail);
   const [confirmEmail, setConfirmEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -166,7 +167,7 @@ if (isChoiceMode) {
         </a>
 
         <a
-          href={`/login?mode=signup&redirect=${encodeURIComponent(redirectTo)}`}
+          href={`/login?mode=signup&email=${encodeURIComponent(email)}&redirect=${encodeURIComponent(redirectTo)}`}
           className="mt-4 block w-full rounded-full bg-stone-900 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-stone-700"
         >
           Create New Account
@@ -194,48 +195,73 @@ if (isChoiceMode) {
 </p>
 
         <div className="mt-6 space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-2xl border border-stone-300 px-4 py-3"
-            required
-          />
-{isSignupMode && (
-  <input
-    type="email"
-    placeholder="Confirm Email"
-    autoComplete="email"
-    value={confirmEmail}
-    onChange={(e) => setConfirmEmail(e.target.value)}
-    className="w-full rounded-2xl border border-stone-300 px-4 py-3"
-    required
-  />
-)}
-          <input
-  type="password"
-  placeholder={isSignupMode ? "Create Password" : "Password"}
-  autoComplete={isSignupMode ? "new-password" : "current-password"}
-  value={password}
-  onChange={(e) => setPassword(e.target.value)}
-  className="w-full rounded-2xl border border-stone-300 px-4 py-3"
-  required
-/>
+  <label className="block">
+    <span className="mb-2 block text-sm font-semibold text-stone-700">
+      Email Address
+    </span>
 
-{isSignupMode && (
-  <input
-    type="password"
-    placeholder="Confirm Password"
-    autoComplete="new-password"
-    value={confirmPassword}
-    onChange={(e) => setConfirmPassword(e.target.value)}
-    className="w-full rounded-2xl border border-stone-300 px-4 py-3"
-    required
-  />
-)}
+    <input
+      type="email"
+      placeholder="Email"
+      autoComplete="email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      className="w-full rounded-2xl border border-stone-300 px-4 py-3"
+      required
+    />
+  </label>
 
+  {isSignupMode && (
+    <label className="block">
+      <span className="mb-2 block text-sm font-semibold text-stone-700">
+        Confirm Email Address
+      </span>
+
+      <input
+        type="email"
+        placeholder="Confirm Email"
+        autoComplete="email"
+        value={confirmEmail}
+        onChange={(e) => setConfirmEmail(e.target.value)}
+        className="w-full rounded-2xl border border-stone-300 px-4 py-3"
+        required
+      />
+    </label>
+  )}
+
+  <label className="block">
+    <span className="mb-2 block text-sm font-semibold text-stone-700">
+      {isSignupMode ? "Create Password" : "Password"}
+    </span>
+
+    <input
+      type="password"
+      placeholder={isSignupMode ? "Create Password" : "Password"}
+      autoComplete={isSignupMode ? "new-password" : "current-password"}
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      className="w-full rounded-2xl border border-stone-300 px-4 py-3"
+      required
+    />
+  </label>
+
+  {isSignupMode && (
+    <label className="block">
+      <span className="mb-2 block text-sm font-semibold text-stone-700">
+        Confirm Password
+      </span>
+
+      <input
+        type="password"
+        placeholder="Confirm Password"
+        autoComplete="new-password"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+        className="w-full rounded-2xl border border-stone-300 px-4 py-3"
+        required
+      />
+    </label>
+  )}
 </div>
 <Script
   src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
