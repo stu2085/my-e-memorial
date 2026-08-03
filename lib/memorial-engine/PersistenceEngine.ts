@@ -149,11 +149,13 @@ existingIsPublished = null,
     is_draft: isDraft,
 guided_current_chapter: guidedCurrentChapter,
     is_published:
-  existingIsPublished !== null
-    ? existingIsPublished
-    : isDraft || form.isLivingPreplan || requiresReview
-      ? false
-      : true,
+  form.isLivingPreplan
+    ? false
+    : existingIsPublished !== null
+      ? existingIsPublished
+      : isDraft || requiresReview
+        ? false
+        : true,
     needs_review: requiresReview,
     birth_date: form.birthDate || null,
     death_date: form.deathDate || null,
