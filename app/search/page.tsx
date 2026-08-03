@@ -452,7 +452,7 @@ return filtered;
   href={`/memorial/${memorial.slug}`}
   className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
 >
-    <div className="flex flex-col gap-5 p-6 md:flex-row md:items-stretch">
+    <div className="flex flex-col gap-5 p-6 xl:flex-row xl:items-stretch">
   <div className="min-w-0 flex-1">
         <h3 className="text-xl font-bold text-stone-900">
           {fullName}
@@ -508,7 +508,7 @@ return filtered;
       </div>
 
       {thumb ? (
-        <div className="flex w-full items-center justify-center rounded-3xl bg-stone-100 p-3 md:w-[220px]">
+        <div className="flex w-full items-center justify-center rounded-3xl bg-stone-100 p-3 xl:w-[220px] xl:shrink-0">
           <img
             src={thumb}
             alt={fullName}
@@ -516,7 +516,7 @@ return filtered;
           />
         </div>
       ) : (
-        <div className="flex min-h-[220px] w-full items-center justify-center rounded-3xl bg-stone-100 text-sm text-stone-400 md:w-[220px]">
+        <div className="flex min-h-[220px] w-full items-center justify-center rounded-3xl bg-stone-100 text-sm text-stone-400 xl:w-[220px] xl:shrink-0">
           No Photo Yet
         </div>
       )}
