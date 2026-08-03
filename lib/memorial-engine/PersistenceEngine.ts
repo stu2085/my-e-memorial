@@ -52,7 +52,9 @@ type MemorialFormData = {
   socialLink3: string;
   socialLink4: string;
   socialLink5: string;
-  finalRestingType: string;
+videoLinkUrls: string[];
+videoLinkNotes: string[];
+finalRestingType: string;
   ashesLocationDescription: string;
   backupPersonName: string;
   backupEmail: string;
@@ -81,13 +83,21 @@ type BuildMemorialDataOptions = {
   featuredPhotoUrl: string;
   headstonePhoto1Url: string;
   headstonePhoto2Url: string;
-  galleryPhotoUrls: string[];
-  newspaperArticleUrls: string[];
-  favoriteSongUrl: string;
-  uploadedVideos: Array<{
-    playbackId: string;
-    note: string;
-  }>;
+obituaryImageUrl: string;
+galleryPhotoUrls: string[];
+galleryPhotoCaptions: string[];
+newspaperArticleUrls: string[];
+favoriteSongUrl: string;
+favoriteSongUrls: string[];
+favoriteSongNotes: string[];
+videoLinkThumbnailUrls: string[];
+uploadedVideos: Array<{
+  playbackId: string;
+  note: string;
+}>;
+isDraft?: boolean;
+guidedCurrentChapter?: string | null;
+existingIsPublished?: boolean | null;
 };
 export class PersistenceEngine {
   static buildMemorialData({
@@ -100,11 +110,19 @@ export class PersistenceEngine {
   usingBetaCode,
   featuredPhotoUrl,
   headstonePhoto1Url,
-  headstonePhoto2Url,
-  galleryPhotoUrls,
-  newspaperArticleUrls,
-  favoriteSongUrl,
-  uploadedVideos,
+headstonePhoto2Url,
+obituaryImageUrl,
+galleryPhotoUrls,
+galleryPhotoCaptions,
+newspaperArticleUrls,
+favoriteSongUrl,
+favoriteSongUrls,
+favoriteSongNotes,
+videoLinkThumbnailUrls,
+uploadedVideos,
+isDraft = false,
+guidedCurrentChapter = null,
+existingIsPublished = null,
 }: BuildMemorialDataOptions): MemorialInsertData {
   return {
     slug,
@@ -128,26 +146,45 @@ export class PersistenceEngine {
     gender: form.gender,
     plan: selectedPlan,
     is_living_preplan: form.isLivingPreplan,
+    is_draft: isDraft,
+guided_current_chapter: guidedCurrentChapter,
     is_published:
-      form.isLivingPreplan || requiresReview ? false : true,
+  existingIsPublished !== null
+    ? existingIsPublished
+    : isDraft || form.isLivingPreplan || requiresReview
+      ? false
+      : true,
     needs_review: requiresReview,
     birth_date: form.birthDate || null,
     death_date: form.deathDate || null,
     obituary: form.obituary,
-    obituary_url: form.obituaryUrl,
-    life_story: form.lifeStory,
+obituary_url: form.obituaryUrl,
+obituary_image_url: obituaryImageUrl,
+life_story: form.lifeStory,
     great_grandparents_names: form.greatGrandparentsNames,
     grandparents_father_side: form.grandparentsFatherSide,
     grandparents_mother_side: form.grandparentsMotherSide,
     parents_names: form.parentsNames,
     siblings_names: form.siblingsNames,
-    cemetery_name: form.cemeteryName,
-    grave_section: form.graveSection,
-    grave_row: form.graveRow,
-    grave_plot: form.gravePlot,
-    grave_lat: form.graveLat ? Number(form.graveLat) : null,
-    grave_lng: form.graveLng ? Number(form.graveLng) : null,
-    grave_directions: form.graveDirections,
+    cemetery_name:
+  form.finalRestingType === "buried"
+    ? form.cemeteryName
+    : "",
+grave_section:
+  form.finalRestingType === "buried"
+    ? form.graveSection
+    : "",
+grave_row:
+  form.finalRestingType === "buried"
+    ? form.graveRow
+    : "",
+grave_plot:
+  form.finalRestingType === "buried"
+    ? form.gravePlot
+    : "",
+grave_lat: form.graveLat ? Number(form.graveLat) : null,
+grave_lng: form.graveLng ? Number(form.graveLng) : null,
+grave_directions: form.graveDirections,
     map_street: form.mapStreet,
     map_city: form.mapCity,
     map_state: form.mapState,
@@ -162,16 +199,25 @@ export class PersistenceEngine {
     social_link_3: form.socialLink3,
     social_link_4: form.socialLink4,
     social_link_5: form.socialLink5,
-    featured_photo_url: featuredPhotoUrl,
+video_link_urls: form.videoLinkUrls,
+video_link_notes: form.videoLinkNotes,
+video_link_thumbnail_urls: videoLinkThumbnailUrls,
+featured_photo_url: featuredPhotoUrl,
     headstone_photo_1: headstonePhoto1Url,
     headstone_photo_2: headstonePhoto2Url,
     gallery_photos: galleryPhotoUrls.join(","),
-    newspaper_articles: newspaperArticleUrls.join(","),
-    favorite_song_url: favoriteSongUrl,
-    video_urls: uploadedVideos.map((video) => video.playbackId),
+gallery_photo_captions: galleryPhotoCaptions,
+newspaper_articles: newspaperArticleUrls.join(","),
+favorite_song_url: favoriteSongUrls[0] || favoriteSongUrl || "",
+favorite_song_urls: favoriteSongUrls,
+favorite_song_notes: favoriteSongNotes,
+video_urls: uploadedVideos.map((video) => video.playbackId),
     video_notes: uploadedVideos.map((video) => video.note),
-    final_resting_type: form.finalRestingType,
-    ashes_location_description: form.ashesLocationDescription,
+    final_resting_type: form.finalRestingType || null,
+ashes_location_description:
+  form.finalRestingType === "cremated"
+    ? form.ashesLocationDescription
+    : "",
     backup_person_name: form.backupPersonName,
     payment_status: usingBetaCode ? "free_beta" : "paid",
     payment_source: usingBetaCode ? "beta_code" : "stripe",
@@ -217,6 +263,23 @@ export class PersistenceEngine {
       memorialId: createdMemorial.id,
     };
   }
+  static async updateMemorial({
+  memorialId,
+  memorialData,
+}: {
+  memorialId: number;
+  memorialData: MemorialInsertData;
+}): Promise<void> {
+  const { error } = await supabase
+    .from("memorials")
+    .update(memorialData)
+    .eq("id", memorialId);
+
+  if (error) {
+    console.error("SUPABASE UPDATE ERROR:", error);
+    throw new Error(error.message);
+  }
+}
   static async createMemorialVideos({
   memorialId,
   videos,

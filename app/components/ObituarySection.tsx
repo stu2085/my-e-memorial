@@ -105,12 +105,18 @@ export default function ObituarySection({
   </div>
 )}
 
-        <Input
-          label="Original Obituary Website Link (Optional)"
-          name="obituaryUrl"
-          value={form.obituaryUrl}
-          onChange={handleChange}
-        />
+        <div>
+  <p className="mb-2 text-sm font-semibold text-stone-700">
+    Option 3 — Add the Original Obituary Website Link
+  </p>
+
+  <Input
+    label="Original Obituary Website Link (Optional)"
+    name="obituaryUrl"
+    value={form.obituaryUrl}
+    onChange={handleChange}
+  />
+</div>
       </div>
 
       <QuickSaveButton

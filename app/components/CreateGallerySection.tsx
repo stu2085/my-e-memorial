@@ -20,7 +20,11 @@ type CreateGallerySectionProps = {
   form: {
     plan: string;
   };
-  galleryPhotos: GalleryPhoto[];
+  savedGalleryPhotoUrls?: string[];
+setSavedGalleryPhotoUrls?: Dispatch<SetStateAction<string[]>>;
+savedGalleryPhotoCaptions?: string[];
+setSavedGalleryPhotoCaptions?: Dispatch<SetStateAction<string[]>>;
+galleryPhotos: GalleryPhoto[];
   setGalleryPhotos: Dispatch<SetStateAction<GalleryPhoto[]>>;
   galleryUploadProgress: UploadProgress | null;
    isPaid: boolean;
@@ -34,8 +38,12 @@ type CreateGallerySectionProps = {
 };
 
 export default function CreateGallerySection({
-  form,
-  galleryPhotos,
+ form,
+savedGalleryPhotoUrls = [],
+setSavedGalleryPhotoUrls,
+savedGalleryPhotoCaptions = [],
+setSavedGalleryPhotoCaptions,
+galleryPhotos,
   setGalleryPhotos,
   galleryUploadProgress,
   isPaid,
@@ -51,14 +59,17 @@ export default function CreateGallerySection({
   const limit = planDetails.galleryPhotos;
   const hasFiniteLimit = Number.isFinite(limit);
 
-  const remainingPhotos = hasFiniteLimit
-    ? Math.max(limit - galleryPhotos.length, 0)
-    : null;
+  const totalPhotoCount =
+  savedGalleryPhotoUrls.length + galleryPhotos.length;
 
-  const capacityPercentage =
-    hasFiniteLimit && limit > 0
-      ? Math.min((galleryPhotos.length / limit) * 100, 100)
-      : 0;
+const remainingPhotos = hasFiniteLimit
+  ? Math.max(limit - totalPhotoCount, 0)
+  : null;
+
+ const capacityPercentage =
+  hasFiniteLimit && limit > 0
+    ? Math.min((totalPhotoCount / limit) * 100, 100)
+    : 0;
 
   async function handlePhotoSelection(
     event: React.ChangeEvent<HTMLInputElement>
@@ -77,8 +88,13 @@ export default function CreateGallerySection({
 
     try {
       const availableSlots = hasFiniteLimit
-        ? Math.max(limit - galleryPhotos.length, 0)
-        : Number.POSITIVE_INFINITY;
+  ? Math.max(
+      limit -
+        savedGalleryPhotoUrls.length -
+        galleryPhotos.length,
+      0
+    )
+  : Number.POSITIVE_INFINITY;
 
       if (availableSlots === 0) {
         setSelectionMessage(
@@ -218,7 +234,7 @@ export default function CreateGallerySection({
         disabled={
   !isPaid ||
   isCheckingPhotos ||
-  (hasFiniteLimit && galleryPhotos.length >= limit)
+  (hasFiniteLimit && totalPhotoCount >= limit)
 }
         onChange={handlePhotoSelection}
         className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-500"
@@ -283,32 +299,178 @@ export default function CreateGallerySection({
           </p>
         )}
       </div>
-
-      {galleryPhotos.length > 0 && (
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-          {galleryPhotos.map((photo) => (
-            <div
-              key={photo.id}
-              className="relative aspect-square overflow-hidden rounded-xl border border-stone-200 bg-stone-100"
-            >
-              <img
-                src={photo.previewUrl}
-                alt={photo.file.name}
-                className="h-full w-full object-cover"
-              />
-
-              <button
-                type="button"
-                onClick={() => removePhoto(photo.id)}
-                aria-label={`Remove ${photo.file.name}`}
-                className="absolute right-1 top-1 rounded-full bg-black/70 px-2 py-1 text-xs font-bold text-white"
-              >
-                ×
-              </button>
-            </div>
-          ))}
+{savedGalleryPhotoUrls.length > 0 && (
+  <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+    {savedGalleryPhotoUrls.map((url, index) => (
+      <div
+        key={`${url}-${index}`}
+        className="overflow-hidden rounded-xl border border-stone-200 bg-stone-100"
+      >
+        <div className="aspect-square overflow-hidden bg-stone-100">
+          <img
+            src={url}
+            alt={`Saved gallery photo ${index + 1}`}
+            className="h-full w-full object-cover"
+          />
         </div>
-      )}
+
+        <div className="space-y-2 bg-white p-2">
+          <textarea
+            rows={2}
+            value={savedGalleryPhotoCaptions[index] ?? ""}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              setSavedGalleryPhotoCaptions?.((currentCaptions) => {
+                const nextCaptions = [...currentCaptions];
+                nextCaptions[index] = value;
+                return nextCaptions;
+              });
+            }}
+            placeholder="Add a caption"
+            className="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-xs text-stone-900"
+          />
+
+          <button
+            type="button"
+            onClick={() => {
+              setSavedGalleryPhotoUrls?.((currentUrls) =>
+                currentUrls.filter((_, i) => i !== index)
+              );
+
+              setSavedGalleryPhotoCaptions?.((currentCaptions) =>
+                currentCaptions.filter((_, i) => i !== index)
+              );
+            }}
+            className="w-full rounded-lg border border-red-300 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+          >
+            Delete
+          </button>
+
+          <div className="grid grid-cols-2 gap-1">
+            <button
+              type="button"
+              disabled={index === 0}
+              onClick={() => {
+                setSavedGalleryPhotoUrls?.((currentUrls) => {
+                  if (index === 0) {
+                    return currentUrls;
+                  }
+
+                  const nextUrls = [...currentUrls];
+
+                  [nextUrls[index - 1], nextUrls[index]] = [
+                    nextUrls[index],
+                    nextUrls[index - 1],
+                  ];
+
+                  return nextUrls;
+                });
+
+                setSavedGalleryPhotoCaptions?.((currentCaptions) => {
+                  const nextCaptions = [...currentCaptions];
+
+                  [nextCaptions[index - 1], nextCaptions[index]] = [
+                    nextCaptions[index] ?? "",
+                    nextCaptions[index - 1] ?? "",
+                  ];
+
+                  return nextCaptions;
+                });
+              }}
+              className="rounded-lg border border-stone-300 px-2 py-1 text-xs font-semibold text-stone-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              ← Left
+            </button>
+
+            <button
+              type="button"
+              disabled={index === savedGalleryPhotoUrls.length - 1}
+              onClick={() => {
+                setSavedGalleryPhotoUrls?.((currentUrls) => {
+                  if (index === currentUrls.length - 1) {
+                    return currentUrls;
+                  }
+
+                  const nextUrls = [...currentUrls];
+
+                  [nextUrls[index], nextUrls[index + 1]] = [
+                    nextUrls[index + 1],
+                    nextUrls[index],
+                  ];
+
+                  return nextUrls;
+                });
+
+                setSavedGalleryPhotoCaptions?.((currentCaptions) => {
+                  const nextCaptions = [...currentCaptions];
+
+                  [nextCaptions[index], nextCaptions[index + 1]] = [
+                    nextCaptions[index + 1] ?? "",
+                    nextCaptions[index] ?? "",
+                  ];
+
+                  return nextCaptions;
+                });
+              }}
+              className="rounded-lg border border-stone-300 px-2 py-1 text-xs font-semibold text-stone-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Right →
+            </button>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+      {galleryPhotos.length > 0 && (
+  <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+    {galleryPhotos.map((photo) => (
+      <div
+        key={photo.id}
+        className="overflow-hidden rounded-xl border border-stone-200 bg-stone-100"
+      >
+        <div className="relative aspect-square overflow-hidden bg-stone-100">
+          <img
+            src={photo.previewUrl}
+            alt={photo.file.name}
+            className="h-full w-full object-cover"
+          />
+
+          <button
+            type="button"
+            onClick={() => removePhoto(photo.id)}
+            aria-label={`Remove ${photo.file.name}`}
+            className="absolute right-1 top-1 rounded-full bg-black/70 px-2 py-1 text-xs font-bold text-white"
+          >
+            ×
+          </button>
+        </div>
+
+        <textarea
+          rows={2}
+          value={photo.caption}
+          onChange={(e) => {
+            const value = e.target.value;
+
+            setGalleryPhotos((currentPhotos) =>
+              currentPhotos.map((currentPhoto) =>
+                currentPhoto.id === photo.id
+                  ? {
+                      ...currentPhoto,
+                      caption: value,
+                    }
+                  : currentPhoto
+              )
+            );
+          }}
+          placeholder="Add a caption"
+          className="w-full border-t border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-900"
+        />
+      </div>
+    ))}
+  </div>
+)}
 
       {galleryUploadProgress &&
         galleryUploadProgress.total > 0 && (

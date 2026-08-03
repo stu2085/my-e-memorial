@@ -1,34 +1,31 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createHmac, timingSafeEqual } from "crypto";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
   process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 );
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    const token = authHeader?.replace("Bearer ", "");
+   const authHeader = req.headers.get("authorization");
+const token = authHeader?.replace("Bearer ", "");
 
-    if (!token) {
-      return NextResponse.json(
-        { error: "Not authenticated." },
-        { status: 401 }
-      );
-    }
+let user = null;
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseAdmin.auth.getUser(token);
+if (token) {
+  const {
+    data: { user: authenticatedUser },
+    error: userError,
+  } = await supabaseAdmin.auth.getUser(token);
 
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: "Invalid user session." },
-        { status: 401 }
-      );
-    }
+  if (!userError && authenticatedUser) {
+    user = authenticatedUser;
+  }
+}
+
+    
 
     const { memorialId, updatePayload } = await req.json();
 
@@ -41,7 +38,7 @@ export async function POST(req: Request) {
 
     const { data: memorial, error: memorialError } = await supabaseAdmin
       .from("memorials")
-      .select("id, owner_id")
+      .select("id, owner_id, is_living_preplan")
       .eq("id", memorialId)
       .single();
 
@@ -52,12 +49,63 @@ export async function POST(req: Request) {
       );
     }
 
-    if (memorial.owner_id !== user.id) {
-      return NextResponse.json(
-        { error: "You do not have permission to edit this memorial." },
-        { status: 403 }
+    const isOwner =
+  !!user && memorial.owner_id === user.id;
+
+let hasBackupAccess = false;
+
+if (!isOwner && memorial.is_living_preplan) {
+  const cookieValue = req.cookies.get(
+    "myememorial_backup_access"
+  )?.value;
+
+  if (cookieValue) {
+    const [cookieMemorialId, suppliedSignature] =
+      cookieValue.split(":");
+
+    if (
+      cookieMemorialId === String(memorialId) &&
+      suppliedSignature
+    ) {
+      const backupAccessSecret =
+        process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+
+      const expectedSignature = createHmac(
+        "sha256",
+        backupAccessSecret
+      )
+        .update(String(memorialId))
+        .digest("hex");
+
+      const suppliedBuffer = Buffer.from(
+        suppliedSignature,
+        "utf8"
       );
+
+      const expectedBuffer = Buffer.from(
+        expectedSignature,
+        "utf8"
+      );
+
+      if (
+        suppliedBuffer.length === expectedBuffer.length &&
+        timingSafeEqual(
+          suppliedBuffer,
+          expectedBuffer
+        )
+      ) {
+        hasBackupAccess = true;
+      }
     }
+  }
+}
+
+if (!isOwner && !hasBackupAccess) {
+  return NextResponse.json(
+    { error: "You do not have permission to edit this memorial." },
+    { status: 403 }
+  );
+}
 
     const { error: updateError } = await supabaseAdmin
   .from("memorials")
@@ -65,8 +113,7 @@ export async function POST(req: Request) {
     ...updatePayload,
     updated_at: new Date().toISOString(),
   })
-  .eq("id", memorialId)
-  .eq("owner_id", user.id);
+  .eq("id", memorialId);
 
     if (updateError) {
       return NextResponse.json(

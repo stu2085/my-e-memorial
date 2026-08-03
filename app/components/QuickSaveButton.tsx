@@ -10,7 +10,6 @@ type QuickSaveButtonProps = {
 };
 
 export default function QuickSaveButton({
-  isSaving,
   isPublished,
   sectionId = "general",
   successMessage = "",
@@ -25,28 +24,16 @@ export default function QuickSaveButton({
 
   return (
     <>
-      <div className="mt-5 flex justify-end border-t border-stone-200 pt-5">
-        <button
-          type="submit"
-          name="saveSection"
-          value={sectionId}
-          disabled={isSaving}
-          className="rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isSaving ? "Saving..." : "Save Changes"}
-        </button>
-      </div>
-
       {displayedSuccessMessage && (
         <p className="mt-3 rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
           {displayedSuccessMessage}
         </p>
       )}
 
-      <p className="mt-2 text-right text-xs text-stone-500">
+      <p className="mt-4 text-right text-xs text-stone-500">
         {isPublished
-          ? "Changes become public when you save."
-          : "Saving does not make your memorial public."}
+          ? "Saved changes become public."
+          : "Your memorial remains private until you publish it."}
       </p>
     </>
   );

@@ -20,9 +20,11 @@ type FavoriteSongsSectionProps = {
 
   setForm: React.Dispatch<React.SetStateAction<any>>;
   setFavoriteSongFiles?: React.Dispatch<React.SetStateAction<File[]>>;
-  setSelectedFavoriteSongNotes?: React.Dispatch<
-    React.SetStateAction<string[]>
-  >;
+setSelectedFavoriteSongNotes?: React.Dispatch<
+  React.SetStateAction<string[]>
+>;
+setFavoriteSongUrls?: React.Dispatch<React.SetStateAction<string[]>>;
+setFavoriteSongNotes?: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 export default function FavoriteSongsSection({
@@ -38,7 +40,9 @@ export default function FavoriteSongsSection({
   handleChange,
   setForm,
   setFavoriteSongFiles,
-  setSelectedFavoriteSongNotes,
+setSelectedFavoriteSongNotes,
+setFavoriteSongUrls,
+setFavoriteSongNotes,
 }: FavoriteSongsSectionProps) {
   const songsToShow =
     favoriteSongUrls && favoriteSongUrls.length > 0
@@ -130,30 +134,14 @@ export default function FavoriteSongsSection({
                     <button
                       type="button"
                       onClick={() => {
-                        setForm((prev: any) => {
-                          const currentSongs =
-                            prev.favoriteSongUrls?.length > 0
-                              ? prev.favoriteSongUrls
-                              : prev.favoriteSongUrl
-                                ? [prev.favoriteSongUrl]
-                                : [];
+  setFavoriteSongUrls?.((prev) =>
+    prev.filter((_, i) => i !== index)
+  );
 
-                          const nextSongs = currentSongs.filter(
-                            (_: string, i: number) => i !== index
-                          );
-
-                          const nextNotes = (
-                            prev.favoriteSongNotes ?? []
-                          ).filter((_: string, i: number) => i !== index);
-
-                          return {
-                            ...prev,
-                            favoriteSongUrl: nextSongs[0] ?? "",
-                            favoriteSongUrls: nextSongs,
-                            favoriteSongNotes: nextNotes,
-                          };
-                        });
-                      }}
+  setFavoriteSongNotes?.((prev) =>
+    prev.filter((_, i) => i !== index)
+  );
+}}
                       className="rounded-full border border-red-300 px-2 py-0.5 text-[11px] font-semibold text-red-600 hover:bg-red-50"
                     >
                       Delete Song
@@ -172,18 +160,14 @@ export default function FavoriteSongsSection({
                   <textarea
                     value={favoriteSongNotes?.[index] ?? ""}
                     onChange={(e) => {
-                      const value = e.target.value;
+  const value = e.target.value;
 
-                      setForm((prev: any) => {
-                        const nextNotes = [...(prev.favoriteSongNotes ?? [])];
-                        nextNotes[index] = value;
-
-                        return {
-                          ...prev,
-                          favoriteSongNotes: nextNotes,
-                        };
-                      });
-                    }}
+  setFavoriteSongNotes?.((prev) => {
+    const nextNotes = [...prev];
+    nextNotes[index] = value;
+    return nextNotes;
+  });
+}}
                     rows={2}
                     placeholder="What was special about this song?"
                     className="mt-2 block w-full rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-stone-900"

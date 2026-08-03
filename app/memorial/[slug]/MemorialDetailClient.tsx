@@ -72,9 +72,10 @@ social_link_5?: string;
   headstone_photo_1?: string;
   headstone_photo_2?: string;
   gallery_photos?: string | string[];
-  gallery_photo_notes?: string[] | null;
+gallery_photo_captions?: string[] | null;
   video_link_urls?: string[] | null;
 video_link_notes?: string[] | null;
+video_link_thumbnail_urls?: string[] | null;
   newspaper_articles?: string | string[];
   video_urls?: string | string[];
 video_notes?: string[] | null;
@@ -157,6 +158,113 @@ function getFacebookEmbedUrl(url: string) {
   return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(
     url
   )}&show_text=false&width=734`;
+}
+function getYouTubeEmbedUrl(url: string) {
+  try {
+    const parsedUrl = new URL(url);
+    let videoId = "";
+
+    if (parsedUrl.hostname.includes("youtu.be")) {
+      videoId = parsedUrl.pathname.replace("/", "");
+    } else if (parsedUrl.hostname.includes("youtube.com")) {
+      if (parsedUrl.pathname === "/watch") {
+        videoId = parsedUrl.searchParams.get("v") || "";
+      } else if (parsedUrl.pathname.startsWith("/shorts/")) {
+        videoId = parsedUrl.pathname.split("/shorts/")[1]?.split("/")[0] || "";
+      } else if (parsedUrl.pathname.startsWith("/embed/")) {
+        videoId = parsedUrl.pathname.split("/embed/")[1]?.split("/")[0] || "";
+      }
+    }
+
+    if (!videoId) {
+      return "";
+    }
+
+    return `https://www.youtube.com/embed/${videoId}`;
+  } catch {
+    return "";
+  }
+}
+function VideoLinkPreview({
+  url,
+  index,
+}: {
+  url: string;
+  index: number;
+}) {
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewChecked, setPreviewChecked] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPreview() {
+      try {
+        const response = await fetch(
+          `/api/video-link-preview?url=${encodeURIComponent(url)}`
+        );
+
+        const result = await response.json();
+
+        if (!cancelled && result?.imageUrl) {
+          setPreviewImage(result.imageUrl);
+        }
+      } catch (error) {
+        console.error("VIDEO LINK PREVIEW LOAD ERROR:", error);
+      } finally {
+        if (!cancelled) {
+          setPreviewChecked(true);
+        }
+      }
+    }
+
+    loadPreview();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+
+  if (previewImage) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group relative block aspect-video w-full overflow-hidden rounded-xl bg-stone-200"
+        aria-label={`Open video link ${index + 1}`}
+      >
+        <img
+          src={previewImage}
+          alt={`Video link ${index + 1} preview`}
+          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+        />
+
+        <div className="absolute inset-0 flex items-center justify-center bg-black/15">
+          <div className="rounded-full bg-black/70 px-5 py-4 text-2xl text-white shadow-lg">
+            ▶
+          </div>
+        </div>
+      </a>
+    );
+  }
+
+  if (!previewChecked) {
+    return (
+      <div className="aspect-video w-full animate-pulse rounded-xl bg-stone-200" />
+    );
+  }
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
+    >
+      Watch Video
+    </a>
+  );
 }
 function formatDate(value?: string) {
   if (!value) return "-";
@@ -389,6 +497,12 @@ if (memorialData?.is_published === false && !isOwnerUser) {
         setLoading(false);
         return;
       }
+      if (!memorialData) {
+  setError("Memorial not found.");
+  setData(null);
+  setLoading(false);
+  return;
+}
 
       let memorialVideosData: MemorialVideo[] = [];
 
@@ -542,6 +656,14 @@ const videoLinkNotes = useMemo(
       : [],
   [data?.video_link_notes]
 );
+
+const videoLinkThumbnailUrls = useMemo(
+  () =>
+    Array.isArray(data?.video_link_thumbnail_urls)
+      ? data.video_link_thumbnail_urls
+      : [],
+  [data?.video_link_thumbnail_urls]
+);
   const contributorGalleryPhotos = useMemo(() => {
   return approvedSubmissions.flatMap((submission) => {
     const submittedPhotos = parseUrlList(submission.photo_urls);
@@ -559,12 +681,16 @@ const videoLinkNotes = useMemo(
 const combinedGalleryPhotos = useMemo(() => {
   const ownerPhotos = galleryPhotos.map((photoUrl, index) => ({
     src: photoUrl,
-    note: data?.gallery_photo_notes?.[index] ?? "",
+    note: data?.gallery_photo_captions?.[index] ?? "",
     attribution: "",
   }));
 
   return [...ownerPhotos, ...contributorGalleryPhotos];
-}, [galleryPhotos, data?.gallery_photo_notes, contributorGalleryPhotos]);
+}, [
+  galleryPhotos,
+  data?.gallery_photo_captions,
+  contributorGalleryPhotos,
+]);
 useEffect(() => {
   const nextPhoto =
     selectedPhotoIndex !== null
@@ -1085,203 +1211,197 @@ function showNextPhoto() {
 
     <div className="space-y-10">
         <section className="rounded-2xl bg-white p-5 shadow-sm">
-{isOwner && (
-  <div
-    className={`mb-6 rounded-2xl border px-5 py-4 text-sm font-semibold ${
-      data.is_published
-        ? "border-green-200 bg-green-50 text-green-800"
-        : "border-amber-200 bg-amber-50 text-amber-800"
-    }`}
-  >
-    {data.is_published
-      ? "This memorial is currently published and publicly visible."
-      : "This memorial is currently unpublished and only visible to you and your backup person."}
-  </div>
-)}
-  <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start">
-
-  <div className="min-w-0 flex-1">
-    <h1 className="text-3xl font-bold leading-tight tracking-tight text-stone-900 sm:text-4xl md:text-5xl">
-      {data.full_name || "Unnamed Memorial"}
-    </h1>
-
-    <div className="mt-4 grid gap-3 text-sm text-stone-700 sm:grid-cols-2 md:text-base">
-  {data.birth_date && (
-    <p>
-      <strong>Born:</strong> {formatDate(data.birth_date)}
-    </p>
+  {isOwner && (
+    <div
+      className={`mb-5 rounded-2xl border px-5 py-4 text-sm font-semibold ${
+        data.is_published
+          ? "border-green-200 bg-green-50 text-green-800"
+          : "border-amber-200 bg-amber-50 text-amber-800"
+      }`}
+    >
+      {data.is_published
+        ? "This memorial is currently published and publicly visible."
+        : "This memorial is currently unpublished and only visible to you and your backup person."}
+    </div>
   )}
 
-  {data.death_date && (
-    <p>
-      <strong>Date of Passing:</strong> {formatDate(data.death_date)}
-    </p>
-  )}
+  <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_220px] md:items-start">
+    <div className="min-w-0">
+      <h1 className="text-3xl font-bold leading-tight tracking-tight text-stone-900 sm:text-4xl md:text-5xl">
+        {data.full_name || "Unnamed Memorial"}
+      </h1>
 
-  {data.nickname?.trim() && (
-    <p>
-      <strong>Nickname:</strong> {data.nickname}
-    </p>
-  )}
+      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-stone-700 md:text-base">
+        {data.birth_date && (
+          <p>
+            <strong>Born:</strong> {formatDate(data.birth_date)}
+          </p>
+        )}
 
-  {data.maiden_name?.trim() && (
-    <p>
-      <strong>Maiden Name:</strong> {data.maiden_name}
-    </p>
-  )}
-</div>
+        {data.death_date && (
+          <p>
+            <strong>Date of Passing:</strong> {formatDate(data.death_date)}
+          </p>
+        )}
 
-<p className="mt-5 max-w-3xl text-sm leading-6 text-stone-600 md:text-base">
-  This MyEMemorial page preserves photos, videos, life story, obituary information,
-  family history, cemetery details, favorite music, and memories shared by family
-  and friends.
-</p>
-  </div>
+        {data.nickname?.trim() && (
+          <p>
+            <strong>Nickname:</strong> {data.nickname}
+          </p>
+        )}
 
-  <div className="flex flex-col items-center gap-4 lg:items-end">
+        {data.maiden_name?.trim() && (
+          <p>
+            <strong>Maiden Name:</strong> {data.maiden_name}
+          </p>
+        )}
+      </div>
+
+      <p className="mt-4 max-w-3xl text-sm leading-6 text-stone-600 md:text-base">
+        This MyEMemorial page preserves photos, videos, life story, obituary
+        information, family history, cemetery details, favorite music, and
+        memories shared by family and friends.
+      </p>
+    </div>
 
     {data.featured_photo_url && (
-      <img
-        src={data.featured_photo_url}
-        alt={data.full_name || "Memorial photo"}
-        className="h-[190px] w-[190px] rounded-2xl bg-stone-100 object-contain p-2 shadow-lg ring-1 ring-stone-200 sm:h-[220px] sm:w-[220px] md:h-[240px] md:w-[240px]"
-      />
-   )}
-
-<div className="flex flex-col gap-3">
-  <div className="flex flex-wrap gap-3">
-   {isOwner && (
-  <button
-    type="button"
-    onClick={() => {
-      window.location.href = `/memorial/${data.slug}/edit`;
-    }}
-    className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700"
-  >
-    Edit Memorial
-  </button>
-)}
-
-    
+      <div className="flex justify-center md:justify-end">
+        <img
+          src={data.featured_photo_url}
+          alt={data.full_name || "Memorial photo"}
+          className="h-[190px] w-[190px] rounded-2xl bg-stone-100 object-contain p-2 shadow-lg ring-1 ring-stone-200 md:h-[210px] md:w-[210px]"
+        />
+      </div>
+    )}
   </div>
 
-  <div className="flex flex-wrap gap-2">
-  <button
-    onClick={() => handleShare("copy")}
-    className="inline-flex items-center justify-center rounded-full bg-stone-200 px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-300"
-  >
-    {copied ? "Memorial Link Copied!" : "Copy Memorial Link"}
-  </button>
+  <div className="mt-5 border-t border-stone-200 pt-4">
+    <div className="flex flex-wrap items-center gap-2">
+      {isOwner && data.id && (
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = `/create?edit=${data.id}`;
+          }}
+          className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-700"
+        >
+          Edit Memorial
+        </button>
+      )}
 
-  <button
-    onClick={() => handleShare("email")}
-    className="inline-flex items-center justify-center rounded-full bg-stone-200 px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-300"
-  >
-    Email Memorial Link
-  </button>
+      <button
+        onClick={() => handleShare("copy")}
+        className="inline-flex items-center justify-center rounded-full bg-stone-200 px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-300"
+      >
+        {copied ? "Memorial Link Copied!" : "Copy Memorial Link"}
+      </button>
 
-  <button
-    onClick={() => handleShare("sms")}
-    className="inline-flex items-center justify-center rounded-full bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-500"
-  >
-    Text
-  </button>
+      <button
+        onClick={() => handleShare("email")}
+        className="inline-flex items-center justify-center rounded-full bg-stone-200 px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-300"
+      >
+        Email Memorial Link
+      </button>
 
-  <button
-    onClick={() => handleShare("facebook")}
-    className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-500"
-  >
-    Facebook
-  </button>
+      <button
+        onClick={() => handleShare("sms")}
+        className="inline-flex items-center justify-center rounded-full bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-500"
+      >
+        Text
+      </button>
 
-  <button
-    onClick={() => handleShare("whatsapp")}
-    className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
-  >
-    WhatsApp
-  </button>
+      <button
+        onClick={() => handleShare("facebook")}
+        className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-500"
+      >
+        Facebook
+      </button>
 
-  <button
-    onClick={() => handleShare("twitter")}
-    className="inline-flex items-center justify-center rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-stone-800"
-  >
-    X
-  </button>
+      <button
+        onClick={() => handleShare("whatsapp")}
+        className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
+      >
+        WhatsApp
+      </button>
 
-  <button
-    type="button"
-    onClick={() => setShowQrCode((current) => !current)}
-    className="inline-flex items-center justify-center rounded-full bg-blue-950 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-900"
-  >
-    QR Code
-  </button>
-</div>
+      <button
+        onClick={() => handleShare("twitter")}
+        className="inline-flex items-center justify-center rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-stone-800"
+      >
+        X
+      </button>
 
-{showQrCode && (
-  <div className="mt-4 inline-block rounded-2xl border border-stone-200 bg-white p-5 text-center shadow-sm">
-    <QRCodeSVG
-      id="memorial-qr-code"
-      value={`https://www.myememorial.com/memorial/${data.slug}`}
-      size={180}
-      level="H"
-      includeMargin
-    />
+      <button
+        type="button"
+        onClick={() => setShowQrCode((current) => !current)}
+        className="inline-flex items-center justify-center rounded-full bg-blue-950 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-900"
+      >
+        QR Code
+      </button>
+    </div>
 
-    <p className="mt-3 max-w-[220px] text-center text-xs leading-5 text-stone-600">
-      Scan this QR code to open this memorial page.
-    </p>
+    {showQrCode && (
+      <div className="mt-4 inline-block rounded-2xl border border-stone-200 bg-white p-5 text-center shadow-sm">
+        <QRCodeSVG
+          id="memorial-qr-code"
+          value={`https://www.myememorial.com/memorial/${data.slug}`}
+          size={180}
+          level="H"
+          includeMargin
+        />
 
-    <button
-      type="button"
-      onClick={() => {
-        const svg = document.getElementById("memorial-qr-code");
+        <p className="mt-3 max-w-[220px] text-center text-xs leading-5 text-stone-600">
+          Scan this QR code to open this memorial page.
+        </p>
 
-        if (!svg) return;
+        <button
+          type="button"
+          onClick={() => {
+            const svg = document.getElementById("memorial-qr-code");
 
-        const svgData = new XMLSerializer().serializeToString(svg);
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const img = new Image();
+            if (!svg) return;
 
-        canvas.width = 600;
-        canvas.height = 600;
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
 
-        img.onload = () => {
-          if (!ctx) return;
+            canvas.width = 600;
+            canvas.height = 600;
 
-          ctx.fillStyle = "white";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            img.onload = () => {
+              if (!ctx) return;
 
-          const pngFile = canvas.toDataURL("image/png");
+              ctx.fillStyle = "white";
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-          const downloadLink = document.createElement("a");
-          downloadLink.href = pngFile;
-          downloadLink.download = `${data.slug}-myememorial-qr-code.png`;
-          downloadLink.click();
-        };
+              const pngFile = canvas.toDataURL("image/png");
 
-        img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
-      }}
-      className="mt-4 inline-flex items-center justify-center rounded-full bg-blue-950 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-900"
-    >
-      Download QR Code
-    </button>
-  </div>
-)}
+              const downloadLink = document.createElement("a");
+              downloadLink.href = pngFile;
+              downloadLink.download = `${data.slug}-myememorial-qr-code.png`;
+              downloadLink.click();
+            };
 
-  {!isOwner && data.is_living_preplan && (
-  <Link
-  href={`/memorial/${data.slug || slug}/edit`}
-  className="inline-flex w-fit items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-stone-400 hover:bg-stone-100"
+            img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
+          }}
+          className="mt-4 inline-flex items-center justify-center rounded-full bg-blue-950 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-900"
+        >
+          Download QR Code
+        </button>
+      </div>
+    )}
+
+    {!isOwner && data.is_living_preplan && (
+      <Link
+  href={`/memorial/${data.slug || slug}/manage`}
+  className="mt-4 inline-flex w-fit items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-stone-400 hover:bg-stone-100"
 >
   Backup person? Manage this memorial
 </Link>
-)}
-</div>
-
-</div>
-</div>
+    )}
+  </div>
 </section>
 
 <div className="lg:hidden">
@@ -1913,6 +2033,61 @@ function showNextPhoto() {
       )}
     </div>
   ))}
+  {videoLinkUrls.map((url, index) => {
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(url);
+
+  return (
+    <div
+      key={`${url}-${index}`}
+      className="overflow-hidden rounded-3xl border border-stone-200 bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm"
+    >
+      <p className="mb-4 text-sm font-semibold text-stone-700">
+        Video Link {index + 1}
+      </p>
+
+      {youtubeEmbedUrl ? (
+  <iframe
+    src={youtubeEmbedUrl}
+    title={`YouTube video ${index + 1}`}
+    className="aspect-video w-full rounded-xl bg-black"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowFullScreen
+  />
+) : videoLinkThumbnailUrls[index] ? (
+  <a
+    href={url}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="group relative block aspect-video w-full overflow-hidden rounded-xl bg-stone-200"
+    aria-label={`Open video link ${index + 1}`}
+  >
+    <img
+      src={videoLinkThumbnailUrls[index]}
+      alt={`Video link ${index + 1} preview`}
+      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+    />
+
+    <div className="absolute inset-0 flex items-center justify-center bg-black/15">
+      <div className="rounded-full bg-black/70 px-5 py-4 text-2xl text-white shadow-lg">
+        ▶
+      </div>
+    </div>
+  </a>
+) : (
+  <VideoLinkPreview
+    url={url}
+    index={index}
+  />
+)}
+
+      {videoLinkNotes[index] && (
+        <p className="mt-3 whitespace-pre-line text-sm italic text-stone-600">
+          {videoLinkNotes[index]}
+        </p>
+      )}
+    </div>
+  );
+})}
 </div>
 )}
   </section>
@@ -2168,9 +2343,18 @@ function showNextPhoto() {
   />
 )}
     {data.obituary_url && (
-      <a href={data.obituary_url} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700">
-        View Full Obituary
-      </a>
+      <a
+  href={
+    /^https?:\/\//i.test(data.obituary_url)
+      ? data.obituary_url
+      : `https://${data.obituary_url}`
+  }
+  target="_blank"
+  rel="noopener noreferrer"
+  className="mt-4 inline-flex rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
+>
+  View Full Obituary
+</a>
     )}
   </section>
 )}     
@@ -2398,7 +2582,7 @@ function showNextPhoto() {
   }}
 >
     
-     <div className="relative h-[75vh] w-full overflow-hidden rounded-2xl">
+     <div className="relative grid w-full place-items-center overflow-hidden rounded-2xl">
   {previousDisplayedPhoto && (
     <img
       src={previousDisplayedPhoto}
@@ -2413,7 +2597,7 @@ function showNextPhoto() {
       key={displayedPhoto}
       src={displayedPhoto}
       alt="Enlarged memorial photo"
-      className="memorial-photo-crossfade-in absolute inset-0 h-full w-full object-contain"
+      className="memorial-photo-crossfade-in max-h-[65vh] w-full object-contain"
     />
   )}
 </div>
@@ -2496,11 +2680,11 @@ function showNextPhoto() {
   </div>
 )}
 
-      {selectedPhotoNote && (
-        <p className="mt-4 whitespace-pre-line text-center text-sm leading-6 text-stone-700">
-          {selectedPhotoNote}
-        </p>
-      )}
+     {selectedPhotoNote && (
+  <p className="mt-4 whitespace-pre-line text-center text-lg font-medium leading-7 text-stone-800">
+    {selectedPhotoNote}
+  </p>
+)}
     </div>
   </div>
 )}

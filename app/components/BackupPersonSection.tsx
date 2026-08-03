@@ -48,11 +48,11 @@ export default function BackupPersonSection({
         {isCreateMode ? (
           <>
             <Input
-              label="Backup Person Email"
-              name="backupPersonEmail"
-              value={form.backupPersonEmail ?? ""}
-              onChange={handleChange}
-            />
+  label="Backup Person Email"
+  name="backupEmail"
+  value={form.backupEmail ?? ""}
+  onChange={handleChange}
+/>
 
             <Input
               label="Backup Person Username"

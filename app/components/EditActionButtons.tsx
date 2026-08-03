@@ -31,14 +31,15 @@ export default function EditActionButtons({
         <p className="font-semibold">
           {isPublished ? "Published" : "Draft — Not Public"}
         </p>
+
         <p className="mt-1">
           {isPublished
-            ? "This memorial is public. Changes become visible when you save."
+            ? "This memorial is public. Saved changes will appear on the public memorial."
             : "This memorial is visible only to you until it is published."}
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3 border-t border-stone-200 pt-6">
+      <div className="border-t border-stone-200 pt-6">
         <button
           type="submit"
           disabled={isSaving}
@@ -47,45 +48,48 @@ export default function EditActionButtons({
           {isSaving ? "Saving..." : "Save Changes"}
         </button>
 
-        {(isOwner || isBackupUnlocked) && !isPublished && (
-          <button
-            type="button"
-            onClick={handlePublishMemorial}
-            className="inline-flex items-center justify-center rounded-full bg-green-600 px-6 py-3 text-sm font-semibold text-white hover:bg-green-700"
-          >
-            Publish Memorial
-          </button>
-        )}
-
-        {!successMessage && (
-          <button
-            type="button"
-            onClick={() => {
-              window.location.href = `/memorial/${originalSlug}`;
-            }}
-            className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-stone-50"
-          >
-            Preview Memorial
-          </button>
-        )}
+        <p className="mt-3 text-sm font-medium text-stone-600">
+          {isPublished
+            ? "Save your changes and continue editing. Your saved changes will appear on the public memorial."
+            : "Save your changes and continue editing. Your memorial will remain private until you publish it."}
+        </p>
       </div>
 
-      <p className="mt-2 text-xs text-stone-500">
-        {isPublished
-          ? "Changes become public when you save."
-          : "Saving does not make your changes public."}
-      </p>
+      {!isPublished &&
+        (isOwner || isBackupUnlocked) && (
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={handlePublishMemorial}
+              className="inline-flex items-center justify-center rounded-full bg-green-700 px-6 py-3 text-sm font-semibold text-white hover:bg-green-800"
+            >
+              Publish Memorial
+            </button>
 
-      {successMessage && (
-        <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-800">
-          <p className="font-semibold">{successMessage}</p>
+            <p className="mt-2 text-sm text-stone-600">
+              Publish this memorial so it becomes available to the public.
+            </p>
+          </div>
+        )}
 
+      {isPublished && (
+        <div className="mt-4">
           <Link
             href={`/memorial/${originalSlug}`}
-            className="mt-3 inline-flex items-center justify-center rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white hover:bg-green-800"
+            className="inline-flex items-center justify-center rounded-full bg-green-700 px-6 py-3 text-sm font-semibold text-white hover:bg-green-800"
           >
-            Publish and View Memorial
+            View Public Memorial
           </Link>
+
+          <p className="mt-2 text-sm text-stone-600">
+            Leave the Edit page and view the memorial exactly as the public sees it.
+          </p>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="mt-4 rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-800">
+          <p className="font-semibold">{successMessage}</p>
         </div>
       )}
     </>

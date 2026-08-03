@@ -453,7 +453,7 @@ return filtered;
   className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
 >
     <div className="flex flex-col gap-5 p-6 md:flex-row md:items-stretch">
-      <div className="flex-1">
+  <div className="min-w-0 flex-1">
         <h3 className="text-xl font-bold text-stone-900">
           {fullName}
         </h3>
@@ -488,18 +488,18 @@ return filtered;
           )}
 
           {memorial.schools_attended && (
-            <p>
-              <span className="font-semibold">School:</span>{" "}
-              {memorial.schools_attended}
-            </p>
-          )}
+  <p className="break-words">
+    <span className="font-semibold">School:</span>{" "}
+    {memorial.schools_attended}
+  </p>
+)}
 
-          {memorial.awards_won && (
-            <p>
-              <span className="font-semibold">Award:</span>{" "}
-              {memorial.awards_won}
-            </p>
-          )}
+{memorial.awards_won && (
+  <p className="break-words">
+    <span className="font-semibold">Award:</span>{" "}
+    {memorial.awards_won}
+  </p>
+)}
         </div>
 
         <div className="mt-5 inline-flex rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white">

@@ -82,7 +82,13 @@ export default function GraveLocationMap({
         maxZoom: 22,
       }
     ).addTo(map);
-
+L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+  {
+    maxZoom: 22,
+    pane: "overlayPane",
+  }
+).addTo(map);
     map.setView(
       [startLat, startLng],
       hasCoordinates ? 19 : 4,

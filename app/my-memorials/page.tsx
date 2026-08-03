@@ -10,8 +10,9 @@ type Memorial = {
   full_name: string | null;
   is_published: boolean | null;
   is_living_preplan: boolean | null;
+  is_draft: boolean | null;
+  guided_current_chapter: string | null;
   created_at: string | null;
-  
 };
 
 export default function MyMemorialsPage() {
@@ -20,35 +21,76 @@ export default function MyMemorialsPage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    async function loadMemorials() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  let cancelled = false;
 
-      if (!user) {
-        setMessage("Please log in to view your memorials.");
-        setLoading(false);
-        return;
-      }
+  async function loadMemorialsForUser(userId: string) {
+    const { data, error } = await supabase
+      .from("memorials")
+      .select(
+        "id, slug, full_name, is_published, is_living_preplan, is_draft, guided_current_chapter, created_at"
+      )
+      .eq("owner_id", userId)
+      .order("created_at", { ascending: false });
 
-      const { data, error } = await supabase
-        .from("memorials")
-        .select("id, slug, full_name, is_published, is_living_preplan, created_at")
-        .eq("owner_id", user.id)
-        .order("created_at", { ascending: false });
+    if (cancelled) return;
 
-      if (error) {
-        setMessage(error.message);
-        setLoading(false);
-        return;
-      }
-
-      setMemorials((data as Memorial[]) || []);
+    if (error) {
+      setMessage(error.message);
       setLoading(false);
+      return;
     }
 
-    loadMemorials();
-  }, []);
+    setMemorials((data as Memorial[]) || []);
+    setMessage("");
+    setLoading(false);
+  }
+
+  async function initializeAuth() {
+    setLoading(true);
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (cancelled) return;
+
+    if (session?.user) {
+      await loadMemorialsForUser(session.user.id);
+      return;
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (cancelled) return;
+
+    if (user) {
+      await loadMemorialsForUser(user.id);
+      return;
+    }
+
+    setMessage("Please log in to view your memorials.");
+    setLoading(false);
+  }
+
+  initializeAuth();
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    if (cancelled) return;
+
+    if (session?.user) {
+      loadMemorialsForUser(session.user.id);
+    }
+  });
+
+  return () => {
+    cancelled = true;
+    subscription.unsubscribe();
+  };
+}, []);
 
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-10">
@@ -95,15 +137,19 @@ export default function MyMemorialsPage() {
                       </span>
                     )}
 
-                    {memorial.is_published ? (
-                      <span className="rounded-full bg-green-100 px-3 py-1 text-green-700">
-                        Published
-                      </span>
-                    ) : (
-                      <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-700">
-                        Unpublished
-                      </span>
-                    )}
+                    {memorial.is_draft ? (
+  <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-700">
+    Draft
+  </span>
+) : memorial.is_published ? (
+  <span className="rounded-full bg-green-100 px-3 py-1 text-green-700">
+    Published
+  </span>
+) : (
+  <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-700">
+    Unpublished
+  </span>
+)}
                   </div>
 
                   {memorial.created_at && (
@@ -114,21 +160,37 @@ export default function MyMemorialsPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                 <Link
-  href={`/memorial/${memorial.slug}`}
-  className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-100"
->
-  {memorial.is_published ? "View" : "Preview"}
-</Link>
+  {memorial.is_draft ? (
+    <Link
+      href={`/create?draft=${memorial.id}`}
+      className="rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+    >
+      Continue Creating
+    </Link>
+  ) : (
+    <>
+      <Link
+        href={`/memorial/${memorial.slug}`}
+        className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-100"
+      >
+        {memorial.is_published ? "View" : "Preview"}
+      </Link>
 
-<Link
-  href={`/memorial/${memorial.slug}/edit`}
+      <Link
+  href={`/create?edit=${memorial.id}`}
   className="rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700"
 >
   Edit
 </Link>
-                    
-                </div>
+<Link
+  href={`/memorial/${memorial.slug}/manage`}
+  className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-100"
+>
+  Manage
+</Link>
+    </>
+  )}
+</div>
               </div>
             ))}
           </div>

@@ -1,7 +1,11 @@
 export async function optimizeImage(file: File): Promise<File> {
   if (!file.type.startsWith("image/")) {
-    throw new Error("This file is not an image.");
-  }
+  throw new Error(
+    `"${file.name}" is not an image file. File type received: ${
+      file.type || "unknown"
+    }.`
+  );
+}
 
   let imageBitmap: ImageBitmap;
 

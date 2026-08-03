@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createHmac } from "crypto";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -86,7 +87,33 @@ if (!memorial.is_living_preplan) {
       );
     }
 
-    return NextResponse.json({ success: true });
+    const backupAccessSecret =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+
+const signature = createHmac(
+  "sha256",
+  backupAccessSecret
+)
+  .update(String(memorial.id))
+  .digest("hex");
+
+const response = NextResponse.json({
+  success: true,
+});
+
+response.cookies.set(
+  "myememorial_backup_access",
+  `${memorial.id}:${signature}`,
+  {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60,
+  }
+);
+
+return response;
   } catch (err) {
     console.error("BACKUP LOGIN API ERROR:", err);
 

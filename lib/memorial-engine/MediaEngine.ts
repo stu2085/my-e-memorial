@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from "react";
 
 import type { GalleryPhoto } from "../photo-engine/GalleryPhoto";
 import { uploadPhoto } from "../photo-engine/uploadPhoto";
+import { uploadToSupabase } from "../photo-engine/uploadToSupabase";
 import {
   uploadPhotoQueue,
   type PhotoQueueItem,
@@ -135,18 +136,26 @@ export const MediaEngine = {
    },
 
   async uploadFile(
-    file: File,
-    folder: string,
-    bucket: string,
-    shouldOptimize = true
-  ): Promise<string> {
+  file: File,
+  folder: string,
+  bucket: string,
+  shouldOptimize = true
+): Promise<string> {
+  if (file.type.startsWith("image/")) {
     return uploadPhoto({
       file,
       folder,
       bucket,
       optimize: bucket === "memorial-photos" && shouldOptimize,
     });
-  },
+  }
+
+  return uploadToSupabase({
+    file,
+    folder,
+    bucket,
+  });
+},
 
   getVideoDuration(file: File): Promise<number> {
     return new Promise((resolve, reject) => {

@@ -23,23 +23,30 @@ const isPreplan =
 
 
   useEffect(() => {
-  async function checkUser() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  let active = true;
 
-    setIsLoggedIn(!!user);
+  async function checkSession() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (active) {
+      setIsLoggedIn(!!session?.user);
+    }
   }
 
-  checkUser();
+  checkSession();
 
   const {
     data: { subscription },
   } = supabase.auth.onAuthStateChange((_event, session) => {
-    setIsLoggedIn(!!session?.user);
+    if (active) {
+      setIsLoggedIn(!!session?.user);
+    }
   });
 
   return () => {
+    active = false;
     subscription.unsubscribe();
   };
 }, []);
