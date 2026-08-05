@@ -23,6 +23,7 @@ type GuidedMemoryBuilderProps = {
   experienceType: MemorialExperienceType;
   isSaving?: boolean;
   initialChapterId?: string | null;
+  finalButtonLabel?: string;
   renderChapter: (chapter: GuidedChapter) => ReactNode;
   onSaveAndContinue?: (chapter: GuidedChapter) => void | Promise<void>;
   onSaveAndExit?: (chapter: GuidedChapter) => void | Promise<void>;
@@ -32,6 +33,7 @@ export default function GuidedMemoryBuilder({
   experienceType,
   isSaving = false,
   initialChapterId = null,
+  finalButtonLabel = "Finish Review",
   renderChapter,
   onSaveAndContinue,
   onSaveAndExit,
@@ -152,15 +154,16 @@ useEffect(() => {
 </div>
 
       <GuidedNavigation
-        currentChapterIndex={currentChapterIndex}
-        totalChapters={chapters.length}
-        isFirstChapter={isFirstChapter}
-        isLastChapter={isLastChapter}
-        isSaving={isSaving || isChangingChapter}
-        onBack={handleBack}
-        onContinue={handleContinue}
-        onSaveAndExit={handleSaveAndExit}
-      />
+  currentChapterIndex={currentChapterIndex}
+  totalChapters={chapters.length}
+  isFirstChapter={isFirstChapter}
+  isLastChapter={isLastChapter}
+  isSaving={isSaving || isChangingChapter}
+  finalButtonLabel={finalButtonLabel}
+  onBack={handleBack}
+  onContinue={handleContinue}
+  onSaveAndExit={handleSaveAndExit}
+/>
     </GuidedLayout>
   );
 }

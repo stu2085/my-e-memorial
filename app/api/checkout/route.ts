@@ -59,6 +59,9 @@ if (checkoutType !== "upgrade") {
 
     const separator = returnUrl && returnUrl.includes("?") ? "&" : "?";
 
+    const shouldCollectTax =
+      plan !== "advertiser" && !isRenewal;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -87,6 +90,10 @@ if (checkoutType !== "upgrade") {
         },
       ],
       mode: "payment",
+
+      automatic_tax: {
+        enabled: shouldCollectTax,
+      },
 
       metadata: {
         plan: plan || "",

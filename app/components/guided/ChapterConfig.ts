@@ -1,4 +1,7 @@
-export type MemorialExperienceType = "personal" | "memorial";
+export type MemorialExperienceType =
+  | "personal"
+  | "memorial"
+  | "after-death";
 
 export type GuidedChapterId =
   | "basic-information"
@@ -190,9 +193,10 @@ export function getGuidedChapters(
       return true;
     }
 
-    if (
+        if (
       chapter.availability === "memorial-only" &&
-      experienceType === "memorial"
+      (experienceType === "memorial" ||
+        experienceType === "after-death")
     ) {
       return true;
     }

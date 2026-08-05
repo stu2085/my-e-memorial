@@ -4,6 +4,7 @@ type GuidedNavigationProps = {
   isFirstChapter: boolean;
   isLastChapter: boolean;
   isSaving?: boolean;
+  finalButtonLabel?: string;
   onBack: () => void;
   onContinue: () => void;
   onSaveAndExit: () => void;
@@ -15,6 +16,7 @@ export default function GuidedNavigation({
   isFirstChapter,
   isLastChapter,
   isSaving = false,
+  finalButtonLabel = "Finish Review",
   onBack,
   onContinue,
   onSaveAndExit,
@@ -54,7 +56,7 @@ export default function GuidedNavigation({
           disabled={isSaving}
           className="rounded-full bg-stone-900 px-7 py-3 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isLastChapter ? "Finish Review" : "Save & Continue"}
+          {isLastChapter ? finalButtonLabel : "Save & Continue"}
         </button>
       </div>
     </div>

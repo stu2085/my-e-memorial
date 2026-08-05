@@ -360,12 +360,40 @@ const isPersonalModeFromUrl =
     return;
   }
 
+  let draftData: any = null;
+let draftError: any = null;
+
+if (hasBackupAccess) {
+  try {
+    const backupEditResponse = await fetch(
+      `/api/backup-memorial/edit?memorialId=${memorialId}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+
+    const backupEditResult =
+      await backupEditResponse.json();
+
+    if (!backupEditResponse.ok) {
+      draftError = new Error(
+        backupEditResult.error ||
+          "Could not load this Personal E-Memorial."
+      );
+    } else {
+      draftData = backupEditResult.memorial;
+    }
+  } catch (error) {
+    draftError = error;
+  }
+} else {
   let memorialQuery = supabase
     .from("memorials")
     .select("*")
     .eq("id", memorialId);
 
-  if (user && !hasBackupAccess) {
+  if (user) {
     memorialQuery = memorialQuery.eq(
       "owner_id",
       user.id
@@ -373,11 +401,18 @@ const isPersonalModeFromUrl =
   }
 
   if (!isEditingExistingMemorial) {
-    memorialQuery = memorialQuery.eq("is_draft", true);
+    memorialQuery = memorialQuery.eq(
+      "is_draft",
+      true
+    );
   }
 
-  const { data: draftData, error: draftError } =
+  const directResult =
     await memorialQuery.maybeSingle();
+
+  draftData = directResult.data;
+  draftError = directResult.error;
+}
 
   if (
     hasBackupAccess &&
@@ -1379,7 +1414,10 @@ const memorialData = PersistenceEngine.buildMemorialData({
   slug,
   form,
   fullName,
-  ownerId: authUser?.id ?? null,
+  ownerId:
+  existingMemorialOwnerId ??
+  authUser?.id ??
+  null,
   selectedPlan,
   requiresReview,
   usingBetaCode,
@@ -1405,10 +1443,48 @@ existingIsPublished: isExistingMemorialEdit
 let completedMemorialId: number;
 
 if (draftMemorialId) {
-  await PersistenceEngine.updateMemorial({
-    memorialId: draftMemorialId,
-    memorialData,
-  });
+  if (isBackupAccess) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    const updateHeaders: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (session?.access_token) {
+      updateHeaders.Authorization =
+        `Bearer ${session.access_token}`;
+    }
+
+    const updateResponse = await fetch(
+      "/api/memorials/update",
+      {
+        method: "POST",
+        headers: updateHeaders,
+        credentials: "include",
+        body: JSON.stringify({
+          memorialId: draftMemorialId,
+          updatePayload: memorialData,
+        }),
+      }
+    );
+
+    const updateResult =
+      await updateResponse.json();
+
+    if (!updateResponse.ok) {
+      throw new Error(
+        updateResult.error ||
+          "The memorial could not be saved."
+      );
+    }
+  } else {
+    await PersistenceEngine.updateMemorial({
+      memorialId: draftMemorialId,
+      memorialData,
+    });
+  }
 
   completedMemorialId = draftMemorialId;
 } else {
@@ -1947,10 +2023,19 @@ setSuccessMessage(
    )}           
               <GuidedMemoryBuilder
   experienceType={
-    form.isLivingPreplan ? "personal" : "memorial"
+    form.isLivingPreplan && isBackupAccess
+      ? "after-death"
+      : form.isLivingPreplan
+        ? "personal"
+        : "memorial"
   }
   isSaving={isSubmitting}
   initialChapterId={guidedInitialChapterId}
+    finalButtonLabel={
+    form.isLivingPreplan && isBackupAccess
+      ? "Save After-Death Updates"
+      : "Finish Review"
+  }
   onSaveAndContinue={(chapter) => {
   if (chapter.id !== "review") {
     return;
@@ -2573,17 +2658,41 @@ setForm={setForm}
     );
 
   case "review":
-    return (
-      <div className="rounded-3xl border border-stone-200 bg-stone-50 p-8 text-center">
-        <h2 className="text-2xl font-bold text-stone-900">
-          Review Your Story
-        </h2>
+  return (
+    <div className="rounded-3xl border border-stone-200 bg-stone-50 p-8 text-center">
+      <h2 className="text-2xl font-bold text-stone-900">
+        {form.isLivingPreplan && isBackupAccess
+          ? "Review the Memorial Before Publication"
+          : form.isLivingPreplan
+            ? "Review Your Personal E-Memorial"
+            : "Review the Memorial"}
+      </h2>
 
+      {form.isLivingPreplan && isBackupAccess ? (
+        <>
+          <p className="mt-4 text-stone-700">
+            Review the information you have added, including the date of death,
+            obituary, and final resting place.
+          </p>
+
+          <p className="mt-4 font-semibold text-stone-900">
+            This Personal E-Memorial is still private.
+          </p>
+
+          <p className="mt-2 text-stone-600">
+            Clicking Save After-Death Updates will save your changes but will
+            not publish the memorial. You will have a separate opportunity to
+            publish it after these updates are saved.
+          </p>
+        </>
+      ) : (
         <p className="mt-3 text-stone-600">
-          The final review and plan selection tools will be connected here next.
+          Review what has been preserved and make any additions before
+          continuing.
         </p>
-      </div>
-    );
+      )}
+    </div>
+  );
 
     default:
     return (

@@ -52,6 +52,8 @@ const [isBackupUnlocked, setIsBackupUnlocked] = useState(false);
 const [backupLoginEmail, setBackupLoginEmail] = useState("");
 const [backupLoginPassword, setBackupLoginPassword] = useState("");
 const [backupLoginError, setBackupLoginError] = useState("");
+const [isPublishing, setIsPublishing] = useState(false);
+const [publishError, setPublishError] = useState("");
 
   const [submissionPhotoViewer, setSubmissionPhotoViewer] = useState<{
     photos: string[];
@@ -72,19 +74,62 @@ const [backupLoginError, setBackupLoginError] = useState("");
 
 const user = session?.user ?? null;
 
-      const { data: memorialData, error: memorialError } = await supabase
-        .from("memorials")
-        .select(
-  "id, slug, full_name, owner_id, plan, extra_video_minutes, is_living_preplan"
-)
-        .eq("slug", slug)
-        .maybeSingle();
+      let memorialData: ManageMemorial | null = null;
 
-      if (memorialError || !memorialData) {
-        setErrorMessage("Could not load this memorial.");
-        setLoading(false);
-        return;
+const { data: directMemorialData, error: memorialError } =
+  await supabase
+    .from("memorials")
+    .select(
+      "id, slug, full_name, owner_id, plan, extra_video_minutes, is_living_preplan"
+    )
+    .eq("slug", slug)
+    .maybeSingle();
+
+if (!memorialError && directMemorialData) {
+  memorialData = directMemorialData as ManageMemorial;
+}
+
+/*
+ * A logged-out backup person cannot read a private
+ * Personal E-Memorial through the normal browser
+ * Supabase client because of the privacy rules.
+ *
+ * In that case, use the limited server-side lookup
+ * so the Backup Person Login screen can still appear.
+ */
+if (!memorialData) {
+  try {
+    const backupMemorialResponse = await fetch(
+      `/api/backup-memorial?slug=${encodeURIComponent(slug)}`,
+      {
+        method: "GET",
+        credentials: "include",
       }
+    );
+
+    const backupMemorialResult =
+      await backupMemorialResponse.json();
+
+    if (
+      backupMemorialResponse.ok &&
+      backupMemorialResult?.memorial
+    ) {
+      memorialData =
+        backupMemorialResult.memorial as ManageMemorial;
+    }
+  } catch (error) {
+    console.error(
+      "BACKUP MEMORIAL LOOKUP ERROR:",
+      error
+    );
+  }
+}
+
+if (!memorialData) {
+  setErrorMessage("Could not load this memorial.");
+  setLoading(false);
+  return;
+}
 
       const ownerAccess =
   !!user && memorialData.owner_id === user.id;
@@ -410,6 +455,67 @@ async function handleEndBackupAccess() {
     alert("Could not end backup access.");
   }
 }
+async function handlePublishMemorial() {
+  if (!memorial) {
+    setPublishError("Memorial record is not loaded.");
+    return;
+  }
+
+  const confirmed = window.confirm(
+    "Publish this memorial now?\n\n" +
+      "This will convert the private Personal E-Memorial into the public memorial. " +
+      "Once published, it may appear in public search and its memorial page will be available to visitors."
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    setIsPublishing(true);
+    setPublishError("");
+
+    const response = await fetch(
+      "/api/backup-publish",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          memorialId: memorial.id,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+          "The memorial could not be published."
+      );
+    }
+
+    window.location.assign(
+      `/memorial/${result.slug || memorial.slug}`
+    );
+  } catch (error) {
+    console.error(
+      "PUBLISH MEMORIAL ERROR:",
+      error
+    );
+
+    setPublishError(
+      error instanceof Error
+        ? error.message
+        : "The memorial could not be published."
+    );
+
+    setIsPublishing(false);
+  }
+}
   if (loading) {
     return (
       <main className="min-h-screen bg-stone-100 px-4 py-10">
@@ -532,24 +638,48 @@ if (
             Review visitor contributions and manage memorial settings.
           </p>
           {(isOwner || isBackupUnlocked) && (
-  <div className="mt-5 flex flex-wrap gap-3">
-    <Link
-      href={`/create?edit=${memorial.id}`}
-      className="inline-flex rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
-    >
-      Edit Memorial
-    </Link>
-
-    {isBackupUnlocked && !isOwner && (
-      <button
-        type="button"
-        onClick={handleEndBackupAccess}
-        className="inline-flex rounded-full border border-red-300 bg-white px-5 py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
+  <>
+    <div className="mt-5 flex flex-wrap gap-3">
+      <Link
+        href={`/create?edit=${memorial.id}`}
+        className="inline-flex rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
       >
-        End Backup Access
-      </button>
+        Edit Memorial
+      </Link>
+
+      {isBackupUnlocked && !isOwner && (
+        <>
+          {memorial.is_living_preplan && (
+            <button
+              type="button"
+              onClick={handlePublishMemorial}
+              disabled={isPublishing}
+              className="inline-flex rounded-full bg-green-700 px-5 py-3 text-sm font-semibold text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isPublishing
+                ? "Publishing..."
+                : "Publish Memorial"}
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={handleEndBackupAccess}
+            disabled={isPublishing}
+            className="inline-flex rounded-full border border-red-300 bg-white px-5 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            End Backup Access
+          </button>
+        </>
+      )}
+    </div>
+
+    {publishError && (
+      <p className="mt-4 rounded-2xl bg-red-50 p-4 text-sm font-medium text-red-700">
+        {publishError}
+      </p>
     )}
-  </div>
+  </>
 )}
         </section>
 <PlanSection

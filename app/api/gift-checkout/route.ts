@@ -97,8 +97,11 @@ const claimToken = crypto.randomBytes(32).toString("hex");
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
 
-      customer_email: cleanPurchaserEmail,
+      automatic_tax: {
+        enabled: true,
+      },
 
+      customer_email: cleanPurchaserEmail,
       line_items: [
         {
           quantity: 1,
