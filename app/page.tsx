@@ -146,7 +146,7 @@ useEffect(() => {
           </span>
         </Link>
 
-        <Link
+               <Link
           href="/gift?type=personal"
           className="inline-flex h-[60px] w-full max-w-[300px] items-center justify-center rounded-full bg-amber-400 px-5 text-center text-sm font-semibold leading-tight text-stone-900 transition hover:bg-amber-300"
         >
@@ -158,10 +158,17 @@ useEffect(() => {
       </div>
     </div>
   </div>
+
+  <div className="mt-6 flex justify-center">
+    <Link
+      href="/memorial/daniel-james-whitmore"
+      className="inline-flex h-[60px] w-full max-w-[360px] items-center justify-center rounded-full border-2 border-white bg-blue-950 px-6 text-center text-sm font-semibold text-white shadow-lg transition hover:bg-blue-900"
+    >
+      Experience a Sample Memorial
+    </Link>
+  </div>
 </div>
-  
-              </div>
-              
+  </div>            
             </section>
 <div className="lg:hidden space-y-4">
  <MobileAd
