@@ -78,6 +78,47 @@ const memorialAmountPaid = session.amount_total
   : "";
   const memorialId = session.metadata?.memorialId;
 const quantity = Number(session.metadata?.quantity || 0);
+if (plan === "extra_videos") {
+  const expectedAmount = quantity * 995;
+
+  if (
+    !Number.isInteger(quantity) ||
+    quantity < 1 ||
+    quantity > 20
+  ) {
+    console.error(
+      "Invalid Video Memory Pack quantity:",
+      quantity
+    );
+
+    return NextResponse.json(
+      { error: "Invalid Video Memory Pack quantity." },
+      { status: 400 }
+    );
+  }
+
+  if (
+    session.payment_status !== "paid" ||
+    session.amount_total !== expectedAmount
+  ) {
+    console.error(
+      "Video Memory Pack payment verification failed:",
+      {
+        quantity,
+        expectedAmount,
+        actualAmount: session.amount_total,
+        paymentStatus: session.payment_status,
+      }
+    );
+
+    return NextResponse.json(
+      { error: "Video Memory Pack payment could not be verified." },
+      { status: 400 }
+    );
+  }
+
+  
+}
 if (
   plan === "extra_videos" &&
   canSendCustomerEmail
@@ -115,7 +156,7 @@ if (
   });
 }
 
-if (plan === "extra_videos") {
+if (plan === "extra_videos" && memorialId) {
   const { data: memorial, error: memorialError } =
     await supabase
       .from("memorials")
@@ -310,15 +351,102 @@ const billingPlanLabel =
   fromPlan &&
   toPlan
 ) {
+  const validUpgradeAmounts: Record<string, number> = {
+    "basic:plus": 2000,
+    "basic:premium": 4000,
+    "plus:premium": 2000,
+  };
+
+  const upgradeKey = `${fromPlan}:${toPlan}`;
+  const expectedUpgradeAmount =
+    validUpgradeAmounts[upgradeKey];
+
+  if (!expectedUpgradeAmount) {
+    console.error(
+      "Invalid memorial upgrade metadata:",
+      {
+        memorialId,
+        fromPlan,
+        toPlan,
+      }
+    );
+
+    return NextResponse.json(
+      { error: "Invalid memorial plan upgrade." },
+      { status: 400 }
+    );
+  }
+
+  if (
+    session.payment_status !== "paid" ||
+    session.amount_total !== expectedUpgradeAmount
+  ) {
+    console.error(
+      "Upgrade payment verification failed:",
+      {
+        memorialId,
+        expectedUpgradeAmount,
+        actualAmount: session.amount_total,
+        paymentStatus: session.payment_status,
+      }
+    );
+
+    return NextResponse.json(
+      { error: "Upgrade payment could not be verified." },
+      { status: 400 }
+    );
+  }
+
+  const {
+    data: currentMemorial,
+    error: memorialLookupError,
+  } = await supabase
+    .from("memorials")
+    .select("id, plan")
+    .eq("id", memorialId)
+    .single();
+
+  if (memorialLookupError || !currentMemorial) {
+    console.error(
+      "Upgrade memorial lookup error:",
+      memorialLookupError
+    );
+
+    return NextResponse.json(
+      { error: "Memorial not found." },
+      { status: 404 }
+    );
+  }
+
+  if (currentMemorial.plan !== fromPlan) {
+    console.error(
+      "Upgrade memorial plan mismatch:",
+      {
+        memorialId,
+        expectedCurrentPlan: fromPlan,
+        actualCurrentPlan: currentMemorial.plan,
+      }
+    );
+
+    return NextResponse.json(
+      { error: "The memorial plan has changed since checkout began." },
+      { status: 409 }
+    );
+  }
+
   const { error: upgradeError } = await supabase
     .from("memorials")
     .update({
       plan: toPlan,
     })
-    .eq("id", memorialId);
+    .eq("id", memorialId)
+    .eq("plan", fromPlan);
 
   if (upgradeError) {
-    console.error("Plan upgrade error:", upgradeError);
+    console.error(
+      "Plan upgrade error:",
+      upgradeError
+    );
 
     return NextResponse.json(
       { error: upgradeError.message },

@@ -296,13 +296,23 @@ if (!ownerAccess && memorialData.is_living_preplan) {
     }
 
     try {
-      const amount = extraCount * 995;
+  const amount = extraCount * 995;
 
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    alert("Please sign in again before purchasing additional Video Memory time.");
+    return;
+  }
+
+  const res = await fetch("/api/checkout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
         body: JSON.stringify({
           plan: "extra_videos",
           amount,
@@ -361,11 +371,21 @@ if (!ownerAccess && memorialData.is_living_preplan) {
   }
 
   try {
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    alert("Please sign in again before upgrading this memorial.");
+    return;
+  }
+
+  const res = await fetch("/api/checkout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
       body: JSON.stringify({
         plan: toPlan,
         amount: upgradeAmount,

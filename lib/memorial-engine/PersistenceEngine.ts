@@ -6,6 +6,9 @@ type MemorialInsertData = Record<string, unknown>;
 type CreateMemorialOptions = {
   slug: string;
   memorialData: MemorialInsertData;
+  giftToken?: string | null;
+  sessionId?: string | null;
+  promoCode?: string | null;
 };
 type MemorialVideoInsert = {
   playbackId: string;
@@ -30,8 +33,12 @@ type MemorialFormData = {
   grandparentsFatherSide: string;
   grandparentsMotherSide: string;
   parentsNames: string;
-  siblingsNames: string;
-  cemeteryName: string;
+siblingsNames: string;
+spouseNames: string;
+childrenNames: string;
+grandchildrenNames: string;
+greatGrandchildrenNames: string;
+cemeteryName: string;
   graveSection: string;
   graveRow: string;
   gravePlot: string;
@@ -166,9 +173,13 @@ life_story: form.lifeStory,
     great_grandparents_names: form.greatGrandparentsNames,
     grandparents_father_side: form.grandparentsFatherSide,
     grandparents_mother_side: form.grandparentsMotherSide,
-    parents_names: form.parentsNames,
-    siblings_names: form.siblingsNames,
-    cemetery_name:
+   parents_names: form.parentsNames,
+siblings_names: form.siblingsNames,
+spouse_names: form.spouseNames,
+children_names: form.childrenNames,
+grandchildren_names: form.grandchildrenNames,
+great_grandchildren_names: form.greatGrandchildrenNames,
+cemetery_name:
   form.finalRestingType === "buried"
     ? form.cemeteryName
     : "",
@@ -232,26 +243,58 @@ ashes_location_description:
   };
 }
   static async createMemorial({
-    slug,
-    memorialData,
-  }: CreateMemorialOptions): Promise<MemorialCreationResult> {
-    const { data: createdMemorial, error } = await supabase
-      .from("memorials")
-      .insert(memorialData)
-      .select("id")
-      .single();
+  slug,
+  memorialData,
+  giftToken = null,
+  sessionId = null,
+  promoCode = null,
+}: CreateMemorialOptions): Promise<MemorialCreationResult> {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (error) {
-      console.error("SUPABASE INSERT ERROR:", error);
+    if (!session?.access_token) {
+      return {
+        success: false,
+        slug,
+        error: "You must be signed in to create a memorial.",
+      };
+    }
+
+    const response = await fetch("/api/memorials/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+  slug,
+  memorialData,
+  giftToken,
+  sessionId,
+  promoCode,
+}),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error(
+        "MEMORIAL CREATE API ERROR:",
+        result
+      );
 
       return {
         success: false,
         slug,
-        error: error.message,
+        error:
+          result.error ||
+          "The memorial could not be created.",
       };
     }
 
-    if (!createdMemorial) {
+    if (!result.memorialId) {
       return {
         success: false,
         slug,
@@ -262,9 +305,24 @@ ashes_location_description:
     return {
       success: true,
       slug,
-      memorialId: createdMemorial.id,
+      memorialId: result.memorialId,
+    };
+  } catch (error) {
+    console.error(
+      "MEMORIAL CREATE REQUEST ERROR:",
+      error
+    );
+
+    return {
+      success: false,
+      slug,
+      error:
+        error instanceof Error
+          ? error.message
+          : "The memorial could not be created.",
     };
   }
+}
   static async updateMemorial({
   memorialId,
   memorialData,

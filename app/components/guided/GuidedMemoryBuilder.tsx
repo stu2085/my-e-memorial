@@ -4,6 +4,7 @@ import {
   type ReactNode,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -44,9 +45,12 @@ export default function GuidedMemoryBuilder({
   );
 
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
-  const [isChangingChapter, setIsChangingChapter] = useState(false);
+const [isChangingChapter, setIsChangingChapter] = useState(false);
+
+const hasRestoredInitialChapter = useRef(false);
+
 useEffect(() => {
-  if (!initialChapterId) {
+  if (hasRestoredInitialChapter.current || !initialChapterId) {
     return;
   }
 
@@ -56,6 +60,7 @@ useEffect(() => {
 
   if (savedChapterIndex >= 0) {
     setCurrentChapterIndex(savedChapterIndex);
+    hasRestoredInitialChapter.current = true;
   }
 }, [initialChapterId, chapters]);
   const currentChapter = chapters[currentChapterIndex];

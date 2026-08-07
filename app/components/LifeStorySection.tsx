@@ -20,7 +20,7 @@ export default function LifeStorySection({
   return (
     <FormSection
       title="Life Story"
-      description="Tell the story of their life."
+      description="Tell the story of a life through memories, experiences, and meaningful moments."
     >
       <TextArea
         label="Life Story"

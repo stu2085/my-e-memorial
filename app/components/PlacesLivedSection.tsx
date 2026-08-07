@@ -19,7 +19,7 @@ export default function PlacesLivedSection({
   return (
     <FormSection
       title="Places Lived"
-      description="Cities, states, and countries associated with this person."
+      description="Preserve the cities, states, countries, and communities that were part of this life."
     >
       <div>
         <label className="mb-2 block text-sm font-semibold text-stone-800">

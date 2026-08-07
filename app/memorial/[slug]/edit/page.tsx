@@ -91,6 +91,7 @@ grandparentsFatherSide: string;
 grandparentsMotherSide: string;
 parentsNames: string;
 siblingsNames: string;
+spouseNames: string;
 childrenNames: string;
 grandchildrenNames: string;
 greatGrandchildrenNames: string
@@ -164,6 +165,7 @@ grandparentsFatherSide: "",
 grandparentsMotherSide: "",
 parentsNames: "",
 siblingsNames: "",
+spouseNames: "",
 childrenNames: "",
 grandchildrenNames: "",
 greatGrandchildrenNames: "",
@@ -697,6 +699,7 @@ grandparentsFatherSide: data.grandparents_father_side ?? "",
 grandparentsMotherSide: data.grandparents_mother_side ?? "",
 parentsNames: data.parents_names ?? "",
 siblingsNames: data.siblings_names ?? "",
+spouseNames: data.spouse_names ?? "",
 childrenNames: data.children_names || "",
 grandchildrenNames: data.grandchildren_names || "",
 greatGrandchildrenNames: data.great_grandchildren_names || "",
@@ -1043,6 +1046,7 @@ grandparents_father_side: form.grandparentsFatherSide,
 grandparents_mother_side: form.grandparentsMotherSide,
 parents_names: form.parentsNames,
 siblings_names: form.siblingsNames,
+spouse_names: form.spouseNames,
 children_names: form.childrenNames,
 grandchildren_names: form.grandchildrenNames,
         obituary: form.obituary,
@@ -1255,13 +1259,23 @@ async function handleBuyExtraVideos(extraCount: number, submissionId?: number) {
   }
 
   try {
-    const amount = extraCount * 995;
+  const amount = extraCount * 995;
 
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    alert("Please sign in again before purchasing additional Video Memory time.");
+    return;
+  }
+
+  const res = await fetch("/api/checkout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
       body: JSON.stringify({
         plan: "extra_videos",
         amount,
@@ -1305,22 +1319,32 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
     return;
   }
 
-  try {
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        plan: toPlan,
-        amount: upgradeAmount,
-        memorialId,
-        checkoutType: "upgrade",
-        fromPlan: currentPlan,
-        toPlan,
-        returnUrl: `${window.location.origin}/memorial/${originalSlug}/edit?upgrade_success=true`,
-      }),
-    });
+ try {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    alert("Please sign in again before upgrading this memorial.");
+    return;
+  }
+
+  const res = await fetch("/api/checkout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({
+      plan: toPlan,
+      amount: upgradeAmount,
+      memorialId,
+      checkoutType: "upgrade",
+      fromPlan: currentPlan,
+      toPlan,
+      returnUrl: `${window.location.origin}/memorial/${originalSlug}/edit?upgrade_success=true`,
+    }),
+  });
 
     const data = await res.json();
 

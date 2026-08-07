@@ -202,12 +202,24 @@ if (form.assignedEmail.trim()) {
     <main className="min-h-screen bg-stone-100 p-8">
       <div className="mx-auto max-w-6xl space-y-8">
         <section className="rounded-3xl bg-white p-8 shadow-sm">
-          <h1 className="text-3xl font-bold text-stone-900">
-            Promo Code Admin
-          </h1>
-          <p className="mt-3 text-stone-600">
-            Create private beta, personal, and business promotion codes.
-          </p>
+  <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+    <div>
+      <h1 className="text-3xl font-bold text-stone-900">
+        Promo Code Admin
+      </h1>
+
+      <p className="mt-3 text-stone-600">
+        Create private beta, personal, and business promotion codes.
+      </p>
+    </div>
+
+    <a
+      href="/campaigns/manage"
+      className="w-fit rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-700"
+    >
+      Social Campaigns
+    </a>
+  </div>
 
           {message && (
             <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">

@@ -265,8 +265,8 @@ const remainingPhotos = hasFiniteLimit
 
           <p className="text-sm text-stone-600">
             {hasFiniteLimit
-              ? `${galleryPhotos.length} of ${limit}`
-              : `${galleryPhotos.length} selected`}
+  ? `${totalPhotoCount} of ${limit}`
+  : `${totalPhotoCount} photo${totalPhotoCount === 1 ? "" : "s"}`}
           </p>
         </div>
 
@@ -277,7 +277,7 @@ const remainingPhotos = hasFiniteLimit
               aria-label="Gallery capacity"
               aria-valuemin={0}
               aria-valuemax={limit}
-              aria-valuenow={galleryPhotos.length}
+              aria-valuenow={totalPhotoCount}
               className="h-3 overflow-hidden rounded-full bg-stone-200"
             >
               <div

@@ -19,7 +19,7 @@ export default function PlacesWorkedSection({
   return (
     <FormSection
       title="Places Worked"
-      description="Employers, occupations, or businesses associated with this person."
+      description="Preserve the jobs, careers, businesses, military service, and other work that were part of this life."
     >
       <div>
         <label className="mb-2 block text-sm font-semibold text-stone-800">

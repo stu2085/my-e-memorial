@@ -20,7 +20,7 @@ export default function SocialMediaSection({
   return (
     <FormSection
       title="Social Media Links"
-      description="Add up to 5 social media pages for this memorial."
+      description="Add up to 5 social media pages or online profiles connected to this life."
     >
       <div className="space-y-5">
         <Input

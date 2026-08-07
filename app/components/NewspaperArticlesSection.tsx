@@ -35,7 +35,7 @@ export default function NewspaperArticlesSection({
   return (
     <FormSection
       title="Newspaper Articles"
-      description="Upload obituary clippings, newspaper articles, announcements, or other public records."
+      description="Preserve newspaper articles, announcements, accomplishments, obituaries, and other moments recorded in print."
     >
       <input
         type="hidden"

@@ -31,7 +31,7 @@ export default function ObituarySection({
   return (
     <FormSection
       title="Obituary"
-      description="Enter obituary text, upload an obituary image, or add a link to the original obituary."
+      description="Preserve the obituary by entering the text, uploading an image, or adding a link to the original obituary."
     >
       <div className="space-y-6">
         <div>

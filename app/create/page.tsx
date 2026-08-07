@@ -19,6 +19,10 @@ import HeadstonePhotosSection from "../components/HeadstonePhotosSection";
 import BackupPersonSection from "../components/BackupPersonSection";
 import BasicInformationSection from "../components/BasicInformationSection";
 import GuidedMemoryBuilder from "../components/guided/GuidedMemoryBuilder";
+import {
+  getGuidedChapters,
+  type GuidedChapter,
+} from "../components/guided/ChapterConfig";
 import LifeStorySection from "../components/LifeStorySection";
 import ObituarySection from "../components/ObituarySection";
 import FamilyHistorySection from "../components/FamilyHistorySection";
@@ -66,6 +70,7 @@ grandparentsFatherSide: string;
 grandparentsMotherSide: string;
 parentsNames: string;
 siblingsNames: string;
+spouseNames: string;
 childrenNames: string;
 grandchildrenNames: string;
 greatGrandchildrenNames: string;
@@ -136,6 +141,7 @@ grandparentsFatherSide: "",
 grandparentsMotherSide: "",
 parentsNames: "",
 siblingsNames: "",
+spouseNames: "",
 childrenNames: "",
 grandchildrenNames: "",
 greatGrandchildrenNames: "",
@@ -535,8 +541,9 @@ newspaperArticles: draftData.newspaper_articles ?? "",
     grandparentsMotherSide:
       draftData.grandparents_mother_side ?? "",
     parentsNames: draftData.parents_names ?? "",
-    siblingsNames: draftData.siblings_names ?? "",
-    childrenNames: draftData.children_names ?? "",
+siblingsNames: draftData.siblings_names ?? "",
+spouseNames: draftData.spouse_names ?? "",
+childrenNames: draftData.children_names ?? "",
     grandchildrenNames:
       draftData.grandchildren_names ?? "",
     greatGrandchildrenNames:
@@ -1051,7 +1058,11 @@ function handleUseCurrentLocation() {
     (file) => !existingNames.has(file.name)
   );
 
-  const maxTotalVideoSeconds = limits.videoMinutes * 60;
+  const totalAllowedVideoMinutes =
+  limits.videoMinutes + paidExtraVideos * 10;
+
+const maxTotalVideoSeconds =
+  totalAllowedVideoMinutes * 60;
 
 let existingVideoSeconds = 0;
 
@@ -1067,7 +1078,7 @@ for (const file of newUniqueFiles) {
 
 if (existingVideoSeconds + newVideoSeconds > maxTotalVideoSeconds) {
   setVideoError(
-    `${limits.label} allows up to ${limits.videoMinutes} minutes of Video Memories.`
+    `${limits.label} currently allows up to ${totalAllowedVideoMinutes} minutes of Video Memories, including purchased extra video time.`
   );
   e.target.value = "";
   return;
@@ -1125,10 +1136,13 @@ ValidationEngine.validateBasicMemorial({
   galleryPhotos,
 });
 
-      await ValidationEngine.validateVideos({
+      const totalAllowedVideoMinutes =
+  limits.videoMinutes + paidExtraVideos * 10;
+
+await ValidationEngine.validateVideos({
   videoFiles,
   getVideoDuration: MediaEngine.getVideoDuration,
-  maximumVideoMinutes: limits.videoMinutes,
+  maximumVideoMinutes: totalAllowedVideoMinutes,
   planLabel: limits.label,
 });
 
@@ -1234,6 +1248,7 @@ if (obituaryImageFile) {
     obituaryImageUrl = uploadedObituaryImageUrl;
   }
 }
+
 if (videoLinkThumbnailFiles.length > 0) {
   for (
     let index = 0;
@@ -1283,6 +1298,8 @@ const galleryPhotoCaptions = [
   ...savedGalleryPhotoCaptions,
   ...galleryPhotos.map((photo) => photo.caption || ""),
 ].slice(0, galleryPhotoUrls.length);
+
+setSavedGalleryPhotoCaptions(galleryPhotoCaptions);
 
 if (newspaperArticleFiles.length > 0) {
   const newlyUploadedNewspaperArticleUrls =
@@ -1410,6 +1427,7 @@ if (form.betaCode.trim()) {
     selectedPlan = promoCode.allowed_plan as PlanKey;
   }
 }
+
 const memorialData = PersistenceEngine.buildMemorialData({
   slug,
   form,
@@ -1480,19 +1498,60 @@ if (draftMemorialId) {
       );
     }
   } else {
-    await PersistenceEngine.updateMemorial({
-      memorialId: draftMemorialId,
-      memorialData,
-    });
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    throw new Error(
+      "Please sign in again before completing this memorial."
+    );
   }
+
+  const updateResponse = await fetch(
+    "/api/memorials/update",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        memorialId: draftMemorialId,
+        updatePayload: memorialData,
+        giftToken: searchParams.get("gift"),
+        sessionId: searchParams.get("session_id"),
+        promoCode:
+          form.betaCode.trim() || null,
+      }),
+    }
+  );
+
+  const updateResult =
+    await updateResponse.json();
+
+  if (!updateResponse.ok) {
+    throw new Error(
+      updateResult.error ||
+        "The memorial could not be saved."
+    );
+  }
+}
 
   completedMemorialId = draftMemorialId;
 } else {
   const createResult =
-    await PersistenceEngine.createMemorial({
-      slug,
-      memorialData,
-    });
+  await PersistenceEngine.createMemorial({
+    slug,
+    memorialData,
+    giftToken:
+      searchParams.get("gift"),
+    sessionId:
+      searchParams.get("session_id"),
+    promoCode:
+      form.betaCode.trim() || null,
+  });
 
   if (!createResult.success || !createResult.memorialId) {
     throw new Error(
@@ -1614,7 +1673,454 @@ setSavedFavoriteSongNotes([]);
     setErrorMessage("");
     setSuccessMessage("");
   }
+async function saveGuidedDraft(
+  chapter: GuidedChapter,
+  exitAfterSave: boolean
+) {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
+    const user = session?.user ?? null;
+
+    if (!user && !isBackupAccess) {
+      alert(
+        "Please sign in or use authorized backup-person access before saving this memorial."
+      );
+      return;
+    }
+
+    localStorage.setItem(
+      "memorialDraft",
+      JSON.stringify({
+        ...form,
+        plan: form.plan || "basic",
+      })
+    );
+
+    let slug = draftMemorialSlug;
+
+    if (!slug) {
+      const baseSlug =
+        SlugEngine.createBaseSlug({
+          firstName: form.firstName,
+          middleName: form.middleName,
+          lastName: form.lastName,
+        }) || `draft-${Date.now()}`;
+
+      slug = await SlugEngine.createUniqueSlug(baseSlug);
+    }
+
+    let featuredPhotoUrl = form.featuredPhotoUrl || "";
+let headstonePhoto1Url = savedHeadstonePhoto1Url;
+let headstonePhoto2Url = savedHeadstonePhoto2Url;
+let obituaryImageUrl = savedObituaryImageUrl;
+
+let galleryPhotoUrls = savedGalleryPhotoUrls;
+let newspaperArticleUrls =
+  splitGalleryPhotos(form.newspaperArticles);
+
+let videoLinkThumbnailUrls = [
+  ...(form.videoLinkThumbnailUrls ?? []),
+];
+
+let favoriteSongUrls = [...savedFavoriteSongUrls];
+let favoriteSongNotes = [...savedFavoriteSongNotes];
+
+let combinedUploadedVideos = savedVideoUrls.map(
+  (playbackId, index) => ({
+    playbackId,
+    durationSeconds: 0,
+    note: savedVideoNotes[index] || "",
+    originalFilename: "",
+    fileSize: 0,
+  })
+);
+
+if (featuredPhoto) {
+  const uploadedFeaturedPhotoUrl =
+    await MediaEngine.uploadOptionalFile(
+      featuredPhoto,
+      slug,
+      "memorial-photos"
+    );
+
+  if (uploadedFeaturedPhotoUrl) {
+  featuredPhotoUrl = uploadedFeaturedPhotoUrl;
+
+  setForm((previousForm) => ({
+    ...previousForm,
+    featuredPhotoUrl: uploadedFeaturedPhotoUrl,
+  }));
+
+  setFeaturedPhoto(null);
+}
+}
+
+if (headstonePhoto1) {
+  const uploadedHeadstonePhoto1Url =
+    await MediaEngine.uploadOptionalFile(
+      headstonePhoto1,
+      slug,
+      "memorial-photos"
+    );
+
+  if (uploadedHeadstonePhoto1Url) {
+  headstonePhoto1Url = uploadedHeadstonePhoto1Url;
+  setSavedHeadstonePhoto1Url(uploadedHeadstonePhoto1Url);
+
+  setHeadstonePhoto1(null);
+}
+}
+
+if (headstonePhoto2) {
+  const uploadedHeadstonePhoto2Url =
+    await MediaEngine.uploadOptionalFile(
+      headstonePhoto2,
+      slug,
+      "memorial-photos"
+    );
+
+  if (uploadedHeadstonePhoto2Url) {
+  headstonePhoto2Url = uploadedHeadstonePhoto2Url;
+  setSavedHeadstonePhoto2Url(uploadedHeadstonePhoto2Url);
+
+  setHeadstonePhoto2(null);
+}
+}
+
+if (obituaryImageFile) {
+  const uploadedObituaryImageUrl =
+    await MediaEngine.uploadOptionalFile(
+      obituaryImageFile,
+      slug,
+      "memorial-photos"
+    );
+
+ if (uploadedObituaryImageUrl) {
+  obituaryImageUrl = uploadedObituaryImageUrl;
+  setSavedObituaryImageUrl(uploadedObituaryImageUrl);
+
+  setForm((previousForm) => ({
+    ...previousForm,
+    obituaryImageUrl: uploadedObituaryImageUrl,
+  }));
+
+  setObituaryImageFile(null);
+}
+}
+
+if (videoLinkThumbnailFiles.length > 0) {
+  for (
+    let index = 0;
+    index < videoLinkThumbnailFiles.length;
+    index++
+  ) {
+    const file = videoLinkThumbnailFiles[index];
+
+    if (!file) {
+      continue;
+    }
+
+    const uploadedThumbnailUrl =
+      await MediaEngine.uploadOptionalFile(
+        file,
+        slug,
+        "memorial-photos"
+      );
+
+    if (uploadedThumbnailUrl) {
+      videoLinkThumbnailUrls[index] =
+        uploadedThumbnailUrl;
+    }
+  }
+
+  setForm((previousForm) => ({
+    ...previousForm,
+    videoLinkThumbnailUrls,
+  }));
+
+  setVideoLinkThumbnailFiles([]);
+}
+
+if (galleryPhotos.length > 0) {
+  const uploadedGalleryPhotoUrls =
+    await MediaEngine.uploadSelectedGalleryPhotos({
+      photos: galleryPhotos,
+      slug,
+      setGalleryPhotos,
+      setGalleryUploadProgress,
+      setIsGalleryUploading,
+    });
+
+  galleryPhotoUrls = [
+    ...savedGalleryPhotoUrls,
+    ...uploadedGalleryPhotoUrls,
+  ];
+
+  setSavedGalleryPhotoUrls(galleryPhotoUrls);
+
+  setGalleryPhotos([]);
+}
+
+const galleryPhotoCaptions = [
+  ...savedGalleryPhotoCaptions,
+  ...galleryPhotos.map((photo) => photo.caption || ""),
+].slice(0, galleryPhotoUrls.length);
+
+if (newspaperArticleFiles.length > 0) {
+  const uploadedNewspaperArticleUrls =
+    await Promise.all(
+      newspaperArticleFiles.map((file) =>
+        MediaEngine.uploadOptionalFile(
+          file,
+          slug,
+          "memorial-articles"
+        )
+      )
+    );
+
+  newspaperArticleUrls = [
+  ...newspaperArticleUrls,
+  ...uploadedNewspaperArticleUrls.filter(
+    (url): url is string => Boolean(url)
+  ),
+];
+
+  setSavedNewspaperArticleUrls(newspaperArticleUrls);
+
+setNewspaperArticleFiles([]);
+
+setForm((previousForm) => ({
+  ...previousForm,
+  newspaperArticles: newspaperArticleUrls.join(","),
+}));
+}
+
+if (favoriteSongFiles.length > 0) {
+  const uploadedFavoriteSongUrls =
+    await Promise.all(
+      favoriteSongFiles.map((file) =>
+        MediaEngine.uploadOptionalFile(
+          file,
+          slug,
+          "memorial-audio"
+        )
+      )
+    );
+
+  const validUploadedFavoriteSongUrls =
+    uploadedFavoriteSongUrls.filter(
+      (url): url is string => Boolean(url)
+    );
+
+  favoriteSongUrls = [
+    ...savedFavoriteSongUrls,
+    ...validUploadedFavoriteSongUrls,
+  ].slice(0, 5);
+
+  favoriteSongNotes = [
+    ...savedFavoriteSongNotes,
+    ...selectedFavoriteSongNotes,
+  ].slice(0, 5);
+
+  setSavedFavoriteSongUrls(favoriteSongUrls);
+  setSavedFavoriteSongNotes(favoriteSongNotes);
+
+  setFavoriteSongFiles([]);
+  setSelectedFavoriteSongNotes([]);
+}
+
+if (videoFiles.length > 0) {
+  const newlyUploadedVideos =
+    await MediaEngine.uploadVideos({
+      videoFiles,
+      videoNotes,
+    });
+
+  combinedUploadedVideos = [
+    ...combinedUploadedVideos,
+    ...newlyUploadedVideos,
+  ];
+
+  setSavedVideoUrls(
+    combinedUploadedVideos.map(
+      (video) => video.playbackId
+    )
+  );
+
+  setSavedVideoNotes(
+    combinedUploadedVideos.map(
+      (video) => video.note
+    )
+  );
+
+  setForm((previousForm) => ({
+    ...previousForm,
+    videoUrls: combinedUploadedVideos.map(
+      (video) => video.playbackId
+    ),
+  }));
+
+  setVideoFiles([]);
+  setVideoNotes([]);
+}
+
+const fullName = [
+  form.firstName,
+  form.middleName,
+  form.lastName,
+  form.maidenName ? `(${form.maidenName})` : "",
+]
+  .filter(Boolean)
+  .join(" ")
+  .replace(/\s+/g, " ")
+  .trim();
+
+const normalizedName = `${form.firstName} ${form.lastName}`
+  .trim()
+  .toLowerCase();
+const guidedExperienceType =
+  form.isLivingPreplan && isBackupAccess
+    ? "after-death"
+    : form.isLivingPreplan
+      ? "personal"
+      : "memorial";
+
+const guidedChapters = getGuidedChapters(guidedExperienceType);
+
+const currentGuidedChapterIndex = guidedChapters.findIndex(
+  (guidedChapter) => guidedChapter.id === chapter.id
+);
+
+const nextGuidedChapterId =
+  currentGuidedChapterIndex >= 0 &&
+  currentGuidedChapterIndex < guidedChapters.length - 1
+    ? guidedChapters[currentGuidedChapterIndex + 1].id
+    : chapter.id;
+const memorialData = PersistenceEngine.buildMemorialData({
+  slug,
+  form,
+  fullName,
+  ownerId:
+    existingMemorialOwnerId ??
+    user?.id ??
+    null,
+  selectedPlan: form.plan || "basic",
+  requiresReview: false,
+  usingBetaCode: false,
+  featuredPhotoUrl,
+  headstonePhoto1Url,
+  headstonePhoto2Url,
+  obituaryImageUrl,
+  galleryPhotoUrls,
+  galleryPhotoCaptions,
+  newspaperArticleUrls,
+  favoriteSongUrl: favoriteSongUrls[0] ?? "",
+  favoriteSongUrls,
+  favoriteSongNotes,
+  videoLinkThumbnailUrls,
+  uploadedVideos: combinedUploadedVideos,
+  isDraft: !isExistingMemorialEdit,
+  guidedCurrentChapter: nextGuidedChapterId,
+  existingIsPublished: isExistingMemorialEdit
+    ? existingMemorialIsPublished
+    : null,
+});
+
+if (draftMemorialId) {
+  const updateHeaders: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (session?.access_token) {
+    updateHeaders.Authorization =
+      `Bearer ${session.access_token}`;
+  }
+
+  const updateResponse = await fetch(
+    "/api/memorials/update",
+    {
+      method: "POST",
+      headers: updateHeaders,
+      credentials: "include",
+      body: JSON.stringify({
+        memorialId: draftMemorialId,
+        updatePayload: memorialData,
+      }),
+    }
+  );
+
+  const updateResult =
+    await updateResponse.json();
+
+  if (!updateResponse.ok) {
+    throw new Error(
+      updateResult.error ||
+        "The memorial could not be saved."
+    );
+  }
+} else {
+  const createResult =
+    await PersistenceEngine.createMemorial({
+      slug,
+      memorialData,
+      giftToken: searchParams.get("gift"),
+      sessionId: searchParams.get("session_id"),
+      promoCode: form.betaCode.trim() || null,
+    });
+
+  if (
+    !createResult.success ||
+    !createResult.memorialId
+  ) {
+    throw new Error(
+      createResult.error ||
+        "The draft memorial could not be saved."
+    );
+  }
+
+  setDraftMemorialId(
+    createResult.memorialId
+  );
+
+  setDraftMemorialSlug(slug);
+
+  localStorage.setItem(
+    "guidedDraftMemorialId",
+    String(createResult.memorialId)
+  );
+
+  localStorage.setItem(
+    "guidedDraftMemorialSlug",
+    slug
+  );
+}
+
+if (exitAfterSave) {
+  if (isBackupAccess) {
+    window.location.assign(
+      `/memorial/${slug}/manage`
+    );
+  } else {
+    window.location.assign(
+      "/my-memorials"
+    );
+  }
+}
+  } catch (error) {
+    console.error("SAVE GUIDED DRAFT ERROR:", error);
+
+    alert(
+      error instanceof Error
+        ? `Could not save your draft: ${error.message}`
+        : "Could not save your draft."
+    );
+
+    throw error;
+  }
+}
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
       <div className="mx-auto flex max-w-7xl gap-6">
@@ -2036,17 +2542,18 @@ setSuccessMessage(
       ? "Save After-Death Updates"
       : "Finish Review"
   }
-  onSaveAndContinue={(chapter) => {
+  onSaveAndContinue={async (chapter) => {
   if (chapter.id !== "review") {
+    await saveGuidedDraft(chapter, false);
     return;
   }
 
   if (isPaid) {
     const createForm = document.getElementById(
-  "create-memorial-form"
-) as HTMLFormElement | null;
+      "create-memorial-form"
+    ) as HTMLFormElement | null;
 
-createForm?.requestSubmit();
+    createForm?.requestSubmit();
 
     return;
   }
@@ -2058,407 +2565,12 @@ createForm?.requestSubmit();
       block: "start",
     });
 }}
-onSaveAndExit={async (chapter) => {
-  const hasUnsavedFiles = false;
-
-  if (hasUnsavedFiles) {
-    const shouldExit = window.confirm(
-      "Your written information can be saved as a draft, but the photos, videos, music, obituary images, or newspaper files you selected have not been uploaded yet and will need to be selected again when you return.\n\nDo you still want to Save & Exit?"
-    );
-
-    if (!shouldExit) {
-      return;
-    }
-  }
-
-  try {
-    const {
-  data: { session },
-} = await supabase.auth.getSession();
-
-const user = session?.user ?? null;
-
-if (!user && !isBackupAccess) {
-  alert(
-    "Please sign in or use authorized backup-person access before saving this memorial."
-  );
-  return;
+onSaveAndExit={(chapter) =>
+  saveGuidedDraft(chapter, true)
 }
+  
 
-    localStorage.setItem(
-      "memorialDraft",
-      JSON.stringify({
-        ...form,
-        plan: form.plan || "basic",
-      })
-    );
-
-    
-
-    let slug = draftMemorialSlug;
-
-    if (!slug) {
-      const baseSlug =
-        SlugEngine.createBaseSlug({
-          firstName: form.firstName,
-          middleName: form.middleName,
-          lastName: form.lastName,
-        }) || `draft-${Date.now()}`;
-
-      slug = await SlugEngine.createUniqueSlug(baseSlug);
-    }
-
-    let featuredPhotoUrl = form.featuredPhotoUrl || "";
-let headstonePhoto1Url = savedHeadstonePhoto1Url;
-let headstonePhoto2Url = savedHeadstonePhoto2Url;
-let obituaryImageUrl = savedObituaryImageUrl;
-let galleryPhotoUrls = savedGalleryPhotoUrls;
-let newspaperArticleUrls = savedNewspaperArticleUrls;
-let favoriteSongUrl = savedFavoriteSongUrls[0] ?? "";
-
-let videoLinkThumbnailUrls = [
-  ...(form.videoLinkThumbnailUrls ?? []),
-];
-
-if (featuredPhoto) {
-  const uploadedFeaturedPhotoUrl =
-    await MediaEngine.uploadOptionalFile(
-      featuredPhoto,
-      slug,
-      "memorial-photos"
-    );
-
-  if (uploadedFeaturedPhotoUrl) {
-    featuredPhotoUrl = uploadedFeaturedPhotoUrl;
-
-    setForm((previousForm) => ({
-      ...previousForm,
-      featuredPhotoUrl: uploadedFeaturedPhotoUrl,
-    }));
-  }
-}
-
-if (headstonePhoto1) {
-  const uploadedHeadstonePhoto1Url =
-    await MediaEngine.uploadOptionalFile(
-      headstonePhoto1,
-      slug,
-      "memorial-photos"
-    );
-
-  if (uploadedHeadstonePhoto1Url) {
-    headstonePhoto1Url = uploadedHeadstonePhoto1Url;
-    setSavedHeadstonePhoto1Url(uploadedHeadstonePhoto1Url);
-  }
-}
-
-if (headstonePhoto2) {
-  const uploadedHeadstonePhoto2Url =
-    await MediaEngine.uploadOptionalFile(
-      headstonePhoto2,
-      slug,
-      "memorial-photos"
-    );
-
-  if (uploadedHeadstonePhoto2Url) {
-    headstonePhoto2Url = uploadedHeadstonePhoto2Url;
-    setSavedHeadstonePhoto2Url(uploadedHeadstonePhoto2Url);
-  }
-}
-
-if (obituaryImageFile) {
-  const uploadedObituaryImageUrl =
-    await MediaEngine.uploadOptionalFile(
-      obituaryImageFile,
-      slug,
-      "memorial-photos"
-    );
-
-  if (uploadedObituaryImageUrl) {
-    obituaryImageUrl = uploadedObituaryImageUrl;
-    setSavedObituaryImageUrl(uploadedObituaryImageUrl);
-
-    setForm((previousForm) => ({
-      ...previousForm,
-      obituaryImageUrl: uploadedObituaryImageUrl,
-    }));
-  }
-}
-
-if (videoLinkThumbnailFiles.length > 0) {
-  for (
-    let index = 0;
-    index < videoLinkThumbnailFiles.length;
-    index++
-  ) {
-    const file = videoLinkThumbnailFiles[index];
-
-    if (!file) {
-      continue;
-    }
-
-    const uploadedThumbnailUrl =
-      await MediaEngine.uploadOptionalFile(
-        file,
-        slug,
-        "memorial-photos"
-      );
-
-    if (uploadedThumbnailUrl) {
-      videoLinkThumbnailUrls[index] =
-        uploadedThumbnailUrl;
-    }
-  }
-
-  setForm((previousForm) => ({
-    ...previousForm,
-    videoLinkThumbnailUrls,
-  }));
-
-  setVideoLinkThumbnailFiles([]);
-}
-
-if (galleryPhotos.length > 0) {
-  const uploadedGalleryPhotoUrls =
-    await MediaEngine.uploadSelectedGalleryPhotos({
-      photos: galleryPhotos,
-      slug,
-      setGalleryPhotos,
-      setGalleryUploadProgress,
-      setIsGalleryUploading,
-    });
-
-  galleryPhotoUrls = [
-    ...savedGalleryPhotoUrls,
-    ...uploadedGalleryPhotoUrls,
-  ];
-
-  setSavedGalleryPhotoUrls(galleryPhotoUrls);
-}
-const galleryPhotoCaptions = [
-  ...savedGalleryPhotoCaptions,
-  ...galleryPhotos.map((photo) => photo.caption || ""),
-].slice(0, galleryPhotoUrls.length);
-
-if (newspaperArticleFiles.length > 0) {
-  const uploadedNewspaperArticleUrls = await Promise.all(
-    newspaperArticleFiles.map((file) =>
-      MediaEngine.uploadOptionalFile(
-        file,
-        slug,
-        "memorial-articles"
-      )
-    )
-  );
-
-  newspaperArticleUrls = [
-    ...savedNewspaperArticleUrls,
-    ...uploadedNewspaperArticleUrls.filter(
-      (url): url is string => Boolean(url)
-    ),
-  ];
-
-  setSavedNewspaperArticleUrls(newspaperArticleUrls);
-
-setForm((previousForm) => ({
-  ...previousForm,
-  newspaperArticles: newspaperArticleUrls.join(","),
-}));
-}
-
-let favoriteSongUrls = [...savedFavoriteSongUrls];
-let favoriteSongNotes = [...savedFavoriteSongNotes];
-
-if (favoriteSongFiles.length > 0) {
-  const uploadedFavoriteSongUrls =
-    await Promise.all(
-      favoriteSongFiles.map((file) =>
-       MediaEngine.uploadOptionalFile(
-  file,
-  slug,
-  "memorial-audio"
-)
-      )
-    );
-
-  const validUploadedFavoriteSongUrls =
-    uploadedFavoriteSongUrls.filter(
-      (url): url is string => Boolean(url)
-    );
-
-  favoriteSongUrls = [
-    ...savedFavoriteSongUrls,
-    ...validUploadedFavoriteSongUrls,
-  ].slice(0, 5);
-
-  favoriteSongNotes = [
-    ...savedFavoriteSongNotes,
-    ...selectedFavoriteSongNotes,
-  ].slice(0, 5);
-}
-let combinedUploadedVideos = savedVideoUrls.map(
-  (playbackId, index) => ({
-    playbackId,
-    durationSeconds: 0,
-    note: savedVideoNotes[index] || "",
-    originalFilename: "",
-    fileSize: 0,
-  })
-);
-
-if (videoFiles.length > 0) {
-  const newlyUploadedVideos =
-    await MediaEngine.uploadVideos({
-      videoFiles,
-      videoNotes,
-    });
-
-  combinedUploadedVideos = [
-    ...combinedUploadedVideos,
-    ...newlyUploadedVideos,
-  ];
-
-  setSavedVideoUrls(
-    combinedUploadedVideos.map(
-      (video) => video.playbackId
-    )
-  );
-
-  setSavedVideoNotes(
-    combinedUploadedVideos.map(
-      (video) => video.note
-    )
-  );
-
-  setForm((previousForm) => ({
-    ...previousForm,
-    videoUrls: combinedUploadedVideos.map(
-      (video) => video.playbackId
-    ),
-  }));
-}
-const fullName = [
-  form.firstName,
-  form.middleName,
-  form.lastName,
-  form.maidenName ? `(${form.maidenName})` : "",
-]
-  .filter(Boolean)
-  .join(" ")
-  .replace(/\s+/g, " ")
-  .trim();
-
-const normalizedName = `${form.firstName} ${form.lastName}`
-  .trim()
-  .toLowerCase();
-
-
-const memorialData = PersistenceEngine.buildMemorialData({
-  slug,
-  form,
-  fullName,
-ownerId:
-  existingMemorialOwnerId ??
-  user?.id ??
-  null,
-selectedPlan: form.plan || "basic",
-  requiresReview: false,
-  usingBetaCode: false,
-  featuredPhotoUrl,
-  headstonePhoto1Url,
-  headstonePhoto2Url,
-  obituaryImageUrl,
-  galleryPhotoUrls,
-galleryPhotoCaptions,
-newspaperArticleUrls,
-favoriteSongUrl: favoriteSongUrls[0] ?? "",
-favoriteSongUrls,
-favoriteSongNotes,
-videoLinkThumbnailUrls,
-uploadedVideos: combinedUploadedVideos,
-  isDraft: !isExistingMemorialEdit,
-guidedCurrentChapter: chapter.id,
-existingIsPublished: isExistingMemorialEdit
-  ? existingMemorialIsPublished
-  : null,
-});
-
-    if (draftMemorialId) {
-  const updateHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  if (session?.access_token) {
-    updateHeaders.Authorization =
-      `Bearer ${session.access_token}`;
-  }
-
-  const updateResponse = await fetch(
-    "/api/memorials/update",
-    {
-      method: "POST",
-      headers: updateHeaders,
-      credentials: "include",
-      body: JSON.stringify({
-        memorialId: draftMemorialId,
-        updatePayload: memorialData,
-      }),
-    }
-  );
-
-  const updateResult = await updateResponse.json();
-
-  if (!updateResponse.ok) {
-    throw new Error(
-      updateResult.error ||
-        "The memorial could not be saved."
-    );
-  }
-} else {
-  const createResult =
-    await PersistenceEngine.createMemorial({
-      slug,
-      memorialData,
-    });
-
-  if (!createResult.success || !createResult.memorialId) {
-    throw new Error(
-      createResult.error ||
-        "The draft memorial could not be saved."
-    );
-  }
-
-  setDraftMemorialId(createResult.memorialId);
-  setDraftMemorialSlug(slug);
-
-  localStorage.setItem(
-    "guidedDraftMemorialId",
-    String(createResult.memorialId)
-  );
-
-  localStorage.setItem(
-    "guidedDraftMemorialSlug",
-    slug
-  );
-}
-
-    if (isBackupAccess) {
-  window.location.assign(
-    `/memorial/${slug}/manage`
-  );
-} else {
-  window.location.assign("/my-memorials");
-}
-  } catch (error) {
-    console.error("SAVE GUIDED DRAFT ERROR:", error);
-
-    alert(
-      error instanceof Error
-        ? `Could not save your draft: ${error.message}`
-        : "Could not save your draft."
-    );
-  }
-}}
+ 
   renderChapter={(chapter) => {
  switch (chapter.id) {
   case "basic-information":
@@ -2559,7 +2671,8 @@ existingIsPublished: isExistingMemorialEdit
   case "favorite-songs":
   return (
     <FavoriteSongsSection
-      firstName={form.firstName}
+  firstName={form.firstName}
+  nickname={form.nickname}
       favoriteSongUrl={savedFavoriteSongUrls[0] ?? ""}
       favoriteSongUrls={savedFavoriteSongUrls}
       favoriteSongNotes={savedFavoriteSongNotes}
@@ -2657,42 +2770,290 @@ setForm={setForm}
       />
     );
 
-  case "review":
-  return (
-    <div className="rounded-3xl border border-stone-200 bg-stone-50 p-8 text-center">
-      <h2 className="text-2xl font-bold text-stone-900">
-        {form.isLivingPreplan && isBackupAccess
-          ? "Review the Memorial Before Publication"
-          : form.isLivingPreplan
-            ? "Review Your Personal E-Memorial"
-            : "Review the Memorial"}
-      </h2>
+  case "review": {
+  const fullReviewName = [
+    form.firstName,
+    form.middleName,
+    form.lastName,
+    form.maidenName ? `(${form.maidenName})` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-      {form.isLivingPreplan && isBackupAccess ? (
-        <>
-          <p className="mt-4 text-stone-700">
-            Review the information you have added, including the date of death,
-            obituary, and final resting place.
-          </p>
+  const socialLinks = [
+    form.socialLink1,
+    form.socialLink2,
+    form.socialLink3,
+    form.socialLink4,
+    form.socialLink5,
+  ].filter((value) => value?.trim());
 
-          <p className="mt-4 font-semibold text-stone-900">
-            This Personal E-Memorial is still private.
-          </p>
+  const photoCount =
+    savedGalleryPhotoUrls.length + galleryPhotos.length;
 
-          <p className="mt-2 text-stone-600">
-            Clicking Save After-Death Updates will save your changes but will
-            not publish the memorial. You will have a separate opportunity to
-            publish it after these updates are saved.
-          </p>
-        </>
-      ) : (
-        <p className="mt-3 text-stone-600">
-          Review what has been preserved and make any additions before
-          continuing.
-        </p>
-      )}
+  const songCount =
+    savedFavoriteSongUrls.filter(Boolean).length +
+    favoriteSongFiles.length;
+
+  const videoCount =
+    savedVideoUrls.length +
+    videoFiles.length +
+    (form.videoLinkUrls ?? []).filter(Boolean).length;
+
+  const newspaperCount =
+    savedNewspaperArticleUrls.length +
+    newspaperArticleFiles.length;
+
+  const ReviewItem = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: React.ReactNode;
+  }) => (
+    <div className="border-b border-stone-200 py-4 last:border-b-0">
+      <p className="text-sm font-semibold text-stone-900">
+        {label}
+      </p>
+      <div className="mt-1 whitespace-pre-wrap text-sm leading-6 text-stone-600">
+        {value || (
+          <span className="italic text-stone-400">
+            Nothing added
+          </span>
+        )}
+      </div>
     </div>
   );
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-3xl border border-stone-200 bg-stone-50 p-6">
+        <h2 className="text-2xl font-bold text-stone-900">
+          {form.isLivingPreplan && isBackupAccess
+            ? "Review the Memorial Before Publication"
+            : form.isLivingPreplan
+              ? "Review Your Personal E-Memorial"
+              : "Review the Memorial"}
+        </h2>
+
+        <p className="mt-3 text-sm leading-6 text-stone-600">
+          Review the information below before finishing. If something needs
+          to be changed, use the Back button to return to the appropriate
+          chapter.
+        </p>
+
+        {form.isLivingPreplan && isBackupAccess && (
+          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <p className="font-semibold text-stone-900">
+              This Personal E-Memorial is still private.
+            </p>
+
+            <p className="mt-1 text-sm text-stone-600">
+              Save After-Death Updates will save these changes but will not
+              publish the memorial.
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+        <ReviewItem
+          label="Basic Information"
+          value={
+            <>
+              <div>{fullReviewName || "Name not entered"}</div>
+
+              {form.nickname && (
+                <div>Nickname: {form.nickname}</div>
+              )}
+
+              {form.birthDate && (
+                <div>Born: {form.birthDate}</div>
+              )}
+
+              {form.deathDate && (
+                <div>Died: {form.deathDate}</div>
+              )}
+            </>
+          }
+        />
+
+        <ReviewItem
+          label="Family History"
+          value={
+           [
+  form.greatGrandparentsNames &&
+    `Great-Grandparents: ${form.greatGrandparentsNames}`,
+  form.grandparentsFatherSide &&
+    `Grandparents — Father's Side: ${form.grandparentsFatherSide}`,
+  form.grandparentsMotherSide &&
+    `Grandparents — Mother's Side: ${form.grandparentsMotherSide}`,
+  form.parentsNames &&
+    `Parents: ${form.parentsNames}`,
+  form.siblingsNames &&
+    `Siblings: ${form.siblingsNames}`,
+  form.spouseNames &&
+    `Spouse/Partner: ${form.spouseNames}`,
+  form.childrenNames &&
+    `Children: ${form.childrenNames}`,
+  form.grandchildrenNames &&
+    `Grandchildren: ${form.grandchildrenNames}`,
+  form.greatGrandchildrenNames &&
+    `Great-Grandchildren: ${form.greatGrandchildrenNames}`,
+]
+              .filter(Boolean)
+              .join("\n")
+          }
+        />
+
+        <ReviewItem
+          label="Life Story"
+          value={form.lifeStory}
+        />
+
+        <ReviewItem
+          label="Places Lived"
+          value={form.placesLived}
+        />
+
+        <ReviewItem
+          label="Places Worked"
+          value={form.placesWorked}
+        />
+
+        <ReviewItem
+          label="Schools & Awards"
+          value={
+            [
+              form.schoolsAttended &&
+                `Schools:\n${form.schoolsAttended}`,
+              form.awardsWon &&
+                `Awards:\n${form.awardsWon}`,
+            ]
+              .filter(Boolean)
+              .join("\n\n")
+          }
+        />
+
+        <ReviewItem
+          label="Social Media"
+          value={
+            socialLinks.length > 0
+              ? `${socialLinks.length} link${
+                  socialLinks.length === 1 ? "" : "s"
+                } added`
+              : ""
+          }
+        />
+
+        <ReviewItem
+          label="Newspaper Articles"
+          value={
+            newspaperCount > 0
+              ? `${newspaperCount} article${
+                  newspaperCount === 1 ? "" : "s"
+                } added`
+              : ""
+          }
+        />
+
+        <ReviewItem
+          label="Favorite Songs"
+          value={
+            songCount > 0
+              ? `${songCount} song${
+                  songCount === 1 ? "" : "s"
+                } added`
+              : ""
+          }
+        />
+
+        <ReviewItem
+          label="Photo Gallery"
+          value={
+            photoCount > 0
+              ? `${photoCount} photo${
+                  photoCount === 1 ? "" : "s"
+                } added`
+              : ""
+          }
+        />
+
+        <ReviewItem
+          label="Video Memories"
+          value={
+            videoCount > 0
+              ? `${videoCount} video${
+                  videoCount === 1 ? "" : "s"
+                } added`
+              : ""
+          }
+        />
+
+        {!form.isLivingPreplan && (
+          <>
+            <ReviewItem
+              label="Obituary"
+              value={
+                form.obituary
+                  ? form.obituary
+                  : form.obituaryUrl
+                    ? "Obituary link added"
+                    : savedObituaryImageUrl ||
+                        obituaryImageFile
+                      ? "Obituary image added"
+                      : ""
+              }
+            />
+
+            <ReviewItem
+              label="Final Resting Place"
+              value={
+                form.finalRestingType === "buried"
+                  ? [
+                      "Buried",
+                      form.cemeteryName,
+                      form.graveSection &&
+                        `Section: ${form.graveSection}`,
+                      form.graveRow &&
+                        `Row: ${form.graveRow}`,
+                      form.gravePlot &&
+                        `Plot: ${form.gravePlot}`,
+                        form.graveDirections &&
+  `Directions: ${form.graveDirections}`,
+                    ]
+                      .filter(Boolean)
+                      .join("\n")
+                  : form.finalRestingType === "cremated"
+                    ? [
+                        "Cremated",
+                        form.ashesLocationDescription,
+                      ]
+                        .filter(Boolean)
+                        .join("\n")
+                    : ""
+              }
+            />
+          </>
+        )}
+
+        {form.isLivingPreplan && !isBackupAccess && (
+          <ReviewItem
+            label="Backup Person"
+            value={
+              [
+                form.backupPersonName,
+                form.backupEmail,
+              ]
+                .filter(Boolean)
+                .join("\n")
+            }
+          />
+        )}
+      </div>
+    </div>
+  );
+}
 
     default:
     return (

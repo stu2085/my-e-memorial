@@ -46,6 +46,7 @@ grandparents_father_side?: string;
 grandparents_mother_side?: string;
 parents_names?: string;
 siblings_names?: string;
+spouse_names?: string | null;
 children_names?: string | null;
 grandchildren_names?: string | null;
 great_grandchildren_names?: string | null;
@@ -313,12 +314,15 @@ function FamilyTreeCard({
 export default function MemorialDetailClient() {
   const MAX_CONTRIBUTOR_VIDEO_SIZE_BYTES = 1000 * 1000 * 1000; // 1 GB
   const params = useParams();
-  const slug =
-    typeof params?.slug === "string"
-      ? params.slug
-      : Array.isArray(params?.slug)
-        ? params.slug[0]
-        : "";
+const slug =
+  typeof params?.slug === "string"
+    ? params.slug
+    : Array.isArray(params?.slug)
+      ? params.slug[0]
+      : "";
+
+const SAMPLE_MEMORIAL_ID = 149;
+
 const [error, setError] = useState("");
   const [data, setData] = useState<Memorial | null>(null);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
@@ -1162,6 +1166,8 @@ if (error) {
       </main>
     );
   }
+  const isSampleMemorial =
+  data.id === SAMPLE_MEMORIAL_ID;
 const selectedPhoto =
   selectedPhotoIndex !== null
     ? combinedGalleryPhotos[selectedPhotoIndex]?.src
@@ -1210,7 +1216,15 @@ function showNextPhoto() {
 />
 
     <div className="space-y-10">
-        <section className="rounded-2xl bg-white p-5 shadow-sm">
+  {isSampleMemorial && (
+    <div className="rounded-2xl border-2 border-amber-400 bg-amber-100 px-6 py-4 text-center shadow-sm">
+      <p className="text-xl font-extrabold uppercase tracking-[0.18em] text-amber-900 sm:text-2xl">
+        Sample Memorial
+      </p>
+    </div>
+  )}
+
+  <section className="rounded-2xl bg-white p-5 shadow-sm">
   {isOwner && (
     <div
       className={`mb-5 rounded-2xl border px-5 py-4 text-sm font-semibold ${
@@ -1475,6 +1489,7 @@ function showNextPhoto() {
   data.grandparents_mother_side?.trim() ||
   data.parents_names?.trim() ||
   data.siblings_names?.trim() ||
+  data.spouse_names?.trim() ||
   data.children_names?.trim() ||
   data.grandchildren_names?.trim() ||
   data.great_grandchildren_names?.trim()
@@ -1527,18 +1542,28 @@ function showNextPhoto() {
         </>
       )}
 
-      {(data.siblings_names?.trim() || data.children_names?.trim()) && (
-        <>
-          <div className="h-6 w-px bg-stone-300" />
+    {(
+  data.siblings_names?.trim() ||
+  data.spouse_names?.trim() ||
+  data.children_names?.trim()
+) && (
+  <>
+    <div className="h-6 w-px bg-stone-300" />
 
-          <div className="grid w-full gap-4 md:grid-cols-2">
-            {data.siblings_names?.trim() && (
-              <FamilyTreeCard
-                title="Siblings"
-                value={data.siblings_names}
-              />
-            )}
+    <div className="grid w-full gap-4 md:grid-cols-2">
+      {data.siblings_names?.trim() && (
+        <FamilyTreeCard
+          title="Siblings"
+          value={data.siblings_names}
+        />
+      )}
 
+      {data.spouse_names?.trim() && (
+        <FamilyTreeCard
+          title="Spouse and/or Partner"
+          value={data.spouse_names}
+        />
+      )}
             {data.children_names?.trim() && (
               <FamilyTreeCard
                 title="Children"
@@ -1575,83 +1600,56 @@ function showNextPhoto() {
 )}
 {data.places_lived?.trim() && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <button
-      type="button"
-      onClick={() => setShowPlacesLived((current) => !current)}
-      className="flex w-full items-center justify-between gap-4 text-left"
-    >
-      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-        Places Lived
-      </h2>
+    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+      Places Lived
+    </h2>
 
-      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
-        {showPlacesLived ? "▲" : "▼"}
-      </span>
-    </button>
-
-    {showPlacesLived && (
-  <div className="mt-5 whitespace-pre-line text-stone-700">
-    {data.places_lived}
-  </div>
-)}
+    <div className="mt-5 whitespace-pre-line text-stone-700">
+      {data.places_lived}
+    </div>
   </section>
 )}
 
-{data.places_worked && (
+{data.places_worked?.trim() && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <button
-      type="button"
-      onClick={() => setShowPlacesWorked((current) => !current)}
-      className="flex w-full items-center justify-between gap-4 text-left"
-    >
-      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-        Places Worked
-      </h2>
+    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+      Places Worked
+    </h2>
 
-      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
-        {showPlacesWorked ? "▲" : "▼"}
-      </span>
-    </button>
-  
-
-    {showPlacesWorked && (
-      <div className="mt-5 whitespace-pre-line text-stone-700">
-        {data.places_worked}
-      </div>
-    )}
-    </section>
+    <div className="mt-5 whitespace-pre-line text-stone-700">
+      {data.places_worked}
+    </div>
+  </section>
 )}
+
 {(data.schools_attended || data.awards_won) && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <button
-      type="button"
-      onClick={() => setShowSchoolsAwards((current) => !current)}
-      className="flex w-full items-center justify-between gap-4 text-left"
-    >
-      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-        Schools and Awards
-      </h2>
+    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+      Schools and Awards
+    </h2>
 
-      <span className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700">
-        {showSchoolsAwards ? "▲" : "▼"}
-      </span>
-    </button>
-
-    {showSchoolsAwards && (
-      <div className="mt-5 space-y-3 text-stone-700">
+    <div className="mt-5 space-y-3 text-stone-700">
       {data.schools_attended && (
-        <p><strong>Schools:</strong> {Array.isArray(data.schools_attended) ? data.schools_attended.join(", ") : data.schools_attended}</p>
+        <p>
+          <strong>Schools:</strong>{" "}
+          {Array.isArray(data.schools_attended)
+            ? data.schools_attended.join(", ")
+            : data.schools_attended}
+        </p>
       )}
+
       {data.awards_won && (
-        <p><strong>Awards:</strong> {Array.isArray(data.awards_won) ? data.awards_won.join(", ") : data.awards_won}</p>
+        <p>
+          <strong>Awards:</strong>{" "}
+          {Array.isArray(data.awards_won)
+            ? data.awards_won.join(", ")
+            : data.awards_won}
+        </p>
       )}
-      </div>
-    )}
+    </div>
   </section>
 )}
-<p className="rounded bg-yellow-100 p-3">
-  
-</p>
+
 {newspaperArticles.length > 0 && (
   <section className="rounded-2xl bg-white p-5 shadow-sm">
     <button
@@ -1709,16 +1707,18 @@ function showNextPhoto() {
           className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-lg text-white transition hover:bg-stone-700"
         >
           ▶
-        </button>
+       </button>
 
-        <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-          {data.first_name
-            ? `${data.first_name}'s Favorite Songs`
-            : "Favorite Songs"}
-        </h2>
-      </div>
+<h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+  {data.nickname?.trim()
+    ? `${data.nickname.trim()}'s Favorite Songs`
+    : data.first_name
+      ? `${data.first_name}'s Favorite Songs`
+      : "Favorite Songs"}
+</h2>
+</div>
 
-      <button
+<button
         type="button"
         onClick={() => setShowFavoriteSongs((current) => !current)}
         className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700 hover:bg-stone-200"

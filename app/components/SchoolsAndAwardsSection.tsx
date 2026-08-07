@@ -24,7 +24,7 @@ export default function SchoolsAndAwardsSection({
   return (
     <FormSection
       title="Schools and Awards"
-      description="Separate multiple items with commas."
+      description="Preserve the schools, education, awards, honors, and accomplishments that were part of this life."
     >
       <div className="space-y-5">
         <TextArea

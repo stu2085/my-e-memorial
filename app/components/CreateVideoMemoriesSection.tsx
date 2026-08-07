@@ -27,7 +27,34 @@ videoError: string;
     React.SetStateAction<any>
   >;
 };
+function getYouTubeEmbedUrl(url: string) {
+  try {
+    const parsedUrl = new URL(url);
+    let videoId = "";
 
+    if (parsedUrl.hostname.includes("youtu.be")) {
+      videoId = parsedUrl.pathname.replace("/", "");
+    } else if (parsedUrl.hostname.includes("youtube.com")) {
+      if (parsedUrl.pathname === "/watch") {
+        videoId = parsedUrl.searchParams.get("v") || "";
+      } else if (parsedUrl.pathname.startsWith("/shorts/")) {
+        videoId =
+          parsedUrl.pathname.split("/shorts/")[1]?.split("/")[0] || "";
+      } else if (parsedUrl.pathname.startsWith("/embed/")) {
+        videoId =
+          parsedUrl.pathname.split("/embed/")[1]?.split("/")[0] || "";
+      }
+    }
+
+    if (!videoId) {
+      return "";
+    }
+
+    return `https://www.youtube.com/embed/${videoId}`;
+  } catch {
+    return "";
+  }
+}
 export default function CreateVideoMemoriesSection({
   isPaid,
   videoFiles,
@@ -45,15 +72,11 @@ videoLinkThumbnailFiles,
 setVideoLinkThumbnailFiles,
 setForm,
 }: CreateVideoMemoriesSectionProps) {
-  const limit =
-    form.plan === "premium" ? 10 : form.plan === "plus" ? 5 : 2;
-
-  const total = savedVideoUrls.length + videoFiles.length;
-  const remaining = Math.max(limit - total, 0);
+  
 
   return (
     <section className="rounded-3xl bg-white p-8 shadow-sm">
-      <h2 className="text-2xl font-bold text-stone-900">Memorial Videos</h2>
+      <h2 className="text-2xl font-bold text-stone-900">Video Memories</h2>
 
       <p className="mt-2 text-sm text-stone-600">
         Basic includes 15 minutes of Video Memories, Plus includes 30 minutes,
@@ -87,19 +110,7 @@ setForm,
         <p className="mt-3 text-sm text-red-600">{videoError}</p>
       )}
 
-      {remaining <= 0 && (
-        <>
-          <p className="mt-3 text-sm text-amber-600">
-            You’ve reached your video limit. You can add more videos for $9.95
-            each.
-          </p>
-
-          <p className="mt-3 text-sm text-amber-600">
-            Video limits depend on your selected plan. You can add more videos
-            later from the Edit page.
-          </p>
-        </>
-      )}
+      
 {savedVideoUrls.length > 0 && (
   <div className="mt-4 grid gap-6 md:grid-cols-2">
     {savedVideoUrls.map((videoId, index) => (
@@ -325,7 +336,15 @@ setForm,
   placeholder="Video caption or memory..."
   className="mt-3 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm"
 />
-
+{getYouTubeEmbedUrl(url) && (
+  <iframe
+    src={getYouTubeEmbedUrl(url)}
+    title={`YouTube video ${index + 1}`}
+    className="mt-3 aspect-video w-full rounded-xl bg-black"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowFullScreen
+  />
+)}
 <div className="mt-3">
   <label className="mb-2 block text-sm font-semibold text-stone-800">
     Video Preview Image (optional)

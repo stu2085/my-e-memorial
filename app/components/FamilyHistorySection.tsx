@@ -63,71 +63,79 @@ export default function FamilyHistorySection({
       </div>
 
       <div className="space-y-5">
-        <FamilyTextArea
-          label="Great Grandparents Names"
-          name="greatGrandparentsNames"
-          value={form.greatGrandparentsNames}
-          onChange={handleChange}
-          rows={3}
-        />
+  <FamilyTextArea
+    label="Great-Grandparents Names"
+    name="greatGrandparentsNames"
+    value={form.greatGrandparentsNames}
+    onChange={handleChange}
+    rows={3}
+  />
 
-        <FamilyTextArea
-          label="Grandparents Names — Father’s Side"
-          name="grandparentsFatherSide"
-          value={form.grandparentsFatherSide}
-          onChange={handleChange}
-          rows={3}
-        />
+  <FamilyTextArea
+    label="Grandparents Names — Father’s Side"
+    name="grandparentsFatherSide"
+    value={form.grandparentsFatherSide}
+    onChange={handleChange}
+    rows={3}
+  />
 
-        <FamilyTextArea
-          label="Grandparents Names — Mother’s Side"
-          name="grandparentsMotherSide"
-          value={form.grandparentsMotherSide}
-          onChange={handleChange}
-          rows={3}
-        />
+  <FamilyTextArea
+    label="Grandparents Names — Mother’s Side"
+    name="grandparentsMotherSide"
+    value={form.grandparentsMotherSide}
+    onChange={handleChange}
+    rows={3}
+  />
 
-        <FamilyTextArea
-          label="Parents Names"
-          name="parentsNames"
-          value={form.parentsNames}
-          onChange={handleChange}
-          rows={3}
-        />
+  <FamilyTextArea
+    label="Parents Names"
+    name="parentsNames"
+    value={form.parentsNames}
+    onChange={handleChange}
+    rows={3}
+  />
 
-        <FamilyTextArea
-          label="Siblings Names"
-          name="siblingsNames"
-          value={form.siblingsNames}
-          onChange={handleChange}
-          rows={3}
-          placeholder={`Mother's siblings:\nFather's siblings:`}
-        />
+  <FamilyTextArea
+    label="Siblings Names"
+    name="siblingsNames"
+    value={form.siblingsNames}
+    onChange={handleChange}
+    rows={3}
+  />
 
-        <FamilyTextArea
-          label="Children's Names"
-          name="childrenNames"
-          value={form.childrenNames}
-          onChange={handleChange}
-          rows={3}
-        />
+  <FamilyTextArea
+    label="Spouse and/or Partner Name(s)"
+    name="spouseNames"
+    value={form.spouseNames}
+    onChange={handleChange}
+    rows={3}
+    placeholder="Include maiden name, if applicable"
+  />
 
-        <FamilyTextArea
-          label="Grandchildren"
-          name="grandchildrenNames"
-          value={form.grandchildrenNames}
-          onChange={handleChange}
-          rows={3}
-        />
+  <FamilyTextArea
+    label="Children's Names"
+    name="childrenNames"
+    value={form.childrenNames}
+    onChange={handleChange}
+    rows={3}
+  />
 
-        <FamilyTextArea
-          label="Great Grandchildren"
-          name="greatGrandchildrenNames"
-          value={form.greatGrandchildrenNames}
-          onChange={handleChange}
-          rows={3}
-        />
-      </div>
+  <FamilyTextArea
+    label="Grandchildren"
+    name="grandchildrenNames"
+    value={form.grandchildrenNames}
+    onChange={handleChange}
+    rows={3}
+  />
+
+  <FamilyTextArea
+    label="Great Grandchildren"
+    name="greatGrandchildrenNames"
+    value={form.greatGrandchildrenNames}
+    onChange={handleChange}
+    rows={3}
+  />
+</div>
 
       <QuickSaveButton
   sectionId="family-history"

@@ -1,24 +1,138 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+);
+
 
 export async function POST(req: Request) {
   const body = await req.json();
 
   const {
-  plan,
-  amount,
-  quantity,
-  returnUrl,
-  advertiserId,
-  isRenewal,
-  billingPlan,
-  memorialId,
-  submissionId,
-  checkoutType,
-  fromPlan,
-  toPlan,
-} = body;
+    plan,
+    amount,
+    quantity,
+    returnUrl,
+    advertiserId,
+    isRenewal,
+    billingPlan,
+    memorialId,
+    submissionId,
+    checkoutType,
+    fromPlan,
+    toPlan,
+  } = body;
 
+  let verifiedFromPlan = fromPlan;
+
+  if (checkoutType === "upgrade") {
+
+
+  const authHeader = req.headers.get("authorization");
+  const token = authHeader?.replace("Bearer ", "");
+
+  if (!token) {
+    return NextResponse.json(
+      { error: "You must be signed in to upgrade this memorial." },
+      { status: 401 }
+    );
+  }
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabaseAdmin.auth.getUser(token);
+
+  if (userError || !user) {
+    return NextResponse.json(
+      { error: "Your sign-in session could not be verified." },
+      { status: 401 }
+    );
+  }
+
+  if (!memorialId) {
+    return NextResponse.json(
+      { error: "Missing memorial ID." },
+      { status: 400 }
+    );
+  }
+
+  const { data: memorial, error: memorialError } =
+    await supabaseAdmin
+      .from("memorials")
+      .select("id, owner_id, plan")
+      .eq("id", memorialId)
+      .single();
+
+  if (memorialError || !memorial) {
+    return NextResponse.json(
+      { error: "Memorial not found." },
+      { status: 404 }
+    );
+  }
+
+  if (memorial.owner_id !== user.id) {
+    return NextResponse.json(
+      { error: "You do not have permission to upgrade this memorial." },
+      { status: 403 }
+    );
+  }
+
+  verifiedFromPlan = memorial.plan;
+}
+if (plan === "extra_videos" && memorialId) {
+  const authHeader = req.headers.get("authorization");
+  const token = authHeader?.replace("Bearer ", "");
+
+  if (!token) {
+    return NextResponse.json(
+      {
+        error:
+          "You must be signed in to purchase additional Video Memory time.",
+      },
+      { status: 401 }
+    );
+  }
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabaseAdmin.auth.getUser(token);
+
+  if (userError || !user) {
+    return NextResponse.json(
+      { error: "Your sign-in session could not be verified." },
+      { status: 401 }
+    );
+  }
+
+  const { data: memorial, error: memorialError } =
+    await supabaseAdmin
+      .from("memorials")
+      .select("id, owner_id")
+      .eq("id", memorialId)
+      .single();
+
+  if (memorialError || !memorial) {
+    return NextResponse.json(
+      { error: "Memorial not found." },
+      { status: 404 }
+    );
+  }
+
+  if (memorial.owner_id !== user.id) {
+    return NextResponse.json(
+      {
+        error:
+          "You do not have permission to purchase additional Video Memory time for this memorial.",
+      },
+      { status: 403 }
+    );
+  }
+}
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
   if (!stripeSecretKey) {
@@ -34,12 +148,16 @@ export async function POST(req: Request) {
 
   try {
     const unitAmount = Number(amount);
-    let safeUnitAmount = unitAmount;
+let safeUnitAmount = unitAmount;
 
 if (plan === "extra_videos") {
   const safeQuantity = Number(quantity);
 
-  if (!Number.isInteger(safeQuantity) || safeQuantity < 1 || safeQuantity > 20) {
+  if (
+    !Number.isInteger(safeQuantity) ||
+    safeQuantity < 1 ||
+    safeQuantity > 20
+  ) {
     return NextResponse.json(
       { error: "Invalid Video Memory Pack quantity." },
       { status: 400 }
@@ -49,15 +167,69 @@ if (plan === "extra_videos") {
   safeUnitAmount = safeQuantity * 995;
 }
 
-if (checkoutType !== "upgrade") {
-  if (plan === "basic") safeUnitAmount = 4995;
-  if (plan === "plus") safeUnitAmount = 6995;
-  if (plan === "premium") safeUnitAmount = 8995;
+if (checkoutType === "upgrade") {
+  const validUpgradeAmounts: Record<string, number> = {
+    "basic:plus": 2000,
+    "basic:premium": 4000,
+    "plus:premium": 2000,
+  };
+
+  const upgradeKey = `${verifiedFromPlan}:${toPlan}`;
+  const serverCalculatedAmount =
+    validUpgradeAmounts[upgradeKey];
+
+  if (!serverCalculatedAmount) {
+    return NextResponse.json(
+      { error: "Invalid memorial plan upgrade." },
+      { status: 400 }
+    );
+  }
+
+  safeUnitAmount = serverCalculatedAmount;
+} else {
+  if (plan === "basic") {
+    safeUnitAmount = 4995;
+  }
+
+  if (plan === "plus") {
+    safeUnitAmount = 6995;
+  }
+
+  if (plan === "premium") {
+    safeUnitAmount = 8995;
+  }
 }
 
     
 
-    const separator = returnUrl && returnUrl.includes("?") ? "&" : "?";
+    const productionSiteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "https://myememorial.com";
+
+const allowedOrigins = new Set([
+  new URL(productionSiteUrl).origin,
+  "http://localhost:3000",
+]);
+
+let safeReturnUrl = productionSiteUrl;
+
+if (returnUrl) {
+  try {
+    const parsedReturnUrl = new URL(
+      returnUrl,
+      productionSiteUrl
+    );
+
+    if (allowedOrigins.has(parsedReturnUrl.origin)) {
+      safeReturnUrl = parsedReturnUrl.toString();
+    }
+  } catch {
+    safeReturnUrl = productionSiteUrl;
+  }
+}
+
+const separator =
+  safeReturnUrl.includes("?") ? "&" : "?";
 
     const shouldCollectTax =
       plan !== "advertiser" && !isRenewal;
@@ -109,17 +281,15 @@ if (checkoutType !== "upgrade") {
     : plan === "extra_videos"
       ? "extra_videos"
       : "standard",
-fromPlan: fromPlan || "",
+fromPlan: verifiedFromPlan || "",
 toPlan: toPlan || "",
       },
 
-      success_url: returnUrl
-        ? `${returnUrl}${separator}success=true&session_id={CHECKOUT_SESSION_ID}`
-        : "http://localhost:3000/advertise/success?success=true&session_id={CHECKOUT_SESSION_ID}",
+      success_url:
+  `${safeReturnUrl}${separator}success=true&session_id={CHECKOUT_SESSION_ID}`,
 
-      cancel_url: returnUrl
-        ? `${returnUrl}${separator}success=false`
-        : "http://localhost:3000/advertise/success?success=false",
+cancel_url:
+  `${safeReturnUrl}${separator}success=false`,
     });
 
     return NextResponse.json({ url: session.url });

@@ -17,8 +17,7 @@ export default function BackupPersonSection({
   isSaving,
   isPublished,
 }: Props) {
-  const isCreateMode =
-    typeof isSaving !== "boolean" || typeof isPublished !== "boolean";
+  const isCreateMode = true;
 
   return (
     <FormSection
@@ -38,12 +37,7 @@ export default function BackupPersonSection({
       )}
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Input
-          label="Backup Person Name"
-          name="backupPersonName"
-          value={form.backupPersonName ?? ""}
-          onChange={handleChange}
-        />
+        
 
         {isCreateMode ? (
           <>
@@ -71,12 +65,12 @@ export default function BackupPersonSection({
         )}
 
         <Input
-          label="Backup Password"
-          name="backupPassword"
-          value={form.backupPassword ?? ""}
-          onChange={handleChange}
-          
-        />
+  label="Backup Password"
+  name="backupPassword"
+  type="password"
+  value={form.backupPassword ?? ""}
+  onChange={handleChange}
+/>
 
         {isCreateMode && (
           <>
