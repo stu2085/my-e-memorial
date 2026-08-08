@@ -8,6 +8,8 @@ type CampaignPage = {
   id: number;
   campaign_name: string;
   slug: string;
+  recipient: string | null;
+  event_type: string | null;
   caption: string | null;
   headline: string | null;
   story: string | null;
@@ -39,6 +41,8 @@ async function getCampaignBySlug(
     id,
     campaign_name,
     slug,
+    recipient,
+event_type,
     caption,
     headline,
     story,
@@ -144,21 +148,23 @@ export default async function CampaignLandingPage({
   }
 const ctas = {
   gift: {
-    href: "/gift",
-    label: "Gift a MyEMemorial",
+    href: "/gift?type=personal",
+    label: campaign.recipient
+      ? `Gift ${campaign.recipient} a MyEMemorial`
+      : "Gift a MyEMemorial",
   },
   sample: {
-  href: "/memorial/daniel-james-whitmore",
-  label: "Experience a Sample MyEMemorial",
-},
+    href: "/memorial/daniel-james-whitmore",
+    label: "Experience a Sample MyEMemorial",
+  },
   create: {
     href: "/create",
     label: "Create a MyEMemorial",
   },
   learn: {
-  href: "/our-story",
-  label: "Learn More About MyEMemorial",
-},
+    href: "/our-story",
+    label: "Learn More About MyEMemorial",
+  },
 };
 
 const primaryCta =
@@ -186,23 +192,15 @@ const secondaryCtas:
     </header>
 
     <div className="mx-auto max-w-4xl px-4 py-8 md:px-8 md:py-10">
-      {campaign.story?.trim() && (
-        <section className="mb-7 rounded-2xl bg-white p-5 shadow-sm md:p-7">
-         <div className="whitespace-pre-wrap text-lg leading-8 text-stone-800 md:text-xl md:leading-9">
-  {campaign.story}
-</div>
-        </section>
-      )}
-
-      {campaign.media_url && (
-        <section>
+            {campaign.media_url && (
+        <section className="mb-7">
           {campaign.media_type === "video" ? (
             <div className="w-full overflow-hidden rounded-2xl bg-black shadow-md">
               <MuxPlayer
-  playbackId={campaign.media_url}
-  streamType="on-demand"
-  className="max-h-[520px] w-full bg-black"
-/>
+                playbackId={campaign.media_url}
+                streamType="on-demand"
+                className="max-h-[520px] w-full bg-black"
+              />
             </div>
           ) : (
             <div className="w-full overflow-hidden rounded-2xl bg-black shadow-md">
@@ -213,6 +211,14 @@ const secondaryCtas:
               />
             </div>
           )}
+        </section>
+      )}
+
+      {campaign.story?.trim() && (
+        <section className="rounded-2xl bg-white p-5 shadow-sm md:p-7">
+          <div className="whitespace-pre-wrap text-lg leading-8 text-stone-800 md:text-xl md:leading-9">
+            {campaign.story}
+          </div>
         </section>
       )}
 

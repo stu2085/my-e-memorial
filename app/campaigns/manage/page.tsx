@@ -23,11 +23,81 @@ function createSlug(value: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+const RECIPIENTS = [
+  "Mom",
+  "Dad",
+  "Grandma",
+  "Grandpa",
+  "Wife",
+  "Husband",
+  "Daughter",
+  "Son",
+  "Sister",
+  "Brother",
+  "Aunt",
+  "Uncle",
+  "Friend",
+];
 
+const EVENTS = [
+  "Birthday",
+  "Anniversary",
+  "Mother's Day",
+  "Father's Day",
+  "Christmas",
+  "Easter",
+  "Memorial Day",
+  "Evergreen",
+];
+
+function getCampaignDefaults(
+  recipient: string,
+  eventType: string
+) {
+  const campaignName =
+    eventType === "Evergreen"
+      ? `${recipient} Gift`
+      : `${recipient} ${eventType} Gift`;
+
+  if (
+    recipient === "Mom" &&
+    eventType === "Birthday"
+  ) {
+    return {
+      campaignName: "Mom Birthday Gift",
+      headline: "Give Mom the Gift of Her Story",
+      story: `(Continue reading...)
+
+Give her the opportunity to preserve the story of her life — in her own words.
+
+The memories she treasures. The stories her children may not know. The family history only she may remember.
+
+Photos. Favorite songs. Videos. Places she's lived. Accomplishments. Family memories.
+
+A birthday gift that can be treasured for generations.`,
+    };
+  }
+
+  return {
+    campaignName,
+    headline: `Give ${recipient} the Gift of Their Story`,
+    story: `(Continue reading...)
+
+Give ${recipient} something truly meaningful — the opportunity to preserve the story of their life in their own words.
+
+The memories they treasure. The stories their family may not know. The family history only they may remember.
+
+Photos. Favorite songs. Videos. Places they've lived. Accomplishments. Family memories.
+
+A meaningful ${eventType.toLowerCase()} gift that can be treasured for generations.`,
+  };
+}
 export default function CampaignManagerPage() {
   const [campaigns, setCampaigns] = useState<CampaignPage[]>([]);
   const [campaignName, setCampaignName] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+const [recipient, setRecipient] = useState("");
+const [eventType, setEventType] = useState("");
+const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -106,87 +176,100 @@ export default function CampaignManagerPage() {
 }
 
   async function handleCreateCampaign() {
-    const trimmedName = campaignName.trim();
-
-    if (!trimmedName) {
-      alert("Please enter a campaign name.");
-      return;
-    }
-
-    setIsCreating(true);
-    setErrorMessage("");
-
-    try {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        throw new Error(
-          "Please sign in to create a campaign."
-        );
-      }
-
-      const baseSlug =
-        createSlug(trimmedName) ||
-        `campaign-${Date.now()}`;
-
-      let finalSlug = baseSlug;
-
-      const { data: existingSlug } =
-        await supabase
-          .from("campaign_pages")
-          .select("id")
-          .eq("slug", finalSlug)
-          .maybeSingle();
-
-      if (existingSlug) {
-        finalSlug =
-          `${baseSlug}-${Date.now()}`;
-      }
-
-      const { data, error } = await supabase
-        .from("campaign_pages")
-        .insert({
-          owner_id: user.id,
-          campaign_name: trimmedName,
-          slug: finalSlug,
-          headline:
-            "Preserve your life story or someone else’s.",
-          is_published: false,
-        })
-        .select("id, slug")
-        .single();
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (!data) {
-        throw new Error(
-          "The campaign could not be created."
-        );
-      }
-
-      window.location.assign(
-        `/campaigns/manage/${data.id}`
-      );
-    } catch (error) {
-      console.error(
-        "CAMPAIGN CREATE ERROR:",
-        error
-      );
-
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Could not create campaign."
-      );
-
-      setIsCreating(false);
-    }
+  if (!recipient) {
+    alert("Please select who this campaign is for.");
+    return;
   }
+
+  if (!eventType) {
+    alert("Please select an event.");
+    return;
+  }
+
+  const defaults = getCampaignDefaults(
+    recipient,
+    eventType
+  );
+
+  const finalCampaignName =
+    campaignName.trim() || defaults.campaignName;
+
+  setIsCreating(true);
+  setErrorMessage("");
+
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error(
+        "Please sign in to create a campaign."
+      );
+    }
+
+    const baseSlug =
+      createSlug(finalCampaignName) ||
+      `campaign-${Date.now()}`;
+
+    let finalSlug = baseSlug;
+
+    const { data: existingSlug } =
+      await supabase
+        .from("campaign_pages")
+        .select("id")
+        .eq("slug", finalSlug)
+        .maybeSingle();
+
+    if (existingSlug) {
+      finalSlug =
+        `${baseSlug}-${Date.now()}`;
+    }
+
+    const { data, error } = await supabase
+      .from("campaign_pages")
+      .insert({
+        owner_id: user.id,
+        campaign_name: finalCampaignName,
+        slug: finalSlug,
+        recipient,
+        event_type: eventType,
+        headline: defaults.headline,
+        story: defaults.story,
+        is_published: false,
+      })
+      .select("id, slug")
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!data) {
+      throw new Error(
+        "The campaign could not be created."
+      );
+    }
+
+    window.location.assign(
+      `/campaigns/manage/${data.id}`
+    );
+  } catch (error) {
+    console.error(
+      "CAMPAIGN CREATE ERROR:",
+      error
+    );
+
+    setErrorMessage(
+      error instanceof Error
+        ? error.message
+        : "Could not create campaign."
+    );
+
+    setIsCreating(false);
+  }
+}
 
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
@@ -216,37 +299,129 @@ export default function CampaignManagerPage() {
         )}
 
         <section className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
-          <h2 className="text-2xl font-bold text-stone-900">
-            Create a New Campaign
-          </h2>
+  <h2 className="text-2xl font-bold text-stone-900">
+    Create a New Campaign
+  </h2>
 
-          <p className="mt-2 text-sm text-stone-600">
-            Give the campaign a private working name so you can identify it later.
-          </p>
+  <p className="mt-2 text-sm text-stone-600">
+    Choose who the campaign is for and the event. A campaign name,
+    permanent URL, headline, and starter message will be created automatically.
+  </p>
 
-          <div className="mt-6 flex flex-col gap-4 md:flex-row">
-            <input
-              type="text"
-              value={campaignName}
-              onChange={(event) =>
-                setCampaignName(event.target.value)
-              }
-              placeholder="Example: Do You Know Your Father's Whole Story?"
-              className="flex-1 rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
-            />
+  <div className="mt-6 grid gap-4 md:grid-cols-2">
+    <div>
+      <label className="mb-2 block text-sm font-semibold text-stone-800">
+        Recipient
+      </label>
 
-            <button
-              type="button"
-              disabled={isCreating}
-              onClick={handleCreateCampaign}
-              className="rounded-full bg-stone-900 px-7 py-3 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isCreating
-                ? "Creating..."
-                : "Create Campaign"}
-            </button>
-          </div>
-        </section>
+      <select
+        value={recipient}
+        onChange={(event) =>
+          setRecipient(event.target.value)
+        }
+        className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+      >
+        <option value="">
+          Select recipient
+        </option>
+
+        {RECIPIENTS.map((item) => (
+          <option key={item} value={item}>
+            {item}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div>
+      <label className="mb-2 block text-sm font-semibold text-stone-800">
+        Event
+      </label>
+
+      <select
+        value={eventType}
+        onChange={(event) =>
+          setEventType(event.target.value)
+        }
+        className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+      >
+        <option value="">
+          Select event
+        </option>
+
+        {EVENTS.map((item) => (
+          <option key={item} value={item}>
+            {item}
+          </option>
+        ))}
+      </select>
+    </div>
+  </div>
+
+  <div className="mt-4">
+    <label className="mb-2 block text-sm font-semibold text-stone-800">
+      Campaign Name
+      <span className="ml-2 font-normal text-stone-500">
+        Optional
+      </span>
+    </label>
+
+    <input
+      type="text"
+      value={campaignName}
+      onChange={(event) =>
+        setCampaignName(event.target.value)
+      }
+      placeholder={
+        recipient && eventType
+          ? getCampaignDefaults(
+              recipient,
+              eventType
+            ).campaignName
+          : "Automatically created from Recipient + Event"
+      }
+      className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-stone-900 outline-none transition focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+    />
+  </div>
+
+  {recipient && eventType && (
+    <div className="mt-5 rounded-2xl bg-stone-50 p-4">
+      <p className="text-sm font-semibold text-stone-800">
+        Campaign preview
+      </p>
+
+      <p className="mt-1 text-sm text-stone-600">
+        {campaignName.trim() ||
+          getCampaignDefaults(
+            recipient,
+            eventType
+          ).campaignName}
+      </p>
+
+      <p className="mt-1 text-sm text-stone-500">
+        /campaign/
+        {createSlug(
+          campaignName.trim() ||
+            getCampaignDefaults(
+              recipient,
+              eventType
+            ).campaignName
+        )}
+      </p>
+    </div>
+  )}
+
+  <button
+    type="button"
+    disabled={isCreating}
+    onClick={handleCreateCampaign}
+    className="mt-6 rounded-full bg-stone-900 px-7 py-3 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
+  >
+    {isCreating
+      ? "Creating..."
+      : "Create Campaign"}
+  </button>
+</section>
 
         <section className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
           <div className="flex items-center justify-between gap-4">

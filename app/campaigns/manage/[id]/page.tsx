@@ -10,6 +10,8 @@ type CampaignPage = {
   id: number;
   campaign_name: string;
   slug: string;
+  recipient: string | null;
+  event_type: string | null;
   caption: string | null;
   headline: string | null;
   story: string | null;
@@ -19,7 +21,32 @@ type CampaignPage = {
   primary_cta: "gift" | "sample" | "create" | "learn" | null;
   is_published: boolean;
 };
+const RECIPIENTS = [
+  "Mom",
+  "Dad",
+  "Grandma",
+  "Grandpa",
+  "Wife",
+  "Husband",
+  "Daughter",
+  "Son",
+  "Sister",
+  "Brother",
+  "Aunt",
+  "Uncle",
+  "Friend",
+];
 
+const EVENTS = [
+  "Birthday",
+  "Anniversary",
+  "Mother's Day",
+  "Father's Day",
+  "Christmas",
+  "Easter",
+  "Memorial Day",
+  "Evergreen",
+];
 export default function CampaignEditorPage() {
   const params = useParams();
   const id = Number(params.id);
@@ -251,17 +278,20 @@ export default function CampaignEditorPage() {
       const { error } = await supabase
         .from("campaign_pages")
         .update({
-          campaign_name: campaign.campaign_name.trim(),
-          caption: null,
-headline: null,
-story: campaign.story?.trim() || null,
-          media_type: campaign.media_type || null,
-          media_url: mediaUrl || null,
-          preview_image_url: previewImageUrl || null,
-primary_cta: campaign.primary_cta || "gift",
-is_published: publishedState,
-updated_at: new Date().toISOString(),
-        })
+  campaign_name: campaign.campaign_name.trim(),
+  recipient: campaign.recipient?.trim() || null,
+  event_type: campaign.event_type?.trim() || null,
+  caption: campaign.caption?.trim() || null,
+  headline:
+    campaign.headline?.trim() ||
+    "Preserve your life story or someone else’s.",
+  story: campaign.story?.trim() || null,
+  media_type: campaign.media_type || null,
+  media_url: mediaUrl || null,
+  preview_image_url: previewImageUrl || null,
+  is_published: publishedState,
+  updated_at: new Date().toISOString(),
+})
         .eq("id", campaign.id)
         .eq("owner_id", user.id);
 
@@ -380,7 +410,57 @@ updated_at: new Date().toISOString(),
                 className="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
               />
             </div>
+<div className="grid gap-4 md:grid-cols-2">
+  <div>
+    <label className="mb-2 block text-sm font-semibold text-stone-800">
+      Recipient
+    </label>
 
+    <select
+      value={campaign.recipient || ""}
+      onChange={(e) =>
+        updateField(
+          "recipient",
+          e.target.value || null
+        )
+      }
+      className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+    >
+      <option value="">Select recipient</option>
+
+      {RECIPIENTS.map((item) => (
+        <option key={item} value={item}>
+          {item}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  <div>
+    <label className="mb-2 block text-sm font-semibold text-stone-800">
+      Event
+    </label>
+
+    <select
+      value={campaign.event_type || ""}
+      onChange={(e) =>
+        updateField(
+          "event_type",
+          e.target.value || null
+        )
+      }
+      className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
+    >
+      <option value="">Select event</option>
+
+      {EVENTS.map((item) => (
+        <option key={item} value={item}>
+          {item}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
            
 
            
@@ -456,95 +536,102 @@ updated_at: new Date().toISOString(),
           </p>
 
           <div className="mt-6 space-y-6">
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-stone-800">
-                Media Type
-              </label>
+  <div>
+    <label className="mb-2 block text-sm font-semibold text-stone-800">
+      Campaign Photo or Video
+    </label>
 
-              <select
-                value={campaign.media_type || ""}
-                onChange={(e) => {
-                  const nextType =
-                    (e.target.value || null) as
-                      | "photo"
-                      | "video"
-                      | null;
+    <label
+      onDragOver={(e) => {
+        e.preventDefault();
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
 
-                  updateField(
-                    "media_type",
-                    nextType
-                  );
+        const file = e.dataTransfer.files?.[0];
 
-                  setMediaFile(null);
-                  setPreviewImageFile(null);
-                }}
-                className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 outline-none"
-              >
-                <option value="">
-                  No media
-                </option>
-                <option value="photo">
-                  Photo
-                </option>
-                <option value="video">
-                  Video
-                </option>
-              </select>
-            </div>
+        if (!file) return;
 
-            {campaign.media_type && (
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-stone-800">
-                  {campaign.media_type === "video"
-                    ? "Upload Video"
-                    : "Upload Photo"}
-                </label>
+        if (file.type.startsWith("video/")) {
+          updateField("media_type", "video");
+        } else if (file.type.startsWith("image/")) {
+          updateField("media_type", "photo");
+        } else {
+          alert("Please choose a photo or video file.");
+          return;
+        }
 
-                <input
-                  type="file"
-                  accept={
-                    campaign.media_type === "video"
-                      ? "video/*"
-                      : "image/*"
-                  }
-                  onChange={(e) =>
-                    setMediaFile(
-                      e.target.files?.[0] || null
-                    )
-                  }
-                  className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3"
-                />
+        setMediaFile(file);
+      }}
+      className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 px-6 py-10 text-center transition hover:border-stone-400 hover:bg-stone-100"
+    >
+      <input
+        type="file"
+        accept="image/*,video/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
 
-                {mediaFile && (
-                  <p className="mt-2 text-sm text-stone-600">
-                    Selected: {mediaFile.name}
-                  </p>
-                )}
+          if (!file) return;
 
-                {campaign.media_url &&
-                  !mediaFile && (
-                    <div className="mt-4">
-                      <p className="text-sm font-semibold text-green-700">
-                        Current media
-                      </p>
+          if (file.type.startsWith("video/")) {
+            updateField("media_type", "video");
+          } else if (file.type.startsWith("image/")) {
+            updateField("media_type", "photo");
+          } else {
+            alert("Please choose a photo or video file.");
+            return;
+          }
 
-                      {campaign.media_type === "video" ? (
-                        <MuxPlayer
-  playbackId={campaign.media_url}
-  streamType="on-demand"
-  className="mt-3 w-full overflow-hidden rounded-2xl bg-black"
-/>
-                      ) : (
-                        <img
-                          src={campaign.media_url}
-                          alt="Current campaign media"
-                          className="mt-3 max-h-80 w-full rounded-2xl object-contain"
-                        />
-                      )}
-                    </div>
-                  )}
-              </div>
-            )}
+          setMediaFile(file);
+        }}
+      />
+
+      <p className="text-base font-semibold text-stone-800">
+        Drag & drop a photo or video here
+      </p>
+
+      <p className="mt-2 text-sm text-stone-500">
+        or click to select a file
+      </p>
+    </label>
+
+    {mediaFile && (
+      <div className="mt-4 rounded-2xl border border-green-200 bg-green-50 p-4">
+        <p className="text-sm font-semibold text-green-800">
+          {mediaFile.type.startsWith("video/")
+            ? "Video selected"
+            : "Photo selected"}
+        </p>
+
+        <p className="mt-1 text-sm text-green-700">
+          {mediaFile.name}
+        </p>
+      </div>
+    )}
+
+    {campaign.media_url && !mediaFile && (
+      <div className="mt-4">
+        <p className="text-sm font-semibold text-green-700">
+          Current campaign media
+        </p>
+
+        {campaign.media_type === "video" ? (
+          <MuxPlayer
+            playbackId={campaign.media_url}
+            streamType="on-demand"
+            className="mt-3 w-full overflow-hidden rounded-2xl bg-black"
+          />
+        ) : (
+          <img
+            src={campaign.media_url}
+            alt="Current campaign media"
+            className="mt-3 max-h-80 w-full rounded-2xl object-contain"
+          />
+        )}
+      </div>
+    )}
+  </div>
 
             {campaign.media_type === "photo" && (
               <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
