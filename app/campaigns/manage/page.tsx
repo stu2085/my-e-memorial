@@ -174,7 +174,56 @@ const [isLoading, setIsLoading] = useState(true);
     setIsLoading(false);
   }
 }
+async function handleDeleteCampaign(
+  campaignId: number,
+  campaignName: string
+) {
+  const confirmed = window.confirm(
+    `Delete "${campaignName}"?\n\nThis campaign and its permanent campaign page will be deleted. This cannot be undone.`
+  );
 
+  if (!confirmed) return;
+
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error(
+        "Please sign in again before deleting this campaign."
+      );
+    }
+
+    const { error } = await supabase
+      .from("campaign_pages")
+      .delete()
+      .eq("id", campaignId)
+      .eq("owner_id", user.id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    setCampaigns((current) =>
+      current.filter(
+        (campaign) => campaign.id !== campaignId
+      )
+    );
+  } catch (error) {
+    console.error(
+      "CAMPAIGN DELETE ERROR:",
+      error
+    );
+
+    alert(
+      error instanceof Error
+        ? error.message
+        : "Could not delete campaign."
+    );
+  }
+}
   async function handleCreateCampaign() {
   if (!recipient) {
     alert("Please select who this campaign is for.");
@@ -501,6 +550,18 @@ const [isLoading, setIsLoading] = useState(true);
                     >
                       Edit Campaign
                     </a>
+                    <button
+  type="button"
+  onClick={() =>
+    handleDeleteCampaign(
+      campaign.id,
+      campaign.campaign_name
+    )
+  }
+  className="rounded-full border border-red-300 bg-white px-5 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50"
+>
+  Delete Campaign
+</button>
                   </div>
                 </div>
               ))}

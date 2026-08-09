@@ -275,29 +275,39 @@ export default function CampaignEditorPage() {
         );
       }
 
-      const { error } = await supabase
-        .from("campaign_pages")
-        .update({
-  campaign_name: campaign.campaign_name.trim(),
-  recipient: campaign.recipient?.trim() || null,
-  event_type: campaign.event_type?.trim() || null,
-  caption: campaign.caption?.trim() || null,
-  headline:
-    campaign.headline?.trim() ||
-    "Preserve your life story or someone else’s.",
-  story: campaign.story?.trim() || null,
-  media_type: campaign.media_type || null,
-  media_url: mediaUrl || null,
-  preview_image_url: previewImageUrl || null,
-  is_published: publishedState,
-  updated_at: new Date().toISOString(),
-})
-        .eq("id", campaign.id)
-        .eq("owner_id", user.id);
+      const { data: updatedCampaign, error } =
+  await supabase
+    .from("campaign_pages")
+    .update({
+      campaign_name: campaign.campaign_name.trim(),
+      recipient: campaign.recipient?.trim() || null,
+      event_type: campaign.event_type?.trim() || null,
+      caption: campaign.caption?.trim() || null,
+      headline:
+        campaign.headline?.trim() ||
+        "Preserve your life story or someone else’s.",
+      story: campaign.story?.trim() || null,
+      media_type: campaign.media_type || null,
+      media_url: mediaUrl || null,
+      preview_image_url: previewImageUrl || null,
+      primary_cta: campaign.primary_cta || "gift",
+      is_published: publishedState,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", campaign.id)
+    .eq("owner_id", user.id)
+    .select("*")
+    .maybeSingle();
 
-      if (error) {
-        throw new Error(error.message);
-      }
+if (error) {
+  throw new Error(error.message);
+}
+
+if (!updatedCampaign) {
+  throw new Error(
+    "Campaign was not updated. The database did not return the campaign row."
+  );
+}
 
       setCampaign({
         ...campaign,
@@ -611,26 +621,52 @@ export default function CampaignEditorPage() {
     )}
 
     {campaign.media_url && !mediaFile && (
-      <div className="mt-4">
-        <p className="text-sm font-semibold text-green-700">
-          Current campaign media
-        </p>
+  <div className="mt-4">
+    <p className="text-sm font-semibold text-green-700">
+      Current campaign media
+    </p>
 
-        {campaign.media_type === "video" ? (
-          <MuxPlayer
-            playbackId={campaign.media_url}
-            streamType="on-demand"
-            className="mt-3 w-full overflow-hidden rounded-2xl bg-black"
-          />
-        ) : (
-          <img
-            src={campaign.media_url}
-            alt="Current campaign media"
-            className="mt-3 max-h-80 w-full rounded-2xl object-contain"
-          />
-        )}
-      </div>
+    {campaign.media_type === "video" ? (
+      <MuxPlayer
+        playbackId={campaign.media_url}
+        streamType="on-demand"
+        className="mt-3 w-full overflow-hidden rounded-2xl bg-black"
+      />
+    ) : (
+      <img
+        src={campaign.media_url}
+        alt="Current campaign media"
+        className="mt-3 max-h-80 w-full rounded-2xl object-contain"
+      />
     )}
+
+    <button
+      type="button"
+      onClick={() => {
+        const confirmed = window.confirm(
+          "Remove this photo or video from the campaign?"
+        );
+
+        if (!confirmed) return;
+
+        setMediaFile(null);
+
+        setCampaign({
+          ...campaign,
+          media_type: null,
+          media_url: null,
+          preview_image_url:
+            campaign.media_type === "photo"
+              ? null
+              : campaign.preview_image_url,
+        });
+      }}
+      className="mt-4 rounded-full border border-red-300 bg-white px-5 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50"
+    >
+      Remove Current Media
+    </button>
+  </div>
+)}
   </div>
 
             {campaign.media_type === "photo" && (
@@ -681,13 +717,36 @@ export default function CampaignEditorPage() {
                 )}
 
                 {campaign.preview_image_url &&
-                  !previewImageFile && (
-                    <img
-                      src={campaign.preview_image_url}
-                      alt="Current social preview"
-                      className="mt-4 max-h-56 rounded-xl object-contain"
-                    />
-                  )}
+  !previewImageFile && (
+    <div className="mt-4">
+      <img
+        src={campaign.preview_image_url}
+        alt="Current social preview"
+        className="max-h-56 rounded-xl object-contain"
+      />
+
+      <button
+        type="button"
+        onClick={() => {
+          const confirmed = window.confirm(
+            "Remove this social preview image?"
+          );
+
+          if (!confirmed) return;
+
+          setPreviewImageFile(null);
+
+          setCampaign({
+            ...campaign,
+            preview_image_url: null,
+          });
+        }}
+        className="mt-4 rounded-full border border-red-300 bg-white px-5 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50"
+      >
+        Remove Social Preview Image
+      </button>
+    </div>
+  )}
               </div>
             )}
           </div>
