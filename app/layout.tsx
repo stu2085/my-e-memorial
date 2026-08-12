@@ -109,7 +109,7 @@ export default function RootLayout({
       <a href="/privacy" className="hover:text-stone-800">Privacy Policy</a>
       <a href="/terms" className="hover:text-stone-800">Terms of Service</a>
       <a href="/content-removal" className="hover:text-stone-800">Content Removal</a>
-      <a href="/dmca" className="hover:text-stone-800">DMCA</a>
+      <a href="/dmca" className="hover:text-stone-800">Copyright & DMCA</a>
       <a href="/refund-policy" className="hover:text-stone-800">Refund Policy</a>
        <a href="/our-story" className="hover:text-stone-800">
       Our Story
