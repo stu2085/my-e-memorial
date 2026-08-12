@@ -184,7 +184,7 @@ const secondaryCtas:
         <Link href="/" className="inline-flex">
           <img
             src="/Images/myememorial-logo.png
-            alt="MyEMemorial — Where Life’s Stories Are Told"
+            alt="MyEmemorial — Where Life&apos;s Stories Are Told"
             className="h-auto w-52 max-w-full md:w-56"
           />
         </Link>
