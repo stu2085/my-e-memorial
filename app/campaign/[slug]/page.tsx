@@ -86,12 +86,12 @@ export async function generateMetadata({
   const title =
     campaign.headline ||
     campaign.campaign_name ||
-    "MyEMemorial — The Story Between the Dates";
+    "MyEMemorial — Where Life's Stories Are Told";
 
   const description =
     campaign.caption ||
     campaign.story?.slice(0, 200) ||
-    "Preserve a life story with MyEMemorial — The Story Between the Dates.";
+    "Preserve a life story with MyEMemorial — Where Life's Stories Are Told.";
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -183,8 +183,8 @@ const secondaryCtas:
       <div className="mx-auto max-w-4xl px-4 py-5 md:px-8">
         <Link href="/" className="inline-flex">
           <img
-            src="/Images/myememorial-full-logo.jpg"
-            alt="MyEMemorial — The Story Between the Dates"
+            src="/Images/myememorial-logo.png
+            alt="MyEMemorial — Where Life's Stories Are Told"
             className="h-auto w-52 max-w-full md:w-56"
           />
         </Link>
@@ -247,7 +247,7 @@ const secondaryCtas:
     <footer className="mt-8 border-t border-stone-200 bg-white">
       <div className="mx-auto max-w-4xl px-4 py-6 text-center">
         <p className="text-sm text-stone-500">
-          MyEMemorial — The Story Between the Dates.
+          MyEMemorial — Where Life's Stories Are Told.
         </p>
       </div>
     </footer>

@@ -15,7 +15,7 @@ export default function MomBirthdayGiftPage() {
               MyEMemorial
             </div>
             <div className="mt-1 text-base font-medium text-amber-700 md:text-lg">
-              The Story Between the Dates
+              Where Life's Stories Are Told
             </div>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function MomBirthdayGiftPage() {
 
         {/* Footer */}
         <footer className="py-12 text-center text-base text-stone-500 md:text-lg">
-          MyEMemorial — The Story Between the Dates.
+          MyEMemorial — Where Life's Stories Are Told.
         </footer>
       </div>
     </main>
