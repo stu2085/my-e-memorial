@@ -66,8 +66,10 @@ twitter: {
 },
 verification: {
   google: "8gP9qEPq6SKkkPqnvWnT10HJFGiqva87-j5_VEdBomI",
+  other: {
+    "facebook-domain-verification": "7qh13p8bn7wdcoai15ii33cqzotybm",
+  },
 },
-};
 
 export default function RootLayout({
   children,
