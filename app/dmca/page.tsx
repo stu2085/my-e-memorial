@@ -165,7 +165,29 @@ export default function DmcaPage() {
               before submitting one.
             </p>
           </section>
+<section>
+  <h2 className="font-semibold text-stone-900">
+    Repeat Infringer Policy
+  </h2>
 
+  <p className="mt-2">
+    MyEMemorial may suspend or terminate accounts, contributor access, or
+    memorial-related privileges of users who repeatedly infringe the
+    copyrights or other intellectual property rights of others.
+  </p>
+
+  <p className="mt-2">
+    MyEMemorial evaluates repeat infringement based on the circumstances,
+    including the number and nature of valid infringement notices received,
+    the user&apos;s conduct, and whether the user continues to upload or submit
+    infringing material after receiving notice.
+  </p>
+
+  <p className="mt-2">
+    MyEMemorial may also restrict access to specific content or features while
+    a copyright matter is being reviewed.
+  </p>
+</section>
           <section>
             <h2 className="font-semibold text-stone-900">
               False or Misleading Claims
