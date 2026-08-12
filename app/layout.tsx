@@ -70,7 +70,7 @@ verification: {
     "facebook-domain-verification": "7qh13p8bn7wdcoai15ii33cqzotybm",
   },
 },
-
+};
 export default function RootLayout({
   children,
 }: Readonly<{
