@@ -183,10 +183,10 @@ const secondaryCtas:
       <div className="mx-auto max-w-4xl px-4 py-5 md:px-8">
         <Link href="/" className="inline-flex">
           <img
-            src="/Images/myememorial-logo.png
-            alt="MyEmemorial — Where Life&apos;s Stories Are Told"
-            className="h-auto w-52 max-w-full md:w-56"
-          />
+  src="/Images/myememorial-logo.png"
+  alt="MyEmemorial - Where Life's Stories Are Told"
+  className="h-auto w-52 max-w-full md:w-56"
+/>
         </Link>
       </div>
     </header>
