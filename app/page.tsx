@@ -226,16 +226,22 @@ useEffect(() => {
                 </div>
 
                 <div className="mt-6 grid gap-6 md:grid-cols-3">
-                  <PlanCard
+                 <PlanCard
   title="Basic Memorial"
   price="$49.95"
   items={[
     "Up to 50 photos",
     "Up to 15 minutes of Video Memories",
     "Favorite music",
-    "Life story & obituary",
-    "Cemetery map",
+    "Life story",
+    "Family Tree",
+    "Places lived & worked",
+    "Schools & awards",
+    "Social media links",
     "Contributor approval",
+    "Headstone Photos - If Applicable",
+    "Cemetery Map - If Applicable",
+    "Obituary - If Applicable",
   ]}
 />
 
@@ -245,9 +251,18 @@ useEffect(() => {
   dark
   badge="Most Popular"
   items={[
-    "Everything in Basic",
     "Up to 150 photos",
     "Up to 30 minutes of Video Memories",
+    "Favorite music",
+    "Life story",
+    "Family Tree",
+    "Places lived & worked",
+    "Schools & awards",
+    "Social media links",
+    "Contributor approval",
+    "Headstone Photos - If Applicable",
+    "Cemetery Map - If Applicable",
+    "Obituary - If Applicable",
   ]}
 />
 
@@ -255,10 +270,18 @@ useEffect(() => {
   title="Premium Memorial"
   price="$89.95"
   items={[
-    "Everything in Plus",
     "Unlimited photos",
     "Up to 60 minutes of Video Memories",
-    "Best for larger families",
+    "Favorite music",
+    "Life story",
+    "Family Tree",
+    "Places lived & worked",
+    "Schools & awards",
+    "Social media links",
+    "Contributor approval",
+    "Headstone Photos - If Applicable",
+    "Cemetery Map - If Applicable",
+    "Obituary - If Applicable",
   ]}
 />
                 </div>
