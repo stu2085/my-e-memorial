@@ -653,7 +653,7 @@ if (giftPurchaserEmail) {
                   >
                     <img
                       src="${giftLogoUrl}"
-                      alt="MyEMemorial — Where Life's Stories Are Told"
+                      alt="MyEMemorial — Where Life’s Stories Are Told"
                       width="420"
                       style="
                         display: block;
@@ -893,7 +893,7 @@ if (giftPurchaserEmail) {
               >
                 Every life deserves to be remembered for more than two dates.<br />
                 <strong style="color: #082454;">
-                  MyEMemorial — Where Life's Stories Are Told
+                  MyEMemorial — Where Life’s Stories Are Told
                 </strong>
               </div>
             </td>
@@ -1020,7 +1020,7 @@ const recipientIntro =
             <div style="text-align: center; margin-bottom: 28px;">
               <img
                 src="${giftLogoUrl}"
-                alt="MyEMemorial — Where Life's Stories Are Told"
+                alt="MyEMemorial — Where Life’s Stories Are Told
                 width="420"
                 style="
                   display: block;
@@ -1164,7 +1164,7 @@ const recipientIntro =
           >
             Every life has a story worth remembering.<br />
             <strong style="color: #082454;">
-              MyEMemorial — Where Life's Stories Are Told.
+              MyEMemorial — Where Life’s Stories Are Told.
             </strong>
           </div>
         </div>
