@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "MyEMemorial | Online Memorials for Loved Ones",
+    default: "MyEMemorial | Preserve Life Stories & Memories",
     template: "%s | MyEMemorial",
   },
   description:
@@ -96,6 +96,21 @@ export default function RootLayout({
         "https://www.facebook.com/MyEmemorial",
         "https://www.instagram.com/myememorial/",
       ],
+    }),
+  }}
+/>
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "MyEMemorial",
+      alternateName: [
+        "My E Memorial",
+        "MyEMemorial.com",
+      ],
+      url: "https://www.myememorial.com/",
     }),
   }}
 />
