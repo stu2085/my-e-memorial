@@ -113,13 +113,13 @@ export default function PersonalEMemorialPage() {
             </div>
 
             <div className="relative min-h-[360px] bg-stone-200 lg:min-h-[520px]">
-              <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.12)), url('/family-memory.jpg')",
-                }}
-              />
+             <div
+  className="absolute inset-0 bg-cover bg-center"
+  style={{
+    backgroundImage:
+      "linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.06)), url('/Images/personal-ememorial-hero.png')",
+  }}
+/>
 
               <div className="absolute inset-x-6 bottom-6 rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur">
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-700">
