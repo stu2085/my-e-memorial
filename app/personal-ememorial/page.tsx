@@ -198,34 +198,63 @@ export default function PersonalEMemorialPage() {
             </aside>
 
             <div className="space-y-8">
-              <section className="rounded-[2rem] bg-blue-950 p-6 text-white shadow-sm md:p-8">
-                <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">
-                      Personal Introduction Video
-                    </p>
+              <section className="overflow-hidden rounded-[2rem] bg-blue-950 text-white shadow-sm">
+  <div className="grid items-stretch lg:grid-cols-[0.9fr_1.1fr]">
+    <div className="flex flex-col justify-center p-7 md:p-9">
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">
+        See What a Personal E-Memorial Can Become
+      </p>
 
-                    <h2 className="mt-3 text-2xl font-bold md:text-3xl">
-                      A Better Way to Preserve the Story of Your Life
-                    </h2>
+      <h2 className="mt-3 text-2xl font-bold leading-tight md:text-3xl">
+        Preserve Your Story in Your Own Voice
+      </h2>
 
-                    <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-200 md:text-base">
-                      This area will contain the short autoplay introduction
-                      video explaining what a Personal E-Memorial is, how it
-                      works, and why creating one while living matters.
-                    </p>
-                  </div>
+      <p className="mt-4 text-sm leading-7 text-stone-200 md:text-base">
+        In just a few moments, see how a Personal E-Memorial helps you
+        preserve the stories, memories, photos, videos, music, and experiences
+        that make your life uniquely yours.
+      </p>
 
-                  <div className="flex aspect-video items-center justify-center rounded-2xl border border-white/20 bg-black/30 shadow-inner">
-                    <div className="text-center">
-                      <div className="text-5xl">▶</div>
-                      <p className="mt-3 text-sm font-semibold text-stone-200">
-                        Intro Video Will Play Here
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </section>
+      <div className="mt-5 flex flex-wrap gap-3 text-xs font-semibold text-stone-200">
+        <span className="rounded-full border border-white/20 bg-white/10 px-3 py-2">
+          ✓ Tell your own story
+        </span>
+
+        <span className="rounded-full border border-white/20 bg-white/10 px-3 py-2">
+          ✓ Add photos & video
+        </span>
+
+        <span className="rounded-full border border-white/20 bg-white/10 px-3 py-2">
+          ✓ Share with family
+        </span>
+      </div>
+    </div>
+
+    <div className="relative min-h-[300px] bg-black lg:min-h-[390px]">
+      <video
+        className="absolute inset-0 h-full w-full object-cover"
+        autoPlay
+        muted
+        playsInline
+        loop
+        poster="/Images/personal-ememorial-hero.png"
+        aria-label="Introduction to Personal E-Memorials"
+      />
+
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+
+      <div className="absolute bottom-5 left-5 right-5">
+        <div className="inline-flex items-center gap-3 rounded-full bg-black/65 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm text-blue-950">
+            ▶
+          </span>
+
+          Personal E-Memorial Introduction
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
               <section>
                 <div className="text-center">
