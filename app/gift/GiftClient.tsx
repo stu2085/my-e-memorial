@@ -140,7 +140,7 @@ export default function GiftClient({
               </p>
 
               <img
-                src="/images/gift-myememorial-reaction.webp"
+                src="/Images/gift-myememorial-reaction.webp"
                 alt="A delighted recipient reacting to a MyEMemorial gift on a laptop"
                 className="float-right mb-2 ml-4 block h-[92px] w-[138px] rounded-xl object-cover shadow-sm md:hidden"
               />
@@ -160,7 +160,7 @@ export default function GiftClient({
 
             <div className="hidden md:block">
               <img
-                src="/images/gift-myememorial-reaction.webp"
+                src="/Images/gift-myememorial-reaction.webp"
                 alt="A delighted recipient reacting to a MyEMemorial gift on a laptop"
                 className="h-[145px] w-full rounded-2xl object-cover shadow-sm lg:h-[155px]"
               />

@@ -440,7 +440,7 @@ function PersonalEMemorialPageContent() {
         muted
         playsInline
         loop
-        poster="/images/homepage-hero.png"
+        poster="/Images/homepage-hero.png"
         aria-label="Introduction to Personal MyEMemorials"
       />
 
@@ -1021,3 +1021,4 @@ function PlanCard({
     </div>
   );
 }
+

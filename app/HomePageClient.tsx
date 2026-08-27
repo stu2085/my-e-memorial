@@ -45,7 +45,7 @@ useEffect(() => {
           <div className="mx-auto w-full max-w-[1400px] space-y-6">
            <section className="relative overflow-hidden rounded-[1.5rem] shadow-sm">
   <img
-    src="/images/homepage-hero.png"
+    src="/Images/homepage-hero.png"
     alt=""
     className="block h-auto w-full"
   />
@@ -530,3 +530,4 @@ useEffect(() => {
     </main>
   );
 }
+

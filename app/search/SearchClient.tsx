@@ -243,7 +243,7 @@ return filtered;
       <section
         className="w-full bg-center bg-cover shadow-sm"
         style={{
-          backgroundImage: "url('/images/search-hero-cemetery.jpg')",
+          backgroundImage: "url('/Images/search-hero-cemetery.jpg')",
         }}
       >
         <div className="min-h-[230px] w-full sm:min-h-[280px] md:min-h-[340px] lg:min-h-[400px]" />

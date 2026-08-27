@@ -91,7 +91,7 @@ export default function MemorialsPage() {
           <div className="overflow-hidden rounded-[2rem] bg-white shadow-sm">
             <div className="relative aspect-[943/257] w-full bg-stone-100">
               <Image
-                src="/images/memorials-hero-final.png"
+                src="/Images/memorials-hero-final.png"
                 alt="Share Their Story Here — a MyEMemorial shown on a laptop with family photographs and digital devices."
                 fill
                 priority
@@ -291,7 +291,7 @@ export default function MemorialsPage() {
                       className="absolute inset-0 h-full w-full object-cover"
                       muted
                       playsInline
-                      poster="/images/memorials-hero-final.png"
+                      poster="/Images/memorials-hero-final.png"
                       aria-label="Introduction to Deceased MyEMemorials"
                     />
 
@@ -730,3 +730,4 @@ function PlanCard({
     </div>
   );
 }
+

@@ -118,7 +118,7 @@ export default function MemorialsPage() {
                 className="absolute inset-0 bg-cover bg-center"
                 style={{
                   backgroundImage:
-                    "linear-gradient(rgba(12,18,28,0.20), rgba(12,18,28,0.38)), url('/images/homepage-hero.png')",
+                    "linear-gradient(rgba(12,18,28,0.20), rgba(12,18,28,0.38)), url('/Images/homepage-hero.png')",
                 }}
               />
 
@@ -727,3 +727,4 @@ function PlanCard({
     </div>
   );
 }
+
