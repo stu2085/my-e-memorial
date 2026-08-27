@@ -391,7 +391,7 @@ useEffect(() => {
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           Yes. Family and friends can submit memories and media, while the
-          MyEMemorial owner controls what is approved and displayed publicly.
+          MyEMemorial Member controls what is approved and displayed publicly.
         </p>
       </div>
 
