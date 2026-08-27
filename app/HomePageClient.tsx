@@ -140,7 +140,7 @@ useEffect(() => {
 
         <p className="mx-auto mt-3 max-w-lg text-base leading-7 text-stone-700 md:text-lg">
           Paid plans also include a Celebration of Life Presentation for use
-          after the living person has passed, so approved photos and videos can be shared
+          after the Member has passed, so approved photos and videos can be shared
           at a funeral, memorial service, or Celebration of Life.
         </p>
 
@@ -435,7 +435,7 @@ useEffect(() => {
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           Yes. Basic, Plus, and Premium plans for both Living MyEMemorials and
-          MyEMemorials for someone who has passed include a Celebration of Life
+          Deceased MyEMemorials include a Celebration of Life
           Presentation. It can play approved photos and videos on a television
           or projector for a funeral, memorial service, or Celebration of Life.
           For a Living MyEMemorial, the presentation is intended for use after
