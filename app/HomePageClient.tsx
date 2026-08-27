@@ -135,19 +135,18 @@ useEffect(() => {
 
         <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-stone-700 md:text-lg">
           Preserve stories, memories, photos, family history, and experiences
-          while the person can still help tell the story themselves.
+          while the living person can still help tell the story themselves.
         </p>
 
         <p className="mx-auto mt-3 max-w-lg text-base leading-7 text-stone-700 md:text-lg">
           Paid plans also include a Celebration of Life Presentation for use
-          after the owner has passed, so approved photos and videos can be shared
+          after the living person has passed, so approved photos and videos can be shared
           at a funeral, memorial service, or Celebration of Life.
         </p>
 
         <p className="mx-auto mt-3 max-w-lg text-base leading-7 text-stone-700 md:text-lg">
-          After independent death verification, an authorized Backup Person can
-          handle permitted after-death updates without changing the life story
-          you preserved.
+          After independent death verification, a Designated Person can
+          handle permitted after-death updates without changing the life story already preserved.
         </p>
 
         <div className="mt-auto pt-6">
@@ -184,7 +183,7 @@ useEffect(() => {
         </p>
 
         <p className="mx-auto mt-3 max-w-lg text-base leading-7 text-stone-200 md:text-lg">
-          Family and friends can remember, contribute, and help preserve their
+          Family and friends can submit stories, photos, and videos to help preserve their
           story for future generations.
         </p>
 
@@ -238,7 +237,7 @@ useEffect(() => {
         </h3>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
-          MyEMemorial owners control updates, stories, photos, videos, music,
+          MyEMemorial members control updates, stories, photos, videos, music,
           family information, and other details added to the MyEMemorial.
         </p>
       </div>
@@ -247,7 +246,7 @@ useEffect(() => {
         <div className="text-2xl">✅</div>
 
         <h3 className="text-xl font-bold text-stone-900">
-          Family and friends can contribute
+          Family and friends can submit stories, photos and videos
         </h3>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
@@ -354,7 +353,7 @@ useEffect(() => {
           A Living MyEMemorial lets someone preserve their
           own stories, memories, photos, family history, and
           experiences while they can still help tell the story
-          themselves. They can also assign a Backup Person who,
+          themselves. They can also assign a Designated Person who,
           after independent death verification, can handle permitted
           after-death updates without changing the life story the owner
           preserved.
@@ -505,7 +504,7 @@ useEffect(() => {
   href="/search"
   className="flex min-h-[84px] items-center justify-center rounded-full border border-stone-500 bg-stone-800 px-5 py-3 text-center text-base font-semibold leading-tight text-white transition hover:bg-stone-700"
 >
-  Search MyEMemorials
+  Search Public MyEMemorials
 </Link>
     </div>
   </div>

@@ -109,7 +109,7 @@ export default function OurStoryPage() {
           I also wanted people to have the opportunity to create their own
           memorial while they are still living — to tell their story in their
           own words and in their own way. After their death is independently
-          verified, an authorized Backup Person can handle permitted after-death
+          verified, a Designated Person can handle permitted after-death
           updates, including the obituary and final resting place details, while
           the owner&apos;s life story remains preserved as they wrote it. Photos
           and videos can still be added for remembrance and the Celebration of

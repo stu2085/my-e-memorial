@@ -350,7 +350,7 @@ export default function NavBar() {
             href="/search"
             className={navClass(pathname === "/search")}
           >
-            Search MyEMemorials
+            Search Public MyEMemorials
           </Link>
 
           <Link
@@ -434,7 +434,7 @@ export default function NavBar() {
               onClick={() => setIsMobileMenuOpen(false)}
               className={mobileNavClass(pathname === "/search")}
             >
-              Search MyEMemorials
+              Search Public MyEMemorials
             </Link>
 
             <Link

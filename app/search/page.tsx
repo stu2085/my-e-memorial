@@ -3,7 +3,7 @@ import SearchClient from "./SearchClient";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Search MyEMemorials | Find Online Memorials",
+    absolute: "Search Public MyEMemorials | Find Online Memorials",
   },
   description:
     "Search published MyEMemorials by name, cemetery, city, state, country, school, or award to find online memorials and preserved family history.",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   openGraph: {
-    title: "Search MyEMemorials | Find Online Memorials",
+    title: "Search Public MyEMemorials | Find Online Memorials",
     description:
       "Search published MyEMemorials by name, cemetery, location, school, or award.",
     url: "/search",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Search MyEMemorials | Find Online Memorials",
+    title: "Search Public MyEMemorials | Find Online Memorials",
     description:
       "Search published MyEMemorials by name, cemetery, location, school, or award.",
   },

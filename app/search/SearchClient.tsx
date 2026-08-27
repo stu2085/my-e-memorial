@@ -252,7 +252,7 @@ return filtered;
       <section className="bg-white px-4 py-7 text-center shadow-sm md:px-8 md:py-9">
         <div className="mx-auto max-w-5xl">
           <p className="text-base font-semibold uppercase tracking-[0.18em] text-stone-600">
-            Search MyEMemorials
+            Search Public MyEMemorials
           </p>
 
           <h1 className="mt-3 text-3xl font-bold leading-tight text-stone-900 md:text-4xl lg:text-5xl">

@@ -334,7 +334,7 @@ export default function MemorialsPage() {
                     {[
                       ["📖", "Their Story", "Preserve the experiences and memories that made their life unique."],
                       ["📷", "Photos, Video & Music", "Keep meaningful media together in one lasting place."],
-                      ["👨‍👩‍👧‍👦", "Loved Ones Sharing", "Invite family and friends to contribute memories."],
+                      ["👨‍👩‍👧‍👦", "Loved Ones Sharing", "Invite family and friends to submit stories, photos and videos."],
                       ["🌳", "Future Generations", "Give family a place to know and remember them for years to come."],
                     ].map(([icon, title, copy]) => (
                       <div
