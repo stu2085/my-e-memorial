@@ -543,8 +543,7 @@ function PersonalEMemorialPageContent() {
                     </h3>
 
                     <p className="mt-2 text-lg leading-7 text-stone-600">
-                      Basic, Plus, and Premium plans let you name trusted Backup
-                      Persons and leave private instructions for the future.
+                      Basic, Plus, and Premium plans let you name a trusted Designated Person and leave private instructions for the future.
                     </p>
                   </div>
                 </div>
