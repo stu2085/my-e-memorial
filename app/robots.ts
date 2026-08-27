@@ -2,20 +2,36 @@ import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-  rules: [
-    {
-      userAgent: "*",
-      allow: "/",
-      disallow: [
-        "/login",
-        "/reset-password",
-        "/admin",
-        "/memorial/*/edit",
-        "/advertiser/*/edit",
-        "/advertiser/*/dashboard",
-      ],
-    },
-  ],
-  sitemap: "https://www.myememorial.com/sitemap.xml",
-};
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: [
+          "/api/",
+          "/login",
+          "/reset-password",
+          "/admin/",
+          "/create",
+          "/my-memorials",
+          "/edit/",
+          "/memorial/test",
+          "/memorial/*/edit",
+          "/memorial/*/manage",
+          "/memorial/*/presentation",
+          "/gift/claim/",
+          "/gift/success",
+          "/advertise/success",
+          "/advertiser/*/edit",
+          "/advertiser/*/dashboard",
+          "/backup-person/",
+          "/campaigns/manage",
+          "/funeral-home/",
+          "/renew/",
+          "/renew-success",
+        ],
+      },
+    ],
+    sitemap: "https://www.myememorial.com/sitemap.xml",
+    host: "https://www.myememorial.com",
+  };
 }

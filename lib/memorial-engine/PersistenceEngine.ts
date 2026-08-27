@@ -18,6 +18,7 @@ type MemorialVideoInsert = {
   fileSize: number;
 };
 type MemorialFormData = {
+  plan: "free" | "basic" | "plus" | "premium";
   firstName: string;
   middleName: string;
   lastName: string;
@@ -77,6 +78,10 @@ finalRestingType: string;
   betaCode: string;
   promotionCategory: string;
   isLivingPreplan: boolean;
+  funeralPresentationMusicSource: "favorite_songs" | "funeral_home";
+  bannerPositionX: number;
+  bannerPositionY: number;
+  bannerNeedsExtension: boolean;
 };
 
 type BuildMemorialDataOptions = {
@@ -88,6 +93,8 @@ type BuildMemorialDataOptions = {
   requiresReview: boolean;
   usingBetaCode: boolean;
   featuredPhotoUrl: string;
+  bannerPhotoUrl: string;
+  bannerSourcePhotoUrl: string;
   headstonePhoto1Url: string;
   headstonePhoto2Url: string;
 obituaryImageUrl: string;
@@ -116,6 +123,8 @@ export class PersistenceEngine {
   requiresReview,
   usingBetaCode,
   featuredPhotoUrl,
+  bannerPhotoUrl,
+  bannerSourcePhotoUrl,
   headstonePhoto1Url,
 headstonePhoto2Url,
 obituaryImageUrl,
@@ -153,16 +162,18 @@ existingIsPublished = null,
     gender: form.gender,
     plan: selectedPlan,
     is_living_preplan: form.isLivingPreplan,
+    funeral_presentation_music_source:
+      form.funeralPresentationMusicSource === "funeral_home"
+        ? "funeral_home"
+        : "favorite_songs",
     is_draft: isDraft,
 guided_current_chapter: guidedCurrentChapter,
     is_published:
-  form.isLivingPreplan
-    ? false
-    : existingIsPublished !== null
-      ? existingIsPublished
-      : isDraft || requiresReview
-        ? false
-        : true,
+      existingIsPublished === true
+        ? true
+        : isDraft || requiresReview
+          ? false
+          : true,
     needs_review: requiresReview,
     birth_date: form.birthDate || null,
     death_date: form.deathDate || null,
@@ -216,6 +227,11 @@ video_link_urls: form.videoLinkUrls,
 video_link_notes: form.videoLinkNotes,
 video_link_thumbnail_urls: videoLinkThumbnailUrls,
 featured_photo_url: featuredPhotoUrl,
+banner_photo_url: bannerPhotoUrl || null,
+banner_source_photo_url: bannerSourcePhotoUrl || bannerPhotoUrl || null,
+banner_needs_extension: Boolean(form.bannerNeedsExtension),
+banner_position_x: Math.min(100, Math.max(0, Math.round(Number(form.bannerPositionX) || 50))),
+banner_position_y: Math.min(100, Math.max(0, Math.round(Number(form.bannerPositionY) || 50))),
     headstone_photo_1: headstonePhoto1Url,
     headstone_photo_2: headstonePhoto2Url,
     gallery_photos: galleryPhotoUrls.join(","),
@@ -232,14 +248,25 @@ ashes_location_description:
     ? form.ashesLocationDescription
     : "",
     backup_person_name: form.backupPersonName,
-    payment_status: usingBetaCode ? "free_beta" : "paid",
-    payment_source: usingBetaCode ? "beta_code" : "stripe",
-    beta_code_used: usingBetaCode
-      ? form.betaCode.trim().toUpperCase()
-      : null,
-    promotion_category: usingBetaCode
-      ? form.promotionCategory
-      : null,
+    payment_status: usingBetaCode
+  ? "free_beta"
+  : form.plan === "free"
+    ? "free"
+    : "paid",
+
+payment_source: usingBetaCode
+  ? "beta_code"
+  : form.plan === "free"
+    ? "free_plan"
+    : "stripe",
+
+beta_code_used: usingBetaCode
+  ? form.betaCode.trim().toUpperCase()
+  : null,
+
+promotion_category: usingBetaCode
+  ? form.promotionCategory
+  : null,
   };
 }
   static async createMemorial({

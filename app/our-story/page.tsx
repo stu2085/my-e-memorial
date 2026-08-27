@@ -1,3 +1,29 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Our Story | Why MyEMemorial Was Created",
+  },
+  description:
+    "Discover the story behind MyEMemorial and the lifelong idea that inspired a better way to preserve life stories, memories, photos, videos, and family history for future generations.",
+  alternates: {
+    canonical: "/our-story",
+  },
+  openGraph: {
+    title: "Our Story | Why MyEMemorial Was Created",
+    description:
+      "Learn how a question asked beside an old cemetery more than fifty years ago inspired MyEMemorial and its mission to preserve the story of a life.",
+    url: "/our-story",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Our Story | Why MyEMemorial Was Created",
+    description:
+      "Learn how a question asked beside an old cemetery more than fifty years ago inspired MyEMemorial and its mission to preserve the story of a life.",
+  },
+};
+
 export default function OurStoryPage() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
@@ -82,9 +108,12 @@ export default function OurStoryPage() {
         <p>
           I also wanted people to have the opportunity to create their own
           memorial while they are still living — to tell their story in their
-          own words and in their own way. Then, after they pass, a trusted
-          person can publish their memorial and add an obituary and any
-          additional photos, videos, and memories.
+          own words and in their own way. After their death is independently
+          verified, an authorized Backup Person can handle permitted after-death
+          updates, including the obituary and final resting place details, while
+          the owner&apos;s life story remains preserved as they wrote it. Photos
+          and videos can still be added for remembrance and the Celebration of
+          Life Presentation.
         </p>
 
         <p>
@@ -114,7 +143,7 @@ export default function OurStoryPage() {
           <p>Founder, MyEMemorial.com</p>
 
           <p className="mt-4 italic text-blue-900">
-            A Better Way to to be Remembered.
+            A Better Way to be Remembered.
           </p>
         </div>
 

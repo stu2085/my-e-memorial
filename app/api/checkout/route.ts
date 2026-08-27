@@ -169,6 +169,9 @@ if (plan === "extra_videos") {
 
 if (checkoutType === "upgrade") {
   const validUpgradeAmounts: Record<string, number> = {
+    "free:basic": 4995,
+    "free:plus": 6995,
+    "free:premium": 8995,
     "basic:plus": 2000,
     "basic:premium": 4000,
     "plus:premium": 2000,
@@ -231,6 +234,38 @@ if (returnUrl) {
 const separator =
   safeReturnUrl.includes("?") ? "&" : "?";
 
+const isPersonalCheckout = (() => {
+  try {
+    const parsedReturnUrl = new URL(
+      safeReturnUrl,
+      productionSiteUrl
+    );
+
+    return (
+      parsedReturnUrl.searchParams.get("mode") === "personal"
+    );
+  } catch {
+    return false;
+  }
+})();
+
+const normalizedPlanLabel =
+  plan === "premium"
+    ? "Premium"
+    : plan === "plus"
+      ? "Plus"
+      : "Basic";
+
+const memorialProductName =
+  isPersonalCheckout
+    ? `${normalizedPlanLabel} Living MyEMemorial`
+    : `${normalizedPlanLabel} Deceased MyEMemorial`;
+
+const memorialProductDescription =
+  isPersonalCheckout
+    ? "Living MyEMemorial plan on MyEMemorial"
+    : "Deceased MyEMemorial plan on MyEMemorial";
+
     const shouldCollectTax =
       plan !== "advertiser" && !isRenewal;
 
@@ -246,15 +281,15 @@ const separator =
                 : plan === "extra_videos"
                   ? "10-Minute Video Memory Pack"
                   : plan === "advertiser"
-  ? "MyEMemorial Advertising"
-  : "Create a Memorial",
+                    ? "MyEMemorial Advertising"
+                    : memorialProductName,
               description: isRenewal
                 ? "Renew advertising placement on MyEMemorial"
                 : plan === "extra_videos"
                   ? "Additional Video Memory time for this memorial"
                   : plan === "advertiser"
-  ? "Advertising placement on MyEMemorial"
-  : "Permanent memorial page on MyEMemorial",
+                    ? "Advertising placement on MyEMemorial"
+                    : memorialProductDescription,
             },
             unit_amount: safeUnitAmount,
           },

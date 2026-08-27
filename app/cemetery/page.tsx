@@ -1,3 +1,21 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Cemetery Directory | MyEMemorial",
+  },
+  description:
+    "Browse cemetery pages connected with MyEMemorial memorials and grave-location information.",
+  alternates: {
+    canonical: "/cemetery",
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
+
 const cemeteries = [
   {
     name: "Greenwood Memorial Cemetery",
@@ -33,7 +51,7 @@ export default function CemeteryDirectoryPage() {
         <section className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {cemeteries.map((cemetery) => (
-              <a
+              <Link
                 key={cemetery.slug}
                 href={`/cemetery/${cemetery.slug}`}
                 className="block rounded-3xl border border-stone-200 bg-stone-50 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
@@ -44,10 +62,10 @@ export default function CemeteryDirectoryPage() {
 
                 <p className="mt-3 text-stone-600">{cemetery.address}</p>
 
-                <p className="mt-4 text-sm font-semibold text-stone-800">
+                <p className="mt-4 text-base font-semibold text-stone-800">
                   View cemetery →
                 </p>
-              </a>
+              </Link>
             ))}
           </div>
         </section>

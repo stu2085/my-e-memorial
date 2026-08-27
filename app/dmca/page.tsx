@@ -1,3 +1,33 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Copyright & DMCA Policy | MyEMemorial",
+  },
+  description:
+    "Read the MyEMemorial Copyright and DMCA Policy, including how to submit copyright infringement notices and information about the designated DMCA agent.",
+  alternates: {
+    canonical: "/dmca",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "Copyright & DMCA Policy | MyEMemorial",
+    description:
+      "Learn how MyEMemorial handles copyright complaints, DMCA notices, and counter notifications.",
+    url: "/dmca",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Copyright & DMCA Policy | MyEMemorial",
+    description:
+      "Learn how MyEMemorial handles copyright complaints, DMCA notices, and counter notifications.",
+  },
+};
+
 export default function DmcaPage() {
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
@@ -6,12 +36,11 @@ export default function DmcaPage() {
           Copyright and DMCA Policy
         </h1>
 
-        <p className="mt-2 text-sm text-stone-500">
+        <p className="mt-2 text-base text-stone-500">
           Last updated: August 12, 2026
         </p>
 
-        <div className="mt-6 space-y-6 text-sm leading-relaxed text-stone-700">
-
+        <div className="mt-6 space-y-6 text-base leading-relaxed text-stone-700">
           <section>
             <h2 className="font-semibold text-stone-900">
               Copyright Policy
@@ -68,7 +97,7 @@ export default function DmcaPage() {
                 </a>
               </p>
 
-              <p className="mt-3 text-xs text-stone-500">
+              <p className="mt-3 text-base text-stone-500">
                 U.S. Copyright Office DMCA Registration Number:
                 DMCA-1078099
               </p>
@@ -165,29 +194,7 @@ export default function DmcaPage() {
               before submitting one.
             </p>
           </section>
-<section>
-  <h2 className="font-semibold text-stone-900">
-    Repeat Infringer Policy
-  </h2>
 
-  <p className="mt-2">
-    MyEMemorial may suspend or terminate accounts, contributor access, or
-    memorial-related privileges of users who repeatedly infringe the
-    copyrights or other intellectual property rights of others.
-  </p>
-
-  <p className="mt-2">
-    MyEMemorial evaluates repeat infringement based on the circumstances,
-    including the number and nature of valid infringement notices received,
-    the user&apos;s conduct, and whether the user continues to upload or submit
-    infringing material after receiving notice.
-  </p>
-
-  <p className="mt-2">
-    MyEMemorial may also restrict access to specific content or features while
-    a copyright matter is being reviewed.
-  </p>
-</section>
           <section>
             <h2 className="font-semibold text-stone-900">
               False or Misleading Claims
@@ -199,7 +206,6 @@ export default function DmcaPage() {
               in legal liability under applicable law.
             </p>
           </section>
-
         </div>
       </div>
     </main>

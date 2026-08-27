@@ -80,6 +80,10 @@ export async function generateMetadata({
   if (!campaign) {
     return {
       title: "MyEMemorial",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
@@ -106,6 +110,11 @@ export async function generateMetadata({
 
     alternates: {
       canonical: campaignUrl,
+    },
+
+    robots: {
+      index: false,
+      follow: true,
     },
 
     openGraph: {
@@ -159,7 +168,7 @@ const ctas = {
   },
   create: {
     href: "/create",
-    label: "Create a MyEMemorial",
+    label: "Create a Deceased MyEMemorial",
   },
   learn: {
     href: "/our-story",
@@ -184,7 +193,7 @@ const secondaryCtas:
         <Link href="/" className="inline-flex">
           <img
   src="/Images/myememorial-logo.png"
-  alt="MyEmemorial - Where Life's Stories Are Told"
+  alt="MyEMemorial - Where Life's Stories Are Told"
   className="h-auto w-52 max-w-full md:w-56"
 />
         </Link>
@@ -246,7 +255,7 @@ const secondaryCtas:
 
     <footer className="mt-8 border-t border-stone-200 bg-white">
       <div className="mx-auto max-w-4xl px-4 py-6 text-center">
-        <p className="text-sm text-stone-500">
+        <p className="text-base text-stone-500">
           MyEMemorial — Where Life’s Stories Are Told.
         </p>
       </div>

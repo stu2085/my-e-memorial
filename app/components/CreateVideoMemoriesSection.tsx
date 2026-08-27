@@ -1,6 +1,7 @@
 "use client";
 
 import MuxPlayer from "@mux/mux-player-react";
+import DirectVideoRecorder from "./DirectVideoRecorder";
 type CreateVideoMemoriesSectionProps = {
   isPaid: boolean;
   videoFiles: File[];
@@ -17,6 +18,7 @@ videoError: string;
   videoLinkThumbnailUrls: string[];
 };
   handleVideoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  addVideoFiles: (files: File[]) => Promise<boolean>;
   setVideoFiles: React.Dispatch<React.SetStateAction<File[]>>;
    setVideoNotes: React.Dispatch<React.SetStateAction<string[]>>;
   videoLinkThumbnailFiles: (File | null)[];
@@ -66,6 +68,7 @@ setSavedVideoNotes,
 videoError,
   form,
   handleVideoChange,
+  addVideoFiles,
   setVideoFiles,
 setVideoNotes,
 videoLinkThumbnailFiles,
@@ -85,23 +88,31 @@ setForm,
       </p>
 
       <div className="mt-6">
-        <label className="mb-2 block text-sm font-semibold text-stone-800">
-          Upload Videos
-        </label>
-
         {isPaid ? (
-          <input
-            type="file"
-            accept="video/*"
-            multiple
-            onChange={handleVideoChange}
-            className="block w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-700"
-          />
+          <>
+            <DirectVideoRecorder
+              onRecorded={async (file) =>
+                addVideoFiles([file])
+              }
+            />
+
+            <div className="mt-6">
+              <label className="mb-2 block text-base font-semibold text-stone-800">
+                Or Upload Video Files
+              </label>
+
+              <input
+                type="file"
+                accept="video/*"
+                multiple
+                onChange={handleVideoChange}
+                className="block w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-700"
+              />
+            </div>
+          </>
         ) : (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            Please choose a plan and complete payment before uploading videos.
-            Videos selected before payment cannot be permanently saved and may
-            need to be uploaded again after checkout.
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-base text-amber-800">
+            Please choose a plan and complete payment before recording or uploading videos.
           </div>
         )}
       </div>
@@ -128,8 +139,8 @@ setForm,
           className="aspect-video w-full rounded-xl bg-black"
         />
 
-        <input
-          type="text"
+        <textarea
+          rows={4}
           placeholder="Video caption or memory..."
           value={savedVideoNotes[index] || ""}
           onChange={(e) => {
@@ -141,7 +152,7 @@ setForm,
               return nextNotes;
             });
           }}
-          className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
+          className="mt-3 w-full resize-y rounded-xl border border-stone-300 px-3 py-3 text-base leading-7"
         />
 
         <div className="mt-3 grid grid-cols-3 gap-2">
@@ -265,8 +276,8 @@ setForm,
                   </button>
                 </div>
 
-                <input
-                  type="text"
+                <textarea
+                  rows={4}
                   placeholder="Video caption or memory..."
                   value={videoNotes[index] || ""}
                   onChange={(e) => {
@@ -274,7 +285,7 @@ setForm,
                     updated[index] = e.target.value;
                     setVideoNotes(updated);
                   }}
-                  className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
+                  className="mt-3 w-full resize-y rounded-xl border border-stone-300 px-3 py-3 text-base leading-7"
                 />
               </li>
             ))}
@@ -317,8 +328,8 @@ setForm,
           className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm"
         />
 
-        <input
-  type="text"
+        <textarea
+  rows={4}
   value={form.videoLinkNotes?.[index] ?? ""}
   onChange={(e) => {
     const value = e.target.value;
@@ -334,7 +345,7 @@ setForm,
     });
   }}
   placeholder="Video caption or memory..."
-  className="mt-3 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm"
+  className="mt-3 w-full resize-y rounded-xl border border-stone-300 bg-white px-3 py-3 text-base leading-7"
 />
 {getYouTubeEmbedUrl(url) && (
   <iframe

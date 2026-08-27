@@ -1,4 +1,34 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "How to Add Music to an Online Memorial | MyEMemorial",
+  },
+  description:
+    "Learn how to add songs and personal audio recordings to a MyEMemorial, including supported file types and simple iPhone Voice Memos steps.",
+  alternates: {
+    canonical: "/how-to-add-music",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "How to Add Music to an Online Memorial | MyEMemorial",
+    description:
+      "Learn how to add songs and personal recordings to a MyEMemorial using common audio files.",
+    url: "/how-to-add-music",
+    siteName: "MyEMemorial",
+    type: "article",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "How to Add Music to an Online Memorial | MyEMemorial",
+    description:
+      "Learn how to add songs and personal recordings to a MyEMemorial using common audio files.",
+  },
+};
 
 export default function HowToAddMusicPage() {
   return (
@@ -6,7 +36,7 @@ export default function HowToAddMusicPage() {
       <div className="mx-auto max-w-4xl rounded-3xl bg-white p-8 shadow-sm md:p-10">
         <Link
           href="/"
-          className="text-sm font-semibold text-stone-600 underline hover:text-stone-900"
+          className="text-base font-semibold text-stone-600 underline hover:text-stone-900"
         >
           ← Back to MyEMemorial
         </Link>
@@ -54,7 +84,7 @@ export default function HowToAddMusicPage() {
             Permission Reminder
           </h2>
 
-          <p className="mt-2 text-sm leading-6 text-stone-700">
+          <p className="mt-2 text-base leading-6 text-stone-700">
             Only upload songs, recordings, or audio files you have permission to use.
             Personally recorded songs & hymns are often the safest choice.
           </p>

@@ -1,4 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Gift Purchase Complete | MyEMemorial",
+  },
+  description:
+    "MyEMemorial gift purchase confirmation.",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+  },
+};
 
 type GiftSuccessPageProps = {
   searchParams: Promise<{
@@ -36,11 +50,11 @@ export default async function GiftSuccessPage({
 
         {sessionId && (
           <div className="mt-8 rounded-xl bg-stone-100 p-4">
-            <p className="text-xs text-stone-500">
+            <p className="text-base text-stone-500">
               Stripe Session
             </p>
 
-            <p className="mt-1 break-all font-mono text-sm">
+            <p className="mt-1 break-all font-mono text-base">
               {sessionId}
             </p>
           </div>

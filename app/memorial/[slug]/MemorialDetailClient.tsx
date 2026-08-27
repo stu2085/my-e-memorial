@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import dynamic from "next/dynamic";
 import SideAd from "../../components/SideAd";
+import PublicMemorialNav from "../../components/memorial-builder/PublicMemorialNav";
 import MobileAd from "../../components/MobileAd";
 import { QRCodeSVG } from "qrcode.react";
 const GraveLocationMap = dynamic(
@@ -70,6 +71,9 @@ social_link_5?: string;
   favorite_song_urls?: string[] | null;
   favorite_song_notes?: string[] | null;
   featured_photo_url?: string;
+  banner_photo_url?: string | null;
+  banner_position_x?: number | string | null;
+  banner_position_y?: number | string | null;
   headstone_photo_1?: string;
   headstone_photo_2?: string;
   gallery_photos?: string | string[];
@@ -160,31 +164,100 @@ function getFacebookEmbedUrl(url: string) {
     url
   )}&show_text=false&width=734`;
 }
-function getYouTubeEmbedUrl(url: string) {
+function getYouTubeVideoId(url: string) {
   try {
-    const parsedUrl = new URL(url);
+    const parsedUrl = new URL(url.trim());
+    const hostname = parsedUrl.hostname.toLowerCase().replace(/^www\./, "");
     let videoId = "";
 
-    if (parsedUrl.hostname.includes("youtu.be")) {
-      videoId = parsedUrl.pathname.replace("/", "");
-    } else if (parsedUrl.hostname.includes("youtube.com")) {
+    if (hostname === "youtu.be") {
+      videoId = parsedUrl.pathname.split("/").filter(Boolean)[0] ?? "";
+    } else if (
+      hostname === "youtube.com" ||
+      hostname.endsWith(".youtube.com") ||
+      hostname === "youtube-nocookie.com" ||
+      hostname.endsWith(".youtube-nocookie.com")
+    ) {
       if (parsedUrl.pathname === "/watch") {
-        videoId = parsedUrl.searchParams.get("v") || "";
-      } else if (parsedUrl.pathname.startsWith("/shorts/")) {
-        videoId = parsedUrl.pathname.split("/shorts/")[1]?.split("/")[0] || "";
-      } else if (parsedUrl.pathname.startsWith("/embed/")) {
-        videoId = parsedUrl.pathname.split("/embed/")[1]?.split("/")[0] || "";
+        videoId = parsedUrl.searchParams.get("v") ?? "";
+      } else {
+        const pathParts = parsedUrl.pathname.split("/").filter(Boolean);
+
+        if (
+          pathParts[0] === "shorts" ||
+          pathParts[0] === "embed" ||
+          pathParts[0] === "live"
+        ) {
+          videoId = pathParts[1] ?? "";
+        }
       }
     }
 
-    if (!videoId) {
-      return "";
-    }
-
-    return `https://www.youtube.com/embed/${videoId}`;
+    return videoId;
   } catch {
     return "";
   }
+}
+
+function getYouTubeEmbedUrl(url: string) {
+  const videoId = getYouTubeVideoId(url);
+
+  return videoId
+    ? `https://www.youtube.com/embed/${encodeURIComponent(videoId)}`
+    : "";
+}
+
+let youtubeIframeApiPromise: Promise<any> | null = null;
+
+function loadYouTubeIframeApi() {
+  if (typeof window === "undefined") {
+    return Promise.reject(new Error("YouTube player requires a browser."));
+  }
+
+  const existingYouTubeApi = (window as any).YT;
+
+  if (existingYouTubeApi?.Player) {
+    return Promise.resolve(existingYouTubeApi);
+  }
+
+  if (youtubeIframeApiPromise) {
+    return youtubeIframeApiPromise;
+  }
+
+  youtubeIframeApiPromise = new Promise((resolve, reject) => {
+    const existingReadyHandler = (window as any).onYouTubeIframeAPIReady;
+
+    (window as any).onYouTubeIframeAPIReady = () => {
+      if (typeof existingReadyHandler === "function") {
+        existingReadyHandler();
+      }
+
+      const youtubeApi = (window as any).YT;
+
+      if (youtubeApi?.Player) {
+        resolve(youtubeApi);
+      } else {
+        reject(new Error("YouTube player API did not initialize."));
+      }
+    };
+
+    const existingScript = document.querySelector(
+      'script[src="https://www.youtube.com/iframe_api"]'
+    );
+
+    if (!existingScript) {
+      const script = document.createElement("script");
+      script.src = "https://www.youtube.com/iframe_api";
+      script.async = true;
+      script.onerror = () => {
+        youtubeIframeApiPromise = null;
+        reject(new Error("Could not load the YouTube player API."));
+      };
+      document.head.appendChild(script);
+    }
+  });
+
+  return youtubeIframeApiPromise;
 }
 function VideoLinkPreview({
   url,
@@ -329,6 +402,7 @@ const [error, setError] = useState("");
 const [showFavoriteSongs, setShowFavoriteSongs] = useState(false);
   const [showPhotoGallery, setShowPhotoGallery] = useState(false);
   const [showMemorialVideos, setShowMemorialVideos] = useState(false);
+  const [showSharedMemories, setShowSharedMemories] = useState(false);
   const [showHeadstonePhotos, setShowHeadstonePhotos] = useState(false);
   const [showNewspaperArticles, setShowNewspaperArticles] = useState(false);
   const [showSocialMedia, setShowSocialMedia] = useState(false);
@@ -340,10 +414,18 @@ const [showFavoriteSongs, setShowFavoriteSongs] = useState(false);
   const [wasMusicPlayingBeforeVideo, setWasMusicPlayingBeforeVideo] = useState(false);
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
   const songAudioRefs = useRef<(HTMLAudioElement | null)[]>([]);
+  const youtubePlayerRef = useRef<any>(null);
+  const youtubePlayerHostRef = useRef<HTMLDivElement | null>(null);
+  const favoriteSongsRef = useRef<string[]>([]);
+  const isSlideshowPlayingRef = useRef(false);
+  const presentationHasStartedRef = useRef(false);
+  const currentSongIndexRef = useRef(0);
+  const wasMusicPlayingBeforeVideoRef = useRef(false);
   const touchStartXRef = useRef<number | null>(null);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [slideshowMusicVolume, setSlideshowMusicVolume] = useState(0.7);
 const [isSlideshowMusicMuted, setIsSlideshowMusicMuted] = useState(false);
+const [presentationHasStarted, setPresentationHasStarted] = useState(false);
 const [copied, setCopied] = useState(false);
 const [submitterName, setSubmitterName] = useState("");
 const [submitterEmail, setSubmitterEmail] = useState("");
@@ -372,6 +454,112 @@ const [contributorPhotoViewer, setContributorPhotoViewer] = useState<{
   photos: string[];
   index: number;
 } | null>(null);
+const [mainNavHeight, setMainNavHeight] = useState(0);
+const [publicNavHeight, setPublicNavHeight] = useState(0);
+const [activePublicSection, setActivePublicSection] = useState<string | null>(null);
+
+useEffect(() => {
+  const mainNav = document.querySelector<HTMLElement>("header.sticky");
+
+  if (!mainNav) {
+    setMainNavHeight(0);
+    return;
+  }
+
+  const updateMainNavHeight = () => {
+    setMainNavHeight(Math.ceil(mainNav.getBoundingClientRect().height));
+  };
+
+  updateMainNavHeight();
+
+  const resizeObserver = new ResizeObserver(updateMainNavHeight);
+  resizeObserver.observe(mainNav);
+  window.addEventListener("resize", updateMainNavHeight);
+
+  return () => {
+    resizeObserver.disconnect();
+    window.removeEventListener("resize", updateMainNavHeight);
+  };
+}, []);
+
+useEffect(() => {
+  if (!data?.id) {
+    setPublicNavHeight(0);
+    return;
+  }
+
+  const navHost = document.getElementById("public-memorial-nav");
+
+  if (!navHost) {
+    setPublicNavHeight(0);
+    return;
+  }
+
+  const updatePublicNavHeight = () => {
+    setPublicNavHeight(Math.ceil(navHost.getBoundingClientRect().height));
+  };
+
+  updatePublicNavHeight();
+
+  const resizeObserver = new ResizeObserver(updatePublicNavHeight);
+  resizeObserver.observe(navHost);
+  window.addEventListener("resize", updatePublicNavHeight);
+
+  return () => {
+    resizeObserver.disconnect();
+    window.removeEventListener("resize", updatePublicNavHeight);
+  };
+}, [data?.id]);
+
+function handlePublicSectionSelect(sectionId: string) {
+  // Public icon navigation should be a one-click action: if a destination
+  // section is collapsed, open it before scrolling the visitor to it.
+  switch (sectionId) {
+    case "newspaper-articles":
+      setShowNewspaperArticles(true);
+      break;
+    case "favorite-songs":
+      setShowFavoriteSongs(true);
+      break;
+    case "social-media":
+      setShowSocialMedia(true);
+      break;
+    case "photo-gallery":
+      setShowPhotoGallery(true);
+      break;
+    case "video-memories":
+      setShowMemorialVideos(true);
+      break;
+    case "family-and-friends":
+      setShowSharedMemories(true);
+      break;
+    default:
+      break;
+  }
+
+  setActivePublicSection(sectionId);
+
+  window.setTimeout(() => {
+    const target = document.getElementById(`public-${sectionId}`);
+
+    if (!target) {
+      return;
+    }
+
+    const navHost = document.getElementById("public-memorial-nav");
+    const measuredPublicNavHeight =
+      navHost?.getBoundingClientRect().height ?? publicNavHeight;
+    const stickyOffset =
+      mainNavHeight + measuredPublicNavHeight + 12;
+    const targetTop =
+      window.scrollY + target.getBoundingClientRect().top - stickyOffset;
+
+    window.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: "smooth",
+    });
+  }, 0);
+}
 async function handleShare(platform?: string) {
   const url = `${window.location.origin}/memorial/${data?.slug || slug}`;
   const text = `View this memorial for ${data?.full_name || "a loved one"}`;
@@ -668,33 +856,47 @@ const videoLinkThumbnailUrls = useMemo(
       : [],
   [data?.video_link_thumbnail_urls]
 );
-  const contributorGalleryPhotos = useMemo(() => {
-  return approvedSubmissions.flatMap((submission) => {
-    const submittedPhotos = parseUrlList(submission.photo_urls);
 
-    return submittedPhotos.map((photoUrl) => ({
-      src: photoUrl,
-      note: submission.message ?? "",
-      attribution: submission.submitter_name
-        ? `Submitted by ${submission.submitter_name}`
-        : "Submitted by Anonymous Visitor",
-    }));
-  });
-}, [approvedSubmissions]);
+const favoriteSongs = useMemo(() => {
+  const urls =
+    Array.isArray(data?.favorite_song_urls) &&
+    data.favorite_song_urls.length > 0
+      ? data.favorite_song_urls
+      : data?.favorite_song_url
+        ? [data.favorite_song_url]
+        : [];
 
+  return urls
+    .map((song) => song?.trim())
+    .filter((song): song is string => Boolean(song));
+}, [data?.favorite_song_urls, data?.favorite_song_url]);
+
+useEffect(() => {
+  favoriteSongsRef.current = favoriteSongs;
+}, [favoriteSongs]);
+
+useEffect(() => {
+  isSlideshowPlayingRef.current = isSlideshowPlaying;
+}, [isSlideshowPlaying]);
+
+useEffect(() => {
+  presentationHasStartedRef.current = presentationHasStarted;
+}, [presentationHasStarted]);
+
+useEffect(() => {
+  currentSongIndexRef.current = currentSongIndex;
+}, [currentSongIndex]);
+
+const currentFavoriteSong = favoriteSongs[currentSongIndex] ?? "";
+const currentYouTubeVideoId = getYouTubeVideoId(currentFavoriteSong);
 const combinedGalleryPhotos = useMemo(() => {
-  const ownerPhotos = galleryPhotos.map((photoUrl, index) => ({
+  return galleryPhotos.map((photoUrl, index) => ({
     src: photoUrl,
     note: data?.gallery_photo_captions?.[index] ?? "",
     attribution: "",
   }));
+}, [galleryPhotos, data?.gallery_photo_captions]);
 
-  return [...ownerPhotos, ...contributorGalleryPhotos];
-}, [
-  galleryPhotos,
-  data?.gallery_photo_captions,
-  contributorGalleryPhotos,
-]);
 useEffect(() => {
   const nextPhoto =
     selectedPhotoIndex !== null
@@ -777,58 +979,228 @@ const restingPlaceAddress = [
     !!data?.grave_directions?.trim() ||
     hasGraveMap;
 
-  function pauseBackgroundMusicForVideo() {
-    const audio = backgroundAudioRef.current;
-    if (!audio) return;
+  function applyYouTubePlayerSound(player: any) {
+    if (!player) return;
 
-    const wasPlaying = !audio.paused;
-    setWasMusicPlayingBeforeVideo(wasPlaying);
+    try {
+      player.setVolume?.(Math.round(slideshowMusicVolume * 100));
 
-    if (wasPlaying) {
-      audio.pause();
+      if (isSlideshowMusicMuted) {
+        player.mute?.();
+      } else {
+        player.unMute?.();
+      }
+    } catch (error) {
+      console.error("Could not update YouTube slideshow sound:", error);
     }
   }
 
-  function resumeBackgroundMusicAfterVideo() {
-    const audio = backgroundAudioRef.current;
-    if (!audio) return;
+  function pauseUploadedFavoriteSongs(reset = false) {
+    songAudioRefs.current.forEach((audio) => {
+      if (!audio) return;
 
-    if (wasMusicPlayingBeforeVideo) {
-      audio.play().catch(() => {});
+      audio.pause();
+
+      if (reset) {
+        audio.currentTime = 0;
+      }
+    });
+  }
+
+  function pauseYouTubeFavoriteSong(reset = false) {
+    const player = youtubePlayerRef.current;
+
+    if (!player) return;
+
+    try {
+      if (reset) {
+        player.stopVideo?.();
+      } else {
+        player.pauseVideo?.();
+      }
+    } catch (error) {
+      console.error("Could not pause YouTube favorite song:", error);
     }
+  }
+
+  function advanceFavoriteSong() {
+    const songs = favoriteSongsRef.current;
+
+    if (songs.length === 0) {
+      return;
+    }
+
+    setCurrentSongIndex((currentIndex) => {
+      const nextIndex =
+        currentIndex >= songs.length - 1 ? 0 : currentIndex + 1;
+
+      currentSongIndexRef.current = nextIndex;
+      return nextIndex;
+    });
+  }
+
+  function playUploadedFavoriteSong(index: number, restart = false) {
+    const audio = songAudioRefs.current[index];
+
+    if (!audio) {
+      return;
+    }
+
+    pauseYouTubeFavoriteSong(false);
+
+    songAudioRefs.current.forEach((candidateAudio, candidateIndex) => {
+      if (!candidateAudio || candidateIndex === index) return;
+      candidateAudio.pause();
+    });
+
+    backgroundAudioRef.current = audio;
+    audio.volume = slideshowMusicVolume;
+    audio.muted = isSlideshowMusicMuted;
+
+    if (restart) {
+      audio.currentTime = 0;
+    }
+
+    audio.play().catch((error) => {
+      console.error("Could not play favorite song:", error);
+    });
+  }
+
+  function stopFavoriteSongPlayback(reset = false) {
+    pauseUploadedFavoriteSongs(reset);
+    pauseYouTubeFavoriteSong(reset);
+  }
+
+  function pauseBackgroundMusicForVideo() {
+    const currentSong =
+      favoriteSongsRef.current[currentSongIndexRef.current] ?? "";
+    const currentYouTubeId = getYouTubeVideoId(currentSong);
+    let wasPlaying = false;
+
+    if (currentYouTubeId && youtubePlayerRef.current) {
+      try {
+        const playerState = youtubePlayerRef.current.getPlayerState?.();
+        wasPlaying = playerState === 1;
+
+        if (wasPlaying) {
+          youtubePlayerRef.current.pauseVideo?.();
+        }
+      } catch (error) {
+        console.error("Could not pause YouTube song for memorial video:", error);
+      }
+    } else {
+      const audio =
+        songAudioRefs.current[currentSongIndexRef.current] ??
+        backgroundAudioRef.current;
+
+      if (audio) {
+        wasPlaying = !audio.paused;
+
+        if (wasPlaying) {
+          audio.pause();
+        }
+      }
+    }
+
+    wasMusicPlayingBeforeVideoRef.current = wasPlaying;
+    setWasMusicPlayingBeforeVideo(wasPlaying);
+  }
+
+  function resumeBackgroundMusicAfterVideo() {
+    if (
+      !wasMusicPlayingBeforeVideoRef.current &&
+      !wasMusicPlayingBeforeVideo
+    ) {
+      return;
+    }
+
+    const currentSong =
+      favoriteSongsRef.current[currentSongIndexRef.current] ?? "";
+    const currentYouTubeId = getYouTubeVideoId(currentSong);
+
+    if (currentYouTubeId && youtubePlayerRef.current) {
+      try {
+        applyYouTubePlayerSound(youtubePlayerRef.current);
+        youtubePlayerRef.current.playVideo?.();
+      } catch (error) {
+        console.error("Could not resume YouTube favorite song:", error);
+      }
+    } else {
+      playUploadedFavoriteSong(currentSongIndexRef.current, false);
+    }
+
+    wasMusicPlayingBeforeVideoRef.current = false;
+    setWasMusicPlayingBeforeVideo(false);
   }
 
   useEffect(() => {
     return () => {
-      backgroundAudioRef.current?.pause();
+      stopFavoriteSongPlayback(true);
+
+      try {
+        youtubePlayerRef.current?.destroy?.();
+      } catch {
+        // The YouTube player may already have been removed by React.
+      }
+
+      youtubePlayerRef.current = null;
     };
   }, []);
-  useEffect(() => {
-  const audio = songAudioRefs.current[currentSongIndex];
 
-  if (audio) {
-    audio.play().catch(() => {});
-  }
-}, [currentSongIndex]);
   useEffect(() => {
-  if (selectedPhotoIndex === null) return;
+    if (selectedPhotoIndex !== null) return;
 
-  function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === "Escape") {
-      setSelectedPhotoIndex(null);
+    if (presentationHasStartedRef.current) {
+      setPresentationHasStarted(false);
+      presentationHasStartedRef.current = false;
+      setIsSlideshowPlaying(false);
+      isSlideshowPlayingRef.current = false;
+      stopFavoriteSongPlayback(true);
+      setCurrentSongIndex(0);
+      currentSongIndexRef.current = 0;
+    }
+  }, [selectedPhotoIndex]);
+
+  useEffect(() => {
+    if (selectedPhotoIndex === null) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setSelectedPhotoIndex(null);
+      }
+
+      if (event.key === "ArrowLeft") {
+        setSelectedPhotoIndex((currentIndex) => {
+          if (currentIndex === null) return currentIndex;
+
+          return currentIndex === 0
+            ? combinedGalleryPhotos.length - 1
+            : currentIndex - 1;
+        });
+      }
+
+      if (event.key === "ArrowRight") {
+        setSelectedPhotoIndex((currentIndex) => {
+          if (currentIndex === null) return currentIndex;
+
+          return currentIndex === combinedGalleryPhotos.length - 1
+            ? 0
+            : currentIndex + 1;
+        });
+      }
     }
 
-    if (event.key === "ArrowLeft") {
-      setSelectedPhotoIndex((currentIndex) => {
-        if (currentIndex === null) return currentIndex;
+    window.addEventListener("keydown", handleKeyDown);
 
-        return currentIndex === 0
-          ? combinedGalleryPhotos.length - 1
-          : currentIndex - 1;
-      });
-    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedPhotoIndex, combinedGalleryPhotos.length]);
 
-    if (event.key === "ArrowRight") {
+  useEffect(() => {
+    if (!isSlideshowPlaying || selectedPhotoIndex === null) return;
+
+    const timer = setInterval(() => {
       setSelectedPhotoIndex((currentIndex) => {
         if (currentIndex === null) return currentIndex;
 
@@ -836,90 +1208,220 @@ const restingPlaceAddress = [
           ? 0
           : currentIndex + 1;
       });
-    }
-  }
 
-  window.addEventListener("keydown", handleKeyDown);
+      setPhotoFadeKey((current) => current + 1);
+    }, 4000);
 
-  return () => {
-    window.removeEventListener("keydown", handleKeyDown);
-  };
-}, [selectedPhotoIndex, combinedGalleryPhotos.length]);
-useEffect(() => {
-  if (!isSlideshowPlaying || selectedPhotoIndex === null) return;
+    return () => clearInterval(timer);
+  }, [isSlideshowPlaying, selectedPhotoIndex, combinedGalleryPhotos.length]);
 
-  const timer = setInterval(() => {
-    setSelectedPhotoIndex((currentIndex) => {
-      if (currentIndex === null) return currentIndex;
+  useEffect(() => {
+    songAudioRefs.current.forEach((audio) => {
+      if (!audio) return;
 
-      return currentIndex === combinedGalleryPhotos.length - 1
-        ? 0
-        : currentIndex + 1;
+      audio.volume = slideshowMusicVolume;
+      audio.muted = isSlideshowMusicMuted;
     });
-    
 
-    setPhotoFadeKey((current) => current + 1);
-  }, 4000);
+    applyYouTubePlayerSound(youtubePlayerRef.current);
+  }, [slideshowMusicVolume, isSlideshowMusicMuted, currentSongIndex]);
 
-  return () => clearInterval(timer);
-}, [isSlideshowPlaying, selectedPhotoIndex, combinedGalleryPhotos.length]);
-
-useEffect(() => {
-  songAudioRefs.current.forEach((audio) => {
-    if (!audio) return;
-
-    audio.volume = slideshowMusicVolume;
-    audio.muted = isSlideshowMusicMuted;
-  });
-}, [slideshowMusicVolume, isSlideshowMusicMuted, currentSongIndex]);
-
-function toggleSlideshowWithMusic() {
-  if (isSlideshowPlaying) {
-    setIsSlideshowPlaying(false);
-
-    const currentAudio = songAudioRefs.current[currentSongIndex];
-
-    if (currentAudio && !currentAudio.paused) {
-      currentAudio.pause();
+  useEffect(() => {
+    if (!presentationHasStarted || !currentYouTubeVideoId) {
+      return;
     }
-    function endPresentation() {
-  setIsSlideshowPlaying(false);
 
-  songAudioRefs.current.forEach((audio) => {
-    if (!audio) return;
+    const host = youtubePlayerHostRef.current;
 
-    audio.pause();
-    audio.currentTime = 0;
-  });
+    if (!host) {
+      return;
+    }
 
-  setCurrentSongIndex(0);
-  setSelectedPhotoIndex(0);
-  setPhotoFadeKey((current) => current + 1);
-}
+    let cancelled = false;
+    let createdPlayer: any = null;
 
-    return;
+    loadYouTubeIframeApi()
+      .then((youtubeApi) => {
+        if (cancelled || !youtubePlayerHostRef.current) {
+          return;
+        }
+
+        createdPlayer = new youtubeApi.Player(youtubePlayerHostRef.current, {
+          width: "100%",
+          height: "100%",
+          videoId: currentYouTubeVideoId,
+          playerVars: {
+            autoplay: isSlideshowPlayingRef.current ? 1 : 0,
+            controls: 1,
+            playsinline: 1,
+            rel: 0,
+            origin: window.location.origin,
+          },
+          events: {
+            onReady: (event: any) => {
+              if (cancelled) return;
+
+              youtubePlayerRef.current = event.target;
+              applyYouTubePlayerSound(event.target);
+
+              if (isSlideshowPlayingRef.current) {
+                event.target.playVideo?.();
+              }
+            },
+            onStateChange: (event: any) => {
+              if (
+                event.data === youtubeApi.PlayerState?.ENDED &&
+                isSlideshowPlayingRef.current
+              ) {
+                advanceFavoriteSong();
+              }
+            },
+            onError: (event: any) => {
+              console.error("YouTube favorite song playback error:", event.data);
+            },
+          },
+        });
+
+        youtubePlayerRef.current = createdPlayer;
+      })
+      .catch((error) => {
+        console.error("Could not initialize YouTube favorite song:", error);
+      });
+
+    return () => {
+      cancelled = true;
+
+      try {
+        createdPlayer?.destroy?.();
+      } catch {
+        // The player may already have been removed during a song change.
+      }
+
+      if (youtubePlayerRef.current === createdPlayer) {
+        youtubePlayerRef.current = null;
+      }
+    };
+  }, [presentationHasStarted, currentYouTubeVideoId]);
+
+  useEffect(() => {
+    if (!presentationHasStarted) {
+      return;
+    }
+
+    const song = favoriteSongs[currentSongIndex] ?? "";
+
+    if (!song) {
+      stopFavoriteSongPlayback(false);
+      return;
+    }
+
+    const youtubeVideoId = getYouTubeVideoId(song);
+
+    if (!isSlideshowPlaying) {
+      if (youtubeVideoId) {
+        pauseYouTubeFavoriteSong(false);
+      } else {
+        songAudioRefs.current[currentSongIndex]?.pause();
+      }
+
+      return;
+    }
+
+    if (youtubeVideoId) {
+      pauseUploadedFavoriteSongs(false);
+      applyYouTubePlayerSound(youtubePlayerRef.current);
+      youtubePlayerRef.current?.playVideo?.();
+      return;
+    }
+
+    pauseYouTubeFavoriteSong(false);
+    playUploadedFavoriteSong(currentSongIndex, false);
+  }, [
+    presentationHasStarted,
+    isSlideshowPlaying,
+    currentSongIndex,
+    favoriteSongs,
+  ]);
+
+  function toggleSlideshowWithMusic() {
+    if (isSlideshowPlaying) {
+      setIsSlideshowPlaying(false);
+      isSlideshowPlayingRef.current = false;
+      stopFavoriteSongPlayback(false);
+      return;
+    }
+
+    if (!presentationHasStarted) {
+      setPresentationHasStarted(true);
+      presentationHasStartedRef.current = true;
+    }
+
+    setIsSlideshowPlaying(true);
+    isSlideshowPlayingRef.current = true;
+
+    if (favoriteSongs.length === 0) {
+      return;
+    }
+
+    const safeIndex =
+      currentSongIndex >= 0 && currentSongIndex < favoriteSongs.length
+        ? currentSongIndex
+        : 0;
+
+    if (safeIndex !== currentSongIndex) {
+      setCurrentSongIndex(safeIndex);
+      currentSongIndexRef.current = safeIndex;
+    }
+
+    const song = favoriteSongs[safeIndex];
+    const youtubeVideoId = getYouTubeVideoId(song);
+
+    if (!youtubeVideoId) {
+      playUploadedFavoriteSong(safeIndex, false);
+    } else if (youtubePlayerRef.current) {
+      applyYouTubePlayerSound(youtubePlayerRef.current);
+      youtubePlayerRef.current.playVideo?.();
+    }
   }
 
-  setIsSlideshowPlaying(true);
+  function handleExperienceTheirLife() {
+    // The public CTA should immediately reveal the photo experience,
+    // open the first photo, start/resume the presentation, and move the visitor to it.
+    setShowPhotoGallery(true);
+    setActivePublicSection("photo-gallery");
 
-  const currentAudio =
-    songAudioRefs.current[currentSongIndex] ??
-    songAudioRefs.current[0];
+    // The slideshow timer only advances while a gallery photo is selected.
+    // Starting from the top CTA therefore needs to open the first photo too.
+    if (combinedGalleryPhotos.length > 0 && selectedPhotoIndex === null) {
+      setSelectedPhotoIndex(0);
+      setPhotoFadeKey((current) => current + 1);
+    }
 
-  if (!currentAudio) {
-    return;
+    if (!isSlideshowPlaying) {
+      toggleSlideshowWithMusic();
+    }
+
+    window.setTimeout(() => {
+      const target = document.getElementById("public-photo-gallery");
+
+      if (!target) {
+        return;
+      }
+
+      const navHost = document.getElementById("public-memorial-nav");
+      const measuredPublicNavHeight =
+        navHost?.getBoundingClientRect().height ?? publicNavHeight;
+      const stickyOffset =
+        mainNavHeight + measuredPublicNavHeight + 12;
+      const targetTop =
+        window.scrollY + target.getBoundingClientRect().top - stickyOffset;
+
+      window.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: "smooth",
+      });
+    }, 0);
   }
-
-  const audioIndex = songAudioRefs.current.indexOf(currentAudio);
-
-  if (audioIndex >= 0) {
-    setCurrentSongIndex(audioIndex);
-  }
-
-  currentAudio.play().catch((error) => {
-    console.error("Could not start slideshow music:", error);
-  });
-}
 
   function getContributorVideoDuration(file: File): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -960,8 +1462,19 @@ async function uploadContributorVideo(file: File): Promise<string> {
     throw new Error("Contributor videos must be 5 minutes or less.");
   }
 
+  if (!data?.id) {
+    throw new Error("Memorial information is unavailable. Please refresh and try again.");
+  }
+
   const uploadRes = await fetch("/api/mux-upload", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      memorialId: data.id,
+      uploadPurpose: "visitor_submission",
+    }),
   });
 
   if (!uploadRes.ok) {
@@ -990,7 +1503,7 @@ async function uploadContributorVideo(file: File): Promise<string> {
     throw new Error("Video upload failed.");
   }
 
-  for (let attempt = 0; attempt < 10; attempt++) {
+  for (let attempt = 0; attempt < 60; attempt++) {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const playbackRes = await fetch("/api/mux-playback", {
@@ -998,17 +1511,29 @@ async function uploadContributorVideo(file: File): Promise<string> {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ uploadId }),
+      body: JSON.stringify({
+        uploadId,
+        memorialId: data.id,
+        uploadPurpose: "visitor_submission",
+      }),
     });
 
     const playbackData = await playbackRes.json();
 
-    if (playbackData.playbackId) {
+    if (playbackRes.ok && playbackData.playbackId) {
       return playbackData.playbackId;
+    }
+
+    if (playbackRes.status !== 202) {
+      console.error("MUX PLAYBACK API ERROR:", playbackData);
+      throw new Error(
+        playbackData?.error ||
+          "Could not finish preparing the video for playback."
+      );
     }
   }
 
-  throw new Error("Video is still processing. Please try again shortly.");
+  throw new Error("Video processing is taking longer than expected. Please try again in a few minutes.");
 }
   async function handleContributionSubmit() {
   if (!data?.id || !data?.slug) return;
@@ -1122,7 +1647,7 @@ if (submissionVideo) {
 const result = await res.json();
 
 if (!res.ok) {
-  throw new Error(result.error || "Could not submit contribution.");
+  throw new Error(result.error || "Could not submit your memory.");
 }
 
     setSubmissionSuccess(true);
@@ -1131,6 +1656,28 @@ if (!res.ok) {
     setSubmissionMessage("");
     setSubmissionPhotos([]);
     setSubmissionVideo(null);
+
+    // After the long form collapses into the short success message,
+    // return the visitor to this section so the confirmation stays visible.
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const target = document.getElementById("help-preserve-this-memory");
+
+        if (!target) return;
+
+        const navHost = document.getElementById("public-memorial-nav");
+        const measuredPublicNavHeight =
+          navHost?.getBoundingClientRect().height ?? publicNavHeight;
+        const stickyOffset = mainNavHeight + measuredPublicNavHeight + 12;
+        const targetTop =
+          window.scrollY + target.getBoundingClientRect().top - stickyOffset;
+
+        window.scrollTo({
+          top: Math.max(0, targetTop),
+          behavior: "smooth",
+        });
+      });
+    });
   } catch (err) {
     console.error(err);
     alert("There was a problem sending your submission.");
@@ -1188,6 +1735,67 @@ const selectedPhotoAttribution =
 const canGoNext =
   selectedPhotoIndex !== null && combinedGalleryPhotos.length > 1;
 
+const bannerUrl =
+  data.banner_photo_url?.trim() || "/memorial-banners/stock/sunset-lake.png";
+const bannerPositionX = Number.isFinite(Number(data.banner_position_x))
+  ? Number(data.banner_position_x)
+  : 50;
+const bannerPositionY = Number.isFinite(Number(data.banner_position_y))
+  ? Number(data.banner_position_y)
+  : 50;
+
+const hasFamilyHistory = Boolean(
+  data.great_grandparents_names?.trim() ||
+    data.grandparents_father_side?.trim() ||
+    data.grandparents_mother_side?.trim() ||
+    data.parents_names?.trim() ||
+    data.siblings_names?.trim() ||
+    data.spouse_names?.trim() ||
+    data.children_names?.trim() ||
+    data.grandchildren_names?.trim() ||
+    data.great_grandchildren_names?.trim()
+);
+
+const hasSchoolsAndAwards = Boolean(
+  (Array.isArray(data.schools_attended)
+    ? data.schools_attended.length > 0
+    : data.schools_attended?.trim()) ||
+    (Array.isArray(data.awards_won)
+      ? data.awards_won.length > 0
+      : data.awards_won?.trim())
+);
+
+const hasSocialMedia = Boolean(
+  data.social_link_1 ||
+    data.social_link_2 ||
+    data.social_link_3 ||
+    data.social_link_4 ||
+    data.social_link_5
+);
+
+const hasObituary = Boolean(
+  data.obituary?.trim() || data.obituary_image_url || data.obituary_url
+);
+
+const publicNavChapters = [
+  { id: "basic-information", title: "Basic Information", show: true },
+  { id: "life-story", title: "Life Story", show: Boolean(data.life_story?.trim()) },
+  { id: "family-history", title: "Family History", show: hasFamilyHistory },
+  { id: "places-lived", title: "Places Lived", show: Boolean(data.places_lived?.trim()) },
+  { id: "places-worked", title: "Places Worked", show: Boolean(data.places_worked?.trim()) },
+  { id: "schools-and-awards", title: "Schools & Awards", show: hasSchoolsAndAwards },
+  { id: "social-media", title: "Social Media", show: hasSocialMedia },
+  { id: "newspaper-articles", title: "Newspaper Articles", show: newspaperArticles.length > 0 },
+  { id: "favorite-songs", title: "Favorite Songs", show: favoriteSongs.length > 0 },
+  { id: "photo-gallery", title: "Photo Gallery", show: combinedGalleryPhotos.length > 0 },
+  { id: "video-memories", title: "Video Memories", show: memorialVideos.length > 0 || videoLinkUrls.length > 0 },
+  { id: "family-and-friends", title: "Family & Friends", show: approvedSubmissions.length > 0 },
+  { id: "obituary", title: "Obituary", show: hasObituary },
+  { id: "final-resting-place", title: "Final Resting Place", show: hasFinalRestingPlace },
+]
+  .filter((chapter) => chapter.show)
+  .map(({ id, title }) => ({ id, title }));
+
 function showPreviousPhoto() {
   if (selectedPhotoIndex === null) return;
 
@@ -1208,271 +1816,257 @@ function showNextPhoto() {
   );setPhotoFadeKey((current) => current + 1);
 }
   return (
-  <main className="min-h-screen bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100 px-2 py-6 sm:px-4 sm:py-10">
-  <div className="mx-auto grid w-full max-w-[1800px] grid-cols-1 gap-6 px-4 lg:grid-cols-[460px_minmax(0,1fr)]">
-    <SideAd
-  memorialZip={data.map_zip}
-  pageType="memorial"
-/>
-
-    <div className="space-y-10">
-  {isSampleMemorial && (
-    <div className="rounded-2xl border-2 border-amber-400 bg-amber-100 px-6 py-4 text-center shadow-sm">
-      <p className="text-xl font-extrabold uppercase tracking-[0.18em] text-amber-900 sm:text-2xl">
-        Sample Memorial
-      </p>
-    </div>
-  )}
-
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
-  {isOwner && (
-    <div
-      className={`mb-5 rounded-2xl border px-5 py-4 text-sm font-semibold ${
-        data.is_published
-          ? "border-green-200 bg-green-50 text-green-800"
-          : "border-amber-200 bg-amber-50 text-amber-800"
-      }`}
-    >
-      {data.is_published
-        ? "This memorial is currently published and publicly visible."
-        : "This memorial is currently unpublished and only visible to you and your backup person."}
-    </div>
-  )}
-
-  <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_220px] md:items-start">
-    <div className="min-w-0">
-      <h1 className="text-3xl font-bold leading-tight tracking-tight text-stone-900 sm:text-4xl md:text-5xl">
-        {data.full_name || "Unnamed Memorial"}
-      </h1>
-
-      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-stone-700 md:text-base">
-        {data.birth_date && (
-          <p>
-            <strong>Born:</strong> {formatDate(data.birth_date)}
-          </p>
-        )}
-
-        {data.death_date && (
-          <p>
-            <strong>Date of Passing:</strong> {formatDate(data.death_date)}
-          </p>
-        )}
-
-        {data.nickname?.trim() && (
-          <p>
-            <strong>Nickname:</strong> {data.nickname}
-          </p>
-        )}
-
-        {data.maiden_name?.trim() && (
-          <p>
-            <strong>Maiden Name:</strong> {data.maiden_name}
-          </p>
-        )}
-      </div>
-
-      <p className="mt-4 max-w-3xl text-sm leading-6 text-stone-600 md:text-base">
-        This MyEMemorial page preserves photos, videos, life story, obituary
-        information, family history, cemetery details, favorite music, and
-        memories shared by family and friends.
-      </p>
-    </div>
-
-    {data.featured_photo_url && (
-      <div className="flex justify-center md:justify-end">
+    <main className="min-h-screen bg-gradient-to-b from-stone-100 via-stone-50 to-stone-100">
+      <section
+        id="public-basic-information"
+        className="relative isolate w-full overflow-hidden bg-blue-950"
+      >
         <img
-          src={data.featured_photo_url}
-          alt={data.full_name || "Memorial photo"}
-          className="h-[190px] w-[190px] rounded-2xl bg-stone-100 object-contain p-2 shadow-lg ring-1 ring-stone-200 md:h-[210px] md:w-[210px]"
+          src={bannerUrl}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: `${bannerPositionX}% ${bannerPositionY}%` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/50 to-black/25" />
+
+        <div className="relative mx-auto flex min-h-[460px] w-full max-w-[1800px] flex-col items-center justify-end gap-7 pl-4 pr-7 py-8 sm:pl-8 sm:pr-11 xl:min-h-[500px] xl:flex-row xl:items-end xl:justify-start xl:gap-10 xl:py-10 xl:px-12">
+          {data.featured_photo_url && (
+            <div className="flex w-full justify-center xl:w-auto xl:justify-start">
+              <div className="shrink-0 rounded-[24px] border-[3px] border-white/95 bg-black/15 p-1.5 shadow-2xl">
+                <img
+                  src={data.featured_photo_url}
+                  alt={data.full_name || "Memorial photo"}
+                  className="h-[260px] w-[260px] rounded-[18px] object-cover sm:h-[300px] sm:w-[300px] xl:h-[340px] xl:w-[340px]"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="w-full min-w-0 pb-2 text-center text-white xl:w-auto xl:text-left">
+            {isSampleMemorial && (
+              <p className="mb-4 inline-flex rounded-full border border-amber-200 bg-amber-100/95 px-4 py-2 text-base font-extrabold uppercase tracking-[0.14em] text-amber-950 shadow-lg">
+                Sample Memorial
+              </p>
+            )}
+
+            <h1 className="text-4xl font-bold leading-tight tracking-tight drop-shadow-lg sm:text-5xl lg:text-6xl">
+              {data.full_name || "Unnamed Memorial"}
+            </h1>
+
+            {(data.birth_date || data.death_date) && (
+              <p className="mt-4 text-xl font-semibold leading-8 text-white/95 drop-shadow sm:text-2xl">
+                {data.birth_date ? formatDate(data.birth_date) : ""}
+                {data.birth_date && data.death_date ? " — " : ""}
+                {data.death_date ? formatDate(data.death_date) : ""}
+              </p>
+            )}
+
+            {data.nickname?.trim() && (
+              <p className="mt-3 text-lg font-semibold text-white/90">
+                Known as “{data.nickname.trim()}”
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                const target = document.getElementById("help-preserve-this-memory");
+
+                if (!target) return;
+
+                const navHost = document.getElementById("public-memorial-nav");
+                const measuredPublicNavHeight =
+                  navHost?.getBoundingClientRect().height ?? publicNavHeight;
+                const stickyOffset =
+                  mainNavHeight + measuredPublicNavHeight + 12;
+                const targetTop =
+                  window.scrollY + target.getBoundingClientRect().top - stickyOffset;
+
+                window.scrollTo({
+                  top: Math.max(0, targetTop),
+                  behavior: "smooth",
+                });
+              }}
+              className="mx-auto mt-6 flex w-fit max-w-full items-center justify-center rounded-full border-2 border-amber-200 bg-amber-400 px-6 py-3 text-base font-bold text-blue-950 shadow-lg transition hover:bg-amber-300 focus:outline-none focus:ring-4 focus:ring-amber-200/60 xl:mx-0"
+            >
+              Upload your Memory, Photo or Video
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-stone-200 bg-white shadow-sm">
+        <div className="mx-auto w-full max-w-[1800px] pl-4 pr-7 py-5 sm:pl-6 sm:pr-9 lg:px-8">
+          {isOwner && !data.is_published && (
+            <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-base font-semibold text-amber-800">
+              This memorial is currently unpublished and only visible to you and your backup person.
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleExperienceTheirLife}
+              className="inline-flex items-center justify-center rounded-full bg-blue-950 px-6 py-3 text-base font-bold text-white shadow-sm transition hover:bg-blue-900 hover:shadow-md"
+            >
+              ▶ Experience Their Life
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleShare("copy")}
+              className="inline-flex items-center justify-center rounded-full bg-stone-200 px-4 py-3 text-base font-semibold text-stone-800 hover:bg-stone-300"
+            >
+              {copied ? "Memorial Link Copied!" : "Copy Memorial Link"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleShare("email")}
+              className="inline-flex items-center justify-center rounded-full bg-stone-200 px-4 py-3 text-base font-semibold text-stone-800 hover:bg-stone-300"
+            >
+              Email Memorial Link
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleShare("sms")}
+              className="inline-flex items-center justify-center rounded-full bg-green-600 px-4 py-3 text-base font-semibold text-white hover:bg-green-500"
+            >
+              Text
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleShare("facebook")}
+              className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-3 text-base font-semibold text-white hover:bg-blue-500"
+            >
+              Facebook
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleShare("whatsapp")}
+              className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-3 text-base font-semibold text-white hover:bg-emerald-500"
+            >
+              WhatsApp
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleShare("twitter")}
+              className="inline-flex items-center justify-center rounded-full bg-black px-4 py-3 text-base font-semibold text-white hover:bg-stone-800"
+            >
+              X
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowQrCode((current) => !current)}
+              className="inline-flex items-center justify-center rounded-full bg-blue-950 px-4 py-3 text-base font-semibold text-white hover:bg-blue-900"
+            >
+              QR Code
+            </button>
+          </div>
+
+          {showQrCode && (
+            <div className="mt-4 inline-block rounded-2xl border border-stone-200 bg-white p-5 text-center shadow-sm">
+              <QRCodeSVG
+                id="memorial-qr-code"
+                value={`https://www.myememorial.com/memorial/${data.slug}`}
+                size={180}
+                level="H"
+                includeMargin
+              />
+
+              <p className="mt-3 max-w-[220px] text-center text-base leading-6 text-stone-600">
+                Scan this QR code to open this memorial page.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const svg = document.getElementById("memorial-qr-code");
+
+                  if (!svg) return;
+
+                  const svgData = new XMLSerializer().serializeToString(svg);
+                  const canvas = document.createElement("canvas");
+                  const ctx = canvas.getContext("2d");
+                  const img = new Image();
+
+                  canvas.width = 600;
+                  canvas.height = 600;
+
+                  img.onload = () => {
+                    if (!ctx) return;
+
+                    ctx.fillStyle = "white";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    const pngFile = canvas.toDataURL("image/png");
+                    const downloadLink = document.createElement("a");
+                    downloadLink.href = pngFile;
+                    downloadLink.download = `${data.slug}-myememorial-qr-code.png`;
+                    downloadLink.click();
+                  };
+
+                  img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
+                }}
+                className="mt-4 inline-flex items-center justify-center rounded-full bg-blue-950 px-4 py-3 text-base font-semibold text-white hover:bg-blue-900"
+              >
+                Download QR Code
+              </button>
+            </div>
+          )}
+
+          {!isOwner && data.is_living_preplan && (
+            <Link
+              href={`/memorial/${data.slug || slug}/manage`}
+              className="mt-4 inline-flex w-fit items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-3 text-base font-semibold text-stone-700 transition hover:border-stone-400 hover:bg-stone-100"
+            >
+              Backup person? Manage this memorial
+            </Link>
+          )}
+        </div>
+      </section>
+
+      <div
+        id="public-memorial-nav"
+        className="sticky z-40 w-full bg-white"
+        style={{ top: `${mainNavHeight}px` }}
+      >
+        <PublicMemorialNav
+          chapters={publicNavChapters}
+          currentChapterId={activePublicSection}
+          onChapterSelect={handlePublicSectionSelect}
         />
       </div>
-    )}
-  </div>
 
-  <div className="mt-5 border-t border-stone-200 pt-4">
-    <div className="flex flex-wrap items-center gap-2">
-      {isOwner && data.id && (
-        <button
-          type="button"
-          onClick={() => {
-            window.location.href = `/create?edit=${data.id}`;
-          }}
-          className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-700"
-        >
-          Edit Memorial
-        </button>
-      )}
+      <div className="mx-auto grid w-full max-w-[1800px] grid-cols-1 gap-6 pl-4 pr-7 py-6 sm:pl-6 sm:pr-9 lg:grid-cols-[345px_minmax(0,1fr)] lg:px-6">
+        <aside className="hidden lg:block">
+          <div
+            className="sticky"
+            style={{ top: `${mainNavHeight + publicNavHeight + 16}px` }}
+          >
+            <SideAd
+              memorialZip={data.map_zip}
+              pageType="memorial"
+              sticky={false}
+              compact
+            />
+          </div>
+        </aside>
 
-      <button
-        onClick={() => handleShare("copy")}
-        className="inline-flex items-center justify-center rounded-full bg-stone-200 px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-300"
-      >
-        {copied ? "Memorial Link Copied!" : "Copy Memorial Link"}
-      </button>
-
-      <button
-        onClick={() => handleShare("email")}
-        className="inline-flex items-center justify-center rounded-full bg-stone-200 px-4 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-300"
-      >
-        Email Memorial Link
-      </button>
-
-      <button
-        onClick={() => handleShare("sms")}
-        className="inline-flex items-center justify-center rounded-full bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-500"
-      >
-        Text
-      </button>
-
-      <button
-        onClick={() => handleShare("facebook")}
-        className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-500"
-      >
-        Facebook
-      </button>
-
-      <button
-        onClick={() => handleShare("whatsapp")}
-        className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
-      >
-        WhatsApp
-      </button>
-
-      <button
-        onClick={() => handleShare("twitter")}
-        className="inline-flex items-center justify-center rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-stone-800"
-      >
-        X
-      </button>
-
-      <button
-        type="button"
-        onClick={() => setShowQrCode((current) => !current)}
-        className="inline-flex items-center justify-center rounded-full bg-blue-950 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-900"
-      >
-        QR Code
-      </button>
-    </div>
-
-    {showQrCode && (
-      <div className="mt-4 inline-block rounded-2xl border border-stone-200 bg-white p-5 text-center shadow-sm">
-        <QRCodeSVG
-          id="memorial-qr-code"
-          value={`https://www.myememorial.com/memorial/${data.slug}`}
-          size={180}
-          level="H"
-          includeMargin
-        />
-
-        <p className="mt-3 max-w-[220px] text-center text-xs leading-5 text-stone-600">
-          Scan this QR code to open this memorial page.
-        </p>
-
-        <button
-          type="button"
-          onClick={() => {
-            const svg = document.getElementById("memorial-qr-code");
-
-            if (!svg) return;
-
-            const svgData = new XMLSerializer().serializeToString(svg);
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            const img = new Image();
-
-            canvas.width = 600;
-            canvas.height = 600;
-
-            img.onload = () => {
-              if (!ctx) return;
-
-              ctx.fillStyle = "white";
-              ctx.fillRect(0, 0, canvas.width, canvas.height);
-              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-              const pngFile = canvas.toDataURL("image/png");
-
-              const downloadLink = document.createElement("a");
-              downloadLink.href = pngFile;
-              downloadLink.download = `${data.slug}-myememorial-qr-code.png`;
-              downloadLink.click();
-            };
-
-            img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
-          }}
-          className="mt-4 inline-flex items-center justify-center rounded-full bg-blue-950 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-900"
-        >
-          Download QR Code
-        </button>
-      </div>
-    )}
-
-    {!isOwner && data.is_living_preplan && (
-      <Link
-  href={`/memorial/${data.slug || slug}/manage`}
-  className="mt-4 inline-flex w-fit items-center justify-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-stone-400 hover:bg-stone-100"
->
-  Backup person? Manage this memorial
-</Link>
-    )}
-  </div>
-</section>
-
+        <div className="space-y-10">
 <div className="lg:hidden">
   <MobileAd memorialZip={data.map_zip} pageType="memorial" />
 </div>
 
-<section className="rounded-2xl bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm">
-  <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-    Basic Information
-  </h2>
-
-  <div className="mt-5 grid gap-3 text-stone-700 sm:grid-cols-2">
-    {data.first_name?.trim() && (
-      <p>
-        <strong>First Name:</strong> {data.first_name}
-      </p>
-    )}
-
-    {data.middle_name?.trim() && (
-      <p>
-        <strong>Middle Name:</strong> {data.middle_name}
-      </p>
-    )}
-
-    {data.last_name?.trim() && (
-      <p>
-        <strong>Last Name:</strong> {data.last_name}
-      </p>
-    )}
-
-    {data.maiden_name?.trim() && (
-      <p>
-        <strong>Maiden Name:</strong> {data.maiden_name}
-      </p>
-    )}
-
-    {data.nickname?.trim() && (
-      <p>
-        <strong>Nickname:</strong> {data.nickname}
-      </p>
-    )}
-
-    {data.birth_date && (
-      <p>
-        <strong>Born:</strong> {formatDate(data.birth_date)}
-      </p>
-    )}
-
-    {data.death_date && (
-      <p>
-        <strong>Date of Passing:</strong> {formatDate(data.death_date)}
-      </p>
-    )}
-  </div>
-</section>
 {data.life_story?.trim() && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+  <section id="public-life-story" className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Life Story
     </h2>
@@ -1494,7 +2088,7 @@ function showNextPhoto() {
   data.grandchildren_names?.trim() ||
   data.great_grandchildren_names?.trim()
 ) && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+  <section id="public-family-history" className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Family Tree
     </h2>
@@ -1599,7 +2193,7 @@ function showNextPhoto() {
   </section>
 )}
 {data.places_lived?.trim() && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+  <section id="public-places-lived" className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Places Lived
     </h2>
@@ -1611,7 +2205,7 @@ function showNextPhoto() {
 )}
 
 {data.places_worked?.trim() && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+  <section id="public-places-worked" className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Places Worked
     </h2>
@@ -1623,7 +2217,7 @@ function showNextPhoto() {
 )}
 
 {(data.schools_attended || data.awards_won) && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+  <section id="public-schools-and-awards" className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Schools and Awards
     </h2>
@@ -1651,7 +2245,7 @@ function showNextPhoto() {
 )}
 
 {newspaperArticles.length > 0 && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+  <section id="public-newspaper-articles" className="rounded-2xl bg-white p-5 shadow-sm">
     <button
       type="button"
       onClick={() => setShowNewspaperArticles((current) => !current)}
@@ -1683,120 +2277,127 @@ function showNextPhoto() {
     )}
   </section>
 )}
-{(data.favorite_song_url ||
-  (data.favorite_song_urls && data.favorite_song_urls.length > 0)) && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+{favoriteSongs.length > 0 && (
+  <section id="public-favorite-songs" className="rounded-2xl bg-white p-5 shadow-sm">
     <div className="flex w-full items-center justify-between gap-4 text-left">
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => {
-            setTimeout(() => {
-              const firstAudio = songAudioRefs.current[0];
+      <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
+        {data.nickname?.trim()
+          ? `${data.nickname.trim()}'s Favorite Songs`
+          : data.first_name
+            ? `${data.first_name}'s Favorite Songs`
+            : "Favorite Songs"}
+      </h2>
 
-              if (firstAudio) {
-                setCurrentSongIndex(0);
-                firstAudio.currentTime = 0;
-
-                firstAudio.play().catch((err) => {
-                  console.error("Audio play failed:", err);
-                });
-              }
-            }, 300);
-          }}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-900 text-lg text-white transition hover:bg-stone-700"
-        >
-          ▶
-       </button>
-
-<h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-  {data.nickname?.trim()
-    ? `${data.nickname.trim()}'s Favorite Songs`
-    : data.first_name
-      ? `${data.first_name}'s Favorite Songs`
-      : "Favorite Songs"}
-</h2>
-</div>
-
-<button
+      <button
         type="button"
         onClick={() => setShowFavoriteSongs((current) => !current)}
-        className="rounded-full bg-stone-100 px-3 py-1 text-sm font-semibold text-stone-700 hover:bg-stone-200"
+        className="rounded-full bg-stone-100 px-3 py-1 text-base font-semibold text-stone-700 hover:bg-stone-200"
       >
         {showFavoriteSongs ? "▲" : "▼"}
       </button>
     </div>
 
-    <p className="mt-2 text-xs text-stone-500">
-      Tap play to begin. Songs will continue automatically.
+    <p className="mt-2 text-base leading-6 text-stone-500">
+      Uploaded songs use the audio controls below. YouTube favorites stay compact
+      here and join the same music playlist during Experience Their Life.
     </p>
 
-    <div className={showFavoriteSongs ? "mt-4 space-y-2" : "hidden"}>
-      {(data.favorite_song_urls && data.favorite_song_urls.length > 0
-        ? data.favorite_song_urls
-        : data.favorite_song_url
-          ? [data.favorite_song_url]
-          : []
-      ).map((song, index) => (
-        <div
-          key={`${song}-${index}`}
-          className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2"
-        >
-          <audio
-            ref={(element) => {
-              songAudioRefs.current[index] = element;
+    <div className={showFavoriteSongs ? "mt-4 space-y-3" : "hidden"}>
+      {favoriteSongs.map((song, index) => {
+        const youtubeVideoId = getYouTubeVideoId(song);
 
-              if (index === currentSongIndex) {
-                backgroundAudioRef.current = element;
-              }
-            }}
-            controls
-            preload="auto"
-            className="w-full"
-            src={song}
-            onPlay={() => {
-              setCurrentSongIndex(index);
-            }}
-            onEnded={() => {
-  const availableSongs = songAudioRefs.current.filter(
-    (audio): audio is HTMLAudioElement => audio !== null
-  );
+        return (
+          <div
+            key={`${song}-${index}`}
+            className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3"
+          >
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-base font-semibold text-stone-800">
+                Favorite Song {index + 1}
+              </p>
 
-  if (availableSongs.length === 0) {
-    return;
-  }
+              {youtubeVideoId && (
+                <span className="rounded-full bg-red-50 px-3 py-1 text-base font-semibold text-red-700">
+                  YouTube
+                </span>
+              )}
+            </div>
 
-  const nextIndex =
-    index >= availableSongs.length - 1
-      ? 0
-      : index + 1;
+            {youtubeVideoId ? (
+              <div className="rounded-xl border border-red-200 bg-white p-4">
+                <a
+                  href={song}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative block w-full max-w-[320px] overflow-hidden rounded-xl bg-black shadow-sm"
+                  aria-label={`Open YouTube favorite song ${index + 1}`}
+                >
+                  <img
+                    src={`https://i.ytimg.com/vi/${encodeURIComponent(youtubeVideoId)}/hqdefault.jpg`}
+                    alt={`YouTube favorite song ${index + 1} thumbnail`}
+                    className="aspect-video w-full object-cover"
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/10 transition group-hover:bg-black/20">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 text-2xl text-white shadow-lg">
+                      ▶
+                    </span>
+                  </span>
+                </a>
 
-  setCurrentSongIndex(nextIndex);
+                <p className="mt-3 max-w-[320px] text-base leading-6 text-stone-600">
+                  This song joins uploaded music during Experience Their Life.
+                </p>
+              </div>
+            ) : (
+              <audio
+                ref={(element) => {
+                  songAudioRefs.current[index] = element;
 
-  setTimeout(() => {
-    const nextAudio = songAudioRefs.current[nextIndex];
+                  if (index === currentSongIndex) {
+                    backgroundAudioRef.current = element;
+                  }
+                }}
+                controls
+                preload="auto"
+                className="w-full"
+                src={song}
+                onPlay={() => {
+                  setCurrentSongIndex(index);
+                  currentSongIndexRef.current = index;
 
-    if (!nextAudio) {
-      return;
-    }
+                  songAudioRefs.current.forEach(
+                    (candidateAudio, candidateIndex) => {
+                      if (
+                        !candidateAudio ||
+                        candidateIndex === index
+                      ) {
+                        return;
+                      }
 
-    nextAudio.currentTime = 0;
+                      candidateAudio.pause();
+                    }
+                  );
+                }}
+                onEnded={() => {
+                  if (
+                    presentationHasStartedRef.current &&
+                    isSlideshowPlayingRef.current
+                  ) {
+                    advanceFavoriteSong();
+                  }
+                }}
+              />
+            )}
 
-    nextAudio.play().catch((error) => {
-      console.error("Could not continue memorial playlist:", error);
-    });
-  }, 250);
-}}
-          />
-
-          {data.favorite_song_notes?.[index] && (
-            <p className="mt-1 whitespace-pre-line text-xs leading-5 text-stone-600">
-              {data.favorite_song_notes[index]}
-            </p>
-          )}
-        </div>
-      ))}
-    </div>
+            {data.favorite_song_notes?.[index] && (
+              <p className="mt-2 whitespace-pre-line text-base leading-6 text-stone-600">
+                {data.favorite_song_notes[index]}
+              </p>
+            )}
+          </div>
+        );
+      })}
+      </div>
   </section>
 )}
 
@@ -1804,7 +2405,6 @@ function showNextPhoto() {
 
 
 
-  
 
 {(
   data.social_link_1 ||
@@ -1813,7 +2413,7 @@ function showNextPhoto() {
   data.social_link_4 ||
   data.social_link_5
 ) && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+  <section id="public-social-media" className="rounded-2xl bg-white p-5 shadow-sm">
     <button
       type="button"
       onClick={() => setShowSocialMedia((current) => !current)}
@@ -1902,7 +2502,7 @@ function showNextPhoto() {
 
 
 {combinedGalleryPhotos.length > 0 && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+  <section id="public-photo-gallery" className="rounded-2xl bg-white p-5 shadow-sm">
     <button
       type="button"
       onClick={() => setShowPhotoGallery((current) => !current)}
@@ -1948,7 +2548,7 @@ function showNextPhoto() {
 
 
 {(memorialVideos.length > 0 || videoLinkUrls.length > 0) && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+  <section id="public-video-memories" className="rounded-2xl bg-white p-5 shadow-sm">
     <button
       type="button"
       onClick={() => setShowMemorialVideos((current) => !current)}
@@ -2098,125 +2698,172 @@ function showNextPhoto() {
 
 
 {approvedSubmissions.length > 0 && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <div>
-  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">
-    Shared By Family & Friends
-  </p>
+  <section
+    id="public-family-and-friends"
+    className="rounded-2xl bg-white p-5 shadow-sm"
+  >
+    <button
+      type="button"
+      onClick={() => setShowSharedMemories((current) => !current)}
+      className="flex w-full items-start justify-between gap-4 text-left"
+    >
+      <div>
+        <p className="text-base font-semibold uppercase tracking-[0.18em] text-amber-700">
+          Shared By Family & Friends
+        </p>
 
-  <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-    Videos & Written Stories
-  </h2>
+        <h2 className="mt-1 text-[28px] font-bold tracking-tight text-stone-900">
+          Photos, Videos & Written Stories
+        </h2>
 
-  <p className="mt-3 text-sm leading-6 text-stone-600">
-    These videos and written stories were submitted by family and friends and approved by the memorial owner.
-  </p>
-</div>
+        <p className="mt-3 text-base leading-7 text-stone-600">
+          These photos, videos, and written stories were shared by family and friends and approved by the memorial owner.
+        </p>
+      </div>
 
+      <span className="mt-1 shrink-0 rounded-full bg-stone-100 px-3 py-1 text-base font-semibold text-stone-700">
+        {showSharedMemories ? "▲" : "▼"}
+      </span>
+    </button>
 
-    <div className="mt-5 space-y-4">
-      {approvedSubmissions
-  .filter((submission) => {
-    const submittedPhotos = parseUrlList(submission.photo_urls);
-    const submittedVideos = parseUrlList(submission.video_urls).filter(
-      (videoId) => videoId.length > 15
-    );
+    {showSharedMemories && (
+      <div className="mt-5 space-y-4">
+        {approvedSubmissions
+          .filter((submission) => {
+            const submittedPhotos = parseUrlList(submission.photo_urls);
+            const submittedVideos = parseUrlList(submission.video_urls).filter(
+              (videoId) => videoId.length > 15
+            );
+            const hasMessage = Boolean(submission.message?.trim());
 
-    const hasPhotos = submittedPhotos.length > 0;
-    const hasVideos = submittedVideos.length > 0;
-    const hasMessage = !!submission.message?.trim();
+            return (
+              submittedPhotos.length > 0 ||
+              submittedVideos.length > 0 ||
+              hasMessage
+            );
+          })
+          .map((submission) => {
+            const submittedPhotos = parseUrlList(submission.photo_urls);
+            const submittedVideos = parseUrlList(submission.video_urls).filter(
+              (videoId) => videoId.length > 15
+            );
 
-    return hasVideos || (hasMessage && !hasPhotos);
-  })
-  .map((submission) => (
-        <div
-  key={submission.id}
-  className="rounded-2xl border border-stone-200 bg-gradient-to-b from-stone-50 to-white p-4 shadow-sm"
->
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 pb-3">
-  <div>
-    <p className="text-base font-semibold text-stone-900">
-      {submission.submitter_name || "Anonymous Visitor"}
-    </p>
+            return (
+              <div
+                key={submission.id}
+                className="rounded-2xl border border-stone-200 bg-gradient-to-b from-stone-50 to-white p-5 shadow-sm"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 pb-3">
+                  <div>
+                    <p className="text-base font-semibold text-stone-900">
+                      {submission.submitter_name || "Anonymous Visitor"}
+                    </p>
 
-    <p className="mt-1 text-xs uppercase tracking-[0.14em] text-stone-500">
-      Shared Memory
-    </p>
-  </div>
+                    <p className="mt-1 text-base font-semibold uppercase tracking-[0.14em] text-stone-500">
+                      Shared Memory
+                    </p>
+                  </div>
 
-  {submission.created_at && (
-    <p className="text-xs text-stone-500">
-      {new Date(submission.created_at).toLocaleDateString()}
-    </p>
-  )}
-</div>
+                  {submission.created_at && (
+                    <p className="text-base text-stone-500">
+                      {new Date(submission.created_at).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
 
-           
-          
+                {submission.message?.trim() && (
+                  <p className="mt-4 whitespace-pre-line text-base leading-7 text-stone-700">
+                    {submission.message}
+                  </p>
+                )}
 
-          <p className="mt-4 whitespace-pre-line text-sm leading-7 text-stone-700">
-            {submission.message}
-          </p>
-       {(() => {   
-  let submittedVideos = parseUrlList(submission.video_urls).filter(
-  (videoId) => videoId.length > 15
-);
+                {submittedPhotos.length > 0 && (
+                  <div className="mt-5">
+                    <p className="mb-3 text-base font-semibold text-stone-800">
+                      Shared Photo{submittedPhotos.length === 1 ? "" : "s"}
+                    </p>
 
-  if (submittedVideos.length === 0) return null;
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                      {submittedPhotos.map((photoUrl, index) => (
+                        <button
+                          key={`${submission.id}-photo-${index}`}
+                          type="button"
+                          onClick={() =>
+                            setContributorPhotoViewer({
+                              photos: submittedPhotos,
+                              index,
+                            })
+                          }
+                          className="group aspect-square w-full overflow-hidden rounded-xl border border-stone-200 bg-stone-100 shadow-sm"
+                          aria-label={`Open shared photo ${index + 1}`}
+                        >
+                          <img
+                            src={photoUrl}
+                            alt={`Shared photo ${index + 1}`}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-  return (
-    <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-      {submittedVideos
-  .filter(Boolean)
-  .filter((playbackId) => playbackId.length > 15)
-  .map((playbackId, index) => (
-        <div
-          key={`${playbackId}-${index}`}
-          className="overflow-hidden rounded-3xl border border-stone-200 bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm"
-        >
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.12em] text-stone-700">
-            Submitted Video {index + 1}
-          </p>
+                {submittedVideos.length > 0 && (
+                  <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {submittedVideos.map((playbackId, index) => (
+                      <div
+                        key={`${submission.id}-video-${index}`}
+                        className="overflow-hidden rounded-2xl border border-stone-200 bg-white p-4 shadow-sm"
+                      >
+                        <p className="mb-3 text-base font-semibold text-stone-700">
+                          Shared Video {index + 1}
+                        </p>
 
-          <MuxPlayer
-            playbackId={playbackId}
-            streamType="on-demand"
-            className="aspect-video w-full rounded-xl bg-black"
-          />
-        </div>
-      ))}
-    </div>
-  );
-})()}
-    
-        </div>
-      ))}
-    </div>
-    <p className="mt-8 border-t border-stone-200 pt-5 text-center text-sm italic text-stone-500">
-  Every shared memory helps preserve this life for future generations.
-</p>
+                        <MuxPlayer
+                          playbackId={playbackId}
+                          streamType="on-demand"
+                          className="aspect-video w-full rounded-xl bg-black"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+        <p className="mt-8 border-t border-stone-200 pt-5 text-center text-base italic text-stone-500">
+          Every shared memory helps preserve this life for future generations.
+        </p>
+      </div>
+    )}
   </section>
 )}
-  <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
-  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-800">
+  <section
+    id="help-preserve-this-memory"
+    className="scroll-mt-40 rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm"
+  >
+  <p className="text-base font-semibold uppercase tracking-[0.18em] text-amber-800">
     Help Preserve This Memory
   </p>
 
   <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-    Share a Story, Photo, Video or Remembrance
+    Share a Memory, Photo or Video
   </h2>
 
-  <p className="mt-3 text-sm leading-6 text-stone-700">
+  <p className="mt-3 text-base leading-7 text-stone-700">
     Did you know this person? Your memories, stories, corrections, or photos can help preserve their life for family, friends, and future generations.
   </p>
 
-  <p className="mt-1 text-xs text-stone-600">
-    Contributions are reviewed by the memorial owner before appearing publicly.
+  <p className="mt-1 text-base leading-7 text-stone-600">
+    Memories, photos, and videos are reviewed before appearing publicly.
   </p>
 
   {submissionSuccess ? (
     <div className="mt-6 rounded-2xl border border-green-200 bg-green-50 p-4 text-green-700">
-      Thank you. Your contribution has been submitted for review.
+      Thank you. Your memory has been submitted for review.
     </div>
   ) : (
     <div className="mt-5 space-y-3">
@@ -2225,7 +2872,7 @@ function showNextPhoto() {
         placeholder="Your Name (optional)"
         value={submitterName}
         onChange={(e) => setSubmitterName(e.target.value)}
-        className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900"
+        className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-base text-stone-900"
       />
 
       <input
@@ -2233,7 +2880,7 @@ function showNextPhoto() {
         placeholder="Your Email (optional)"
         value={submitterEmail}
         onChange={(e) => setSubmitterEmail(e.target.value)}
-        className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900"
+        className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-base text-stone-900"
       />
 
      <textarea
@@ -2241,15 +2888,15 @@ function showNextPhoto() {
   value={submissionMessage}
   onChange={(e) => setSubmissionMessage(e.target.value)}
   rows={5}
-  className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900"
+  className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-base text-stone-900"
 />
 <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 p-3">
-  <label className="block text-sm font-semibold text-stone-800">
+  <label className="block text-base font-semibold text-stone-800">
     Add Photos (optional)
   </label>
 
-  <p className="mt-1 text-xs text-stone-500">
-    You may upload photos for the memorial owner to review before they appear publicly.
+  <p className="mt-1 text-base leading-7 text-stone-500">
+    You may upload photos for review before they appear publicly.
   </p>
 
   <input
@@ -2260,22 +2907,22 @@ function showNextPhoto() {
       const files = Array.from(e.target.files || []);
       setSubmissionPhotos(files);
     }}
-    className="mt-4 block w-full text-sm text-stone-700"
+    className="mt-4 block w-full text-base text-stone-700"
   />
 
   {submissionPhotos.length > 0 && (
-    <p className="mt-3 text-xs text-stone-600">
+    <p className="mt-3 text-base text-stone-600">
       {submissionPhotos.length} photo{submissionPhotos.length === 1 ? "" : "s"} selected
     </p>
   )}
 </div>
 <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
-  <label className="block text-sm font-semibold text-stone-800">
+  <label className="block text-base font-semibold text-stone-800">
     Add a Video (optional)
   </label>
 
-  <p className="mt-1 text-xs text-stone-500">
-    You may submit one video for the memorial owner to review before it appears publicly.
+  <p className="mt-1 text-base leading-7 text-stone-500">
+    You may submit one video for review before it appears publicly.
   </p>
 
   <input
@@ -2285,11 +2932,11 @@ function showNextPhoto() {
       const file = e.target.files?.[0] ?? null;
       setSubmissionVideo(file);
     }}
-    className="mt-3 block w-full text-sm text-stone-700"
+    className="mt-3 block w-full text-base text-stone-700"
   />
 
   {submissionVideo && (
-    <p className="mt-3 text-xs text-stone-600">
+    <p className="mt-3 text-base text-stone-600">
       Selected video: {submissionVideo.name}
     </p>
   )}
@@ -2297,11 +2944,13 @@ function showNextPhoto() {
       <button
         onClick={handleContributionSubmit}
         disabled={isSubmittingContribution || uploadingPhotos || uploadingVideo}
-        className="rounded-full bg-stone-900 px-5 py-2 text-sm font-semibold text-white hover:bg-stone-700 disabled:opacity-50"
+        className="rounded-full bg-stone-900 px-5 py-2 text-base font-semibold text-white hover:bg-stone-700 disabled:opacity-50"
       >
-        {isSubmittingContribution || uploadingPhotos || uploadingVideo
-  ? "Submitting..."
-  : "Submit Contribution"}
+        {uploadingVideo
+  ? "Uploading / Processing Video..."
+  : isSubmittingContribution || uploadingPhotos
+    ? "Submitting..."
+    : "Submit Memory"}
       </button>
     </div>
   )}
@@ -2332,7 +2981,7 @@ function showNextPhoto() {
   </section>
 )}   
 {(data.obituary || data.obituary_image_url || data.obituary_url) && (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+  <section id="public-obituary" className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary</h2>
     {data.obituary && <p className="mt-4 whitespace-pre-line text-stone-700">{data.obituary}</p>}
     {data.obituary_image_url && (
@@ -2358,8 +3007,8 @@ function showNextPhoto() {
     )}
   </section>
 )}     
-        {hasFinalRestingPlace ? (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
+        {hasFinalRestingPlace && (
+  <section id="public-final-resting-place" className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Final Resting Place
     </h2>
@@ -2449,20 +3098,6 @@ function showNextPhoto() {
       </div>
     )}
   </section>
-) : (
-  <section className="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
-      Final Resting Place
-    </h2>
-{data.updated_at && (
-  <div className="mt-4 text-center text-xs text-stone-500">
-    Last updated{" "}
-    {new Date(data.updated_at).toLocaleDateString()}
-  </div>
-)}
-    
-  </section>
-  
 )}
           
 
@@ -2601,6 +3236,7 @@ function showNextPhoto() {
     />
   )}
 </div>
+
 {selectedPhotoAttribution && (
   <p className="mt-3 text-center text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">
     {selectedPhotoAttribution}
@@ -2633,10 +3269,14 @@ function showNextPhoto() {
     onClick={toggleSlideshowWithMusic}
    className="rounded-full bg-blue-600 px-8 py-3 text-base font-bold text-white shadow-md transition hover:bg-blue-700 hover:shadow-lg"
   >
-    {isSlideshowPlaying ? "Pause Presentation" : "▶ Experience Their Life"}
+    {isSlideshowPlaying
+      ? "Pause Presentation"
+      : presentationHasStarted
+        ? "▶ Resume Presentation"
+        : "▶ Experience Their Life"}
   </button>
 
-  {isSlideshowPlaying && songAudioRefs.current.some(Boolean) && (
+  {presentationHasStarted && favoriteSongs.length > 0 && (
     <div className="flex flex-wrap items-center justify-center gap-3 rounded-full bg-stone-100 px-4 py-2">
       <button
         type="button"
@@ -2674,9 +3314,44 @@ function showNextPhoto() {
           aria-label="Slideshow music volume"
         />
       </label>
+
+      <span className="text-base font-semibold text-stone-700">
+        Song {Math.min(currentSongIndex + 1, favoriteSongs.length)} of {favoriteSongs.length}
+      </span>
+
+      {favoriteSongs.length > 1 && (
+        <button
+          type="button"
+          onClick={advanceFavoriteSong}
+          className="rounded-full bg-white px-3 py-1.5 text-base font-semibold text-stone-800 shadow-sm hover:bg-stone-200"
+        >
+          Next Song →
+        </button>
+      )}
     </div>
   )}
 </div>
+
+{presentationHasStarted && currentYouTubeVideoId && (
+  <div className="mt-4 w-full rounded-2xl border border-stone-300 bg-white p-3 shadow-lg sm:fixed sm:bottom-5 sm:right-5 sm:z-[60] sm:mt-0 sm:w-[320px] sm:shadow-2xl">
+    <div className="mb-2 flex items-center justify-between gap-3">
+      <p className="text-base font-semibold text-stone-900">
+        Now Playing — YouTube Favorite Song {currentSongIndex + 1}
+      </p>
+      <span className="rounded-full bg-red-50 px-3 py-1 text-base font-semibold text-red-700">
+        YouTube
+      </span>
+    </div>
+
+    <div className="mx-auto aspect-video w-full max-w-[220px] overflow-hidden rounded-xl bg-black sm:max-w-none">
+      <div ref={youtubePlayerHostRef} className="h-full w-full" />
+    </div>
+
+    <p className="mt-2 hidden text-base leading-6 text-stone-600 sm:block">
+      This player stays visible while the YouTube song is active in the slideshow.
+    </p>
+  </div>
+)}
   </div>
 )}
 

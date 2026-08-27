@@ -32,11 +32,50 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    if (!memorial.is_living_preplan) {
-      return NextResponse.json(
-        { error: "Backup access is not available for this memorial." },
-        { status: 403 }
-      );
+    /*
+     * A Living MyEMemorial changes is_living_preplan to false
+     * after verified post-death publication. Backup Person access
+     * must continue to work for that converted memorial, but only
+     * after independent death verification AND explicit post-death
+     * access activation have both been recorded.
+     *
+     * Ordinary deceased memorials, or converted memorials without
+     * both security milestones, remain unavailable here.
+     */
+    if (memorial.is_living_preplan !== true) {
+      const {
+        data: legacyAccess,
+        error: legacyAccessError,
+      } = await supabaseAdmin
+        .from("memorial_legacy_handoff")
+        .select(
+          "death_verified_at, post_death_access_unlocked_at"
+        )
+        .eq("memorial_id", memorial.id)
+        .maybeSingle();
+
+      if (legacyAccessError) {
+        console.error(
+          "BACKUP MEMORIAL POST-DEATH LOOKUP ERROR:",
+          legacyAccessError
+        );
+
+        return NextResponse.json(
+          { error: "Backup access could not be completed." },
+          { status: 500 }
+        );
+      }
+
+      const verifiedPostDeathPersonal =
+        Boolean(legacyAccess?.death_verified_at) &&
+        Boolean(legacyAccess?.post_death_access_unlocked_at);
+
+      if (!verifiedPostDeathPersonal) {
+        return NextResponse.json(
+          { error: "Backup access is not available for this memorial." },
+          { status: 403 }
+        );
+      }
     }
 
     return NextResponse.json({

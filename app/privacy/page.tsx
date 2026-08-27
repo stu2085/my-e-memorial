@@ -6,11 +6,11 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
 
-        <p className="mt-2 text-sm text-stone-500">
+        <p className="mt-2 text-base text-stone-500">
           Last updated: August 12, 2026
         </p>
 
-        <div className="mt-6 space-y-6 text-sm leading-relaxed text-stone-700">
+        <div className="mt-6 space-y-6 text-base leading-relaxed text-stone-700">
 
           <section>
             <h2 className="font-semibold text-stone-900">
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
                 with authorized backup access
               </li>
               <li>
-                Information associated with Personal E-Memorials created for
+                Information associated with Living MyEMemorials created for
                 living individuals
               </li>
               <li>
@@ -87,7 +87,7 @@ export default function PrivacyPage() {
             <ul className="ml-5 mt-2 list-disc space-y-1">
               <li>Create and maintain user accounts</li>
               <li>Create, store, manage, and display memorials</li>
-              <li>Provide Personal E-Memorial features</li>
+              <li>Provide Living MyEMemorial features</li>
               <li>Provide backup-person and after-death access features</li>
               <li>Process memorial gifts and gift claims</li>
               <li>Process payments, upgrades, and additional media purchases</li>
@@ -124,7 +124,7 @@ export default function PrivacyPage() {
             </p>
 
             <p className="mt-2">
-              Personal E-Memorials created for living individuals are intended
+              Living MyEMemorials created for living individuals are intended
               to remain private or unpublished while the person is living,
               except where the memorial owner intentionally uses a feature that
               makes specific information available to others.
@@ -282,7 +282,7 @@ export default function PrivacyPage() {
             </h2>
 
             <p className="mt-2">
-              A Personal E-Memorial owner may provide information identifying
+              A Living MyEMemorial owner may provide information identifying
               a backup person. MyEMemorial may use this information to support
               authorized backup access and after-death memorial transition
               features.

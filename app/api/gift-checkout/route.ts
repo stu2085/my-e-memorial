@@ -97,11 +97,8 @@ const claimToken = crypto.randomBytes(32).toString("hex");
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
 
-      automatic_tax: {
-        enabled: true,
-      },
-
       customer_email: cleanPurchaserEmail,
+
       line_items: [
         {
           quantity: 1,
@@ -111,14 +108,14 @@ const claimToken = crypto.randomBytes(32).toString("hex");
             product_data: {
               name: `${
   cleanGiftType === "personal"
-    ? "Gift a Personal E-Memorial"
-    : "Gift a Memorial"
+    ? "Gift a Living MyEMemorial"
+    : "Gift a Deceased MyEMemorial"
 } — ${cleanPlan.charAt(0).toUpperCase() + cleanPlan.slice(1)} Plan`,
 
 description:
   cleanGiftType === "personal"
-    ? `A Personal E-Memorial gift for ${cleanRecipientName}`
-    : `A memorial gift for ${cleanRecipientName}`,
+    ? `A Living MyEMemorial gift for ${cleanRecipientName}`
+    : `A Deceased MyEMemorial gift for ${cleanRecipientName}`,
             },
           },
         },

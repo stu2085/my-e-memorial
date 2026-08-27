@@ -14,11 +14,6 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 );
 
-const backupLoginAttempts = new Map<
-  string,
-  { count: number; resetAt: number }
->();
-
 function getClientIp(req: Request) {
   return (
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -116,42 +111,110 @@ export async function POST(req: Request) {
     }
 
     const ip = getClientIp(req);
-    const attemptKey = `${ip}:${memorialId}`;
-    const now = Date.now();
+const attemptKey = `${ip}:${memorialId}`;
+const now = new Date();
 
-    const existingAttempt =
-      backupLoginAttempts.get(attemptKey);
+const { data: existingAttempt, error: attemptLookupError } =
+  await supabaseAdmin
+    .from("backup_login_attempts")
+    .select("id, attempt_count, reset_at")
+    .eq("attempt_key", attemptKey)
+    .maybeSingle();
 
-    if (
-      existingAttempt &&
-      existingAttempt.resetAt > now
-    ) {
-      if (existingAttempt.count >= 5) {
-        return NextResponse.json(
-          {
-            error:
-              "Too many backup login attempts. Please try again later.",
-          },
-          { status: 429 }
-        );
-      }
+if (attemptLookupError) {
+  console.error(
+    "BACKUP LOGIN RATE LIMIT LOOKUP ERROR:",
+    attemptLookupError
+  );
 
-      backupLoginAttempts.set(attemptKey, {
-        count: existingAttempt.count + 1,
-        resetAt: existingAttempt.resetAt,
-      });
-    } else {
-      backupLoginAttempts.set(attemptKey, {
-        count: 1,
-        resetAt: now + 15 * 60 * 1000,
-      });
-    }
+  return NextResponse.json(
+    {
+      error:
+        "Backup access could not be completed.",
+    },
+    { status: 500 }
+  );
+}
 
-    const { data: memorial, error } =
+if (
+  existingAttempt &&
+  new Date(existingAttempt.reset_at) > now
+) {
+  if (Number(existingAttempt.attempt_count) >= 5) {
+    return NextResponse.json(
+      {
+        error:
+          "Too many backup login attempts. Please try again later.",
+      },
+      { status: 429 }
+    );
+  }
+
+  const { error: attemptUpdateError } =
+    await supabaseAdmin
+      .from("backup_login_attempts")
+      .update({
+        attempt_count:
+          Number(existingAttempt.attempt_count) + 1,
+        updated_at: now.toISOString(),
+      })
+      .eq("id", existingAttempt.id);
+
+  if (attemptUpdateError) {
+    console.error(
+      "BACKUP LOGIN RATE LIMIT UPDATE ERROR:",
+      attemptUpdateError
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          "Backup access could not be completed.",
+      },
+      { status: 500 }
+    );
+  }
+} else {
+  const resetAt = new Date(
+    now.getTime() + 15 * 60 * 1000
+  );
+
+  const { error: attemptUpsertError } =
+    await supabaseAdmin
+      .from("backup_login_attempts")
+      .upsert(
+        {
+          attempt_key: attemptKey,
+          attempt_count: 1,
+          reset_at: resetAt.toISOString(),
+          updated_at: now.toISOString(),
+        },
+        {
+          onConflict: "attempt_key",
+        }
+      );
+
+  if (attemptUpsertError) {
+    console.error(
+      "BACKUP LOGIN RATE LIMIT UPSERT ERROR:",
+      attemptUpsertError
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          "Backup access could not be completed.",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+const { data: memorial, error } =
       await supabaseAdmin
         .from("memorials")
         .select(
-          "id, backup_email, backup_password, is_living_preplan"
+          "id, backup_email, backup_password, is_living_preplan, plan, payment_status"
         )
         .eq("id", memorialId)
         .single();
@@ -163,27 +226,178 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!memorial.is_living_preplan) {
+    /*
+     * A Living MyEMemorial changes is_living_preplan to false
+     * when it is published after death. The active Backup Person
+     * must still be able to sign back in after the one-hour
+     * hardened session expires or after choosing End Backup Access.
+     *
+     * A non-living memorial qualifies here only if its Personal
+     * MyEMemorial death was independently verified and post-death
+     * access was explicitly unlocked.
+     */
+    if (memorial.is_living_preplan !== true) {
+      const {
+        data: legacyAccess,
+        error: legacyAccessError,
+      } = await supabaseAdmin
+        .from("memorial_legacy_handoff")
+        .select(
+          "death_verified_at, post_death_access_unlocked_at"
+        )
+        .eq("memorial_id", memorial.id)
+        .maybeSingle();
+
+      if (legacyAccessError) {
+        console.error(
+          "BACKUP LOGIN POST-DEATH LOOKUP ERROR:",
+          legacyAccessError
+        );
+
+        return NextResponse.json(
+          {
+            error:
+              "Backup access could not be completed.",
+          },
+          { status: 500 }
+        );
+      }
+
+      const verifiedPostDeathPersonal =
+        Boolean(legacyAccess?.death_verified_at) &&
+        Boolean(
+          legacyAccess?.post_death_access_unlocked_at
+        );
+
+      if (!verifiedPostDeathPersonal) {
+        return NextResponse.json(
+          {
+            error:
+              "Backup access is not available for this memorial.",
+          },
+          { status: 403 }
+        );
+      }
+    }
+
+    const hasEligiblePaidPlan =
+      memorial.plan === "basic" ||
+      memorial.plan === "plus" ||
+      memorial.plan === "premium";
+
+    const hasEligiblePaymentStatus =
+      memorial.payment_status === "paid" ||
+      memorial.payment_status === "free_beta";
+
+    if (
+      !hasEligiblePaidPlan ||
+      !hasEligiblePaymentStatus
+    ) {
       return NextResponse.json(
         {
           error:
-            "Backup access is only available for personal pre-planned memorials.",
+            "Backup access is not available for this memorial.",
         },
         { status: 403 }
       );
     }
 
+    const {
+      data: backupSettings,
+      error: backupSettingsError,
+    } = await supabaseAdmin
+      .from("memorial_backup_settings")
+      .select(
+        "secondary_backup_email, secondary_backup_password, secondary_backup_activated_at, primary_backup_authority_version, primary_backup_revoked_at, secondary_backup_authority_version, secondary_backup_revoked_at"
+      )
+      .eq("memorial_id", memorial.id)
+      .maybeSingle();
+
+    if (backupSettingsError) {
+      console.error(
+        "BACKUP LOGIN SETTINGS LOOKUP ERROR:",
+        backupSettingsError
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "Backup access could not be completed.",
+        },
+        { status: 500 }
+      );
+    }
+
+    const secondaryIsActive =
+      Boolean(
+        backupSettings?.secondary_backup_activated_at
+      );
+
+    const activeBackupRole:
+      | "primary"
+      | "secondary" =
+      secondaryIsActive
+        ? "secondary"
+        : "primary";
+
+    /*
+     * #18 Backup Person authority state.
+     *
+     * Revocation never causes an automatic fallback to the
+     * other Backup Person. The owner must explicitly establish
+     * the next authorized Backup Person.
+     */
+    const activeRevokedAt = secondaryIsActive
+      ? backupSettings?.secondary_backup_revoked_at || null
+      : backupSettings?.primary_backup_revoked_at || null;
+
+    const activeAuthorityVersion = Number(
+      secondaryIsActive
+        ? backupSettings?.secondary_backup_authority_version ?? 1
+        : backupSettings?.primary_backup_authority_version ?? 1
+    );
+
+    if (
+      activeRevokedAt ||
+      !Number.isSafeInteger(activeAuthorityVersion) ||
+      activeAuthorityVersion < 1
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Backup access is not available for this memorial.",
+        },
+        { status: 403 }
+      );
+    }
+
+    const activeEmail = secondaryIsActive
+      ? String(
+          backupSettings?.secondary_backup_email || ""
+        )
+      : String(memorial.backup_email || "");
+
+    const storedPassword = secondaryIsActive
+      ? String(
+          backupSettings?.secondary_backup_password || ""
+        )
+      : String(memorial.backup_password || "");
+
+    /*
+     * This is the exact stored credential value that the
+     * session signature will bind to. If an older plain-text
+     * password is upgraded below, this variable is replaced
+     * with the new hash so the validator sees the same value.
+     */
+    let sessionStoredPassword = storedPassword;
+
     const emailMatches =
-      String(memorial.backup_email || "")
+      activeEmail
         .trim()
         .toLowerCase() ===
       String(email || "")
         .trim()
         .toLowerCase();
-
-    const storedPassword = String(
-      memorial.backup_password || ""
-    );
 
     const passwordMatches =
       verifyBackupPassword(
@@ -203,7 +417,8 @@ export async function POST(req: Request) {
 
     /*
      * If this was an older plain-text password,
-     * immediately replace it with a secure hash.
+     * immediately replace it with a secure hash for
+     * whichever Backup Person role authenticated.
      */
     if (
       storedPassword &&
@@ -214,34 +429,64 @@ export async function POST(req: Request) {
           String(password || "")
         );
 
-      const { error: passwordUpgradeError } =
-        await supabaseAdmin
-          .from("memorials")
-          .update({
-            backup_password: hashedPassword,
-          })
-          .eq("id", memorial.id);
+      if (activeBackupRole === "secondary") {
+        const { error: passwordUpgradeError } =
+          await supabaseAdmin
+            .from("memorial_backup_settings")
+            .update({
+              secondary_backup_password:
+                hashedPassword,
+              updated_at:
+                new Date().toISOString(),
+            })
+            .eq("memorial_id", memorial.id);
 
-      if (passwordUpgradeError) {
-        console.error(
-          "BACKUP PASSWORD UPGRADE ERROR:",
-          passwordUpgradeError
-        );
+        if (passwordUpgradeError) {
+          console.error(
+            "SECONDARY BACKUP PASSWORD UPGRADE ERROR:",
+            passwordUpgradeError
+          );
 
-        return NextResponse.json(
-          {
-            error:
-              "Backup access could not be completed.",
-          },
-          { status: 500 }
-        );
+          return NextResponse.json(
+            {
+              error:
+                "Backup access could not be completed.",
+            },
+            { status: 500 }
+          );
+        }
+      } else {
+        const { error: passwordUpgradeError } =
+          await supabaseAdmin
+            .from("memorials")
+            .update({
+              backup_password: hashedPassword,
+            })
+            .eq("id", memorial.id);
+
+        if (passwordUpgradeError) {
+          console.error(
+            "BACKUP PASSWORD UPGRADE ERROR:",
+            passwordUpgradeError
+          );
+
+          return NextResponse.json(
+            {
+              error:
+                "Backup access could not be completed.",
+            },
+            { status: 500 }
+          );
+        }
       }
+
+      sessionStoredPassword = hashedPassword;
     }
 
     const backupAccessSecret =
-      process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  process.env.BACKUP_ACCESS_SECRET || "";
 
-    if (!backupAccessSecret) {
+if (!backupAccessSecret) {
       return NextResponse.json(
         {
           error:
@@ -251,33 +496,67 @@ export async function POST(req: Request) {
       );
     }
 
-    const signature = createHmac(
+    const issuedAt = Date.now();
+    const normalizedActiveEmail =
+      activeEmail.trim().toLowerCase();
+
+    /*
+     * #14 final session format:
+     *
+     * memorialId:issuedAt:backupRole:hardenedSignature
+     *
+     * The signature is bound to the current Backup Person
+     * role, email, stored password/hash, and current authority
+     * version. Role failover, identity changes, password changes,
+     * authority replacement, or revocation therefore invalidate
+     * the existing session automatically.
+     */
+    const hardenedSignature = createHmac(
       "sha256",
       backupAccessSecret
     )
-      .update(String(memorial.id))
+      .update(
+        `${memorial.id}:${issuedAt}:${activeBackupRole}:${normalizedActiveEmail}:${sessionStoredPassword}:${activeAuthorityVersion}`
+      )
       .digest("hex");
 
-    /*
-     * Successful login — clear this server
-     * instance's failed-attempt counter.
-     */
-    backupLoginAttempts.delete(attemptKey);
+/*
+ * Successful login — clear the failed-attempt
+ * counter for this memorial and IP address.
+ */
+const { error: attemptDeleteError } =
+  await supabaseAdmin
+    .from("backup_login_attempts")
+    .delete()
+    .eq("attempt_key", attemptKey);
 
-    const response = NextResponse.json({
+if (attemptDeleteError) {
+  console.error(
+    "BACKUP LOGIN RATE LIMIT DELETE ERROR:",
+    attemptDeleteError
+  );
+}
+
+const response = NextResponse.json({
       success: true,
+      backupRole: activeBackupRole,
     });
 
+    /*
+     * Browser-session cookie: intentionally omit maxAge/expires so
+     * closing the browser removes the cookie. The central
+     * /api/backup-access validator still enforces the absolute
+     * one-hour session limit from the signed issuedAt timestamp.
+     */
     response.cookies.set(
       "myememorial_backup_access",
-      `${memorial.id}:${signature}`,
+      `${memorial.id}:${issuedAt}:${activeBackupRole}:${hardenedSignature}`,
       {
         httpOnly: true,
         secure:
           process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60,
       }
     );
 

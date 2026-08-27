@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { createHmac, timingSafeEqual } from "crypto";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -19,70 +18,38 @@ export async function POST(req: NextRequest) {
     }
 
     /*
-     * Verify the signed backup-access cookie.
-     * The cookie must belong to this exact memorial.
+     * #14: Delegate Backup Person session validation to
+     * the central hardened validator. This enforces the
+     * current Primary / Secondary identity, failover state,
+     * expiration, and identity-bound signature.
      */
-    const cookieValue = req.cookies.get(
-      "myememorial_backup_access"
-    )?.value;
-
-    if (!cookieValue) {
-      return NextResponse.json(
-        { error: "Authorized backup access is required." },
-        { status: 403 }
-      );
-    }
-
-    const [cookieMemorialId, suppliedSignature] =
-      cookieValue.split(":");
-
-    if (
-      !cookieMemorialId ||
-      !suppliedSignature ||
-      cookieMemorialId !== String(memorialId)
-    ) {
-      return NextResponse.json(
-        { error: "Backup access is not valid for this memorial." },
-        { status: 403 }
-      );
-    }
-
-    const backupAccessSecret =
-      process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-
-    if (!backupAccessSecret) {
-      return NextResponse.json(
-        { error: "Backup access is not configured." },
-        { status: 500 }
-      );
-    }
-
-    const expectedSignature = createHmac(
-      "sha256",
-      backupAccessSecret
-    )
-      .update(String(memorialId))
-      .digest("hex");
-
-    const suppliedBuffer = Buffer.from(
-      suppliedSignature,
-      "utf8"
+    const accessCheckUrl = new URL(
+      `/api/backup-access?memorialId=${encodeURIComponent(
+        String(memorialId)
+      )}`,
+      req.url
     );
 
-    const expectedBuffer = Buffer.from(
-      expectedSignature,
-      "utf8"
-    );
+    const accessCheckResponse = await fetch(accessCheckUrl, {
+      method: "GET",
+      headers: {
+        cookie: req.headers.get("cookie") || "",
+      },
+      cache: "no-store",
+    });
+
+    const accessCheckResult =
+      await accessCheckResponse.json();
 
     if (
-      suppliedBuffer.length !== expectedBuffer.length ||
-      !timingSafeEqual(
-        suppliedBuffer,
-        expectedBuffer
-      )
+      !accessCheckResponse.ok ||
+      accessCheckResult?.valid !== true
     ) {
       return NextResponse.json(
-        { error: "Backup access is not valid." },
+        {
+          error:
+            "Authorized Backup Person access is required.",
+        },
         { status: 403 }
       );
     }
@@ -90,7 +57,7 @@ export async function POST(req: NextRequest) {
     /*
      * Load the memorial again on the server.
      * Publication is allowed only for an existing
-     * Personal E-Memorial with a date of death.
+     * Living MyEMemorial with a date of death.
      */
     const { data: memorial, error: memorialError } =
       await supabaseAdmin
@@ -112,7 +79,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "This memorial is no longer a Personal E-Memorial.",
+            "This memorial is no longer a Living MyEMemorial.",
         },
         { status: 400 }
       );
@@ -125,6 +92,56 @@ export async function POST(req: NextRequest) {
             "A date of death must be entered before the memorial can be published.",
         },
         { status: 400 }
+      );
+    }
+
+    /*
+     * Publishing is a post-death action. A death report
+     * or a date of death alone is not enough; independent
+     * verification must already have unlocked post-death
+     * Backup Person access.
+     */
+    const {
+      data: legacyAccess,
+      error: legacyAccessError,
+    } = await supabaseAdmin
+      .from("memorial_legacy_handoff")
+      .select(
+        "death_verified_at, post_death_access_unlocked_at"
+      )
+      .eq("memorial_id", memorial.id)
+      .maybeSingle();
+
+    if (legacyAccessError) {
+      console.error(
+        "BACKUP PUBLISH POST-DEATH ACCESS CHECK ERROR:",
+        legacyAccessError
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "Post-death access could not be verified.",
+        },
+        { status: 500 }
+      );
+    }
+
+    const deathVerified =
+      Boolean(legacyAccess?.death_verified_at);
+
+    const postDeathUnlocked =
+      Boolean(
+        legacyAccess?.post_death_access_unlocked_at
+      );
+
+    if (!deathVerified || !postDeathUnlocked) {
+      return NextResponse.json(
+        {
+          error:
+            "This Living MyEMemorial cannot be published until the death has been independently verified and post-death Backup Person access has been unlocked.",
+        },
+        { status: 403 }
       );
     }
 
@@ -158,27 +175,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const response = NextResponse.json({
+    /*
+     * Keep the hardened Backup Person session after publication.
+     * The authorized Backup Person still needs post-death access
+     * for funeral presentation, approved updates, visitor
+     * contributions, and Primary / Secondary succession.
+     */
+    return NextResponse.json({
       success: true,
       slug: memorial.slug,
     });
-
-    /*
-     * Backup access is no longer needed after conversion.
-     */
-    response.cookies.set(
-      "myememorial_backup_access",
-      "",
-      {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-        maxAge: 0,
-      }
-    );
-
-    return response;
   } catch (error) {
     console.error(
       "BACKUP PUBLISH API ERROR:",

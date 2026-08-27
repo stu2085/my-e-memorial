@@ -2,155 +2,484 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+
+const DRAFT_STORAGE_KEYS = [
+  "memorialDraft",
+  "guidedDraftMemorialId",
+  "guidedDraftMemorialSlug",
+  "guidedDraftCurrentChapter",
+  "paidExtraVideos",
+  "agreedToTerms",
+];
+
+const BACKUP_MEMORIAL_SESSION_KEY = "myememorialBackupMemorialId";
+
+function validMemorialId(value: string | null) {
+  const parsed = Number(value || 0);
+
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
 export default function NavBar() {
   const router = useRouter();
-const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
-const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
 
-const mode = searchParams.get("mode");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [hasBackupAccess, setHasBackupAccess] = useState(false);
+  const [isEndingBackupAccess, setIsEndingBackupAccess] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-const isCreate =
-  pathname === "/create" &&
-  mode !== "personal" &&
-  mode !== "preplan";
+  const mode = searchParams.get("mode");
 
-const isPreplan =
-  pathname === "/create" &&
-  (mode === "personal" || mode === "preplan");
+  const isPersonalCreate =
+    pathname === "/personal-e-memorials" ||
+    (pathname === "/create" &&
+      (mode === "personal" || mode === "preplan"));
 
+  const isMemorialCreate =
+    pathname === "/memorials" ||
+    (pathname === "/create" && !isPersonalCreate);
+
+  const myAccountHref = isLoggedIn
+    ? "/my-memorials"
+    : "/login?mode=login&redirect=%2Fmy-memorials";
+
+  const isMyAccountPage =
+    pathname === "/my-memorials" || pathname === "/login";
+
+  const resolveBackupMemorialId = useCallback(async () => {
+    const queryMemorialId =
+      validMemorialId(searchParams.get("edit")) ??
+      validMemorialId(searchParams.get("draft")) ??
+      validMemorialId(searchParams.get("memorialId"));
+
+    if (queryMemorialId) {
+      return queryMemorialId;
+    }
+
+    const manageMatch = pathname.match(
+      /^\/memorial\/([^/]+)\/manage\/?$/
+    );
+
+    if (manageMatch?.[1]) {
+      try {
+        const slug = decodeURIComponent(manageMatch[1]);
+
+        const response = await fetch(
+          `/api/backup-memorial?slug=${encodeURIComponent(slug)}`,
+          {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
+
+        if (response.ok) {
+          const result = await response.json();
+          const memorialId = validMemorialId(
+            String(result?.memorial?.id ?? "")
+          );
+
+          if (memorialId) {
+            return memorialId;
+          }
+        }
+      } catch {
+        // The management page will display its own memorial-load error.
+      }
+    }
+
+    if (typeof window !== "undefined") {
+      const rememberedBackupMemorialId = validMemorialId(
+        sessionStorage.getItem(BACKUP_MEMORIAL_SESSION_KEY)
+      );
+
+      if (rememberedBackupMemorialId) {
+        return rememberedBackupMemorialId;
+      }
+
+      if (pathname === "/create") {
+        const guidedDraftMemorialId = validMemorialId(
+          localStorage.getItem("guidedDraftMemorialId")
+        );
+
+        if (guidedDraftMemorialId) {
+          return guidedDraftMemorialId;
+        }
+      }
+    }
+
+    return null;
+  }, [pathname, searchParams]);
+
+  const checkBackupAccess = useCallback(async () => {
+    try {
+      const memorialId = await resolveBackupMemorialId();
+
+      if (!memorialId) {
+        setHasBackupAccess(false);
+        return;
+      }
+
+      const response = await fetch(
+        `/api/backup-access?memorialId=${encodeURIComponent(
+          String(memorialId)
+        )}`,
+        {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      if (!response.ok) {
+        setHasBackupAccess(false);
+
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem(BACKUP_MEMORIAL_SESSION_KEY);
+        }
+
+        return;
+      }
+
+      const result = await response.json();
+      const backupAccessIsValid = result?.valid === true;
+
+      setHasBackupAccess(backupAccessIsValid);
+
+      if (typeof window !== "undefined") {
+        if (backupAccessIsValid) {
+          sessionStorage.setItem(
+            BACKUP_MEMORIAL_SESSION_KEY,
+            String(memorialId)
+          );
+        } else {
+          sessionStorage.removeItem(BACKUP_MEMORIAL_SESSION_KEY);
+        }
+      }
+    } catch {
+      setHasBackupAccess(false);
+    }
+  }, [resolveBackupMemorialId]);
 
   useEffect(() => {
-  let active = true;
+    let active = true;
 
-  async function checkSession() {
+    async function checkSession() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (active) {
+        setIsLoggedIn(!!session?.user);
+      }
+    }
+
+    void checkSession();
+    void checkBackupAccess();
+
+    const handleBackupAccessChange = () => {
+      void checkBackupAccess();
+    };
+
+    window.addEventListener(
+      "myememorial-backup-access-change",
+      handleBackupAccessChange
+    );
+
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) {
+        setIsLoggedIn(!!session?.user);
+      }
+    });
 
-    if (active) {
-      setIsLoggedIn(!!session?.user);
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+      window.removeEventListener(
+        "myememorial-backup-access-change",
+        handleBackupAccessChange
+      );
+    };
+  }, [checkBackupAccess]);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  function clearCreateDraftStorage() {
+    for (const key of DRAFT_STORAGE_KEYS) {
+      localStorage.removeItem(key);
     }
   }
 
-  checkSession();
+  function openLandingPageAtTop(
+    targetPath: "/personal-e-memorials" | "/memorials"
+  ) {
+    setIsMobileMenuOpen(false);
+    clearCreateDraftStorage();
 
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange((_event, session) => {
-    if (active) {
-      setIsLoggedIn(!!session?.user);
+    if (pathname === targetPath) {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        targetPath
+      );
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth",
+      });
+      return;
     }
-  });
 
-  return () => {
-    active = false;
-    subscription.unsubscribe();
-  };
-}, []);
-  function linkClass(path: string) {
-  return `rounded-full px-2 py-1 text-xs font-semibold transition-all duration-200 ease-in-out sm:px-4 sm:py-2 sm:text-sm ${
-    pathname === path
-  ? "bg-blue-900 text-white"
-  : "text-stone-700 hover:bg-blue-50 hover:text-blue-900 hover:scale-105"
-  }`;
-}
+    router.push(targetPath, { scroll: true });
+  }
+
+  function navClass(active: boolean) {
+    return `inline-flex items-center justify-center whitespace-nowrap rounded-full px-2.5 py-2 text-base font-semibold transition-all duration-200 ease-in-out ${
+      active
+        ? "bg-blue-900 text-white"
+        : "text-stone-700 hover:scale-105 hover:bg-blue-50 hover:text-blue-900"
+    }`;
+  }
+
+  function mobileNavClass(active: boolean) {
+    return `flex w-full items-center rounded-xl px-4 py-3 text-left text-base font-semibold transition ${
+      active
+        ? "bg-blue-900 text-white"
+        : "text-stone-800 hover:bg-blue-50 hover:text-blue-900"
+    }`;
+  }
+
+  async function handleEndBackupAccess() {
+    if (isEndingBackupAccess) return;
+
+    setIsMobileMenuOpen(false);
+    setIsEndingBackupAccess(true);
+
+    try {
+      const response = await fetch("/api/backup-access/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      setHasBackupAccess(false);
+      sessionStorage.removeItem(BACKUP_MEMORIAL_SESSION_KEY);
+
+      window.dispatchEvent(
+        new Event("myememorial-backup-access-change")
+      );
+      window.location.assign("/");
+    } finally {
+      setIsEndingBackupAccess(false);
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-col items-center gap-1 px-3 py-1 sm:flex-row sm:justify-between sm:px-6 sm:py-2">
-      {/* Logo */}
-<a href="/" className="flex shrink-0 items-center">
-  <img
-    src="/Images/myememorial-logo.png"
-    alt="MyEMemorial"
-   className="h-24 w-auto max-w-none object-contain sm:h-40"
-  />
-</a>
+      <div className="mx-auto max-w-[1600px] pl-4 pr-7 py-2 sm:pl-4 sm:pr-10 xl:flex xl:items-center xl:justify-between xl:px-6">
+        <div className="flex w-full items-center justify-between gap-3 xl:w-auto">
+          <a
+            href="/"
+            className="flex min-w-0 shrink-0 items-center"
+            aria-label="MyEMemorial home"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <img
+              src="/Images/myememorial-logo.png"
+              alt="MyEMemorial"
+              className="h-16 w-auto max-w-[225px] object-contain sm:h-20 sm:max-w-none xl:h-32"
+            />
+          </a>
 
-        {/* Navigation */}
-        <nav className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 sm:gap-3">
-          <a href="/" className={linkClass("/")}>
-  Home
-</a>
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen((current) => !current)}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-stone-300 bg-white px-4 py-3 text-base font-semibold text-stone-800 shadow-sm transition hover:bg-stone-100 xl:hidden"
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-main-navigation"
+          >
+            <span aria-hidden="true" className="text-xl leading-none">
+              {isMobileMenuOpen ? "✕" : "☰"}
+            </span>
+            {isMobileMenuOpen ? "Close" : "Menu"}
+          </button>
+        </div>
+
+        <nav
+          className="hidden flex-nowrap items-center justify-center gap-x-3 xl:flex xl:gap-x-4"
+          aria-label="Main navigation"
+        >
+          <Link href="/" className={navClass(pathname === "/")}>
+            Home
+          </Link>
 
           <Link
-  href="/create"
-  onClick={(e) => {
-    e.preventDefault();
+            href="/personal-e-memorials"
+            onClick={(event) => {
+              event.preventDefault();
+              openLandingPageAtTop("/personal-e-memorials");
+            }}
+            className={navClass(isPersonalCreate)}
+          >
+            Create a Living MyEMemorial
+          </Link>
 
-    localStorage.removeItem("memorialDraft");
-    localStorage.removeItem("guidedDraftMemorialId");
-    localStorage.removeItem("guidedDraftMemorialSlug");
-    localStorage.removeItem("guidedDraftCurrentChapter");
-    localStorage.removeItem("paidExtraVideos");
-    localStorage.removeItem("agreedToTerms");
+          <Link
+            href="/memorials"
+            onClick={(event) => {
+              event.preventDefault();
+              openLandingPageAtTop("/memorials");
+            }}
+            className={navClass(isMemorialCreate)}
+          >
+            Create a Deceased MyEMemorial
+          </Link>
 
-    window.location.href = "/create";
-  }}
-  className={`rounded-full px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold transition-all duration-200 ease-in-out ${
-    isCreate
-      ? "bg-blue-900 text-white"
-      : "text-stone-700 hover:bg-blue-50 hover:text-blue-900 hover:scale-105"
-  }`}
->
-  Create E-Memorial
-</Link>
+          <Link
+            href="/search"
+            className={navClass(pathname === "/search")}
+          >
+            Search MyEMemorials
+          </Link>
 
-          <Link href="/search" className={linkClass("/search")}>
-  Search E-Memorials
-</Link>
-<Link
-  href="/create?mode=personal"
-  onClick={(e) => {
-    e.preventDefault();
+          <Link
+            href="/contact"
+            className={navClass(pathname === "/contact")}
+          >
+            Contact Us
+          </Link>
 
-    localStorage.removeItem("memorialDraft");
-    localStorage.removeItem("guidedDraftMemorialId");
-    localStorage.removeItem("guidedDraftMemorialSlug");
-    localStorage.removeItem("guidedDraftCurrentChapter");
-    localStorage.removeItem("paidExtraVideos");
-    localStorage.removeItem("agreedToTerms");
+          <Link
+            href={myAccountHref}
+            className={navClass(isMyAccountPage)}
+          >
+            My Account
+          </Link>
 
-    window.location.href = "/create?mode=personal";
-  }}
-  className={`hidden sm:inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ease-in-out ${
-    isPreplan
-  ? "bg-blue-900 text-white"
-  : "text-stone-700 hover:bg-blue-50 hover:text-blue-900 hover:scale-105"
-  }`}
->
-  My Personal E-Memorial
-</Link>
-<Link href="/contact" className={linkClass("/contact")}>
-  Contact Us
-</Link>
-
-{isLoggedIn ? (
-  <>
-    <Link href="/my-memorials" className={linkClass("/my-memorials")}>
-      My Memorials
-    </Link>
-
-    <button
-      onClick={async () => {
-        await supabase.auth.signOut();
-        router.refresh();
-        router.push("/");
-      }}
-      className="rounded-full px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold text-stone-700 transition-all duration-200 ease-in-out hover:bg-stone-200 hover:text-stone-900 hover:scale-105"
-    >
-      Log Out
-    </button>
-  </>
-) : (
-  <Link href="/login?mode=login" className={linkClass("/login")}>
-  Log In
-</Link>
-)}
+          {hasBackupAccess ? (
+            <button
+              type="button"
+              onClick={handleEndBackupAccess}
+              disabled={isEndingBackupAccess}
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-2.5 py-2 text-base font-semibold text-red-700 transition-all duration-200 ease-in-out hover:scale-105 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isEndingBackupAccess
+                ? "Ending Backup Access..."
+                : "End Backup Access"}
+            </button>
+          ) : isLoggedIn ? (
+            <button
+              type="button"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                router.refresh();
+                router.push("/");
+              }}
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-2.5 py-2 text-base font-semibold text-stone-700 transition-all duration-200 ease-in-out hover:scale-105 hover:bg-stone-200 hover:text-stone-900"
+            >
+              Log Out
+            </button>
+          ) : null}
         </nav>
+
+        {isMobileMenuOpen && (
+          <nav
+            id="mobile-main-navigation"
+            className="mt-2 grid gap-1 border-t border-stone-200 pt-2 xl:hidden"
+            aria-label="Mobile main navigation"
+          >
+            <Link
+              href="/"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={mobileNavClass(pathname === "/")}
+            >
+              Home
+            </Link>
+
+            <Link
+              href="/personal-e-memorials"
+              onClick={(event) => {
+                event.preventDefault();
+                openLandingPageAtTop("/personal-e-memorials");
+              }}
+              className={mobileNavClass(isPersonalCreate)}
+            >
+              Create a Living MyEMemorial
+            </Link>
+
+            <Link
+              href="/memorials"
+              onClick={(event) => {
+                event.preventDefault();
+                openLandingPageAtTop("/memorials");
+              }}
+              className={mobileNavClass(isMemorialCreate)}
+            >
+              Create a Deceased MyEMemorial
+            </Link>
+
+            <Link
+              href="/search"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={mobileNavClass(pathname === "/search")}
+            >
+              Search MyEMemorials
+            </Link>
+
+            <Link
+              href="/contact"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={mobileNavClass(pathname === "/contact")}
+            >
+              Contact Us
+            </Link>
+
+            <Link
+              href={myAccountHref}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={mobileNavClass(isMyAccountPage)}
+            >
+              My Account
+            </Link>
+
+            {hasBackupAccess ? (
+              <button
+                type="button"
+                onClick={handleEndBackupAccess}
+                disabled={isEndingBackupAccess}
+                className="flex w-full items-center rounded-xl px-4 py-3 text-left text-base font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isEndingBackupAccess
+                  ? "Ending Backup Access..."
+                  : "End Backup Access"}
+              </button>
+            ) : isLoggedIn ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  setIsMobileMenuOpen(false);
+                  await supabase.auth.signOut();
+                  router.refresh();
+                  router.push("/");
+                }}
+                className="flex w-full items-center rounded-xl px-4 py-3 text-left text-base font-semibold text-stone-800 transition hover:bg-stone-100"
+              >
+                Log Out
+              </button>
+            ) : null}
+          </nav>
+        )}
       </div>
     </header>
   );

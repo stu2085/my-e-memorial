@@ -1,29 +1,40 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-
+import DirectVideoRecorder from "./DirectVideoRecorder";
 type VideoUploadSectionProps = {
   isPublished: boolean;
+
   videoFiles: File[];
   setVideoFiles: React.Dispatch<React.SetStateAction<File[]>>;
+
   selectedVideoNotes: string[];
   setSelectedVideoNotes: React.Dispatch<
     React.SetStateAction<string[]>
   >;
+
   handleVideoChange: (
     e: React.ChangeEvent<HTMLInputElement>
   ) => void;
+
   newVideoLinkUrl: string;
   setNewVideoLinkUrl: (value: string) => void;
+
   newVideoLinkNote: string;
   setNewVideoLinkNote: (value: string) => void;
+
   form: any;
   setForm: React.Dispatch<React.SetStateAction<any>>;
+
   existingVideosLength: number;
   paidExtraVideos: number;
   handleBuyExtraVideos: (quantity: number) => void;
+
   videoError: string;
+  setVideoError: React.Dispatch<React.SetStateAction<string>>;
+
   existingVideoDurations: number[];
+
   selectedVideoDurations: number[];
   setSelectedVideoDurations: React.Dispatch<
     React.SetStateAction<number[]>
@@ -83,10 +94,11 @@ export default function VideoUploadSection({
   setNewVideoLinkNote,
   form,
   setForm,
-  existingVideosLength,
+    existingVideosLength,
   paidExtraVideos,
   handleBuyExtraVideos,
   videoError,
+  setVideoError,
   existingVideoDurations,
   selectedVideoDurations,
   setSelectedVideoDurations,
@@ -181,7 +193,42 @@ export default function VideoUploadSection({
             ? "Changes become public when you save."
             : "Saving does not make your changes public."}
         </p>
+<DirectVideoRecorder
+  onRecorded={(file, durationSeconds) => {
+    setVideoError("");
 
+    if (file.size > 1000 * 1000 * 1000) {
+      setVideoError(
+        "The recorded video exceeds the 1 GB maximum video size."
+      );
+      return;
+    }
+
+    if (durationSeconds > 300) {
+      setVideoError(
+        "Recorded videos must be 5 minutes or less."
+      );
+      return;
+    }
+
+    const projectedMinutes =
+      totalMinutes + durationSeconds / 60;
+
+    if (projectedMinutes > videoLimit) {
+      setVideoError(
+        `This plan includes ${videoLimit} minutes of Video Memories. Please remove or shorten a video before recording another.`
+      );
+      return;
+    }
+
+    setVideoFiles((prev) => [...prev, file]);
+
+    setSelectedVideoDurations((prev) => [
+      ...prev,
+      durationSeconds,
+    ]);
+  }}
+/>
         <input
           key={videoFiles.length}
           type="file"

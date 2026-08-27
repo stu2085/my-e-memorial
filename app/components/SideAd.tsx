@@ -20,11 +20,15 @@ export default function SideAd({
   pageType,
   forcedCategory,
   categorySlot,
+  sticky = true,
+  compact = false,
 }: {
   memorialZip?: string | null;
   pageType?: "memorial" | "create" | "home" | "search" | "personal" | "edit";
   forcedCategory?: string;
   categorySlot?: string;
+  sticky?: boolean;
+  compact?: boolean;
 }) {
   const [ad, setAd] = useState<Advertiser | null>(null);
   const displayCategory = categorySlot || forcedCategory;
@@ -75,6 +79,9 @@ if (pageType === "home" || pageType === "search") {
 }
 if (categorySlot) {
   allowedCategories = [categorySlot];
+}
+if (forcedCategory) {
+  allowedCategories = [forcedCategory];
 }
       let query = supabase
   .from("advertisers")
@@ -135,13 +142,15 @@ setAd(ads[0] || null);
       <div
   className={`hidden lg:flex flex-col items-center ${
     pageType === "home"
-  ? "w-full"
-  : pageType === "memorial"
-  ? "w-[460px]"
-  : "w-[200px]"
+      ? "w-full"
+      : pageType === "memorial"
+        ? compact
+          ? "w-[345px]"
+          : "w-[460px]"
+        : "w-[200px]"
   }`}
 >
-        <div className="sticky top-24 w-full">
+        <div className={sticky ? "sticky top-24 w-full" : "w-full"}>
           <a
   href={
   displayCategory
@@ -151,7 +160,7 @@ setAd(ads[0] || null);
   className="flex h-[600px] w-full flex-col items-center justify-center rounded-xl border border-dashed border-stone-400 bg-white px-3 text-center text-sm text-stone-600 transition hover:border-amber-500 hover:bg-amber-50"
 >
   <span className="text-base font-bold text-stone-900">
-    Advertise Here
+    Your Ad Here
   </span>
 
   {pageType === "memorial" && (
@@ -236,11 +245,13 @@ setAd(ads[0] || null);
       pageType === "home"
         ? "w-full"
         : pageType === "memorial"
-        ? "w-[360px]"
+        ? compact
+          ? "w-[345px]"
+          : "w-[360px]"
         : "w-[200px]"
     }`}
   >
-    <div className="sticky top-24 w-full">
+    <div className={sticky ? "sticky top-24 w-full" : "w-full"}>
         <a
           href={`/api/ad-click?id=${ad.id}`}
           target="_blank"

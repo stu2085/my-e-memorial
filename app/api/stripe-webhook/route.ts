@@ -352,6 +352,9 @@ const billingPlanLabel =
   toPlan
 ) {
   const validUpgradeAmounts: Record<string, number> = {
+    "free:basic": 4995,
+    "free:plus": 6995,
+    "free:premium": 8995,
     "basic:plus": 2000,
     "basic:premium": 4000,
     "plus:premium": 2000,
@@ -434,11 +437,18 @@ const billingPlanLabel =
     );
   }
 
+  const upgradeFields: Record<string, unknown> = {
+    plan: toPlan,
+  };
+
+  if (fromPlan === "free") {
+    upgradeFields.payment_status = "paid";
+    upgradeFields.payment_source = "stripe";
+  }
+
   const { error: upgradeError } = await supabase
     .from("memorials")
-    .update({
-      plan: toPlan,
-    })
+    .update(upgradeFields)
     .eq("id", memorialId)
     .eq("plan", fromPlan);
 
@@ -950,13 +960,13 @@ if (giftRecipientEmail && gift.claim_token) {
     : "";
     const recipientInstructions =
   gift.gift_type === "personal"
-    ? "There is nothing to purchase. Simply accept your gift and begin creating your Personal E-Memorial whenever you're ready."
+    ? "There is nothing to purchase. Simply accept your gift and begin creating your Living MyEMemorial whenever you're ready."
     : "There is nothing to purchase. Simply accept your gift and begin preserving the life story and memories of your loved one whenever you're ready.";
 const recipientIntro =
   gift.gift_type === "personal"
     ? `
       <strong>${gift.purchaser_name}</strong> has gifted you a
-      <strong>Personal E-Memorial</strong> — a beautiful way to preserve
+      <strong>Living MyEMemorial</strong> — a beautiful way to preserve
       your memories, photos, videos, stories, and life experiences so
       future generations can truly know you.
     `

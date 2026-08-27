@@ -38,7 +38,7 @@ export default function GuidedChapterHeader({
   {toChapterWord(chapterNumber)}
 </h2>
 
-<h1 className="mt-3 text-5xl font-bold tracking-tight text-stone-900">
+<h1 className="mt-3 break-words text-3xl font-bold leading-tight tracking-tight text-stone-900 sm:text-4xl md:text-5xl">
   {title}
 </h1>
 

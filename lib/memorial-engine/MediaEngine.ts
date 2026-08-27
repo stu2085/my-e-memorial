@@ -1,5 +1,6 @@
 
 import type { Dispatch, SetStateAction } from "react";
+import { supabase } from "../../app/lib/supabase";
 
 import type { GalleryPhoto } from "../photo-engine/GalleryPhoto";
 import { uploadPhoto } from "../photo-engine/uploadPhoto";
@@ -32,6 +33,7 @@ type UploadVideosOptions = {
   videoNotes: string[];
   maxVideoSizeBytes?: number;
   maxVideoDurationSeconds?: number;
+  memorialId?: number | null;
 };
 export const MediaEngine = {
   async uploadSelectedGalleryPhotos({
@@ -193,9 +195,61 @@ export const MediaEngine = {
     videoNotes,
     maxVideoSizeBytes = 1000 * 1000 * 1000,
     maxVideoDurationSeconds = 300,
+    memorialId = null,
   }: UploadVideosOptions): Promise<UploadedVideo[]> {
     if (videoFiles.length === 0) {
       return [];
+    }
+
+    /*
+     * #14 Step 6:
+     * Logged-in owners authenticate Mux API requests with
+     * their Supabase access token. Backup Person requests
+     * use the hardened httpOnly backup cookie plus the
+     * memorial ID.
+     *
+     * Existing callers do not all pass memorialId yet, so
+     * Backup Person edit/draft routes may resolve it from
+     * the current URL without requiring changes to the
+     * large create page.
+     */
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    let resolvedMemorialId =
+      Number(memorialId) > 0 ? Number(memorialId) : null;
+
+    if (
+      !resolvedMemorialId &&
+      typeof window !== "undefined"
+    ) {
+      const params = new URLSearchParams(
+        window.location.search
+      );
+
+      const urlMemorialId = Number(
+        params.get("edit") ||
+          params.get("draft") ||
+          params.get("memorialId") ||
+          0
+      );
+
+      if (
+        Number.isFinite(urlMemorialId) &&
+        urlMemorialId > 0
+      ) {
+        resolvedMemorialId = urlMemorialId;
+      }
+    }
+
+    const muxHeaders: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (session?.access_token) {
+      muxHeaders.Authorization =
+        `Bearer ${session.access_token}`;
     }
 
     const oversizedFile = videoFiles.find(
@@ -222,6 +276,11 @@ export const MediaEngine = {
 
       const uploadRes = await fetch("/api/mux-upload", {
         method: "POST",
+        headers: muxHeaders,
+        credentials: "include",
+        body: JSON.stringify({
+          memorialId: resolvedMemorialId,
+        }),
       });
 
       const uploadData = await uploadRes.json();
@@ -250,11 +309,11 @@ export const MediaEngine = {
 
       const playbackRes = await fetch("/api/mux-playback", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: muxHeaders,
+        credentials: "include",
         body: JSON.stringify({
           uploadId: uploadData.uploadId,
+          memorialId: resolvedMemorialId,
         }),
       });
 

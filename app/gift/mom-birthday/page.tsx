@@ -1,4 +1,34 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "A Meaningful Birthday Gift for Mom | MyEMemorial",
+  },
+  description:
+    "Give Mom the opportunity to preserve her life story, memories, photos, videos, and family history with a Living MyEMemorial.",
+  alternates: {
+    canonical: "/gift/mom-birthday",
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
+  openGraph: {
+    title: "A Meaningful Birthday Gift for Mom | MyEMemorial",
+    description:
+      "Give Mom the opportunity to preserve her life story in her own words with a Living MyEMemorial.",
+    url: "/gift/mom-birthday",
+    siteName: "MyEMemorial",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "A Meaningful Birthday Gift for Mom | MyEMemorial",
+    description:
+      "Give Mom the opportunity to preserve her life story in her own words with a Living MyEMemorial.",
+  },
+};
 
 export default function MomBirthdayGiftPage() {
   return (

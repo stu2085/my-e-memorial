@@ -16,8 +16,9 @@ type Props = {
     React.SetStateAction<File | null>
   >;
   isSaving: boolean;
-  isPublished: boolean;
-  isPaid?: boolean;
+ isPublished: boolean;
+isPaid?: boolean;
+isFreePlan?: boolean;
 };
 
 export default function BasicInformationSection({
@@ -27,7 +28,9 @@ export default function BasicInformationSection({
   isSaving,
   isPublished,
   isPaid = true,
+  isFreePlan = false,
 }: Props) {
+  const canUploadFeaturedPhoto = isPaid || isFreePlan;
   const [featuredPhotoPreview, setFeaturedPhotoPreview] = useState<
     string | null
   >(null);
@@ -90,7 +93,7 @@ export default function BasicInformationSection({
             </div>
           )}
 
-          {!isPaid && (
+          {!canUploadFeaturedPhoto && (
             <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
               Choose a memorial plan and complete payment before uploading
               photos.
@@ -100,7 +103,7 @@ export default function BasicInformationSection({
           <input
             type="file"
             accept="image/*"
-            disabled={!isPaid}
+            disabled={!canUploadFeaturedPhoto}
             onChange={handleFeaturedPhotoChange}
             className="mt-4 w-full rounded-2xl border bg-white px-4 py-3 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400"
           />

@@ -1,3 +1,34 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Content Removal Policy | MyEMemorial",
+  },
+  description:
+    "Read the MyEMemorial Content Removal Policy for requesting review or removal of content involving privacy, ownership, impersonation, abuse, fraud, or other concerns.",
+  alternates: {
+    canonical: "/content-removal",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "Content Removal Policy | MyEMemorial",
+    description:
+      "Learn how to request review or removal of content on MyEMemorial.",
+    url: "/content-removal",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Content Removal Policy | MyEMemorial",
+    description:
+      "Learn how to request review or removal of content on MyEMemorial.",
+  },
+};
+
 export default function ContentRemovalPage() {
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
@@ -6,11 +37,11 @@ export default function ContentRemovalPage() {
           Content Removal Policy
         </h1>
 
-        <p className="mt-2 text-sm text-stone-500">
-          Last updated: August 12, 2026
+        <p className="mt-2 text-base text-stone-500">
+          Last updated: August 24, 2026
         </p>
 
-        <div className="mt-6 space-y-6 text-sm leading-relaxed text-stone-700">
+        <div className="mt-6 space-y-6 text-base leading-relaxed text-stone-700">
 
           <section>
             <h2 className="font-semibold text-stone-900">
@@ -109,12 +140,12 @@ export default function ContentRemovalPage() {
               If you believe photographs, videos, written material, music, or
               other content available through MyEMemorial infringes your
               copyright, please submit your complaint through our{" "}
-              <a
+              <Link
                 href="/dmca"
                 className="font-semibold text-blue-900 underline hover:text-blue-700"
               >
                 Copyright and DMCA Policy
-              </a>
+              </Link>
               .
             </p>
 
@@ -292,12 +323,12 @@ export default function ContentRemovalPage() {
             <p className="mt-3">
               Copyright complaints should instead be submitted according to
               the{" "}
-              <a
+              <Link
                 href="/dmca"
                 className="font-semibold text-blue-900 underline hover:text-blue-700"
               >
                 Copyright and DMCA Policy
-              </a>
+              </Link>
               .
             </p>
           </section>

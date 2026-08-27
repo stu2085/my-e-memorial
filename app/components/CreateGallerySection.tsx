@@ -14,7 +14,7 @@ import {
 } from "../../lib/photo-engine/GalleryPhoto";
 import type { UploadProgress } from "../../lib/photo-engine/uploadProgress";
 
-type PlanKey = "basic" | "plus" | "premium";
+type PlanKey = "free" | "basic" | "plus" | "premium";
 
 type CreateGallerySectionProps = {
   form: {
@@ -58,6 +58,7 @@ galleryPhotos,
 
   const limit = planDetails.galleryPhotos;
   const hasFiniteLimit = Number.isFinite(limit);
+  const canUploadGalleryPhotos = isPaid || form.plan === "free";
 
   const totalPhotoCount =
   savedGalleryPhotoUrls.length + galleryPhotos.length;
@@ -219,30 +220,34 @@ const remainingPhotos = hasFiniteLimit
   Gallery Photos
 </h2>
 
-<p className="mt-2 text-sm text-stone-600">
+<p className="mt-2 text-base text-stone-600">
   Upload and organize the photos that will appear in the memorial gallery.
 </p>
-{!isPaid && (
-  <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-    Choose a memorial plan and complete payment before uploading gallery photos.
+{form.plan === "free" ? (
+  <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-base text-amber-800">
+    Your first 5 gallery photos are free. Upgrade your plan to add more.
   </p>
-)}
+) : !isPaid ? (
+  <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-base text-amber-800">
+    Complete payment to upload gallery photos with your selected plan.
+  </p>
+) : null}
       <input
         type="file"
         accept="image/*"
         multiple
         disabled={
-  !isPaid ||
+  !canUploadGalleryPhotos ||
   isCheckingPhotos ||
   (hasFiniteLimit && totalPhotoCount >= limit)
 }
         onChange={handlePhotoSelection}
-        className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-500"
+        className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-500"
       />
 
       
 {isCheckingPhotos && (
-  <p className="text-sm font-medium text-stone-700">
+  <p className="text-base font-medium text-stone-700">
     Checking selected photos...
   </p>
 )}
@@ -251,7 +256,7 @@ const remainingPhotos = hasFiniteLimit
       {selectionMessage && (
         <p
           role="status"
-          className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700"
+          className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-base text-stone-700"
         >
           {selectionMessage}
         </p>
@@ -259,11 +264,11 @@ const remainingPhotos = hasFiniteLimit
 
       <div className="space-y-2 rounded-2xl border border-stone-200 bg-stone-50 p-4">
         <div className="flex items-center justify-between gap-4">
-          <p className="text-sm font-semibold text-stone-800">
+          <p className="text-base font-semibold text-stone-800">
             Gallery Capacity
           </p>
 
-          <p className="text-sm text-stone-600">
+          <p className="text-base text-stone-600">
             {hasFiniteLimit
   ? `${totalPhotoCount} of ${limit}`
   : `${totalPhotoCount} photo${totalPhotoCount === 1 ? "" : "s"}`}
@@ -288,19 +293,19 @@ const remainingPhotos = hasFiniteLimit
               />
             </div>
 
-            <p className="text-sm text-stone-600">
+            <p className="text-base text-stone-600">
               {remainingPhotos} photo
               {remainingPhotos === 1 ? "" : "s"} remaining
             </p>
           </>
         ) : (
-          <p className="text-sm text-stone-600">
+          <p className="text-base text-stone-600">
             Premium allows unlimited gallery photos.
           </p>
         )}
       </div>
 {savedGalleryPhotoUrls.length > 0 && (
-  <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
     {savedGalleryPhotoUrls.map((url, index) => (
       <div
         key={`${url}-${index}`}
@@ -316,7 +321,7 @@ const remainingPhotos = hasFiniteLimit
 
         <div className="space-y-2 bg-white p-2">
           <textarea
-            rows={2}
+            rows={5}
             value={savedGalleryPhotoCaptions[index] ?? ""}
             onChange={(e) => {
               const value = e.target.value;
@@ -328,7 +333,7 @@ const remainingPhotos = hasFiniteLimit
               });
             }}
             placeholder="Add a caption"
-            className="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-xs text-stone-900"
+            className="-mx-2 w-[calc(100%+1rem)] resize-y rounded-xl border border-stone-300 bg-white px-3 py-3 text-base leading-7 text-stone-900"
           />
 
           <button
@@ -342,12 +347,12 @@ const remainingPhotos = hasFiniteLimit
                 currentCaptions.filter((_, i) => i !== index)
               );
             }}
-            className="w-full rounded-lg border border-red-300 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+            className="w-full rounded-lg border border-red-300 px-2 py-2 text-base font-semibold text-red-600 hover:bg-red-50"
           >
             Delete
           </button>
 
-          <div className="grid grid-cols-2 gap-1">
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               disabled={index === 0}
@@ -378,7 +383,7 @@ const remainingPhotos = hasFiniteLimit
                   return nextCaptions;
                 });
               }}
-              className="rounded-lg border border-stone-300 px-2 py-1 text-xs font-semibold text-stone-700 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-lg border border-stone-300 px-2 py-2 text-base font-semibold text-stone-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
               ← Left
             </button>
@@ -413,7 +418,7 @@ const remainingPhotos = hasFiniteLimit
                   return nextCaptions;
                 });
               }}
-              className="rounded-lg border border-stone-300 px-2 py-1 text-xs font-semibold text-stone-700 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-lg border border-stone-300 px-2 py-2 text-base font-semibold text-stone-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Right →
             </button>
@@ -424,7 +429,7 @@ const remainingPhotos = hasFiniteLimit
   </div>
 )}
       {galleryPhotos.length > 0 && (
-  <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
     {galleryPhotos.map((photo) => (
       <div
         key={photo.id}
@@ -441,14 +446,14 @@ const remainingPhotos = hasFiniteLimit
             type="button"
             onClick={() => removePhoto(photo.id)}
             aria-label={`Remove ${photo.file.name}`}
-            className="absolute right-1 top-1 rounded-full bg-black/70 px-2 py-1 text-xs font-bold text-white"
+            className="absolute right-1 top-1 rounded-full bg-black/70 px-2 py-1 text-base font-bold text-white"
           >
             ×
           </button>
         </div>
 
         <textarea
-          rows={2}
+          rows={5}
           value={photo.caption}
           onChange={(e) => {
             const value = e.target.value;
@@ -465,7 +470,7 @@ const remainingPhotos = hasFiniteLimit
             );
           }}
           placeholder="Add a caption"
-          className="w-full border-t border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-900"
+          className="w-full resize-y border-t border-stone-200 bg-white px-3 py-3 text-base leading-7 text-stone-900"
         />
       </div>
     ))}
@@ -476,11 +481,11 @@ const remainingPhotos = hasFiniteLimit
         galleryUploadProgress.total > 0 && (
           <div className="space-y-3 rounded-2xl border border-stone-200 bg-white p-4">
             <div className="flex items-center justify-between gap-4">
-              <p className="text-sm font-semibold text-stone-800">
+              <p className="text-base font-semibold text-stone-800">
                 Uploading Photos
               </p>
 
-              <p className="text-sm text-stone-600">
+              <p className="text-base text-stone-600">
                 {galleryUploadProgress.processed} of{" "}
                 {galleryUploadProgress.total} completed
               </p>
@@ -504,12 +509,12 @@ const remainingPhotos = hasFiniteLimit
               />
             </div>
 
-            <p className="text-sm text-stone-600">
+            <p className="text-base text-stone-600">
               {galleryUploadProgress.percentComplete}% complete
             </p>
 
             {galleryUploadProgress.currentFileName && (
-              <div className="rounded-xl bg-stone-50 px-3 py-2 text-sm text-stone-700">
+              <div className="rounded-xl bg-stone-50 px-3 py-2 text-base text-stone-700">
                 <p className="break-all font-medium">
                   {galleryUploadProgress.currentFileName}
                 </p>
@@ -529,7 +534,7 @@ const remainingPhotos = hasFiniteLimit
             )}
 
             {galleryUploadProgress.failed > 0 && (
-              <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-base text-red-700">
                 {galleryUploadProgress.failed} photo
                 {galleryUploadProgress.failed === 1
                   ? ""

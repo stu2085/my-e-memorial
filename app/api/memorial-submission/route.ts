@@ -42,7 +42,7 @@ if (existingAttempt && existingAttempt.resetAt > now) {
     return NextResponse.json(
       {
         error:
-          "Too many contribution submissions. Please try again later.",
+          "Too many memory submissions. Please try again later.",
       },
       { status: 429 }
     );
@@ -148,30 +148,46 @@ status: "pending",
       console.log("OWNER EMAIL FOUND:", ownerEmail);
 console.log("OWNER ERROR:", ownerError);
     }
-console.log("CONTRIBUTION OWNER ID:", memorial.owner_id);
-console.log("CONTRIBUTION OWNER EMAIL:", ownerEmail);
-console.log("CONTRIBUTION BACKUP EMAIL:", memorial.backup_email);
+console.log("MEMORY SUBMISSION OWNER ID:", memorial.owner_id);
+console.log("MEMORY SUBMISSION OWNER EMAIL:", ownerEmail);
+console.log("MEMORY SUBMISSION BACKUP EMAIL:", memorial.backup_email);
     if (ownerEmail) {
       const baseUrl =
         process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
       
-
-    console.log("SENDING CONTRIBUTION EMAIL TO:", ownerEmail);
+const videoListHtml =
+  cleanVideoUrls.length > 0
+    ? `
+      <p><strong>Submitted Videos:</strong></p>
+      <ul>
+        ${cleanVideoUrls
+          .map(
+            (playbackId) => `
+              <li>
+                Mux playback ID: ${playbackId}
+              </li>
+            `
+          )
+          .join("")}
+      </ul>
+    `
+    : "";
+    console.log("SENDING MEMORY SUBMISSION EMAIL TO:", ownerEmail);
 
 try {
   const info = await transporter.sendMail({
   from: `"MyEMemorial" <${process.env.EMAIL_USER}>`,
   to: ownerEmail,
   replyTo: submitterEmail || process.env.EMAIL_USER,
-  subject: `New contribution submitted for ${
+  subject: `New memory submitted for ${
           memorialName || memorial.full_name || "a memorial"
         }`,
         html: `
           <p>Hello,</p>
 
           <p>
-            A visitor submitted a new contribution for
+            A visitor shared a new memory for
             <strong>${memorialName || memorial.full_name || "this memorial"}</strong>.
           </p>
 
@@ -183,13 +199,13 @@ try {
 
           
           <p>
-            This contribution is pending review and has not been published.
+            This memory submission is pending review and has not been published.
           </p>
 
          <p>
-  Review this contribution:<br />
+  Review this memory:<br />
   <a href="${baseUrl}/login?mode=login&redirect=${encodeURIComponent(`/memorial/${memorialSlug}/edit`)}">
-  Review Contribution
+  Review Memory
 </a>
 </p>
 
@@ -198,9 +214,9 @@ try {
           </p>
         `,
       });
-        console.log("CONTRIBUTION EMAIL SENT:", info.messageId);
+        console.log("MEMORY SUBMISSION EMAIL SENT:", info.messageId);
 } catch (emailError) {
-  console.error("CONTRIBUTION EMAIL ERROR:", emailError);
+  console.error("MEMORY SUBMISSION EMAIL ERROR:", emailError);
 }
     }
 
@@ -212,7 +228,7 @@ try {
     console.error("MEMORIAL SUBMISSION ERROR:", error);
 
     return NextResponse.json(
-      { error: "Could not submit contribution." },
+      { error: "Could not submit memory." },
       { status: 500 }
     );
   }

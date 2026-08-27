@@ -6,11 +6,11 @@ export default function TermsPage() {
           Terms of Service
         </h1>
 
-        <p className="mt-2 text-sm text-stone-500">
+        <p className="mt-2 text-base text-stone-500">
           Last updated: August 12, 2026
         </p>
 
-        <div className="mt-6 space-y-6 text-sm leading-relaxed text-stone-700">
+        <div className="mt-6 space-y-6 text-base leading-relaxed text-stone-700">
 
           <section>
             <h2 className="font-semibold text-stone-900">
@@ -19,7 +19,7 @@ export default function TermsPage() {
 
             <p className="mt-2">
               By accessing or using MyEMemorial, creating or contributing to a
-              memorial, creating a Personal E-Memorial, accepting a gifted
+              memorial, creating a Living MyEMemorial, accepting a gifted
               memorial, or purchasing a plan or additional service, you agree
               to these Terms of Service.
             </p>
@@ -38,7 +38,7 @@ export default function TermsPage() {
             <p className="mt-2">
               MyEMemorial provides an online platform for creating, preserving,
               and sharing life stories and digital memorials. The service may
-              include Personal E-Memorials created during a person&apos;s
+              include Living MyEMemorials created during a person&apos;s
               lifetime and memorials created for individuals who have passed
               away.
             </p>
@@ -176,11 +176,11 @@ export default function TermsPage() {
 
           <section>
             <h2 className="font-semibold text-stone-900">
-              7. Personal E-Memorials and Backup Persons
+              7. Living MyEMemorials and Backup Persons
             </h2>
 
             <p className="mt-2">
-              A Personal E-Memorial may be created by or for a living person
+              A Living MyEMemorial may be created by or for a living person
               so that life stories, memories, family information, photographs,
               videos, and other content can be preserved during that
               person&apos;s lifetime.
@@ -196,7 +196,7 @@ export default function TermsPage() {
             <p className="mt-2">
               MyEMemorial may require reasonable verification before granting
               or continuing backup-person access or before permitting
-              after-death changes to a Personal E-Memorial.
+              after-death changes to a Living MyEMemorial.
             </p>
 
             <p className="mt-2">

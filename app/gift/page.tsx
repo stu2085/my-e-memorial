@@ -14,21 +14,21 @@ const plans: Array<{
 }> = [
   {
     id: "basic",
-    name: "Basic Memorial",
+    name: "Basic MyEMemorial",
     price: "$49.95",
     description: "A meaningful way to preserve a loved one’s story.",
     videoMinutes: "Up to 15 minutes of video memories",
   },
   {
     id: "plus",
-    name: "Plus Memorial",
+    name: "Plus MyEMemorial",
     price: "$69.95",
     description: "More room for photos, videos, stories, and memories.",
     videoMinutes: "Up to 30 minutes of video memories",
   },
   {
     id: "premium",
-    name: "Premium Memorial",
+    name: "Premium MyEMemorial",
     price: "$89.95",
     description: "Our most complete memorial experience.",
     videoMinutes: "Up to 60 minutes of video memories",
@@ -136,28 +136,46 @@ export default function GiftPage() {
   return (
     <main className="min-h-screen bg-stone-50 px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
-        <section className="mb-10 text-center">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-amber-700">
-  {giftType === "personal"
-    ? "Gift a Personal E-Memorial"
-    : "Gift a Memorial"}
-</p>
+        <section className="mb-10">
+          <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_220px] lg:grid-cols-[minmax(0,1fr)_240px]">
+            <div className="text-center md:text-left">
+              <p className="mb-3 text-base font-semibold uppercase tracking-[0.2em] text-amber-700">
+                {giftType === "personal"
+                  ? "Gift a Living MyEMemorial"
+                  : "Gift a Deceased MyEMemorial"}
+              </p>
 
-<h1 className="text-3xl font-bold text-stone-900 sm:text-4xl">
-  {giftType === "personal"
-    ? "Give someone the opportunity to preserve their own life story"
-    : "Give someone a meaningful way to preserve the life of someone they love"}
-</h1>
+              <img
+                src="/images/gift-myememorial-reaction.webp"
+                alt="A delighted recipient reacting to a MyEMemorial gift on a laptop"
+                className="float-right mb-2 ml-4 block h-[92px] w-[138px] rounded-xl object-cover shadow-sm md:hidden"
+              />
 
-<p className="mx-auto mt-4 max-w-3xl text-base leading-7 text-stone-600 sm:text-lg">
-  {giftType === "personal"
-    ? "Purchase a Personal E-Memorial for someone you care about. They will receive an invitation to claim the gift and preserve their story while they can still help tell it themselves."
-    : "Purchase a memorial for someone you care about. They will receive an invitation to claim the gift and begin preserving the story and memories of a loved one who has passed away."}
-</p>
+              <h1 className="text-3xl font-bold text-stone-900 sm:text-4xl">
+                {giftType === "personal"
+                  ? "Give someone living the opportunity to preserve their own life story"
+                  : "Give someone a meaningful way to preserve the life of someone they love"}
+              </h1>
+
+              <p className="mt-4 max-w-3xl text-base leading-7 text-stone-600 sm:text-lg">
+                {giftType === "personal"
+                  ? "Purchase a Living MyEMemorial for someone you care about. They will receive an invitation to claim the gift and preserve their story while they can still help tell it themselves."
+                  : "Purchase a Deceased MyEMemorial for someone you care about. They will receive an invitation to claim the gift and begin preserving the story and memories of a loved one who has passed away."}
+              </p>
+            </div>
+
+            <div className="hidden md:block">
+              <img
+                src="/images/gift-myememorial-reaction.webp"
+                alt="A delighted recipient reacting to a MyEMemorial gift on a laptop"
+                className="h-[145px] w-full rounded-2xl object-cover shadow-sm lg:h-[155px]"
+              />
+            </div>
+          </div>
         </section>
 
         {wasCancelled && (
-          <div className="mb-6 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+          <div className="mb-6 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 text-base text-amber-900">
             Your payment was cancelled. You have not been charged. You may
             review the information below and try again.
           </div>
@@ -172,7 +190,7 @@ export default function GiftPage() {
               Choose the Gift Plan
             </h2>
 
-            <p className="mt-2 text-sm text-stone-600">
+            <p className="mt-2 text-base text-stone-600">
               The recipient will receive the plan you select below.
             </p>
 
@@ -199,7 +217,7 @@ export default function GiftPage() {
                     />
 
                     {giftPlan.id === "plus" && (
-                      <span className="absolute right-4 top-4 rounded-full bg-stone-900 px-3 py-1 text-xs font-semibold text-white">
+                      <span className="absolute right-4 top-4 rounded-full bg-stone-900 px-3 py-1 text-base font-semibold text-white">
                         Popular
                       </span>
                     )}
@@ -214,11 +232,11 @@ export default function GiftPage() {
                       </p>
                     </div>
 
-                    <p className="mt-4 text-sm leading-6 text-stone-600">
+                    <p className="mt-4 text-base leading-6 text-stone-600">
                       {giftPlan.description}
                     </p>
 
-                    <p className="mt-3 text-sm font-semibold text-stone-800">
+                    <p className="mt-3 text-base font-semibold text-stone-800">
                       {giftPlan.videoMinutes}
                     </p>
                   </label>
@@ -232,7 +250,7 @@ export default function GiftPage() {
               Your Information
             </h2>
 
-            <p className="mt-2 text-sm text-stone-600">
+            <p className="mt-2 text-base text-stone-600">
               We will send the purchase confirmation to this email address.
             </p>
 
@@ -240,7 +258,7 @@ export default function GiftPage() {
               <div>
                 <label
                   htmlFor="purchaserName"
-                  className="block text-sm font-semibold text-stone-800"
+                  className="block text-base font-semibold text-stone-800"
                 >
                   Your name
                 </label>
@@ -260,7 +278,7 @@ export default function GiftPage() {
               <div>
                 <label
                   htmlFor="purchaserEmail"
-                  className="block text-sm font-semibold text-stone-800"
+                  className="block text-base font-semibold text-stone-800"
                 >
                   Your email
                 </label>
@@ -284,9 +302,9 @@ export default function GiftPage() {
               Gift Recipient
             </h2>
 
-            <p className="mt-2 text-sm text-stone-600">
+            <p className="mt-2 text-base text-stone-600">
   {giftType === "personal"
-    ? "This is the person who will receive, claim, and create their own Personal E-Memorial."
+    ? "This is the person who will receive, claim, and create their own Living MyEMemorial."
     : "This is the person who will receive the gift and create a memorial for someone who has passed away."}
 </p>
 
@@ -294,7 +312,7 @@ export default function GiftPage() {
               <div>
                 <label
                   htmlFor="recipientName"
-                  className="block text-sm font-semibold text-stone-800"
+                  className="block text-base font-semibold text-stone-800"
                 >
                   Recipient’s name
                 </label>
@@ -313,7 +331,7 @@ export default function GiftPage() {
               <div>
                 <label
                   htmlFor="recipientEmail"
-                  className="block text-sm font-semibold text-stone-800"
+                  className="block text-base font-semibold text-stone-800"
                 >
                   Recipient’s email
                 </label>
@@ -333,7 +351,7 @@ export default function GiftPage() {
             <div className="mt-5">
               <label
                 htmlFor="personalMessage"
-                className="block text-sm font-semibold text-stone-800"
+                className="block text-base font-semibold text-stone-800"
               >
                 Personal message{" "}
                 <span className="font-normal text-stone-500">(optional)</span>
@@ -350,7 +368,7 @@ export default function GiftPage() {
                 className="mt-2 w-full resize-y rounded-xl border border-stone-300 px-4 py-3 text-stone-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
               />
 
-              <p className="mt-1 text-right text-xs text-stone-500">
+              <p className="mt-1 text-right text-base text-stone-500">
                 {personalMessage.length}/2000
               </p>
             </div>
@@ -362,7 +380,7 @@ export default function GiftPage() {
                 How the Gift Works
               </h2>
 
-              <ol className="mt-3 space-y-2 text-sm leading-6 text-stone-700">
+              <ol className="mt-3 space-y-2 text-base leading-6 text-stone-700">
                 <li>1. You purchase the selected MyEMemorial plan.</li>
                 <li>
                   2. You receive an email confirming your Gift purchase.
@@ -386,8 +404,8 @@ export default function GiftPage() {
                 className="mt-1 h-4 w-4 rounded border-stone-300 text-amber-600 focus:ring-amber-500"
               />
 
-              <span className="text-sm leading-6 text-stone-700">
-                I understand that I am purchasing a MyEMemorial plan as a Gift
+              <span className="text-base leading-6 text-stone-700">
+                I understand that I am purchasing a Living MyEMemorial plan as a Gift
                 for the recipient listed above. The recipient must claim the
                 Gift before beginning their memorial.
               </span>
@@ -397,7 +415,7 @@ export default function GiftPage() {
           {errorMessage && (
             <div
               role="alert"
-              className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-medium text-red-800"
+              className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-base font-medium text-red-800"
             >
               {errorMessage}
             </div>
@@ -414,7 +432,7 @@ export default function GiftPage() {
                 : "Continue to Secure Payment"}
             </button>
 
-            <p className="mt-3 text-center text-xs text-stone-500">
+            <p className="mt-3 text-center text-base text-stone-500">
               You will be redirected to Stripe to complete the payment
               securely.
             </p>

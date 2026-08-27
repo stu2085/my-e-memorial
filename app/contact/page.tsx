@@ -1,3 +1,33 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Contact MyEMemorial | Get in Touch",
+  },
+  description:
+    "Contact MyEMemorial with questions about Living MyEMemorials, online memorials, gifts, plans, account help, or other support.",
+  alternates: {
+    canonical: "/contact",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "Contact MyEMemorial | Get in Touch",
+    description:
+      "Contact MyEMemorial with questions about Living MyEMemorials, online memorials, gifts, plans, account help, or other support.",
+    url: "/contact",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contact MyEMemorial | Get in Touch",
+    description:
+      "Contact MyEMemorial with questions about Living MyEMemorials, online memorials, gifts, plans, account help, or other support.",
+  },
+};
+
 import { Suspense } from "react";
 import ContactForm from "../components/ContactForm";
 

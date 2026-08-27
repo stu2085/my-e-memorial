@@ -30,9 +30,11 @@ export type GuidedChapter = {
   title: string;
   personalTitle?: string;
   memorialTitle?: string;
+  afterDeathTitle?: string;
   description: string;
   personalDescription?: string;
   memorialDescription?: string;
+  afterDeathDescription?: string;
   availability: GuidedChapterAvailability;
 };
 
@@ -163,14 +165,17 @@ export const GUIDED_CHAPTERS: GuidedChapter[] = [
   {
     id: "backup-person",
     title: "Future Memorial Contact",
+    afterDeathTitle: "After-Death Information",
     description:
       "Choose someone who can help protect and manage your memorial in the future.",
+    afterDeathDescription:
+      "Complete the verified date of death and review the private instructions and funeral-home information the memorial owner left for you.",
     availability: "personal-only",
   },
   {
     id: "review",
     title: "Review",
-    personalTitle: "Review Your Personal E-Memorial",
+    personalTitle: "Review Your Living MyEMemorial",
     memorialTitle: "Review the Memorial",
     description:
       "Review what has been preserved and make any additions before continuing.",
@@ -188,7 +193,13 @@ export function getGuidedChapters(
 
     if (
       chapter.availability === "personal-only" &&
-      experienceType === "personal"
+      (
+        experienceType === "personal" ||
+        (
+          experienceType === "after-death" &&
+          chapter.id === "backup-person"
+        )
+      )
     ) {
       return true;
     }
@@ -217,6 +228,13 @@ export function getGuidedChapterTitle(
     return chapter.memorialTitle;
   }
 
+  if (
+    experienceType === "after-death" &&
+    chapter.afterDeathTitle
+  ) {
+    return chapter.afterDeathTitle;
+  }
+
   return chapter.title;
 }
 
@@ -236,6 +254,13 @@ export function getGuidedChapterDescription(
     chapter.memorialDescription
   ) {
     return chapter.memorialDescription;
+  }
+
+  if (
+    experienceType === "after-death" &&
+    chapter.afterDeathDescription
+  ) {
+    return chapter.afterDeathDescription;
   }
 
   return chapter.description;
