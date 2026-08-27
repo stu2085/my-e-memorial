@@ -25,7 +25,7 @@ const benefits = [
   {
     icon: "🔐",
     title: "You Stay in Control",
-    text: "Continue updating your Personal MyEMemorial throughout your life and decide how and when it is shared.",
+    text: "Continue updating your Living MyEMemorial throughout your life and decide how and when it is shared.",
   },
 ];
 
@@ -194,7 +194,7 @@ function PersonalEMemorialPageContent() {
 
       if (!session?.access_token) {
         setUpgradeError(
-          "Please sign in again before upgrading your Personal MyEMemorial."
+          "Please sign in again before upgrading your Living MyEMemorial."
         );
         return;
       }
@@ -261,14 +261,14 @@ function PersonalEMemorialPageContent() {
                 href="#pricing"
                 className="inline-flex min-h-[68px] w-full max-w-[390px] items-center justify-center rounded-full bg-amber-400 px-8 text-center text-lg font-bold text-stone-900 shadow-sm transition hover:bg-amber-300"
               >
-                Choose Your Personal MyEMemorial Plan
+                Choose Your Living MyEMemorial Plan
               </Link>
 
               <Link
                 href="/gift?type=personal"
                 className="inline-flex min-h-[68px] w-full max-w-[390px] items-center justify-center rounded-full bg-blue-950 px-8 text-center text-lg font-bold text-white shadow-sm transition hover:bg-blue-900"
               >
-                🎁 Gift a Personal MyEMemorial
+                🎁 Gift a Living MyEMemorial
               </Link>
             </div>
           </div>
@@ -413,7 +413,7 @@ function PersonalEMemorialPageContent() {
   <div className="grid items-stretch lg:grid-cols-[0.9fr_1.1fr]">
     <div className="flex flex-col justify-center p-7 md:p-9">
       <p className="text-base font-bold uppercase tracking-[0.2em] text-amber-300">
-        See What a Personal MyEMemorial Can Become
+        See What a Living MyEMemorial Can Become
       </p>
 
       <h2 className="mt-3 text-2xl font-bold leading-tight md:text-3xl">
@@ -421,7 +421,7 @@ function PersonalEMemorialPageContent() {
       </h2>
 
       <p className="mt-4 text-base leading-7 text-stone-200 md:text-lg">
-        In just a few moments, see how a Personal MyEMemorial helps you
+        In just a few moments, see how a Living MyEMemorial helps you
         preserve the stories, memories, photos, videos, music, and experiences
         that make your life uniquely yours.
       </p>
@@ -441,7 +441,7 @@ function PersonalEMemorialPageContent() {
         playsInline
         loop
         poster="/Images/homepage-hero.png"
-        aria-label="Introduction to Personal MyEMemorials"
+        aria-label="Introduction to Living MyEMemorials"
       />
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
@@ -452,7 +452,7 @@ function PersonalEMemorialPageContent() {
             ▶
           </span>
 
-          Personal MyEMemorial Introduction
+          Living MyEMemorial Introduction
         </div>
       </div>
     </div>
@@ -528,7 +528,7 @@ function PersonalEMemorialPageContent() {
 
                     <p className="mt-2 text-lg leading-7 text-stone-600">
                       Continue adding memories throughout your life and decide
-                      when and how you want your Personal MyEMemorial shared.
+                      when and how you want your Living MyEMemorial shared.
                     </p>
                   </div>
 
@@ -561,7 +561,7 @@ function PersonalEMemorialPageContent() {
                     </h2>
 
                     <p className="mt-4 text-lg leading-7 text-stone-700">
-                      Personal MyEMemorials will allow you to record video
+                      Living MyEMemorials will allow you to record video
                       memories directly from your camera and microphone, making
                       it easier to preserve your voice, expressions, stories,
                       and personality.
@@ -592,7 +592,7 @@ function PersonalEMemorialPageContent() {
               <section id="pricing" className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
                 <div className="text-center">
                   <p className="text-base font-bold uppercase tracking-[0.18em] text-amber-700">
-                    Personal MyEMemorial Plans
+                    Living MyEMemorial Plans
                   </p>
 
                   <h2 className="mt-2 text-3xl font-bold text-stone-900">
@@ -603,8 +603,8 @@ function PersonalEMemorialPageContent() {
 
                   <p className="mx-auto mt-3 max-w-3xl text-lg leading-7 text-stone-600">
                     {isUpgradeFlow
-                      ? "Your Free Personal MyEMemorial is already saved. Choose Basic, Plus, or Premium below to unlock more features without starting over."
-                      : "Basic, Plus, and Premium Personal MyEMemorial plans include Legacy Instructions for trusted Designated Person access and private planning information, plus the optional Celebration of Life Presentation at no additional charge."}
+                      ? "Your Free Living MyEMemorial is already saved. Choose Basic, Plus, or Premium below to unlock more features without starting over."
+                      : "Basic, Plus, and Premium Living MyEMemorial plans include Legacy Instructions for trusted Designated Person access and private planning information, plus the optional Celebration of Life Presentation at no additional charge."}
                   </p>
 
                   {upgradeError && (
@@ -621,7 +621,7 @@ function PersonalEMemorialPageContent() {
                 >
                   {!isUpgradeFlow && (
                     <PlanCard
-                      title="Free Personal MyEMemorial"
+                      title="Free Living MyEMemorial"
                       price="$0"
                       href="/create?mode=personal&plan=free"
                       badge="Start Free"
@@ -638,7 +638,7 @@ function PersonalEMemorialPageContent() {
                   )}
 
                   <PlanCard
-                    title="Basic Personal MyEMemorial"
+                    title="Basic Living MyEMemorial"
                     price="$49.95"
                     href="/create?mode=personal&plan=basic"
                     buttonLabel={isUpgradeFlow ? "Upgrade to Basic" : "Choose Plan"}
@@ -665,7 +665,7 @@ function PersonalEMemorialPageContent() {
                   />
 
                   <PlanCard
-                    title="Plus Personal MyEMemorial"
+                    title="Plus Living MyEMemorial"
                     price="$69.95"
                     href="/create?mode=personal&plan=plus"
                     dark
@@ -694,7 +694,7 @@ function PersonalEMemorialPageContent() {
                   />
 
                   <PlanCard
-                    title="Premium Personal MyEMemorial"
+                    title="Premium Living MyEMemorial"
                     price="$89.95"
                     href="/create?mode=personal&plan=premium"
                     buttonLabel={isUpgradeFlow ? "Upgrade to Premium" : "Choose Plan"}
@@ -744,7 +744,7 @@ function PersonalEMemorialPageContent() {
                     href="#pricing"
                     className="inline-flex min-h-[56px] w-full max-w-[290px] items-center justify-center rounded-full bg-amber-400 px-6 py-3 text-base font-bold text-stone-900 transition hover:bg-amber-300"
                   >
-                    Choose Your Personal MyEMemorial Plan
+                    Choose Your Living MyEMemorial Plan
                   </Link>
 
                   <Link
@@ -776,7 +776,7 @@ function PersonalEMemorialPageContent() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-base font-bold uppercase tracking-[0.16em] text-amber-700">
-                  Included With Paid Personal Plans
+                  Included With Paid Living Plans
                 </p>
                 <h2
                   id="legacy-instructions-title"
@@ -799,7 +799,7 @@ function PersonalEMemorialPageContent() {
             <p className="mt-5 text-lg leading-7 text-stone-700">
               The Legacy Instructions Package gives you a private way to name
               trusted people and leave helpful information for the future. It is
-              included with Basic, Plus, and Premium Personal MyEMemorial plans.
+              included with Basic, Plus, and Premium Living MyEMemorial plans.
             </p>
 
             <ul className="mt-5 space-y-3 text-lg leading-7 text-stone-700">
@@ -813,7 +813,7 @@ function PersonalEMemorialPageContent() {
             <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5">
               <p className="text-base font-semibold leading-7 text-blue-950">
                 Your Legacy Instructions stay private and do not appear on the
-                public Personal MyEMemorial. Use them to explain where important
+                public Living MyEMemorial. Use them to explain where important
                 documents can be found — never to store passwords, PINs, account
                 numbers, Social Security numbers, or other confidential credentials.
               </p>
