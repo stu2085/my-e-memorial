@@ -305,7 +305,7 @@ return;
           className="mt-7 block rounded-2xl border border-stone-300 bg-white p-6 transition hover:bg-stone-50"
         >
           <span className="block text-xl font-bold text-stone-900">
-            Memorial Owner Login
+            MyEMemorial Member Login
           </span>
 
           <span className="mt-2 block text-base leading-7 text-stone-600">
@@ -369,7 +369,7 @@ if (isChoiceMode) {
     ? "Create Account"
     : isBackupMode
       ? "Backup Person Login"
-      : "Memorial Owner Login"}
+      : "MyEMemorial Member Login"}
 </h1>
 
      
@@ -379,7 +379,7 @@ if (isChoiceMode) {
     ? "Create your account first so your memorial ownership is saved correctly."
     : isBackupMode
       ? "Enter the email address and password assigned to you by the owner of the Living MyEMemorial."
-      : "Log in to access and manage your memorials."}
+      : "Log in to access and manage your MyEMemorials."}
 </p>
 
         <div className="mt-6 space-y-4">

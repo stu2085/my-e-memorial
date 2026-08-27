@@ -430,6 +430,7 @@ function PersonalEMemorialPageContent() {
   <li>Tell your story</li>
   <li>Add photos & videos</li>
   <li>Share with family</li>
+  <li>Plus much more</li>
 </ul>
     </div>
 
@@ -630,7 +631,7 @@ function PersonalEMemorialPageContent() {
                         "Up to 5 gallery photos",
                         "Life story",
                         "Basic personal information",
-                        "Contributor approval",
+                        "Shared Memories Approval",
                         "Public & shareable MyEMemorial",
                         "Upgrade anytime",
                       ]}
@@ -659,7 +660,7 @@ function PersonalEMemorialPageContent() {
                       "Places lived & worked",
                       "Schools & awards",
                       "Social media links",
-                      "Contributor approval",
+                      "Shared Memories Approval",
                       "__NEW_CELEBRATION_PRESENTATION__",
                     ]}
                   />
@@ -688,7 +689,7 @@ function PersonalEMemorialPageContent() {
                       "Places lived & worked",
                       "Schools & awards",
                       "Social media links",
-                      "Contributor approval",
+                      "Shared Memories Approval",
                       "__NEW_CELEBRATION_PRESENTATION__",
                     ]}
                   />
@@ -715,7 +716,7 @@ function PersonalEMemorialPageContent() {
                       "Places lived & worked",
                       "Schools & awards",
                       "Social media links",
-                      "Contributor approval",
+                      "Shared Memories Approval",
                       "__NEW_CELEBRATION_PRESENTATION__",
                     ]}
                   />
