@@ -438,8 +438,7 @@ useEffect(() => {
           Deceased MyEMemorials include a Celebration of Life
           Presentation. It can play approved photos and videos on a television
           or projector for a funeral, memorial service, or Celebration of Life.
-          For a Living MyEMemorial, the presentation is intended for use after
-          the owner has passed.
+          For a Living MyEMemorial, the presentation is intended for use after the Member has passed.
         </p>
       </div>
 
