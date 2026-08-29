@@ -1,5 +1,6 @@
 "use client";
 
+import MuxPlayer from "@mux/mux-player-react";
 
 import { SlugEngine } from "../../lib/memorial-engine/SlugEngine";
 import { ValidationEngine } from "../../lib/memorial-engine/ValidationEngine";
@@ -227,6 +228,17 @@ creatorState: string;
 creatorZip: string;
 betaCode: string;
 promotionCategory: string;
+};
+
+type ApprovedContribution = {
+  id: number;
+  submitter_name: string | null;
+  submitter_email: string | null;
+  message: string | null;
+  photo_urls?: string[] | string | null;
+  video_urls?: string[] | string | null;
+  status: string;
+  created_at: string | null;
 };
 
 const initialForm: FormState = {
@@ -1002,6 +1014,12 @@ function setSavedGalleryPhotoCaptions(
   setSavedGalleryPhotoCaptionsState(next);
 }
 const [savedNewspaperArticleUrls, setSavedNewspaperArticleUrls] = useState<string[]>([]);
+const [approvedContributions, setApprovedContributions] =
+  useState<ApprovedContribution[]>([]);
+const [approvedContributionsMessage, setApprovedContributionsMessage] =
+  useState("");
+const [removingContributionId, setRemovingContributionId] =
+  useState<number | null>(null);
 const [draftReady, setDraftReady] = useState(false);
 const [draftMemorialId, setDraftMemorialId] = useState<number | null>(null);
 const [draftMemorialSlug, setDraftMemorialSlug] = useState("");
@@ -1319,6 +1337,13 @@ if (!backupEditResponse.ok) {
   setDraftMemorialId(draftData.id);
 setDraftMemorialSlug(draftData.slug || "");
 setExistingMemorialOwnerId(draftData.owner_id ?? null);
+
+if (isEditingExistingMemorial && !hasBackupAccess) {
+  await loadApprovedContributions(draftData.id);
+} else {
+  setApprovedContributions([]);
+  setApprovedContributionsMessage("");
+}
 
 setExistingMemorialIsPublished(
   typeof draftData.is_published === "boolean"
@@ -2341,6 +2366,112 @@ function handleUseCurrentLocation() {
 
 
 
+
+async function loadApprovedContributions(
+  currentMemorialId: number
+) {
+  setApprovedContributionsMessage("");
+
+  const { data, error } = await supabase
+    .from("memorial_submissions")
+    .select(
+      "id, submitter_name, submitter_email, message, photo_urls, video_urls, status, created_at"
+    )
+    .eq("memorial_id", currentMemorialId)
+    .eq("status", "approved")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(
+      "LOAD APPROVED FAMILY AND FRIENDS CONTRIBUTIONS ERROR:",
+      error
+    );
+    setApprovedContributionsMessage(
+      "Approved Family & Friends contributions could not be loaded."
+    );
+    return;
+  }
+
+  setApprovedContributions(
+    (data as ApprovedContribution[]) || []
+  );
+}
+
+async function removeApprovedContribution(
+  submissionId: number
+) {
+  const confirmed = window.confirm(
+    "Remove this Family & Friends contribution from the public MyEMemorial?"
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    setApprovedContributionsMessage(
+      "Please sign in again before removing this contribution."
+    );
+    return;
+  }
+
+  setRemovingContributionId(submissionId);
+  setApprovedContributionsMessage("");
+
+  try {
+    const response = await fetch(
+      "/api/memorial-submissions/status",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          submissionId,
+          status: "rejected",
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+          "This contribution could not be removed."
+      );
+    }
+
+    setApprovedContributions((previous) =>
+      previous.filter(
+        (submission) => submission.id !== submissionId
+      )
+    );
+
+    setApprovedContributionsMessage(
+      "Contribution removed from the public MyEMemorial."
+    );
+  } catch (error) {
+    console.error(
+      "REMOVE APPROVED FAMILY AND FRIENDS CONTRIBUTION ERROR:",
+      error
+    );
+
+    setApprovedContributionsMessage(
+      error instanceof Error
+        ? error.message
+        : "This contribution could not be removed."
+    );
+  } finally {
+    setRemovingContributionId(null);
+  }
+}
 
 async function getVideoDurationWithRetry(
   file: File,
@@ -5075,6 +5206,188 @@ const isBackupChapterReadOnly = (
 </section>
               )}
 
+             {isExistingMemorialEdit &&
+               !isBackupAccess && (
+                <section
+                  id="family-friends-contributions"
+                  className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-700">
+                        Shared by Family & Friends
+                      </p>
+
+                      <h2 className="mt-1 text-2xl font-bold text-stone-900">
+                        Approved Photos, Videos & Written Stories
+                      </h2>
+
+                      <p className="mt-3 max-w-3xl text-base leading-7 text-stone-600">
+                        These contributions are currently approved and visible
+                        on the public MyEMemorial. You can review them here and
+                        remove any contribution that should no longer appear
+                        publicly.
+                      </p>
+                    </div>
+
+                    {approvedContributions.length > 0 && (
+                      <span className="rounded-full bg-green-50 px-4 py-2 text-sm font-semibold text-green-700">
+                        {approvedContributions.length} approved
+                      </span>
+                    )}
+                  </div>
+
+                  {approvedContributionsMessage && (
+                    <div className="mt-5 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-base text-stone-700">
+                      {approvedContributionsMessage}
+                    </div>
+                  )}
+
+                  {approvedContributions.length === 0 ? (
+                    <p className="mt-5 text-base text-stone-500">
+                      No approved Family & Friends contributions are currently
+                      visible on this MyEMemorial.
+                    </p>
+                  ) : (
+                    <div className="mt-6 space-y-5">
+                      {approvedContributions.map((submission) => {
+                        const submittedPhotos =
+                          parseContributionUrls(
+                            submission.photo_urls
+                          );
+
+                        const submittedVideos =
+                          parseContributionUrls(
+                            submission.video_urls
+                          ).filter(
+                            (videoId) => videoId.length > 15
+                          );
+
+                        return (
+                          <div
+                            key={submission.id}
+                            className="rounded-2xl border border-stone-200 bg-stone-50 p-5"
+                          >
+                            <div className="flex flex-wrap items-start justify-between gap-3">
+                              <div>
+                                <p className="text-base font-bold text-stone-900">
+                                  {submission.submitter_name ||
+                                    "Anonymous Visitor"}
+                                </p>
+
+                                {submission.submitter_email && (
+                                  <p className="mt-1 text-sm text-stone-500">
+                                    {submission.submitter_email}
+                                  </p>
+                                )}
+
+                                <p className="mt-2 inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-800">
+                                  Visible on Public MyEMemorial
+                                </p>
+                              </div>
+
+                              {submission.created_at && (
+                                <p className="text-sm text-stone-500">
+                                  {new Date(
+                                    submission.created_at
+                                  ).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+
+                            {submission.message?.trim() && (
+                              <p className="mt-4 whitespace-pre-line text-base leading-7 text-stone-700">
+                                {submission.message}
+                              </p>
+                            )}
+
+                            {submittedPhotos.length > 0 && (
+                              <div className="mt-5">
+                                <p className="mb-3 text-base font-semibold text-stone-800">
+                                  Shared Photo
+                                  {submittedPhotos.length === 1
+                                    ? ""
+                                    : "s"}
+                                </p>
+
+                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                                  {submittedPhotos.map(
+                                    (photoUrl, index) => (
+                                      <a
+                                        key={`${submission.id}-photo-${index}`}
+                                        href={photoUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block overflow-hidden rounded-xl border border-stone-200 bg-white"
+                                      >
+                                        <img
+                                          src={photoUrl}
+                                          alt={`Family and Friends contribution photo ${index + 1}`}
+                                          className="h-32 w-full object-cover transition hover:scale-105"
+                                        />
+                                      </a>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {submittedVideos.length > 0 && (
+                              <div className="mt-5">
+                                <p className="mb-3 text-base font-semibold text-stone-800">
+                                  Shared Video
+                                  {submittedVideos.length === 1
+                                    ? ""
+                                    : "s"}
+                                </p>
+
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                  {submittedVideos.map(
+                                    (playbackId, index) => (
+                                      <div
+                                        key={`${submission.id}-video-${index}`}
+                                        className="overflow-hidden rounded-2xl border border-stone-200 bg-white p-3"
+                                      >
+                                        <MuxPlayer
+                                          playbackId={playbackId}
+                                          streamType="on-demand"
+                                          className="aspect-video w-full rounded-xl bg-black"
+                                        />
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="mt-5 border-t border-stone-200 pt-4">
+                              <button
+                                type="button"
+                                disabled={
+                                  removingContributionId ===
+                                  submission.id
+                                }
+                                onClick={() =>
+                                  void removeApprovedContribution(
+                                    submission.id
+                                  )
+                                }
+                                className="inline-flex items-center justify-center rounded-full border border-red-300 bg-white px-5 py-3 text-base font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                {removingContributionId ===
+                                submission.id
+                                  ? "Removing..."
+                                  : "Remove from Public MyEMemorial"}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+              )}
+
              <GuidedMemoryBuilder
   chapterNavTargetId="memorial-builder-chapter-nav"
   experienceType={guidedExperienceType}
@@ -6139,6 +6452,37 @@ function normalizeFavoriteSongEntries(
     urls: entries.map((entry) => entry.url),
     notes: entries.map((entry) => entry.note),
   };
+}
+
+function parseContributionUrls(
+  value: string[] | string | null | undefined
+): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item || "").trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value !== "string" || !value.trim()) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+
+    if (Array.isArray(parsed)) {
+      return parsed
+        .map((item) => String(item || "").trim())
+        .filter(Boolean);
+    }
+  } catch {
+    // Older rows may contain comma-separated values instead of JSON.
+  }
+
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 function splitGalleryPhotos(value: string): string[] {
