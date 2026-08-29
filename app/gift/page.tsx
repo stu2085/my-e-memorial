@@ -142,7 +142,7 @@ export default function GiftPage() {
               <p className="mb-3 text-base font-semibold uppercase tracking-[0.2em] text-amber-700">
                 {giftType === "personal"
                   ? "Gift a Living MyEMemorial"
-                  : "Gift a Deceased MyEMemorial"}
+                  : "Gift a Departed MyEMemorial"}
               </p>
 
               <img
@@ -160,7 +160,7 @@ export default function GiftPage() {
               <p className="mt-4 max-w-3xl text-base leading-7 text-stone-600 sm:text-lg">
                 {giftType === "personal"
                   ? "Purchase a Living MyEMemorial for someone you care about. They will receive an invitation to claim the gift and preserve their story while they can still help tell it themselves."
-                  : "Purchase a Deceased MyEMemorial for someone you care about. They will receive an invitation to claim the gift and begin preserving the story and memories of a loved one who has passed away."}
+                  : "Purchase a Departed MyEMemorial for someone you care about. They will receive an invitation to claim the gift and begin preserving the story and memories of a loved one who has passed away."}
               </p>
             </div>
 
@@ -224,7 +224,7 @@ export default function GiftPage() {
 
                     <div className="pr-16">
                       <h3 className="font-bold text-stone-900">
-                        {giftPlan.name}
+                        {giftType === "personal" ? `${giftPlan.name.replace(" MyEMemorial", "")} Living MyEMemorial` : `${giftPlan.name.replace(" MyEMemorial", "")} Departed MyEMemorial`}
                       </h3>
 
                       <p className="mt-2 text-2xl font-bold text-stone-900">
@@ -405,7 +405,7 @@ export default function GiftPage() {
               />
 
               <span className="text-base leading-6 text-stone-700">
-                I understand that I am purchasing a Living MyEMemorial plan as a Gift
+                I understand that I am purchasing a{" "}{giftType === "personal" ? "Living MyEMemorial" : "Departed MyEMemorial"}{" "}plan as a Gift
                 for the recipient listed above. The recipient must claim the
                 Gift before beginning their memorial.
               </span>

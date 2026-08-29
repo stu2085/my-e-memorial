@@ -521,7 +521,7 @@ if (!updatedCampaign) {
     </option>
 
     <option value="create">
-      Create a Deceased MyEMemorial
+      Create a Departed MyEMemorial
     </option>
 
     <option value="learn">

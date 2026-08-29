@@ -833,6 +833,47 @@ const memorialVideos = useMemo(
       : [],
   [data?.memorial_videos]
 );
+
+const legacyVideoUrls = useMemo(
+  () => getVideoUrls(data?.video_urls),
+  [data?.video_urls]
+);
+
+// Guided Builder saves persist Mux playback IDs on memorials.video_urls,
+// while completed/older flows can also have structured rows in memorial_videos.
+// Merge both sources and de-duplicate by playback ID so every saved owner video
+// is available on the public memorial regardless of which save path created it.
+const publicMemorialVideos = useMemo<MemorialVideo[]>(() => {
+  const structuredVideos = memorialVideos;
+  const seenPlaybackIds = new Set(
+    structuredVideos.map((video) => video.playback_id).filter(Boolean)
+  );
+
+  const legacyVideos = legacyVideoUrls
+    .map((playbackId, originalIndex) => ({ playbackId, originalIndex }))
+    .filter(({ playbackId }) => !seenPlaybackIds.has(playbackId))
+    .map(({ playbackId, originalIndex }, publicIndex) => ({
+      id: -(publicIndex + 1),
+      memorial_id: data?.id ?? 0,
+      playback_id: playbackId,
+      duration_seconds: 0,
+      note: data?.video_notes?.[originalIndex] ?? null,
+      sort_order: structuredVideos.length + publicIndex,
+      original_filename: null,
+      file_size: null,
+      processing_status: "ready",
+      created_at: data?.updated_at ?? "",
+    }));
+
+  return [...structuredVideos, ...legacyVideos];
+}, [
+  memorialVideos,
+  legacyVideoUrls,
+  data?.id,
+  data?.video_notes,
+  data?.updated_at,
+]);
+
 const videoLinkUrls = useMemo(
   () =>
     Array.isArray(data?.video_link_urls)
@@ -1788,7 +1829,7 @@ const publicNavChapters = [
   { id: "newspaper-articles", title: "Newspaper Articles", show: newspaperArticles.length > 0 },
   { id: "favorite-songs", title: "Favorite Songs", show: favoriteSongs.length > 0 },
   { id: "photo-gallery", title: "Photo Gallery", show: combinedGalleryPhotos.length > 0 },
-  { id: "video-memories", title: "Video Memories", show: memorialVideos.length > 0 || videoLinkUrls.length > 0 },
+  { id: "video-memories", title: "Video Memories", show: publicMemorialVideos.length > 0 || videoLinkUrls.length > 0 },
   { id: "family-and-friends", title: "Family & Friends", show: approvedSubmissions.length > 0 },
   { id: "obituary", title: "Obituary", show: hasObituary },
   { id: "final-resting-place", title: "Final Resting Place", show: hasFinalRestingPlace },
@@ -1837,7 +1878,7 @@ function showNextPhoto() {
                 <img
                   src={data.featured_photo_url}
                   alt={data.full_name || "Memorial photo"}
-                  className="h-[260px] w-[260px] rounded-[18px] object-cover sm:h-[300px] sm:w-[300px] xl:h-[340px] xl:w-[340px]"
+                  className="h-[260px] w-[220px] rounded-[18px] bg-black/10 object-contain sm:h-[300px] sm:w-[250px] xl:h-[340px] xl:w-[285px]"
                 />
               </div>
             </div>
@@ -2547,7 +2588,7 @@ function showNextPhoto() {
 )}
 
 
-{(memorialVideos.length > 0 || videoLinkUrls.length > 0) && (
+{(publicMemorialVideos.length > 0 || videoLinkUrls.length > 0) && (
   <section id="public-video-memories" className="rounded-2xl bg-white p-5 shadow-sm">
     <button
       type="button"
@@ -2565,7 +2606,7 @@ function showNextPhoto() {
 
     {showMemorialVideos && (
   <div className="mt-5 grid gap-4 md:grid-cols-2">
-  {memorialVideos.map((video, index) => (
+  {publicMemorialVideos.map((video, index) => (
     <div
       key={video.id}
       className="overflow-hidden rounded-3xl border border-stone-200 bg-gradient-to-b from-white to-stone-50 p-5 shadow-sm"

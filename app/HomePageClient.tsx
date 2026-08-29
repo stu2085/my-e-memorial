@@ -25,35 +25,18 @@ useEffect(() => {
   loadVisitorZip();
 }, []);
   return (
-    <main className="min-h-screen bg-stone-100 px-4 py-6 md:px-8">
-      <div className="mx-auto flex w-full max-w-[1800px] gap-6 px-2">
-        <div className="hidden w-[240px] flex-shrink-0 flex-col gap-6 lg:flex">
-  <SideAd
-    pageType="home"
-    memorialZip={visitorZip}
-    forcedCategory="attorney"
-  />
+    <main className="min-h-screen bg-stone-100">
+    <section className="relative w-full overflow-hidden shadow-sm">
+      <img
+        src="/Images/homepage-hero.png"
+        alt=""
+        className="block h-auto w-full"
+      />
 
-  <SideAd
-    pageType="home"
-    memorialZip={visitorZip}
-    forcedCategory="estate_planner"
-  />
-</div>
-
-        <div className="min-w-0 flex-1">
-          <div className="mx-auto w-full max-w-[1400px] space-y-6">
-           <section className="relative overflow-hidden rounded-[1.5rem] shadow-sm">
-  <img
-    src="/Images/homepage-hero.png"
-    alt=""
-    className="block h-auto w-full"
-  />
-
-  <div className="absolute bottom-4 right-4 z-10 sm:bottom-5 sm:right-5 md:bottom-6 md:right-6">
+  <div className="absolute inset-x-0 bottom-5 z-50 flex justify-end px-5 md:bottom-6 md:px-6">
     <Link
       href="/memorial/daniel-james-whitmore"
-      className="inline-flex h-[46px] items-center justify-center rounded-full border-2 border-white bg-blue-950/90 px-4 text-base font-semibold text-white shadow-lg transition hover:bg-blue-900 sm:h-[50px] sm:px-5 sm:text-base"
+      className="relative inline-flex min-h-[50px] items-center justify-center rounded-full border-2 border-white bg-blue-950 px-5 py-3 text-base font-semibold text-white shadow-xl transition hover:bg-blue-900"
     >
       Experience a Sample MyEMemorial
     </Link>
@@ -63,11 +46,31 @@ useEffect(() => {
     <h1>Where Life&apos;s Stories Are Told.</h1>
     <p>
       Preserve the stories, memories, photos, voices, and moments that make
-      every life unique — today and for generations to come.
+      every life unique &mdash; today and for generations to come.
     </p>
   </div>
 </section>
 
+      <div className="mx-auto w-full max-w-[1800px] px-4 py-6 md:px-8">
+        {/*
+          TOP AD ZONE
+          The first pair of desktop advertisers stays sticky only while the
+          visitor is in the introduction / choice area. This containing grid
+          ends before "Built for families", so those ads naturally unstick
+          when the visitor reaches that section.
+        */}
+        <div className="grid items-stretch gap-6 lg:grid-cols-[240px_minmax(0,1fr)_240px]">
+          <aside className="hidden self-stretch lg:block">
+            <div className="sticky top-28">
+              <SideAd
+                pageType="home"
+                memorialZip={visitorZip}
+                forcedCategory="attorney"
+              />
+            </div>
+          </aside>
+
+          <div className="min-w-0 space-y-6">
 <section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
   <div className="mx-auto max-w-6xl">
     <div className="text-center">
@@ -123,7 +126,7 @@ useEffect(() => {
     <div className="mt-7 grid gap-6 md:grid-cols-2">
       {/* Living MyEMemorial */}
       <div className="flex flex-col rounded-3xl border border-amber-200 bg-amber-50 p-7 text-center shadow-sm md:p-8">
-        <div className="text-4xl">❤️</div>
+        <div className="text-4xl">{"\u2764\uFE0F"}</div>
 
         <h3 className="mt-4 text-2xl font-bold text-stone-900 md:text-3xl">
           Living MyEMemorial
@@ -135,18 +138,19 @@ useEffect(() => {
 
         <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-stone-700 md:text-lg">
           Preserve stories, memories, photos, family history, and experiences
-          while the living person can still help tell the story themselves.
+          while the person can still help tell the story themselves.
         </p>
 
         <p className="mx-auto mt-3 max-w-lg text-base leading-7 text-stone-700 md:text-lg">
           Paid plans also include a Celebration of Life Presentation for use
-          after the Member has passed, so approved photos and videos can be shared
+          after the member has passed, so approved photos and videos can be shared
           at a funeral, memorial service, or Celebration of Life.
         </p>
 
         <p className="mx-auto mt-3 max-w-lg text-base leading-7 text-stone-700 md:text-lg">
-          After independent death verification, a Designated Person can
-          handle permitted after-death updates without changing the life story already preserved.
+          After independent death verification, an authorized Designated Person can
+          handle permitted after-death updates without changing the life story
+          you preserved.
         </p>
 
         <div className="mt-auto pt-6">
@@ -161,10 +165,10 @@ useEffect(() => {
 
       {/* MyEMemorial for someone who has passed */}
       <div className="flex flex-col rounded-3xl border border-stone-300 bg-stone-900 p-7 text-center text-white shadow-sm md:p-8">
-        <div className="text-4xl">🕊️</div>
+        <div className="text-4xl">{"\uD83D\uDD4A\uFE0F"}</div>
 
         <h3 className="mt-4 text-2xl font-bold md:text-3xl">
-          Deceased MyEMemorial
+          Departed MyEMemorial
         </h3>
 
         <p className="mt-2 text-base font-semibold text-stone-300 md:text-lg">
@@ -183,7 +187,7 @@ useEffect(() => {
         </p>
 
         <p className="mx-auto mt-3 max-w-lg text-base leading-7 text-stone-200 md:text-lg">
-          Family and friends can submit stories, photos, and videos to help preserve their
+          Family and friends can remember, contribute, and help preserve their
           story for future generations.
         </p>
 
@@ -192,13 +196,27 @@ useEffect(() => {
             href="/memorials"
             className="inline-flex min-h-[64px] w-full max-w-[390px] items-center justify-center rounded-full bg-white px-4 py-3 text-center text-base font-bold leading-tight text-stone-900 transition hover:bg-stone-200"
           >
-            Explore Deceased MyEMemorials & Pricing
+            Explore Departed MyEMemorials & Pricing
           </Link>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+          </div>
+
+          <aside className="hidden self-stretch lg:block">
+            <div className="sticky top-28">
+              <SideAd
+                pageType="home"
+                memorialZip={visitorZip}
+                forcedCategory="funeral_home"
+              />
+            </div>
+          </aside>
+        </div>
+
 <div className="lg:hidden space-y-4">
  <MobileAd
   pageType="home"
@@ -210,7 +228,27 @@ useEffect(() => {
   memorialZip={visitorZip}
 />
 </div>
-            <section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
+
+
+        {/*
+          LOWER AD ZONE
+          A fresh pair of advertisers begins at "Built for families". This
+          gives the lower advertisers their own sticky exposure instead of
+          leaving the first pair fixed beside the entire page.
+        */}
+        <div className="mt-6 grid items-stretch gap-6 lg:grid-cols-[240px_minmax(0,1fr)_240px]">
+          <aside className="hidden self-stretch lg:block">
+            <div className="sticky top-28">
+              <SideAd
+                pageType="home"
+                memorialZip={visitorZip}
+                forcedCategory="estate_planner"
+              />
+            </div>
+          </aside>
+
+          <div className="min-w-0 space-y-6">
+<section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
   <div className="mx-auto max-w-6xl">
     <div className="text-center">
       <p className="text-base font-semibold uppercase tracking-[0.18em] text-stone-500">
@@ -223,14 +261,14 @@ useEffect(() => {
 
       <p className="mx-auto mt-3 max-w-2xl text-lg leading-7 text-stone-700">
   Preserve the stories, memories, photos, videos, and family history that
-  make a life unique — whether you are telling your own story or remembering
+  make a life unique &mdash; whether you are telling your own story or remembering
   someone who has passed.
 </p>
     </div>
 
     <div className="mt-6 grid gap-4 md:grid-cols-3">
       <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5 text-center">
-        <div className="text-2xl">🔒</div>
+        <div className="text-2xl">{"\uD83D\uDD12"}</div>
 
         <h3 className="mt-3 text-xl font-bold text-stone-900">
           You stay in control
@@ -243,10 +281,10 @@ useEffect(() => {
       </div>
 
       <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5 text-center">
-        <div className="text-2xl">✅</div>
+        <div className="text-2xl">{"\u2705"}</div>
 
         <h3 className="text-xl font-bold text-stone-900">
-          Family and friends can submit stories, photos and videos
+          Family and friends can contribute
         </h3>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
@@ -256,7 +294,7 @@ useEffect(() => {
       </div>
 
       <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5 text-center">
-        <div className="text-2xl">🌳</div>
+        <div className="text-2xl">{"\uD83C\uDF33"}</div>
 
         <h3 className="mt-3 text-xl font-bold text-stone-900">
           Preserve it for generations
@@ -278,7 +316,7 @@ useEffect(() => {
     The Story Behind MyEMemorial
   </p>
 
-  
+
 
   <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-stone-700">
     More than fifty years ago, a seventh-grade boy standing in a cemetery found
@@ -292,7 +330,7 @@ useEffect(() => {
 
   <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-stone-700">
     That question stayed with him throughout his life and eventually inspired
-    the creation of MyEMemorial — a place where future generations can truly
+    the creation of MyEMemorial &mdash; a place where future generations can truly
     know and remember the people who came before them.
   </p>
 
@@ -330,7 +368,7 @@ useEffect(() => {
         <p className="mt-2 text-lg leading-7 text-stone-600">
           MyEMemorial is an online platform for preserving the story of a life.
           You can create a Living MyEMemorial for yourself or someone living,
-          or create a Deceased MyEMemorial for someone who has passed.
+          or create a Departed MyEMemorial for someone who has passed.
         </p>
       </div>
 <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
@@ -355,14 +393,14 @@ useEffect(() => {
           experiences while they can still help tell the story
           themselves. They can also assign a Designated Person who,
           after independent death verification, can handle permitted
-          after-death updates without changing the life story the owner
+          after-death updates without changing the life story the member
           preserved.
         </p>
       </div>
 
       <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
         <h3 className="text-xl font-bold text-stone-900">
-          Can I create a Deceased MyEMemorial for someone who has passed?
+          Can I create a Departed MyEMemorial for someone who has passed?
         </h3>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
@@ -378,7 +416,7 @@ useEffect(() => {
         </h3>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
-          Yes. You can start with a Free Memorial and preserve the basic story
+          Yes. You can start with a Free MyEMemorial and preserve the basic story
           of a life, including a featured photo, life story, and a small photo
           gallery. You can upgrade later if you want additional features.
         </p>
@@ -391,7 +429,7 @@ useEffect(() => {
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           Yes. Family and friends can submit memories and media, while the
-          MyEMemorial Member controls what is approved and displayed publicly.
+          MyEMemorial member controls what is approved and displayed publicly.
         </p>
       </div>
 
@@ -434,11 +472,11 @@ useEffect(() => {
         </h3>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
-          Yes. Basic, Plus, and Premium plans for both Living MyEMemorials and
-          Deceased MyEMemorials include a Celebration of Life
+          Yes. Basic, Plus, and Premium plans for both Living MyEMemorials and Departed MyEMemorials include a Celebration of Life
           Presentation. It can play approved photos and videos on a television
           or projector for a funeral, memorial service, or Celebration of Life.
-          For a Living MyEMemorial, the presentation is intended for use after the Member has passed.
+          For a Living MyEMemorial, the presentation is intended for use after
+          the owner has passed.
         </p>
       </div>
 
@@ -477,26 +515,14 @@ useEffect(() => {
   href="/personal-e-memorials"
   className="flex min-h-[84px] items-center justify-center rounded-full bg-amber-400 px-5 py-3 text-center text-base font-semibold leading-tight text-stone-900 transition hover:bg-amber-300"
 >
-  <span>
-    Explore
-    <br />
-    Living
-    <br />
-    MyEMemorials
-  </span>
+  <span>Explore<br />Living<br />MyEMemorials</span>
 </Link>
 
 <Link
   href="/memorials"
   className="flex min-h-[84px] items-center justify-center rounded-full bg-white px-5 py-3 text-center text-base font-semibold leading-tight text-stone-900 transition hover:bg-stone-200"
 >
-  <span>
-    Explore
-    <br />
-    Deceased
-    <br />
-    MyEMemorials
-  </span>
+  <span>Explore<br />Departed<br />MyEMemorials</span>
 </Link>
 
 <Link
@@ -508,24 +534,19 @@ useEffect(() => {
     </div>
   </div>
 </section>
-
           </div>
-        </div>
-        <div className="hidden w-[240px] flex-shrink-0 flex-col gap-6 lg:flex">
-  <SideAd
-    pageType="home"
-    memorialZip={visitorZip}
-    forcedCategory="funeral_home"
-  />
 
-  <SideAd
-    pageType="home"
-    memorialZip={visitorZip}
-    forcedCategory="monument_company"
-  />
-</div>
+          <aside className="hidden self-stretch lg:block">
+            <div className="sticky top-28">
+              <SideAd
+                pageType="home"
+                memorialZip={visitorZip}
+                forcedCategory="monument_company"
+              />
+            </div>
+          </aside>
+        </div>
       </div>
     </main>
   );
 }
-

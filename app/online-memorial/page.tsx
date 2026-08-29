@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     absolute: "Online Memorials | MyEMemorial",
   },
   description:
-    "Create a Deceased MyEMemorial to preserve the life story, photos, videos, family history, obituary, final resting place, and meaningful memories of someone who has died.",
+    "Create a Departed MyEMemorial to preserve the life story, photos, videos, family history, obituary, final resting place, and meaningful memories of someone who has died.",
   alternates: {
     canonical: "/memorials",
   },
@@ -47,7 +47,7 @@ export default function OnlineMemorialPage() {
               href="/gift"
               className="inline-flex min-h-[56px] w-full max-w-[280px] items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-base font-bold text-white transition hover:bg-stone-700"
             >
-              Gift a Deceased MyEMemorial
+              Gift a Departed MyEMemorial
             </Link>
           </div>
         </section>
@@ -73,7 +73,7 @@ export default function OnlineMemorialPage() {
 
           <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <PlanCard
-              title="Free Deceased MyEMemorial"
+              title="Free Departed MyEMemorial"
               price="$0"
               href="/create?plan=free"
               badge="Start Free"
@@ -89,7 +89,7 @@ export default function OnlineMemorialPage() {
             />
 
             <PlanCard
-              title="Basic Deceased MyEMemorial"
+              title="Basic Departed MyEMemorial"
               price="$49.95"
               href="/create?plan=basic"
               items={[
@@ -106,7 +106,7 @@ export default function OnlineMemorialPage() {
             />
 
             <PlanCard
-              title="Plus Deceased MyEMemorial"
+              title="Plus Departed MyEMemorial"
               price="$69.95"
               href="/create?plan=plus"
               dark
@@ -125,7 +125,7 @@ export default function OnlineMemorialPage() {
             />
 
             <PlanCard
-              title="Premium Deceased MyEMemorial"
+              title="Premium Departed MyEMemorial"
               price="$89.95"
               href="/create?plan=premium"
               items={[

@@ -436,26 +436,18 @@ function PersonalEMemorialPageContent() {
 
     <div className="relative min-h-[300px] bg-black lg:min-h-[390px]">
       <video
-        className="absolute inset-0 h-full w-full object-cover"
-        autoPlay
-        muted
+        className="absolute inset-0 h-full w-full object-contain"
+        controls
         playsInline
-        loop
-        poster="/Images/homepage-hero.png"
+        preload="metadata"
         aria-label="Introduction to Living MyEMemorials"
-      />
-
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
-
-      <div className="absolute bottom-5 left-5 right-5">
-        <div className="inline-flex items-center gap-3 rounded-full bg-black/65 px-4 py-2 text-base font-semibold text-white backdrop-blur-sm">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-base text-blue-950">
-            ▶
-          </span>
-
-          Living MyEMemorial Introduction
-        </div>
-      </div>
+      >
+        <source
+          src="/videos/living-myememorial-introduction.mp4"
+          type="video/mp4"
+        />
+        Your browser does not support the video tag.
+      </video>
     </div>
   </div>
 </section>

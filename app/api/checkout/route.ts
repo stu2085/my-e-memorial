@@ -259,12 +259,12 @@ const normalizedPlanLabel =
 const memorialProductName =
   isPersonalCheckout
     ? `${normalizedPlanLabel} Living MyEMemorial`
-    : `${normalizedPlanLabel} Deceased MyEMemorial`;
+    : `${normalizedPlanLabel} Departed MyEMemorial`;
 
 const memorialProductDescription =
   isPersonalCheckout
     ? "Living MyEMemorial plan on MyEMemorial"
-    : "Deceased MyEMemorial plan on MyEMemorial";
+    : "Departed MyEMemorial plan on MyEMemorial";
 
     const shouldCollectTax =
       plan !== "advertiser" && !isRenewal;

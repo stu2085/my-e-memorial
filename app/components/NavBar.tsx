@@ -242,7 +242,7 @@ export default function NavBar() {
   }
 
   function navClass(active: boolean) {
-    return `inline-flex items-center justify-center whitespace-nowrap rounded-full px-2.5 py-2 text-base font-semibold transition-all duration-200 ease-in-out ${
+    return `inline-flex items-center justify-center whitespace-nowrap rounded-full px-1.5 py-2 text-base font-semibold transition-all duration-200 ease-in-out ${
       active
         ? "bg-blue-900 text-white"
         : "text-stone-700 hover:scale-105 hover:bg-blue-50 hover:text-blue-900"
@@ -287,8 +287,8 @@ export default function NavBar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto max-w-[1600px] pl-4 pr-7 py-2 sm:pl-4 sm:pr-10 xl:flex xl:items-center xl:justify-between xl:px-6">
-        <div className="flex w-full items-center justify-between gap-3 xl:w-auto">
+      <div className="mx-auto max-w-[1600px] px-3 py-2 min-[1380px]:flex min-[1380px]:items-center min-[1380px]:gap-1 min-[1380px]:px-3 xl:px-4 2xl:px-6">
+        <div className="flex w-full items-center justify-between gap-3 min-[1380px]:w-auto">
           <a
             href="/"
             className="flex min-w-0 shrink-0 items-center"
@@ -296,16 +296,16 @@ export default function NavBar() {
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <img
-              src="/Images/myememorial-logo.png"
+              src="/Images/myememorial-logo-navbar.png"
               alt="MyEMemorial"
-              className="h-16 w-auto max-w-[225px] object-contain sm:h-20 sm:max-w-none xl:h-32"
+              className="h-16 w-auto max-w-[225px] object-contain sm:h-20 sm:max-w-none min-[1380px]:h-[88px] 2xl:h-24"
             />
           </a>
 
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen((current) => !current)}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-stone-300 bg-white px-4 py-3 text-base font-semibold text-stone-800 shadow-sm transition hover:bg-stone-100 xl:hidden"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-stone-300 bg-white px-4 py-3 text-base font-semibold text-stone-800 shadow-sm transition hover:bg-stone-100 min-[1380px]:hidden"
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-main-navigation"
           >
@@ -317,7 +317,7 @@ export default function NavBar() {
         </div>
 
         <nav
-          className="hidden flex-nowrap items-center justify-center gap-x-3 xl:flex xl:gap-x-4"
+          className="hidden min-w-0 flex-1 flex-nowrap items-center justify-end gap-x-0.5 min-[1380px]:flex xl:gap-x-1 2xl:gap-x-3"
           aria-label="Main navigation"
         >
           <Link href="/" className={navClass(pathname === "/")}>
@@ -343,7 +343,7 @@ export default function NavBar() {
             }}
             className={navClass(isMemorialCreate)}
           >
-            Create a Deceased MyEMemorial
+            Create a Departed MyEMemorial
           </Link>
 
           <Link
@@ -372,7 +372,7 @@ export default function NavBar() {
               type="button"
               onClick={handleEndBackupAccess}
               disabled={isEndingBackupAccess}
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-2.5 py-2 text-base font-semibold text-red-700 transition-all duration-200 ease-in-out hover:scale-105 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-1.5 py-2 text-base font-semibold text-red-700 transition-all duration-200 ease-in-out hover:scale-105 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isEndingBackupAccess
                 ? "Ending Backup Access..."
@@ -386,7 +386,7 @@ export default function NavBar() {
                 router.refresh();
                 router.push("/");
               }}
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-2.5 py-2 text-base font-semibold text-stone-700 transition-all duration-200 ease-in-out hover:scale-105 hover:bg-stone-200 hover:text-stone-900"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-1.5 py-2 text-base font-semibold text-stone-700 transition-all duration-200 ease-in-out hover:scale-105 hover:bg-stone-200 hover:text-stone-900"
             >
               Log Out
             </button>
@@ -396,7 +396,7 @@ export default function NavBar() {
         {isMobileMenuOpen && (
           <nav
             id="mobile-main-navigation"
-            className="mt-2 grid gap-1 border-t border-stone-200 pt-2 xl:hidden"
+            className="mt-2 grid gap-1 border-t border-stone-200 pt-2 min-[1380px]:hidden"
             aria-label="Mobile main navigation"
           >
             <Link
@@ -426,7 +426,7 @@ export default function NavBar() {
               }}
               className={mobileNavClass(isMemorialCreate)}
             >
-              Create a Deceased MyEMemorial
+              Create a Departed MyEMemorial
             </Link>
 
             <Link

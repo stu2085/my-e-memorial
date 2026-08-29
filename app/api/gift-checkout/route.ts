@@ -109,13 +109,13 @@ const claimToken = crypto.randomBytes(32).toString("hex");
               name: `${
   cleanGiftType === "personal"
     ? "Gift a Living MyEMemorial"
-    : "Gift a Deceased MyEMemorial"
+    : "Gift a Departed MyEMemorial"
 } — ${cleanPlan.charAt(0).toUpperCase() + cleanPlan.slice(1)} Plan`,
 
 description:
   cleanGiftType === "personal"
     ? `A Living MyEMemorial gift for ${cleanRecipientName}`
-    : `A Deceased MyEMemorial gift for ${cleanRecipientName}`,
+    : `A Departed MyEMemorial gift for ${cleanRecipientName}`,
             },
           },
         },

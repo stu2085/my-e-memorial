@@ -1086,7 +1086,7 @@ const paymentSuccessBoxRef = useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  
+
  const [adCategoryPair, setAdCategoryPair] = useState<[string, string]>([
   "attorney",
   "estate_planner",
@@ -1534,8 +1534,8 @@ bannerPositionY:
 
     const backupSettingsResult =
       await backupSettingsResponse.json();
-      
-      
+
+
 
     if (
       backupSettingsResponse.ok &&
@@ -1613,7 +1613,7 @@ if (hasBackupAccess) {
  * recovery copy is then applied on top.
  */
 if (
-  
+
   memorialId > 0 &&
   !hasBackupAccess &&
   typeof window !== "undefined"
@@ -2336,11 +2336,11 @@ function handleUseCurrentLocation() {
     }
   );
 }
-  
 
-  
 
-  
+
+
+
 
 async function getVideoDurationWithRetry(
   file: File,
@@ -2645,12 +2645,7 @@ await ValidationEngine.validateVideos({
   planLabel: limits.label,
 });
 
-      if (
-        (form.finalRestingType === "buried" || form.finalRestingType === "cremated") &&
-        (!form.graveLat || !form.graveLng)
-      ) {
-        throw new Error("Please center the map or place a pin before saving the final resting place.");
-      }
+
 
     const slug =
   draftMemorialId && draftMemorialSlug
@@ -4986,7 +4981,7 @@ const isBackupChapterReadOnly = (
             <form
   id="create-memorial-form"
   onSubmit={handleSubmit}
-  
+
   autoComplete="off"
   className="mt-8 space-y-8"
 >
@@ -5010,12 +5005,12 @@ const isBackupChapterReadOnly = (
               ? "Plus Living MyEMemorial"
               : "Premium Living MyEMemorial"
         : form.plan === "free"
-          ? "Free Deceased MyEMemorial"
+          ? "Free Departed MyEMemorial"
           : form.plan === "basic"
-            ? "Basic Deceased MyEMemorial"
+            ? "Basic Departed MyEMemorial"
             : form.plan === "plus"
-              ? "Plus Deceased MyEMemorial"
-              : "Premium Deceased MyEMemorial"}
+              ? "Plus Departed MyEMemorial"
+              : "Premium Departed MyEMemorial"}
     </p>
 
     {!isPaid && form.plan !== "free" && (
@@ -5049,7 +5044,7 @@ const isBackupChapterReadOnly = (
             ? `Included with your ${
                 form.isLivingPreplan
                   ? "Free Living MyEMemorial"
-                  : "Free Deceased MyEMemorial"
+                  : "Free Departed MyEMemorial"
               }:`
             : "Available while payment is pending:"}
         </p>
@@ -5065,7 +5060,7 @@ const isBackupChapterReadOnly = (
             <>
               <li>✓ Obituary</li>
               <li>✓ Final Resting Place</li>
-              
+
             </>
           )}
         </ul>
@@ -5079,7 +5074,7 @@ const isBackupChapterReadOnly = (
   </div>
 </section>
               )}
-                     
+
              <GuidedMemoryBuilder
   chapterNavTargetId="memorial-builder-chapter-nav"
   experienceType={guidedExperienceType}
@@ -5283,9 +5278,9 @@ onSaveAndExit={async (chapter) => {
 
   await saveGuidedDraft(chapter, true);
 }}
-  
 
- 
+
+
   renderChapter={(chapter) => {
     const chapterContent = (() => {
  switch (chapter.id) {
@@ -5371,7 +5366,7 @@ onSaveAndExit={async (chapter) => {
         isPublished={false}
       />
     </PlanLockedSection>
-  
+
     );
 
   case "life-story":
@@ -5775,7 +5770,7 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
           chapter.
         </p>
 
-        
+
       </div>
 
       {!hasPaidPlanAccess && form.plan !== "free" && (
@@ -6088,7 +6083,7 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
       </BackupReadOnlyChapter>
     );
 }}
-/>    
+/>
             </form>
           </div>
       </MemorialBuilderPageFrame>
@@ -6303,7 +6298,7 @@ function Select({
         {label}
 
 
-  
+
       </label>
 
       <select

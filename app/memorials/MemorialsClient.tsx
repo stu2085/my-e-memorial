@@ -105,21 +105,21 @@ export default function MemorialsPage() {
                 href="#pricing"
                 className="inline-flex min-h-[68px] w-full max-w-[350px] items-center justify-center rounded-full bg-blue-950 px-8 text-center text-lg font-bold text-white shadow-sm transition hover:bg-blue-900"
               >
-                Choose a Deceased MyEMemorial Plan
+                Choose a Departed MyEMemorial Plan
               </Link>
 
               <Link
                 href="/gift?type=memorial"
                 className="inline-flex min-h-[68px] w-full max-w-[350px] items-center justify-center rounded-full bg-amber-400 px-8 text-center text-lg font-bold text-stone-900 shadow-sm transition hover:bg-amber-300"
               >
-                🎁 Give a Deceased MyEMemorial
+                🎁 Give a Departed MyEMemorial
               </Link>
 
               <Link
                 href="/memorial/daniel-james-whitmore"
                 className="inline-flex min-h-[68px] w-full max-w-[350px] items-center justify-center rounded-full border-2 border-stone-300 bg-white px-8 text-center text-lg font-bold text-stone-900 shadow-sm transition hover:bg-stone-100"
               >
-                Experience a Sample Deceased MyEMemorial
+                Experience a Sample Departed MyEMemorial
               </Link>
             </div>
           </div>
@@ -261,12 +261,12 @@ export default function MemorialsPage() {
             </aside>
 
             <div className="space-y-8">
-              {/* DECEASED MYEMEMORIAL INTRODUCTION VIDEO PLACEHOLDER */}
+              {/* DEPARTED MYEMEMORIAL INTRODUCTION VIDEO PLACEHOLDER */}
               <section className="overflow-hidden rounded-[2rem] bg-blue-950 text-white shadow-sm">
                 <div className="grid items-stretch lg:grid-cols-[0.9fr_1.1fr]">
                   <div className="flex flex-col justify-center p-7 md:p-9">
                     <p className="text-base font-bold uppercase tracking-[0.2em] text-amber-300">
-                      See What a Deceased MyEMemorial Can Become
+                      See What a Departed MyEMemorial Can Become
                     </p>
 
                     <h2 className="mt-3 text-2xl font-bold leading-tight md:text-3xl">
@@ -274,7 +274,7 @@ export default function MemorialsPage() {
                     </h2>
 
                     <p className="mt-4 text-base leading-7 text-stone-200 md:text-lg">
-                      In just a few moments, see how a Deceased MyEMemorial helps
+                      In just a few moments, see how a Departed MyEMemorial helps
                       preserve the stories, memories, photos, videos, music, and
                       experiences that made their life uniquely theirs.
                     </p>
@@ -288,24 +288,18 @@ export default function MemorialsPage() {
 
                   <div className="relative min-h-[300px] bg-black lg:min-h-[390px]">
                     <video
-                      className="absolute inset-0 h-full w-full object-cover"
-                      muted
+                      className="absolute inset-0 h-full w-full object-contain"
+                      controls
                       playsInline
-                      poster="/Images/memorials-hero-final.png"
-                      aria-label="Introduction to Deceased MyEMemorials"
-                    />
-
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
-
-                    <div className="absolute bottom-5 left-5 right-5">
-                      <div className="inline-flex items-center gap-3 rounded-full bg-black/65 px-4 py-2 text-base font-semibold text-white backdrop-blur-sm">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-base text-blue-950">
-                          ▶
-                        </span>
-
-                        Deceased MyEMemorial Introduction
-                      </div>
-                    </div>
+                      preload="metadata"
+                      aria-label="Introduction to Departed MyEMemorials"
+                    >
+                      <source
+                        src="/videos/departed-myememorial-introduction.mp4"
+                        type="video/mp4"
+                      />
+                      Your browser does not support the video tag.
+                    </video>
                   </div>
                 </div>
               </section>
@@ -323,7 +317,7 @@ export default function MemorialsPage() {
                     </h2>
 
                     <p className="mt-4 text-lg leading-8 text-stone-600">
-                      An obituary records important facts. A MyEMemorial brings
+                      An obituary records important facts. A Departed MyEMemorial brings
                       those facts to life with the stories, photographs, video,
                       music, family history, and memories that show who they
                       really were.
@@ -373,7 +367,7 @@ export default function MemorialsPage() {
                     </div>
 
                     <h3 className="mt-4 text-xl font-bold text-stone-900">
-                      Create Their MyEMemorial
+                      Create Their Departed MyEMemorial
                     </h3>
 
                     <p className="mt-2 text-base leading-7 text-stone-600">
@@ -475,7 +469,7 @@ export default function MemorialsPage() {
                     </h2>
                     <p className="mt-2 max-w-3xl text-base leading-7 text-stone-700">
                       Choose a plan and send it as a gift. The family receives
-                      the MyEMemorial and creates it for the person they are remembering.
+                      the Departed MyEMemorial and creates it for the person they are remembering.
                     </p>
                   </div>
 
@@ -483,7 +477,7 @@ export default function MemorialsPage() {
                     href="/gift?type=memorial"
                     className="inline-flex min-h-[56px] w-full max-w-[300px] shrink-0 items-center justify-center rounded-full bg-amber-400 px-6 text-center text-base font-bold text-stone-900 transition hover:bg-amber-300"
                   >
-                    🎁 Give a Deceased MyEMemorial
+                    🎁 Give a Departed MyEMemorial
                   </Link>
                 </div>
               </section>
@@ -495,7 +489,7 @@ export default function MemorialsPage() {
               >
                 <div className="text-center">
                   <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-900">
-                    MyEMemorial Plans
+                    Departed MyEMemorial Plans
                   </p>
 
                   <h2 className="mt-2 text-3xl font-bold text-stone-900">
@@ -511,7 +505,7 @@ export default function MemorialsPage() {
 
                 <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
                   <PlanCard
-                    title="Free Deceased MyEMemorial"
+                    title="Free Departed MyEMemorial"
                     price="$0"
                     href="/create?mode=memorial&plan=free"
                     badge="Start Free"
@@ -527,7 +521,7 @@ export default function MemorialsPage() {
                   />
 
                   <PlanCard
-                    title="Basic Deceased MyEMemorial"
+                    title="Basic Departed MyEMemorial"
                     price="$49.95"
                     href="/create?mode=memorial&plan=basic"
                     items={[
@@ -545,7 +539,7 @@ export default function MemorialsPage() {
                   />
 
                   <PlanCard
-                    title="Plus Deceased MyEMemorial"
+                    title="Plus Departed MyEMemorial"
                     price="$69.95"
                     href="/create?mode=memorial&plan=plus"
                     dark
@@ -565,7 +559,7 @@ export default function MemorialsPage() {
                   />
 
                   <PlanCard
-                    title="Premium Deceased MyEMemorial"
+                    title="Premium Departed MyEMemorial"
                     price="$89.95"
                     href="/create?mode=memorial&plan=premium"
                     items={[

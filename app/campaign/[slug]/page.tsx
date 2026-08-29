@@ -168,7 +168,7 @@ const ctas = {
   },
   create: {
     href: "/create",
-    label: "Create a Deceased MyEMemorial",
+    label: "Create a Departed MyEMemorial",
   },
   learn: {
     href: "/our-story",

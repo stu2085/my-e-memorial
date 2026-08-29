@@ -356,7 +356,7 @@ export default function MemorialsPage() {
                     </div>
 
                     <h3 className="mt-4 text-xl font-bold text-stone-900">
-                      Create Their MyEMemorial
+                      Create Their Departed MyEMemorial
                     </h3>
 
                     <p className="mt-2 text-lg leading-8 text-stone-600">
@@ -413,7 +413,7 @@ export default function MemorialsPage() {
                     </h2>
 
                     <p className="mt-4 text-lg leading-8 text-stone-200">
-                      Basic, Plus, and Premium Deceased MyEMemorial plans now include a
+                      Basic, Plus, and Premium Departed MyEMemorial plans now include a
                       dedicated Celebration of Life Presentation at no additional
                       charge, designed for use at the funeral home, church,
                       memorial service, celebration of life, or family gathering.
@@ -456,7 +456,7 @@ export default function MemorialsPage() {
               >
                 <div className="text-center">
                   <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-900">
-                    MyEMemorial Plans
+                    Departed MyEMemorial Plans
                   </p>
 
                   <h2 className="mt-2 text-3xl font-bold text-stone-900">
@@ -472,7 +472,7 @@ export default function MemorialsPage() {
 
                 <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
                   <PlanCard
-                    title="Free Deceased MyEMemorial"
+                    title="Free Departed MyEMemorial"
                     price="$0"
                     href="/create?plan=free"
                     badge="Start Free"
@@ -488,7 +488,7 @@ export default function MemorialsPage() {
                   />
 
                   <PlanCard
-                    title="Basic Deceased MyEMemorial"
+                    title="Basic Departed MyEMemorial"
                     price="$49.95"
                     href="/create?plan=basic"
                     items={[
@@ -506,7 +506,7 @@ export default function MemorialsPage() {
                   />
 
                   <PlanCard
-                    title="Plus Deceased MyEMemorial"
+                    title="Plus Departed MyEMemorial"
                     price="$69.95"
                     href="/create?plan=plus"
                     dark
@@ -526,7 +526,7 @@ export default function MemorialsPage() {
                   />
 
                   <PlanCard
-                    title="Premium Deceased MyEMemorial"
+                    title="Premium Departed MyEMemorial"
                     price="$89.95"
                     href="/create?plan=premium"
                     items={[
@@ -569,7 +569,7 @@ export default function MemorialsPage() {
                     href="#pricing"
                     className="inline-flex min-h-[56px] w-full max-w-[290px] items-center justify-center rounded-full bg-amber-400 px-6 py-3 text-base font-bold text-stone-900 transition hover:bg-amber-300"
                   >
-                    Create Their MyEMemorial
+                    Create Their Departed MyEMemorial
                   </Link>
 
                   <Link
