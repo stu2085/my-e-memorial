@@ -440,6 +440,7 @@ function PersonalEMemorialPageContent() {
         controls
         playsInline
         preload="metadata"
+        poster="/videos/living-myememorial-introduction-poster.jpg"
         aria-label="Introduction to Living MyEMemorials"
       >
         <source

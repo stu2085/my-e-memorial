@@ -95,6 +95,7 @@ useEffect(() => {
       playsInline
       controls
       preload="metadata"
+      poster="/videos/homepage-introduction-poster.jpg"
       aria-label="Introduction to MyEMemorial"
     >
       <source

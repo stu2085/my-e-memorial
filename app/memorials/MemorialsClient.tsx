@@ -292,6 +292,7 @@ export default function MemorialsPage() {
                       controls
                       playsInline
                       preload="metadata"
+                      poster="/videos/departed-myememorial-introduction-poster.jpg"
                       aria-label="Introduction to Departed MyEMemorials"
                     >
                       <source
