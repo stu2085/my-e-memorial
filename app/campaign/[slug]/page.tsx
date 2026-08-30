@@ -188,21 +188,15 @@ const secondaryCtas:
       : ["sample", "learn"];
   return (
   <main className="min-h-screen bg-stone-50">
-    <header className="border-b border-stone-200 bg-white">
-      <div className="mx-auto max-w-4xl px-4 py-5 md:px-8">
-        <Link href="/" className="inline-flex">
-          <img
-  src="/Images/myememorial-logo.png"
-  alt="MyEMemorial - Where Life's Stories Are Told"
-  className="h-auto w-52 max-w-full md:w-56"
-/>
-        </Link>
-      </div>
-    </header>
-
     <div className="mx-auto max-w-4xl px-4 py-8 md:px-8 md:py-10">
-            {campaign.media_url && (
-        <section className="mb-7">
+      {campaign.media_url && (
+        <section
+          className={
+            campaign.media_type === "video"
+              ? "mx-auto mb-7 w-full md:max-w-[580px]"
+              : "mb-7"
+          }
+        >
           {campaign.media_type === "video" ? (
             <div className="w-full overflow-hidden rounded-2xl bg-black shadow-md">
               <MuxPlayer
