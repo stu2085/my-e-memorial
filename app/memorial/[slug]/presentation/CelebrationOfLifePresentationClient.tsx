@@ -200,8 +200,6 @@ export default function CelebrationOfLifePresentationClient() {
     useState(0);
   const [currentSongIndex, setCurrentSongIndex] =
     useState(0);
-  const [youtubePlayerReady, setYoutubePlayerReady] =
-    useState(false);
   const [musicMuted, setMusicMuted] =
     useState(false);
 
@@ -626,13 +624,6 @@ export default function CelebrationOfLifePresentationClient() {
   function startPresentation() {
     const firstItem = items[0] || null;
 
-    if (
-      currentYouTubeVideoId &&
-      !youtubePlayerReady
-    ) {
-      return;
-    }
-
     pauseFavoriteSongPlayback(true);
 
     currentSongIndexRef.current = 0;
@@ -859,8 +850,6 @@ export default function CelebrationOfLifePresentationClient() {
   }, [musicMuted, currentSongIndex]);
 
   useEffect(() => {
-    setYoutubePlayerReady(false);
-
     if (!currentYouTubeVideoId) {
       return;
     }
@@ -904,7 +893,6 @@ export default function CelebrationOfLifePresentationClient() {
 
                   youtubePlayerRef.current =
                     event.target;
-                  setYoutubePlayerReady(true);
 
                   applyYouTubeMusicSound(
                     event.target
@@ -978,8 +966,6 @@ export default function CelebrationOfLifePresentationClient() {
       ) {
         youtubePlayerRef.current = null;
       }
-
-      setYoutubePlayerReady(false);
     };
   }, [currentYouTubeVideoId]);
 
@@ -1101,16 +1087,9 @@ export default function CelebrationOfLifePresentationClient() {
             <button
               type="button"
               onClick={startPresentation}
-              disabled={
-                Boolean(currentYouTubeVideoId) &&
-                !youtubePlayerReady
-              }
-              className="mt-8 rounded-full bg-white px-8 py-5 text-xl font-bold text-stone-950 transition hover:bg-stone-200 disabled:cursor-wait disabled:opacity-60"
+              className="mt-8 rounded-full bg-white px-8 py-5 text-xl font-bold text-stone-950 transition hover:bg-stone-200"
             >
-              {currentYouTubeVideoId &&
-              !youtubePlayerReady
-                ? "Preparing Music..."
-                : "▶ Start Presentation"}
+              ▶ Start Presentation
             </button>
           </div>
         ) : currentItem?.type === "photo" ? (
