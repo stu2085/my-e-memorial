@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import SideAd from "../components/SideAd";
 import { supabase } from "../lib/supabase";
@@ -402,13 +401,6 @@ return filtered;
                 >
                   Clear Filters
                 </button>
-
-                <Link
-                  href="/create"
-                  className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700"
-                >
-                  Create a Memorial
-                </Link>
               </div>
             </section>
 
