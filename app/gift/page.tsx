@@ -63,6 +63,18 @@ export default function GiftPage() {
   const [wasCancelled, setWasCancelled] = useState(false);
 
   useEffect(() => {
+    const handlePageShow = () => {
+      setIsSubmitting(false);
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
+
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const requestedGiftType: GiftType =
       params.get("type") === "personal" ? "personal" : "memorial";
