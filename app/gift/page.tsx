@@ -83,10 +83,6 @@ export default function GiftPage() {
     setGiftType(requestedGiftType);
     setWasCancelled(cancelled);
 
-    if (!cancelled) {
-      return;
-    }
-
     try {
       const savedDraft = window.sessionStorage.getItem(
         GIFT_CHECKOUT_DRAFT_KEY
