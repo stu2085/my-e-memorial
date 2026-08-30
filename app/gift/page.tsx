@@ -5,6 +5,19 @@ import { FormEvent, useEffect, useState } from "react";
 type GiftPlan = "basic" | "plus" | "premium";
 type GiftType = "memorial" | "personal";
 
+type GiftCheckoutDraft = {
+  giftType: GiftType;
+  purchaserName: string;
+  purchaserEmail: string;
+  recipientName: string;
+  recipientEmail: string;
+  personalMessage: string;
+  plan: GiftPlan;
+  agreedToTerms: boolean;
+};
+
+const GIFT_CHECKOUT_DRAFT_KEY = "myememorial_gift_checkout_draft";
+
 const plans: Array<{
   id: GiftPlan;
   name: string;
@@ -49,15 +62,67 @@ export default function GiftPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [wasCancelled, setWasCancelled] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const requestedGiftType: GiftType =
+      params.get("type") === "personal" ? "personal" : "memorial";
+    const cancelled = params.get("cancelled") === "true";
 
-    if (params.get("type") === "personal") {
-      setGiftType("personal");
+    setGiftType(requestedGiftType);
+    setWasCancelled(cancelled);
+
+    if (!cancelled) {
+      return;
     }
 
-    if (params.get("cancelled") === "true") {
-      setWasCancelled(true);
+    try {
+      const savedDraft = window.sessionStorage.getItem(
+        GIFT_CHECKOUT_DRAFT_KEY
+      );
+
+      if (!savedDraft) {
+        return;
+      }
+
+      const draft = JSON.parse(savedDraft) as Partial<GiftCheckoutDraft>;
+
+      if (draft.giftType !== requestedGiftType) {
+        return;
+      }
+
+      if (typeof draft.purchaserName === "string") {
+        setPurchaserName(draft.purchaserName);
+      }
+
+      if (typeof draft.purchaserEmail === "string") {
+        setPurchaserEmail(draft.purchaserEmail);
+      }
+
+      if (typeof draft.recipientName === "string") {
+        setRecipientName(draft.recipientName);
+      }
+
+      if (typeof draft.recipientEmail === "string") {
+        setRecipientEmail(draft.recipientEmail);
+      }
+
+      if (typeof draft.personalMessage === "string") {
+        setPersonalMessage(draft.personalMessage);
+      }
+
+      if (
+        draft.plan === "basic" ||
+        draft.plan === "plus" ||
+        draft.plan === "premium"
+      ) {
+        setPlan(draft.plan);
+      }
+
+      if (typeof draft.agreedToTerms === "boolean") {
+        setAgreedToTerms(draft.agreedToTerms);
+      }
+    } catch (error) {
+      console.error("GIFT CHECKOUT DRAFT RESTORE ERROR:", error);
     }
   }, []);
 
@@ -117,6 +182,26 @@ export default function GiftPage() {
 
       if (!result.checkoutUrl) {
         throw new Error("Stripe Checkout did not return a payment link.");
+      }
+
+      try {
+        const draft: GiftCheckoutDraft = {
+          giftType,
+          purchaserName,
+          purchaserEmail,
+          recipientName,
+          recipientEmail,
+          personalMessage,
+          plan,
+          agreedToTerms,
+        };
+
+        window.sessionStorage.setItem(
+          GIFT_CHECKOUT_DRAFT_KEY,
+          JSON.stringify(draft)
+        );
+      } catch (error) {
+        console.error("GIFT CHECKOUT DRAFT SAVE ERROR:", error);
       }
 
       window.location.assign(result.checkoutUrl);
