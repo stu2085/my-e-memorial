@@ -2109,11 +2109,19 @@ if (giftToken) {
           typeof window !== "undefined" &&
           typeof (window as any).fbq === "function"
         ) {
-          (window as any).fbq("track", "Purchase", {
-            value: planPrices[selectedPlan as keyof typeof planPrices] / 100,
-            currency: "USD",
-            content_name: selectedPlan,
-          });
+          (window as any).fbq(
+            "track",
+            "Purchase",
+            {
+              value:
+                planPrices[selectedPlan as keyof typeof planPrices] / 100,
+              currency: "USD",
+              content_name: selectedPlan,
+            },
+            {
+              eventID: `memorial_${sessionId}`,
+            }
+          );
         }
       } else {
         setIsPaid(false);
@@ -5116,7 +5124,7 @@ const isBackupChapterReadOnly = (
   autoComplete="off"
   className="mt-8 space-y-8"
 >
-  {(!isGiftFlow || isPaid) && (
+  {!isGiftFlow && (
 <section
   id="plan-selection"
   className="rounded-3xl bg-white p-6 shadow-sm"
@@ -5143,24 +5151,6 @@ const isBackupChapterReadOnly = (
               ? "Plus Departed MyEMemorial"
               : "Premium Departed MyEMemorial"}
     </p>
-
-    <div className="mt-3 rounded-2xl bg-stone-50 px-4 py-3">
-      <p className="text-base font-semibold text-stone-800">
-        {form.plan === "free"
-          ? "Up to 5 gallery photos • Video Memories available with paid plans"
-          : form.plan === "basic"
-            ? "Up to 50 gallery photos • 15 minutes total of Video Memories"
-            : form.plan === "plus"
-              ? "Up to 150 gallery photos • 30 minutes total of Video Memories"
-              : "Unlimited gallery photos • 60 minutes total of Video Memories"}
-      </p>
-
-      {form.plan !== "free" && (
-        <p className="mt-1 text-base text-stone-600">
-          Each individual video may be up to 5 minutes long.
-        </p>
-      )}
-    </div>
 
     {!isPaid && form.plan !== "free" && (
       <div className="mt-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">

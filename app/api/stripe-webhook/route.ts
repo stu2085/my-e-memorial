@@ -1,12 +1,135 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import { createHash } from "node:crypto";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
   process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 );
 import { transporter } from "../../lib/email";
+
+type MetaPurchaseEventInput = {
+  eventId: string;
+  sessionId: string;
+  value: number;
+  currency: string;
+  email: string | null | undefined;
+  contentName: string;
+  contentCategory: string;
+  eventSourceUrl: string;
+};
+
+function hashMetaUserValue(value: string) {
+  return createHash("sha256")
+    .update(value.trim().toLowerCase())
+    .digest("hex");
+}
+
+async function sendMetaPurchaseEvent({
+  eventId,
+  sessionId,
+  value,
+  currency,
+  email,
+  contentName,
+  contentCategory,
+  eventSourceUrl,
+}: MetaPurchaseEventInput) {
+  const datasetId =
+    process.env.META_DATASET_ID ||
+    process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+
+  const accessToken =
+    process.env.META_CONVERSIONS_API_ACCESS_TOKEN;
+
+  if (!datasetId || !accessToken) {
+    console.warn(
+      "Meta Purchase event not sent because the Conversions API dataset ID or access token is not configured."
+    );
+    return;
+  }
+
+  if (!email?.trim()) {
+    console.warn(
+      "Meta Purchase event not sent because the purchaser email is unavailable."
+    );
+    return;
+  }
+
+  const graphVersion =
+    process.env.META_GRAPH_API_VERSION || "v26.0";
+
+  const payload: Record<string, unknown> = {
+    data: [
+      {
+        event_name: "Purchase",
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: eventId,
+        action_source: "website",
+        event_source_url: eventSourceUrl,
+        user_data: {
+          em: [hashMetaUserValue(email)],
+        },
+        custom_data: {
+          value,
+          currency: currency.toUpperCase(),
+          content_name: contentName,
+          content_category: contentCategory,
+          order_id: sessionId,
+        },
+      },
+    ],
+  };
+
+  const testEventCode =
+    process.env.META_TEST_EVENT_CODE?.trim();
+
+  if (testEventCode) {
+    payload.test_event_code = testEventCode;
+  }
+
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/${graphVersion}/${encodeURIComponent(
+        datasetId
+      )}/events?access_token=${encodeURIComponent(accessToken)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+      }
+    );
+
+    const result = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      console.error(
+        "META CONVERSIONS API PURCHASE ERROR:",
+        result || {
+          status: response.status,
+          statusText: response.statusText,
+        }
+      );
+      return;
+    }
+
+    console.log("Meta Purchase event sent:", {
+      eventId,
+      sessionId,
+      response: result,
+    });
+  } catch (error) {
+    // Analytics must never block a valid Stripe purchase.
+    console.error(
+      "META CONVERSIONS API REQUEST ERROR:",
+      error
+    );
+  }
+}
 
 export async function POST(req: Request) {
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -78,6 +201,33 @@ const memorialAmountPaid = session.amount_total
   : "";
   const memorialId = session.metadata?.memorialId;
 const quantity = Number(session.metadata?.quantity || 0);
+
+const isPrimaryMemorialPurchase =
+  (plan === "basic" || plan === "plus" || plan === "premium") &&
+  checkoutType !== "gift" &&
+  checkoutType !== "upgrade";
+
+if (
+  isPrimaryMemorialPurchase &&
+  session.payment_status === "paid" &&
+  typeof session.amount_total === "number" &&
+  session.amount_total > 0
+) {
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  await sendMetaPurchaseEvent({
+    eventId: `memorial_${session.id}`,
+    sessionId: session.id,
+    value: session.amount_total / 100,
+    currency: session.currency?.toUpperCase() || "USD",
+    email: customerEmail,
+    contentName: `${plan} MyEMemorial`,
+    contentCategory: "MyEMemorial purchase",
+    eventSourceUrl: siteUrl,
+  });
+}
+
 if (plan === "extra_videos") {
   const expectedAmount = quantity * 995;
 
@@ -591,6 +741,28 @@ const giftPurchaserEmail =
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+if (
+  session.payment_status === "paid" &&
+  typeof session.amount_total === "number" &&
+  session.amount_total > 0
+) {
+  await sendMetaPurchaseEvent({
+    eventId: `gift_${session.id}`,
+    sessionId: session.id,
+    value: session.amount_total / 100,
+    currency: session.currency?.toUpperCase() || "USD",
+    email: giftPurchaserEmail,
+    contentName: gift.plan
+      ? `${gift.plan} MyEMemorial Gift`
+      : "MyEMemorial Gift",
+    contentCategory: gift.gift_type
+      ? `${gift.gift_type} gift`
+      : "gift",
+    eventSourceUrl:
+      `${siteUrl}/gift/success?session_id=${encodeURIComponent(session.id)}`,
+  });
+}
 
 const giftLogoUrl =
   "https://myememorial.com/Images/myememorial-logo.png";
