@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        allow: ["/", "/create-an-online-memorial"],
         disallow: [
           "/api/",
           "/login",
