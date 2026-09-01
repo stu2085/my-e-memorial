@@ -483,6 +483,79 @@ export default function MemorialsPage() {
                 </div>
               </section>
 
+              {/* HELPFUL MEMORIAL GUIDES */}
+              <section className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
+                <div className="text-center">
+                  <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-900">
+                    Helpful Memorial Guides
+                  </p>
+
+                  <h2 className="mt-2 text-3xl font-bold text-stone-900">
+                    Learn More About Online Memorials
+                  </h2>
+
+                  <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-600">
+                    Explore practical guides about memorial websites, online memorials,
+                    creating a memorial for someone you love, and the difference between
+                    a memorial website and an obituary.
+                  </p>
+                </div>
+
+                <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                  <Link
+                    href="/memorial-websites"
+                    className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-blue-300 hover:bg-blue-50"
+                  >
+                    <h3 className="text-xl font-bold text-stone-900">
+                      Memorial Websites: What to Look For
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      Learn what memorial websites can preserve and what families may
+                      want to consider when choosing one.
+                    </p>
+                  </Link>
+
+                  <Link
+                    href="/what-is-an-online-memorial"
+                    className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-blue-300 hover:bg-blue-50"
+                  >
+                    <h3 className="text-xl font-bold text-stone-900">
+                      What Is an Online Memorial?
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      See how an online memorial can preserve stories, photographs,
+                      videos, music, family history, and memories in one place.
+                    </p>
+                  </Link>
+
+                  <Link
+                    href="/create-an-online-memorial"
+                    className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-blue-300 hover:bg-blue-50"
+                  >
+                    <h3 className="text-xl font-bold text-stone-900">
+                      How to Create an Online Memorial
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      Follow a practical step-by-step guide for gathering memories and
+                      building a memorial website for someone you love.
+                    </p>
+                  </Link>
+
+                  <Link
+                    href="/online-memorial-vs-obituary"
+                    className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-blue-300 hover:bg-blue-50"
+                  >
+                    <h3 className="text-xl font-bold text-stone-900">
+                      Online Memorial vs. Obituary
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      Understand how an obituary and an online memorial serve different
+                      purposes and how families may choose to use both.
+                    </p>
+                  </Link>
+                </div>
+              </section>
+
               {/* PRICING */}
               <section
                 id="pricing"

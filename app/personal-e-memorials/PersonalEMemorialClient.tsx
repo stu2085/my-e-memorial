@@ -582,6 +582,78 @@ function PersonalEMemorialPageContent() {
                 </div>
               </section>
 
+              <section className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
+                <div className="text-center">
+                  <p className="text-base font-bold uppercase tracking-[0.18em] text-amber-700">
+                    Helpful Life Story Guides
+                  </p>
+
+                  <h2 className="mt-2 text-3xl font-bold text-stone-900">
+                    Learn More About Preserving Your Story and Legacy
+                  </h2>
+
+                  <p className="mx-auto mt-3 max-w-3xl text-lg leading-7 text-stone-600">
+                    Explore practical guides about preserving your life story, creating
+                    a digital legacy, and helping a parent or loved one preserve the
+                    stories only they can tell.
+                  </p>
+                </div>
+
+                <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                  <Link
+                    href="/preserve-your-life-story"
+                    className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-amber-300 hover:bg-amber-50"
+                  >
+                    <h3 className="text-xl font-bold text-stone-900">
+                      Preserve Your Life Story
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      Learn what to preserve and why telling the story in your own
+                      words can matter to future generations.
+                    </p>
+                  </Link>
+
+                  <Link
+                    href="/digital-legacy"
+                    className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-amber-300 hover:bg-amber-50"
+                  >
+                    <h3 className="text-xl font-bold text-stone-900">
+                      What Is a Digital Legacy?
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      See how stories, photos, videos, family history, and values can
+                      become a meaningful digital legacy.
+                    </p>
+                  </Link>
+
+                  <Link
+                    href="/life-story-gift"
+                    className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-amber-300 hover:bg-amber-50"
+                  >
+                    <h3 className="text-xl font-bold text-stone-900">
+                      Give the Gift of a Life Story
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      Help a parent, grandparent, spouse, or loved one preserve the
+                      memories and experiences only they can tell.
+                    </p>
+                  </Link>
+
+                  <Link
+                    href="/meaningful-gifts-for-parents"
+                    className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-amber-300 hover:bg-amber-50"
+                  >
+                    <h3 className="text-xl font-bold text-stone-900">
+                      Meaningful Gifts for Parents
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      Explore thoughtful gift ideas centered on memories, family
+                      stories, shared experiences, and legacy.
+                    </p>
+                  </Link>
+                </div>
+              </section>
+
               <section id="pricing" className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
                 <div className="text-center">
                   <p className="text-base font-bold uppercase tracking-[0.18em] text-amber-700">

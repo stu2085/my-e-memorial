@@ -311,6 +311,92 @@ useEffect(() => {
 </section>
 
 
+<section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
+  <div className="mx-auto max-w-6xl">
+    <div className="text-center">
+      <p className="text-base font-semibold uppercase tracking-[0.18em] text-stone-500">
+        Helpful Guides
+      </p>
+
+      <h2 className="mt-2 text-2xl font-bold text-stone-900 md:text-3xl">
+        Explore Memorial, Life Story &amp; Legacy Guides
+      </h2>
+
+      <p className="mx-auto mt-3 max-w-3xl text-lg leading-7 text-stone-700">
+        Learn more about online memorial websites, preserving a life story, digital
+        legacy, and meaningful ways to help someone you love preserve their memories.
+      </p>
+    </div>
+
+    <div className="mt-7 grid gap-5 md:grid-cols-2">
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+        <h3 className="text-xl font-bold text-stone-900">
+          Online Memorials &amp; Memorial Websites
+        </h3>
+        <div className="mt-4 grid gap-3">
+          <Link
+            href="/memorial-websites"
+            className="text-lg font-semibold text-blue-950 underline decoration-stone-300 underline-offset-4 hover:decoration-blue-950"
+          >
+            Memorial Websites: What They Are &amp; What to Look For
+          </Link>
+          <Link
+            href="/what-is-an-online-memorial"
+            className="text-lg font-semibold text-blue-950 underline decoration-stone-300 underline-offset-4 hover:decoration-blue-950"
+          >
+            What Is an Online Memorial?
+          </Link>
+          <Link
+            href="/create-an-online-memorial"
+            className="text-lg font-semibold text-blue-950 underline decoration-stone-300 underline-offset-4 hover:decoration-blue-950"
+          >
+            How to Create an Online Memorial
+          </Link>
+          <Link
+            href="/online-memorial-vs-obituary"
+            className="text-lg font-semibold text-blue-950 underline decoration-stone-300 underline-offset-4 hover:decoration-blue-950"
+          >
+            Online Memorial vs. Obituary
+          </Link>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <h3 className="text-xl font-bold text-stone-900">
+          Life Stories, Legacy &amp; Meaningful Gifts
+        </h3>
+        <div className="mt-4 grid gap-3">
+          <Link
+            href="/preserve-your-life-story"
+            className="text-lg font-semibold text-blue-950 underline decoration-amber-300 underline-offset-4 hover:decoration-blue-950"
+          >
+            Preserve Your Life Story
+          </Link>
+          <Link
+            href="/digital-legacy"
+            className="text-lg font-semibold text-blue-950 underline decoration-amber-300 underline-offset-4 hover:decoration-blue-950"
+          >
+            What Is a Digital Legacy?
+          </Link>
+          <Link
+            href="/life-story-gift"
+            className="text-lg font-semibold text-blue-950 underline decoration-amber-300 underline-offset-4 hover:decoration-blue-950"
+          >
+            Give the Gift of a Life Story
+          </Link>
+          <Link
+            href="/meaningful-gifts-for-parents"
+            className="text-lg font-semibold text-blue-950 underline decoration-amber-300 underline-offset-4 hover:decoration-blue-950"
+          >
+            Meaningful Gifts for Parents Who Have Everything
+          </Link>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
   <section className="rounded-[1.5rem] bg-white px-6 py-10 text-center shadow-sm md:px-8">
   <div className="mx-auto max-w-4xl">
   <p className="text-lg leading-7 font-semibold uppercase tracking-wide text-blue-900">
