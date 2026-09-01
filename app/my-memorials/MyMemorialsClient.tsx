@@ -12,8 +12,39 @@ type Memorial = {
   is_living_preplan: boolean | null;
   is_draft: boolean | null;
   guided_current_chapter: string | null;
+  plan: string | null;
   created_at: string | null;
 };
+
+function getPlanLabel(plan: string | null) {
+  switch ((plan || "").toLowerCase()) {
+    case "free":
+      return "Free Plan";
+    case "basic":
+      return "Basic Plan";
+    case "plus":
+      return "Plus Plan";
+    case "premium":
+      return "Premium Plan";
+    default:
+      return null;
+  }
+}
+
+function getPlanMediaSummary(plan: string | null) {
+  switch ((plan || "").toLowerCase()) {
+    case "free":
+      return "Up to 5 gallery photos • Video Memories available with paid plans";
+    case "basic":
+      return "Up to 50 gallery photos • 15 minutes total of Video Memories • 5 minutes maximum per video";
+    case "plus":
+      return "Up to 150 gallery photos • 30 minutes total of Video Memories • 5 minutes maximum per video";
+    case "premium":
+      return "Unlimited gallery photos • 60 minutes total of Video Memories • 5 minutes maximum per video";
+    default:
+      return null;
+  }
+}
 
 export default function MyMemorialsClient() {
   const [memorials, setMemorials] = useState<Memorial[]>([]);
@@ -27,7 +58,7 @@ export default function MyMemorialsClient() {
     const { data, error } = await supabase
       .from("memorials")
       .select(
-        "id, slug, full_name, is_published, is_living_preplan, is_draft, guided_current_chapter, created_at"
+        "id, slug, full_name, is_published, is_living_preplan, is_draft, guided_current_chapter, plan, created_at"
       )
       .eq("owner_id", userId)
       .order("created_at", { ascending: false });
@@ -137,6 +168,12 @@ export default function MyMemorialsClient() {
                       </span>
                     )}
 
+                    {getPlanLabel(memorial.plan) && (
+                      <span className="rounded-full bg-violet-100 px-3 py-1 text-violet-700">
+                        {getPlanLabel(memorial.plan)}
+                      </span>
+                    )}
+
                     {memorial.is_draft ? (
   <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-700">
     Draft
@@ -151,6 +188,12 @@ export default function MyMemorialsClient() {
   </span>
 )}
                   </div>
+
+                  {getPlanMediaSummary(memorial.plan) && (
+                    <p className="mt-3 text-base text-stone-600">
+                      {getPlanMediaSummary(memorial.plan)}
+                    </p>
+                  )}
 
                   {memorial.created_at && (
                     <p className="mt-2 text-xs text-stone-500">
