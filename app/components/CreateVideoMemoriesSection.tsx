@@ -10,6 +10,9 @@ savedVideoUrls?: string[];
 setSavedVideoUrls?: React.Dispatch<React.SetStateAction<string[]>>;
 savedVideoNotes?: string[];
 setSavedVideoNotes?: React.Dispatch<React.SetStateAction<string[]>>;
+videoMinutesUsed: number;
+videoMinutesAllowed: number;
+extraVideoMinutes?: number;
 videoError: string;
   form: {
   plan: string;
@@ -65,6 +68,9 @@ export default function CreateVideoMemoriesSection({
 setSavedVideoUrls,
 savedVideoNotes = [],
 setSavedVideoNotes,
+videoMinutesUsed,
+videoMinutesAllowed,
+extraVideoMinutes = 0,
 videoError,
   form,
   handleVideoChange,
@@ -75,17 +81,47 @@ videoLinkThumbnailFiles,
 setVideoLinkThumbnailFiles,
 setForm,
 }: CreateVideoMemoriesSectionProps) {
-  
+  const remainingVideoMinutes = Math.max(
+    videoMinutesAllowed - videoMinutesUsed,
+    0
+  );
 
   return (
     <section className="rounded-3xl bg-white p-8 shadow-sm">
       <h2 className="text-2xl font-bold text-stone-900">Video Memories</h2>
 
-      <p className="mt-2 text-sm text-stone-600">
+      <p className="mt-2 text-base text-stone-600">
         Basic includes 15 minutes of Video Memories, Plus includes 30 minutes,
         and Premium includes 60 minutes. Each individual video must be 5 minutes
-        or less.
+        or less. There is no limit on the number of videos as long as their
+        combined duration stays within your available minutes.
       </p>
+
+      {isPaid && videoMinutesAllowed > 0 && (
+        <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-4">
+          <p className="text-base font-semibold text-blue-950">
+            Video Memory Time
+          </p>
+
+          <div className="mt-2 grid gap-2 text-base text-blue-950 sm:grid-cols-3">
+            <p>
+              <strong>{videoMinutesUsed.toFixed(1)}</strong> minutes used
+            </p>
+            <p>
+              <strong>{remainingVideoMinutes.toFixed(1)}</strong> minutes remaining
+            </p>
+            <p>
+              <strong>{videoMinutesAllowed.toFixed(1)}</strong> total minutes available
+            </p>
+          </div>
+
+          {extraVideoMinutes > 0 && (
+            <p className="mt-2 text-base text-blue-900">
+              Includes {extraVideoMinutes.toFixed(0)} purchased extra video minutes.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="mt-6">
         {isPaid ? (

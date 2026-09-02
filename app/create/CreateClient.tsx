@@ -1077,6 +1077,32 @@ function setVideoNotes(
 }
 
 const [savedVideoUrls, setSavedVideoUrls] = useState<string[]>([]);
+const [savedVideoDurationSecondsById, setSavedVideoDurationSecondsById] =
+  useState<Record<string, number>>({});
+const [selectedVideoDurationSecondsByKey, setSelectedVideoDurationSecondsByKey] =
+  useState<Record<string, number>>({});
+
+function getVideoFileKey(file: File) {
+  return `${file.name}::${file.size}::${file.lastModified}`;
+}
+
+const savedVideoSecondsUsed = savedVideoUrls.reduce(
+  (total, playbackId) =>
+    total + Number(savedVideoDurationSecondsById[playbackId] || 0),
+  0
+);
+
+const selectedVideoSecondsUsed = videoFiles.reduce(
+  (total, file) =>
+    total + Number(selectedVideoDurationSecondsByKey[getVideoFileKey(file)] || 0),
+  0
+);
+
+const totalAllowedVideoMinutes =
+  (PLAN_LIMITS[form.plan as PlanKey]?.videoMinutes || 0) +
+  paidExtraVideos * 10;
+const totalVideoMinutesUsed =
+  (savedVideoSecondsUsed + selectedVideoSecondsUsed) / 60;
 
 const savedVideoNotesRef = useRef<string[]>([]);
 const [savedVideoNotes, setSavedVideoNotesState] =
@@ -1366,6 +1392,49 @@ setSavedVideoNotes(
     ? draftData.video_notes
     : []
 );
+
+/*
+ * Video capacity is minute-based. extra_video_minutes stores actual minutes,
+ * while paidExtraVideos is retained as the historical count of 10-minute packs.
+ */
+setPaidExtraVideos(
+  Math.max(0, Number(draftData.extra_video_minutes || 0) / 10)
+);
+
+/*
+ * The memorial row stores playback IDs, but the authoritative duration for each
+ * uploaded video is stored in memorial_videos.duration_seconds. Load those
+ * durations so the Guided Memory Builder can show used and remaining minutes
+ * and can include already-saved videos in upload validation.
+ */
+try {
+  const { data: savedVideoRows, error: savedVideoRowsError } =
+    await supabase
+      .from("memorial_videos")
+      .select("playback_id, duration_seconds")
+      .eq("memorial_id", draftData.id);
+
+  if (savedVideoRowsError) {
+    console.error(
+      "LOAD SAVED VIDEO DURATIONS ERROR:",
+      savedVideoRowsError
+    );
+  } else {
+    const durationMap = Object.fromEntries(
+      (savedVideoRows || [])
+        .filter((video) => Boolean(video.playback_id))
+        .map((video) => [
+          String(video.playback_id),
+          Number(video.duration_seconds || 0),
+        ])
+    );
+
+    setSavedVideoDurationSecondsById(durationMap);
+  }
+} catch (error) {
+  console.error("LOAD SAVED VIDEO DURATIONS ERROR:", error);
+}
+
 const loadedFavoriteSongUrls =
   Array.isArray(draftData.favorite_song_urls) &&
   draftData.favorite_song_urls.length > 0
@@ -2566,21 +2635,26 @@ async function addVideoFiles(
     return false;
   }
 
-  const totalAllowedVideoMinutes =
+  const allowedVideoMinutes =
     limits.videoMinutes + paidExtraVideos * 10;
 
   const maxTotalVideoSeconds =
-    totalAllowedVideoMinutes * 60;
+    allowedVideoMinutes * 60;
 
   try {
-    let existingVideoSeconds = 0;
+    let existingSelectedVideoSeconds = 0;
 
     for (const file of videoFiles) {
-      existingVideoSeconds +=
-        await getVideoDurationWithRetry(file);
+      const fileKey = getVideoFileKey(file);
+      const knownDuration =
+        selectedVideoDurationSecondsByKey[fileKey];
+
+      existingSelectedVideoSeconds +=
+        knownDuration ?? await getVideoDurationWithRetry(file);
     }
 
     let newVideoSeconds = 0;
+    const newDurationEntries: Array<[string, number]> = [];
 
     for (const file of newUniqueFiles) {
       const duration =
@@ -2594,16 +2668,26 @@ async function addVideoFiles(
       }
 
       newVideoSeconds += duration;
+      newDurationEntries.push([getVideoFileKey(file), duration]);
     }
 
     if (
-      existingVideoSeconds + newVideoSeconds >
+      savedVideoSecondsUsed +
+        existingSelectedVideoSeconds +
+        newVideoSeconds >
       maxTotalVideoSeconds
     ) {
       setVideoError(
-        `${limits.label} currently allows up to ${totalAllowedVideoMinutes} minutes of Video Memories, including purchased extra video time.`
+        `${limits.label} currently allows up to ${allowedVideoMinutes} minutes of Video Memories, including purchased extra video time.`
       );
       return false;
+    }
+
+    if (newDurationEntries.length > 0) {
+      setSelectedVideoDurationSecondsByKey((previous) => ({
+        ...previous,
+        ...Object.fromEntries(newDurationEntries),
+      }));
     }
   } catch (error) {
     console.error(
@@ -2774,13 +2858,16 @@ ValidationEngine.validateBasicMemorial({
   galleryPhotos: galleryPhotosForSave,
 });
 
-      const totalAllowedVideoMinutes =
+      const allowedVideoMinutes =
   limits.videoMinutes + paidExtraVideos * 10;
 
 await ValidationEngine.validateVideos({
   videoFiles,
   getVideoDuration: MediaEngine.getVideoDuration,
-  maximumVideoMinutes: totalAllowedVideoMinutes,
+  maximumVideoMinutes: Math.max(
+    allowedVideoMinutes - savedVideoSecondsUsed / 60,
+    0
+  ),
   planLabel: limits.label,
 });
 
@@ -3052,6 +3139,16 @@ if (videoFiles.length > 0) {
     ...combinedUploadedVideos,
     ...newlyUploadedVideos,
   ];
+
+  setSavedVideoDurationSecondsById((previous) => ({
+    ...previous,
+    ...Object.fromEntries(
+      newlyUploadedVideos.map((video) => [
+        video.playbackId,
+        Number(video.durationSeconds || 0),
+      ])
+    ),
+  }));
 }
 const fullName = [
   form.firstName,
@@ -4765,6 +4862,16 @@ if (videoFiles.length > 0) {
     )
   );
 
+  setSavedVideoDurationSecondsById((previous) => ({
+    ...previous,
+    ...Object.fromEntries(
+      newlyUploadedVideos.map((video) => [
+        video.playbackId,
+        Number(video.durationSeconds || 0),
+      ])
+    ),
+  }));
+
   setForm((previousForm) => ({
     ...previousForm,
     videoUrls: combinedUploadedVideos.map(
@@ -5891,6 +5998,9 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
     savedVideoNotes={savedVideoNotes}
     setSavedVideoUrls={setSavedVideoUrls}
     setSavedVideoNotes={setSavedVideoNotes}
+    videoMinutesUsed={totalVideoMinutesUsed}
+    videoMinutesAllowed={totalAllowedVideoMinutes}
+    extraVideoMinutes={paidExtraVideos * 10}
     videoError={videoError}
     form={form}
     handleVideoChange={handleVideoChange}
