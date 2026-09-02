@@ -32,6 +32,5 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: "https://www.myememorial.com/sitemap.xml",
-    host: "https://www.myememorial.com",
   };
 }

@@ -1,19 +1,34 @@
 import type { Metadata } from "next";
 import HomePageClient from "./HomePageClient";
 
+const homepageTitle =
+  "Online Memorials & Personal Life Stories | MyEMemorial";
+
+const homepageDescription =
+  "Create a Living MyEMemorial or online memorial to preserve life stories, photos, videos, family history, obituaries, and memories for generations.";
+
 export const metadata: Metadata = {
-  title: "Online Memorials & Personal Life Stories",
-  description:
-    "Create a Living MyEMemorial to preserve your own life story, or create an online memorial for someone who has passed. Preserve stories, photos, videos, family history, obituaries, and memories for generations.",
+  title: {
+    absolute: homepageTitle,
+  },
+  description: homepageDescription,
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "MyEMemorial | Online Memorials & Personal Life Stories",
-    description:
-      "Preserve your own life story with a Living MyEMemorial or create a lasting online memorial for someone who has passed.",
+    title: homepageTitle,
+    description: homepageDescription,
     url: "/",
+    siteName: "MyEMemorial",
     type: "website",
+    images: [
+      {
+        url: "/myememorial-logo.png",
+        width: 1200,
+        height: 630,
+        alt: "MyEMemorial",
+      },
+    ],
   },
 };
 

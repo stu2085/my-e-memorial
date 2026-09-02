@@ -28,10 +28,12 @@ useEffect(() => {
     <main className="min-h-screen bg-stone-100">
     <section className="relative w-full overflow-hidden shadow-sm">
       <img
-        src="/Images/homepage-hero.png"
-        alt=""
-        className="block h-auto w-full"
-      />
+  src="/Images/homepage-hero.png"
+  alt="MyEMemorial — Where Life's Stories Are Told"
+  width={1942}
+  height={761}
+  className="block h-auto w-full"
+/>
 
   <div className="absolute inset-x-0 bottom-5 z-50 flex justify-end px-5 md:bottom-6 md:px-6">
     <Link
