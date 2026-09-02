@@ -3257,7 +3257,7 @@ function showNextPhoto() {
     <button
       type="button"
       onClick={closePhotoViewer}
-      className="absolute right-5 top-5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-900 shadow"
+      className="fixed right-3 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[60] rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-900 shadow-lg sm:right-5 sm:top-5"
     >
       Close
     </button>
