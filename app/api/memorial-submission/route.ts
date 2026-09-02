@@ -204,7 +204,9 @@ try {
 
          <p>
   Review this memory:<br />
-  <a href="${baseUrl}/login?mode=login&redirect=${encodeURIComponent(`/memorial/${memorialSlug}/edit`)}">
+  <a href="${baseUrl}/login?mode=login&redirect=${encodeURIComponent(
+    `/memorial/${memorialSlug}/review-submission/${submission.id}`
+  )}">
   Review Memory
 </a>
 </p>

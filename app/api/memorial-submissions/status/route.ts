@@ -13,6 +13,8 @@ type MemorialRow = {
   extra_video_minutes: number | null;
   is_living_preplan: boolean | null;
   video_urls?: string[] | string | null;
+  slug?: string | null;
+  full_name?: string | null;
 };
 
 function parseVideoUrls(
@@ -320,18 +322,28 @@ async function getReviewerAuthorization(
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const memorialId = Number(
+
+    const memorialIdParam = Number(
       url.searchParams.get("memorialId")
     );
 
-    if (
-      !Number.isSafeInteger(memorialId) ||
-      memorialId <= 0
-    ) {
+    const submissionIdParam = Number(
+      url.searchParams.get("submissionId")
+    );
+
+    const hasValidMemorialId =
+      Number.isSafeInteger(memorialIdParam) &&
+      memorialIdParam > 0;
+
+    const hasValidSubmissionId =
+      Number.isSafeInteger(submissionIdParam) &&
+      submissionIdParam > 0;
+
+    if (!hasValidMemorialId && !hasValidSubmissionId) {
       return NextResponse.json(
         {
           error:
-            "A valid memorial ID is required.",
+            "A valid memorial ID or submission ID is required.",
         },
         {
           status: 400,
@@ -342,15 +354,61 @@ export async function GET(req: Request) {
       );
     }
 
+    let resolvedMemorialId = hasValidMemorialId
+      ? memorialIdParam
+      : 0;
+
+    let requestedSubmission:
+      | {
+          id: number;
+          memorial_id: number;
+          submitter_name: string | null;
+          submitter_email: string | null;
+          message: string | null;
+          photo_urls: string[] | string | null;
+          video_urls: string[] | string | null;
+          status: string;
+          created_at: string | null;
+        }
+      | null = null;
+
+    if (hasValidSubmissionId) {
+      const {
+        data: submission,
+        error: submissionError,
+      } = await supabaseAdmin
+        .from("memorial_submissions")
+        .select(
+          "id, memorial_id, submitter_name, submitter_email, message, photo_urls, video_urls, status, created_at"
+        )
+        .eq("id", submissionIdParam)
+        .maybeSingle();
+
+      if (submissionError || !submission) {
+        return NextResponse.json(
+          { error: "Submission not found." },
+          {
+            status: 404,
+            headers: {
+              "Cache-Control": "no-store",
+            },
+          }
+        );
+      }
+
+      resolvedMemorialId = submission.memorial_id;
+      requestedSubmission = submission;
+    }
+
     const {
       data: memorial,
       error: memorialError,
     } = await supabaseAdmin
       .from("memorials")
       .select(
-        "id, owner_id, plan, extra_video_minutes, is_living_preplan, video_urls"
+        "id, owner_id, plan, extra_video_minutes, is_living_preplan, video_urls, slug, full_name"
       )
-      .eq("id", memorialId)
+      .eq("id", resolvedMemorialId)
       .single();
 
     if (memorialError || !memorial) {
@@ -386,6 +444,26 @@ export async function GET(req: Request) {
       );
     }
 
+    if (requestedSubmission) {
+      return NextResponse.json(
+        {
+          success: true,
+          reviewerRole: authorization.role,
+          memorial: {
+            id: memorial.id,
+            slug: memorial.slug || "",
+            fullName: memorial.full_name || "",
+          },
+          submissions: [requestedSubmission],
+        },
+        {
+          headers: {
+            "Cache-Control": "no-store",
+          },
+        }
+      );
+    }
+
     const {
       data: submissions,
       error: submissionsError,
@@ -394,7 +472,7 @@ export async function GET(req: Request) {
       .select(
         "id, submitter_name, submitter_email, message, photo_urls, video_urls, status, created_at"
       )
-      .eq("memorial_id", memorialId)
+      .eq("memorial_id", resolvedMemorialId)
       .eq("status", "pending")
       .order("created_at", {
         ascending: false,
@@ -419,6 +497,11 @@ export async function GET(req: Request) {
       {
         success: true,
         reviewerRole: authorization.role,
+        memorial: {
+          id: memorial.id,
+          slug: memorial.slug || "",
+          fullName: memorial.full_name || "",
+        },
         submissions: submissions || [],
       },
       {
