@@ -5516,7 +5516,7 @@ const isBackupChapterReadOnly = (
     ? "Return to Manage Memorial"
     : guidedExperienceType === "after-death"
       ? "Save After-Death Updates"
-      : "Finish Review"
+      : "Publish MyEMemorial"
 }
   onSaveAndContinue={async (chapter) => {
   const isLivingBackupReadOnly =
