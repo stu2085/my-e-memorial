@@ -422,6 +422,7 @@ const [showFavoriteSongs, setShowFavoriteSongs] = useState(false);
   const currentSongIndexRef = useRef(0);
   const wasMusicPlayingBeforeVideoRef = useRef(false);
   const touchStartXRef = useRef<number | null>(null);
+  const presentationReturnScrollYRef = useRef<number | null>(null);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [slideshowMusicVolume, setSlideshowMusicVolume] = useState(0.7);
 const [isSlideshowMusicMuted, setIsSlideshowMusicMuted] = useState(false);
@@ -1207,7 +1208,7 @@ const restingPlaceAddress = [
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        setSelectedPhotoIndex(null);
+        closePhotoViewer();
       }
 
       if (event.key === "ArrowLeft") {
@@ -1425,7 +1426,31 @@ const restingPlaceAddress = [
     }
   }
 
+  function closePhotoViewer() {
+    const returnScrollY = presentationReturnScrollYRef.current;
+
+    presentationReturnScrollYRef.current = null;
+    setSelectedPhotoIndex(null);
+
+    if (returnScrollY !== null) {
+      setActivePublicSection("basic-information");
+
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          window.scrollTo({
+            top: Math.max(0, returnScrollY),
+            behavior: "smooth",
+          });
+        });
+      });
+    }
+  }
+
   function handleExperienceTheirLife() {
+    // Remember the visitor's launch position before moving the page down to
+    // Photo Gallery. Closing this presentation should return them to the CTA.
+    presentationReturnScrollYRef.current = window.scrollY;
+
     // The public CTA should immediately reveal the photo experience,
     // open the first photo, start/resume the presentation, and move the visitor to it.
     setShowPhotoGallery(true);
@@ -2568,7 +2593,10 @@ function showNextPhoto() {
       <button
         key={`${photo.src}-${index}`}
         type="button"
-        onClick={() => setSelectedPhotoIndex(index)}
+        onClick={() => {
+          presentationReturnScrollYRef.current = null;
+          setSelectedPhotoIndex(index);
+        }}
         className="group aspect-square w-full overflow-hidden rounded-xl border border-stone-200 bg-stone-100 shadow-sm"
         aria-label={`Open gallery photo ${index + 1}`}
       >
@@ -3224,11 +3252,11 @@ function showNextPhoto() {
   {selectedPhoto && (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6"
-    onClick={() => setSelectedPhotoIndex(null)}
+    onClick={closePhotoViewer}
   >
     <button
       type="button"
-      onClick={() => setSelectedPhotoIndex(null)}
+      onClick={closePhotoViewer}
       className="absolute right-5 top-5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-900 shadow"
     >
       Close
