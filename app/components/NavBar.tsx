@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -295,9 +296,13 @@ export default function NavBar() {
             aria-label="MyEMemorial home"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            <img
+            <Image
               src="/Images/myememorial-logo-navbar.png"
               alt="MyEMemorial"
+              width={972}
+              height={287}
+              sizes="(max-width: 639px) 217px, (max-width: 1379px) 271px, (max-width: 1535px) 298px, 325px"
+              loading="eager"
               className="h-16 w-auto max-w-[225px] object-contain sm:h-20 sm:max-w-none min-[1380px]:h-[88px] 2xl:h-24"
             />
           </a>
