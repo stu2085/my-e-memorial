@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import SideAd from "./components/SideAd";
@@ -26,19 +27,22 @@ useEffect(() => {
 }, []);
   return (
     <main className="min-h-screen bg-stone-100">
-    <section className="relative w-full overflow-hidden shadow-sm">
-      <img
-  src="/Images/homepage-hero.png"
-  alt="MyEMemorial — Where Life's Stories Are Told"
-  width={1942}
-  height={761}
-  className="block h-auto w-full"
-/>
+      <section className="relative w-full overflow-hidden shadow-sm">
+        <Image
+          src="/Images/homepage-hero.png"
+          alt="MyEMemorial — Where Life's Stories Are Told"
+          width={1942}
+          height={761}
+          sizes="100vw"
+          loading="eager"
+          fetchPriority="high"
+          className="block h-auto w-full"
+        />
 
-  <div className="absolute inset-x-0 bottom-5 z-50 flex justify-end px-5 md:bottom-6 md:px-6">
+  <div className="relative z-50 flex justify-center bg-stone-100 px-4 py-3 sm:absolute sm:inset-x-0 sm:bottom-5 sm:justify-end sm:bg-transparent sm:px-5 sm:py-0 md:bottom-6 md:px-6">
     <Link
       href="/memorial/daniel-james-whitmore"
-      className="relative inline-flex min-h-[50px] items-center justify-center rounded-full border-2 border-white bg-blue-950 px-5 py-3 text-base font-semibold text-white shadow-xl transition hover:bg-blue-900"
+      className="relative inline-flex min-h-[44px] items-center justify-center rounded-full border-2 border-white bg-blue-950 px-4 py-2 text-sm font-semibold text-white shadow-xl transition hover:bg-blue-900 sm:min-h-[50px] sm:px-5 sm:py-3 sm:text-base"
     >
       Experience a Sample MyEMemorial
     </Link>
@@ -94,9 +98,11 @@ useEffect(() => {
   <div className="w-full max-w-[360px] overflow-hidden rounded-2xl bg-black shadow-md">
     <video
       className="h-auto w-full object-contain"
+      width={832}
+      height={1088}
       playsInline
       controls
-      preload="metadata"
+      preload="none"
       poster="/videos/homepage-introduction-poster.jpg"
       aria-label="Introduction to MyEMemorial"
     >
