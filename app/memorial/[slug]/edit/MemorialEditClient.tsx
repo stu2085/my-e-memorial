@@ -856,17 +856,56 @@ async function handleSubmissionStatus(
     const result = await res.json();
 
     if (!res.ok) {
-      throw new Error(
-        result.error || "Could not update submission."
+      if (
+        result?.needsExtraVideoPurchase === true &&
+        Number(result?.extraPacksNeeded) > 0
+      ) {
+        const extraPacksNeeded = Math.max(
+          1,
+          Math.ceil(Number(result.extraPacksNeeded))
+        );
+        const extraMinutesNeeded = Math.max(
+          0,
+          Math.ceil(Number(result?.extraMinutesNeeded || 0))
+        );
+        const packLabel =
+          extraPacksNeeded === 1
+            ? "10-minute Video Memory Pack"
+            : "10-minute Video Memory Packs";
+        const purchaseTotal = extraPacksNeeded * EXTRA_VIDEO_PRICE;
+        const serverMessage =
+          result.error ||
+          `This submission needs ${extraMinutesNeeded} additional video minute${
+            extraMinutesNeeded === 1 ? "" : "s"
+          } before it can be approved.`;
+
+        setSubmissionsMessage(serverMessage);
+
+        const shouldPurchase = window.confirm(
+          `${serverMessage}\n\nPurchase ${extraPacksNeeded} ${packLabel} for $${purchaseTotal.toFixed(2)}?`
+        );
+
+        if (shouldPurchase) {
+          await handleBuyExtraVideos(extraPacksNeeded, submissionId);
+        }
+
+        return;
+      }
+
+      setSubmissionsMessage(
+        result?.error || "Could not update submission."
       );
+      return;
     }
 
     setSubmissions((prev) =>
-  prev.filter((submission) => submission.id !== submissionId)
-);
+      prev.filter((submission) => submission.id !== submissionId)
+    );
 
     setSubmissionsMessage(
-      `Submission ${nextStatus}.`
+      nextStatus === "approved"
+        ? "Submission approved and now visible on the public MyEMemorial."
+        : "Submission rejected."
     );
   } catch (err) {
     console.error(err);

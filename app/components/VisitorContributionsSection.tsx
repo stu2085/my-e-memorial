@@ -21,11 +21,8 @@ type VisitorContributionsSectionProps = {
 export default function VisitorContributionsSection({
   submissionsMessage,
   submissions,
-  form,
-  existingVideoDurations,
   setSubmissionPhotoViewer,
   handleSubmissionStatus,
-  handleBuyExtraVideos,
 }: VisitorContributionsSectionProps) {
   return (
     <FormSection
@@ -77,25 +74,6 @@ export default function VisitorContributionsSection({
             submittedVideos = submittedVideos
               .filter(Boolean)
               .filter((videoId) => videoId.length > 15);
-
-            const baseLimitMinutes =
-              form.plan === "premium" ? 60 : form.plan === "plus" ? 30 : 15;
-
-            const effectiveLimitMinutes =
-              baseLimitMinutes + Number(form.extraVideoMinutes || 0);
-
-            const existingVideoSeconds = existingVideoDurations.reduce(
-              (total, seconds) => total + Number(seconds || 0),
-              0
-            );
-
-            const contributorVideoSeconds = submittedVideos.length * 5 * 60;
-            const projectedTotalSeconds =
-              existingVideoSeconds + contributorVideoSeconds;
-            const projectedTotalMinutes = Math.ceil(projectedTotalSeconds / 60);
-
-            const needsExtraVideoPurchase =
-              projectedTotalMinutes > effectiveLimitMinutes;
 
             return (
               <div
@@ -184,34 +162,15 @@ export default function VisitorContributionsSection({
 
                 {submission.status === "pending" && (
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {!needsExtraVideoPurchase ? (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleSubmissionStatus(submission.id, "approved")
-                        }
-                        className="rounded-full bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-700"
-                      >
-                        Approve
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleBuyExtraVideos(
-                            Math.ceil(
-                              (projectedTotalMinutes -
-                                effectiveLimitMinutes) /
-                                10
-                            ),
-                            submission.id
-                          )
-                        }
-                        className="rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-stone-900 hover:bg-amber-400"
-                      >
-                        Approve With 10-Minute Video Memory Pack — $9.95
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSubmissionStatus(submission.id, "approved")
+                      }
+                      className="rounded-full bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-700"
+                    >
+                      Approve
+                    </button>
 
                     <button
                       type="button"

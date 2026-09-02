@@ -12,6 +12,7 @@ type MemorialRow = {
   plan: string | null;
   extra_video_minutes: number | null;
   is_living_preplan: boolean | null;
+  video_urls?: string[] | string | null;
 };
 
 function parseVideoUrls(
@@ -39,12 +40,133 @@ function parseVideoUrls(
   return [];
 }
 
-function getBaseVideoLimit(
+function getBaseVideoMinutes(
   plan: string | null | undefined
 ) {
-  if (plan === "premium") return 10;
-  if (plan === "plus") return 5;
-  return 2;
+  switch ((plan || "").trim().toLowerCase()) {
+    case "basic":
+      return 15;
+    case "plus":
+      return 30;
+    case "premium":
+      return 60;
+    default:
+      return 0;
+  }
+}
+
+function uniquePlaybackIds(values: string[]) {
+  return Array.from(
+    new Set(
+      values
+        .map((value) => String(value || "").trim())
+        .filter(Boolean)
+    )
+  );
+}
+
+function formatVideoMinutes(seconds: number) {
+  const minutes = Math.max(0, seconds) / 60;
+  const rounded = Math.round(minutes * 10) / 10;
+
+  return Number.isInteger(rounded)
+    ? String(rounded)
+    : rounded.toFixed(1);
+}
+
+async function getMuxVideoDurationSeconds(
+  playbackId: string
+) {
+  const tokenId = process.env.MUX_TOKEN_ID || "";
+  const tokenSecret =
+    process.env.MUX_TOKEN_SECRET || "";
+
+  if (!tokenId || !tokenSecret) {
+    throw new Error(
+      "Mux is not configured, so video duration could not be verified."
+    );
+  }
+
+  const authorization =
+    "Basic " +
+    Buffer.from(
+      `${tokenId}:${tokenSecret}`
+    ).toString("base64");
+
+  const playbackLookupResponse = await fetch(
+    `https://api.mux.com/video/v1/playback-ids/${encodeURIComponent(
+      playbackId
+    )}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: authorization,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    }
+  );
+
+  const playbackLookupResult =
+    await playbackLookupResponse.json();
+
+  if (!playbackLookupResponse.ok) {
+    throw new Error(
+      `Could not look up Mux playback ID ${playbackId}.`
+    );
+  }
+
+  const assetId =
+    playbackLookupResult?.data?.object?.type ===
+    "asset"
+      ? String(
+          playbackLookupResult?.data?.object?.id ||
+            ""
+        ).trim()
+      : "";
+
+  if (!assetId) {
+    throw new Error(
+      `Mux playback ID ${playbackId} is not associated with a video asset.`
+    );
+  }
+
+  const assetResponse = await fetch(
+    `https://api.mux.com/video/v1/assets/${encodeURIComponent(
+      assetId
+    )}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: authorization,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    }
+  );
+
+  const assetResult = await assetResponse.json();
+
+  if (!assetResponse.ok) {
+    throw new Error(
+      `Could not retrieve the Mux asset for playback ID ${playbackId}.`
+    );
+  }
+
+  const durationSeconds = Number(
+    assetResult?.data?.duration || 0
+  );
+
+  if (
+    !Number.isFinite(durationSeconds) ||
+    durationSeconds <= 0
+  ) {
+    throw new Error(
+      `Mux did not return a valid duration for playback ID ${playbackId}.`
+    );
+  }
+
+  return durationSeconds;
 }
 
 async function getAuthenticatedUser(req: Request) {
@@ -226,7 +348,7 @@ export async function GET(req: Request) {
     } = await supabaseAdmin
       .from("memorials")
       .select(
-        "id, owner_id, plan, extra_video_minutes, is_living_preplan"
+        "id, owner_id, plan, extra_video_minutes, is_living_preplan, video_urls"
       )
       .eq("id", memorialId)
       .single();
@@ -366,7 +488,7 @@ export async function POST(req: Request) {
     } = await supabaseAdmin
       .from("memorials")
       .select(
-        "id, owner_id, plan, extra_video_minutes, is_living_preplan"
+        "id, owner_id, plan, extra_video_minutes, is_living_preplan, video_urls"
       )
       .eq(
         "id",
@@ -398,85 +520,271 @@ export async function POST(req: Request) {
     }
 
     if (status === "approved") {
-      const submittedVideos =
+      const submittedVideos = uniquePlaybackIds(
         parseVideoUrls(
           submission.video_urls
-        );
-
-      const {
-        data: approvedSubmissions,
-        error: approvedError,
-      } = await supabaseAdmin
-        .from("memorial_submissions")
-        .select("id, video_urls")
-        .eq(
-          "memorial_id",
-          submission.memorial_id
         )
-        .eq("status", "approved")
-        .neq("id", submissionId);
-
-      if (approvedError) {
-        return NextResponse.json(
-          {
-            error:
-              approvedError.message,
-          },
-          { status: 500 }
-        );
-      }
-
-      const approvedContributorVideoCount =
-        approvedSubmissions?.reduce(
-          (
-            total,
-            approvedSubmission
-          ) => {
-            return (
-              total +
-              parseVideoUrls(
-                approvedSubmission.video_urls
-              ).length
-            );
-          },
-          0
-        ) || 0;
-
-      const baseLimit =
-        getBaseVideoLimit(memorial.plan);
-
-      const extraMinutes = Number(
-        memorial.extra_video_minutes || 0
       );
 
-      const effectiveLimit =
-        baseLimit + extraMinutes;
+      if (submittedVideos.length > 0) {
+        const {
+          data: approvedSubmissions,
+          error: approvedError,
+        } = await supabaseAdmin
+          .from("memorial_submissions")
+          .select("id, video_urls")
+          .eq(
+            "memorial_id",
+            submission.memorial_id
+          )
+          .eq("status", "approved")
+          .neq("id", submissionId);
 
-      const projectedTotal =
-        approvedContributorVideoCount +
-        submittedVideos.length;
+        if (approvedError) {
+          return NextResponse.json(
+            {
+              error:
+                approvedError.message,
+            },
+            { status: 500 }
+          );
+        }
 
-      if (
-        submittedVideos.length > 0 &&
-        projectedTotal > effectiveLimit
-      ) {
-        const extraVideosNeeded =
-          projectedTotal -
-          effectiveLimit;
+        const {
+          data: memorialVideoRows,
+          error: memorialVideosError,
+        } = await supabaseAdmin
+          .from("memorial_videos")
+          .select(
+            "playback_id, duration_seconds"
+          )
+          .eq(
+            "memorial_id",
+            submission.memorial_id
+          );
 
-        return NextResponse.json(
-          {
-            error:
-              `This memorial has reached its video limit. Purchase ${extraVideosNeeded} additional video minute${
-                extraVideosNeeded === 1
-                  ? ""
-                  : "s"
-              } to approve this submission.`,
-            needsExtraVideoPurchase: true,
-            extraVideosNeeded,
-          },
-          { status: 402 }
+        if (memorialVideosError) {
+          return NextResponse.json(
+            {
+              error:
+                memorialVideosError.message,
+            },
+            { status: 500 }
+          );
+        }
+
+        const ownerPlaybackIds =
+          uniquePlaybackIds([
+            ...parseVideoUrls(
+              memorial.video_urls
+            ),
+            ...(memorialVideoRows || [])
+              .map((video) =>
+                String(
+                  video.playback_id || ""
+                ).trim()
+              )
+              .filter(Boolean),
+          ]);
+
+        const approvedContributorPlaybackIds =
+          uniquePlaybackIds(
+            (approvedSubmissions || []).flatMap(
+              (approvedSubmission) =>
+                parseVideoUrls(
+                  approvedSubmission.video_urls
+                )
+            )
+          );
+
+        const currentPlaybackIds =
+          uniquePlaybackIds([
+            ...ownerPlaybackIds,
+            ...approvedContributorPlaybackIds,
+          ]);
+
+        const projectedPlaybackIds =
+          uniquePlaybackIds([
+            ...currentPlaybackIds,
+            ...submittedVideos,
+          ]);
+
+        const durationByPlaybackId =
+          new Map<string, number>();
+
+        for (const video of memorialVideoRows || []) {
+          const playbackId = String(
+            video.playback_id || ""
+          ).trim();
+          const durationSeconds = Number(
+            video.duration_seconds || 0
+          );
+
+          if (
+            playbackId &&
+            Number.isFinite(durationSeconds) &&
+            durationSeconds > 0
+          ) {
+            durationByPlaybackId.set(
+              playbackId,
+              durationSeconds
+            );
+          }
+        }
+
+        const playbackIdsNeedingDuration =
+          projectedPlaybackIds.filter(
+            (playbackId) =>
+              !durationByPlaybackId.has(
+                playbackId
+              )
+          );
+
+        try {
+          const muxDurations =
+            await Promise.all(
+              playbackIdsNeedingDuration.map(
+                async (playbackId) => ({
+                  playbackId,
+                  durationSeconds:
+                    await getMuxVideoDurationSeconds(
+                      playbackId
+                    ),
+                })
+              )
+            );
+
+          for (const {
+            playbackId,
+            durationSeconds,
+          } of muxDurations) {
+            durationByPlaybackId.set(
+              playbackId,
+              durationSeconds
+            );
+          }
+        } catch (error) {
+          console.error(
+            "SUBMISSION VIDEO DURATION LOOKUP ERROR:",
+            error
+          );
+
+          return NextResponse.json(
+            {
+              error:
+                "Could not verify the submitted video duration. Please try again.",
+            },
+            { status: 502 }
+          );
+        }
+
+        const overLengthSubmittedVideo =
+          submittedVideos.find(
+            (playbackId) =>
+              Number(
+                durationByPlaybackId.get(
+                  playbackId
+                ) || 0
+              ) > 300
+          );
+
+        if (overLengthSubmittedVideo) {
+          return NextResponse.json(
+            {
+              error:
+                "Each submitted video must be 5 minutes or less.",
+            },
+            { status: 400 }
+          );
+        }
+
+        const sumPlaybackDurations = (
+          playbackIds: string[]
+        ) =>
+          playbackIds.reduce(
+            (total, playbackId) =>
+              total +
+              Number(
+                durationByPlaybackId.get(
+                  playbackId
+                ) || 0
+              ),
+            0
+          );
+
+        const currentVideoSeconds =
+          sumPlaybackDurations(
+            currentPlaybackIds
+          );
+
+        const submittedVideoSeconds =
+          sumPlaybackDurations(
+            submittedVideos
+          );
+
+        const projectedVideoSeconds =
+          sumPlaybackDurations(
+            projectedPlaybackIds
+          );
+
+        const baseVideoMinutes =
+          getBaseVideoMinutes(
+            memorial.plan
+          );
+
+        const extraVideoMinutes = Math.max(
+          0,
+          Number(
+            memorial.extra_video_minutes || 0
+          )
         );
+
+        const availableVideoMinutes =
+          baseVideoMinutes +
+          extraVideoMinutes;
+
+        const availableVideoSeconds =
+          availableVideoMinutes * 60;
+
+        if (
+          projectedVideoSeconds >
+          availableVideoSeconds
+        ) {
+          const excessSeconds =
+            projectedVideoSeconds -
+            availableVideoSeconds;
+
+          const extraMinutesNeeded =
+            Math.ceil(
+              excessSeconds / 60
+            );
+
+          const extraPacksNeeded =
+            Math.ceil(
+              excessSeconds / (10 * 60)
+            );
+
+          return NextResponse.json(
+            {
+              error:
+                `Approving this submission would use ${formatVideoMinutes(
+                  projectedVideoSeconds
+                )} of ${availableVideoMinutes} available video minutes. Purchase ${extraPacksNeeded} 10-minute Video Memory Pack${
+                  extraPacksNeeded === 1
+                    ? ""
+                    : "s"
+                } to approve it.`,
+              needsExtraVideoPurchase: true,
+              extraMinutesNeeded,
+              extraPacksNeeded,
+              currentVideoSeconds,
+              submittedVideoSeconds,
+              projectedVideoSeconds,
+              availableVideoSeconds,
+            },
+            { status: 402 }
+          );
+        }
       }
     }
 
