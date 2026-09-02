@@ -95,9 +95,9 @@ useEffect(() => {
     </div>
 
    <div className="mx-auto mt-6 flex justify-center">
-  <div className="w-full max-w-[360px] overflow-hidden rounded-2xl bg-black shadow-md">
+  <div className="aspect-[13/17] w-full max-w-[360px] overflow-hidden rounded-2xl bg-black shadow-md">
     <video
-      className="h-auto w-full object-contain"
+      className="h-full w-full object-contain"
       width={832}
       height={1088}
       playsInline
