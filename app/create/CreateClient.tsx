@@ -5597,7 +5597,7 @@ onSaveAndExit={async (chapter) => {
     return;
   }
 
-  await saveGuidedDraft(chapter, true);
+  await saveGuidedDraft(chapter, true, true);
 }}
 
 
