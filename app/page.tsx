@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import HomePageClient from "./HomePageClient";
 
 const homepageTitle =
-  "Online Memorials & Personal Life Stories | MyEMemorial";
+  "Online Memorials & Life Stories | MyEMemorial";
 
 const homepageDescription =
   "Create a Living MyEMemorial or online memorial to preserve life stories, photos, videos, family history, obituaries, and memories for generations.";
