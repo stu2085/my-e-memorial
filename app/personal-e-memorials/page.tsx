@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     absolute: "Living MyEMemorial | Preserve Your Life Story",
   },
   description:
-    "Create a Living MyEMemorial to preserve your life story in your own words with photos, videos, family history, memories, and legacy instructions. Start free and keep adding throughout your life.",
+    "Create a Living MyEMemorial to preserve your life story, photos, videos, family history, and memories for future generations. Start free and add over time.",
   keywords: [
     "Living MyEMemorial",
     "living memorial",
@@ -37,6 +37,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PersonalEMemorialPage() {
-  return <PersonalEMemorialClient />;
+export default async function PersonalEMemorialPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ upgrade?: string | string[] }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const rawUpgrade = Array.isArray(resolvedSearchParams.upgrade)
+    ? resolvedSearchParams.upgrade[0]
+    : resolvedSearchParams.upgrade;
+  const upgradeMemorialId = Number(rawUpgrade || 0);
+
+  return <PersonalEMemorialClient upgradeMemorialId={upgradeMemorialId} />;
 }

@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SideAd from "../components/SideAd";
 import { supabase } from "../lib/supabase";
 
@@ -29,8 +28,11 @@ const benefits = [
   },
 ];
 
-function PersonalEMemorialPageContent() {
-  const searchParams = useSearchParams();
+function PersonalEMemorialPageContent({
+  upgradeMemorialId,
+}: {
+  upgradeMemorialId: number;
+}) {
   const [resourceZip, setResourceZip] = useState("");
   const [zipInput, setZipInput] = useState("");
   const [zipError, setZipError] = useState("");
@@ -40,7 +42,6 @@ function PersonalEMemorialPageContent() {
   const [isStartingUpgrade, setIsStartingUpgrade] = useState(false);
   const [upgradeError, setUpgradeError] = useState("");
 
-  const upgradeMemorialId = Number(searchParams.get("upgrade") || 0);
   const isUpgradeFlow =
     Number.isInteger(upgradeMemorialId) && upgradeMemorialId > 0;
 
@@ -243,6 +244,7 @@ function PersonalEMemorialPageContent() {
 
   return (
     <main className="min-h-screen bg-[#f7f3ec]">
+      <h1 className="sr-only">Living MyEMemorial — Preserve Your Life Story</h1>
       <section className="px-4 py-8 md:px-8 md:py-12">
         <div className="mx-auto max-w-7xl">
           <div className="overflow-hidden rounded-[2rem] bg-white shadow-sm">
@@ -898,12 +900,12 @@ function PersonalEMemorialPageContent() {
   );
 }
 
-export default function PersonalEMemorialPage() {
-  return (
-    <Suspense fallback={null}>
-      <PersonalEMemorialPageContent />
-    </Suspense>
-  );
+export default function PersonalEMemorialPage({
+  upgradeMemorialId,
+}: {
+  upgradeMemorialId: number;
+}) {
+  return <PersonalEMemorialPageContent upgradeMemorialId={upgradeMemorialId} />;
 }
 
 function NewBurst({ compact = false }: { compact?: boolean }) {
