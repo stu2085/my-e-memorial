@@ -85,6 +85,7 @@ export default function MemorialsPage() {
 
   return (
     <main className="min-h-screen bg-[#f7f3ec]">
+      <h1 className="sr-only">Online Memorials — Create a Departed MyEMemorial</h1>
       {/* HERO */}
       <section className="px-4 py-8 md:px-8 md:py-12">
         <div className="mx-auto max-w-7xl">

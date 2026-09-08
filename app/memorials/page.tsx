@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     absolute: "Online Memorials | Create a Departed MyEMemorial",
   },
   description:
-    "Create a lasting online memorial for someone who has passed. Preserve their life story, photos, videos, favorite music, family history, obituary details, and memories in one shareable MyEMemorial.",
+    "Create a Departed MyEMemorial to preserve a loved one's life story, photos, videos, music, family history, obituary details, and memories in one place.",
   keywords: [
     "online memorial",
     "memorial website",
