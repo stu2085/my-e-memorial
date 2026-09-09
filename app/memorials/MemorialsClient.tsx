@@ -319,10 +319,10 @@ export default function MemorialsPage() {
                     </h2>
 
                     <p className="mt-4 text-lg leading-8 text-stone-600">
-                      An obituary records important facts. A Departed MyEMemorial brings
-                      those facts to life with the stories, photographs, video,
-                      music, family history, and memories that show who they
-                      really were.
+                      An obituary records important facts. A Departed MyEMemorial is a
+                      digital memorial that brings those facts to life with the stories,
+                      photographs, video, music, family history, and memories that show
+                      who they really were.
                     </p>
                   </div>
 

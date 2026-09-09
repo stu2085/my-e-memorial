@@ -3,7 +3,7 @@ import MemorialsClient from "./MemorialsClient";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Online Memorials | Create a Departed MyEMemorial",
+    absolute: "Online Memorials & Digital Memorials | MyEMemorial",
   },
   description:
     "Create a Departed MyEMemorial to preserve a loved one's life story, photos, videos, music, family history, obituary details, and memories in one place.",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     canonical: "/memorials",
   },
   openGraph: {
-    title: "Online Memorials | Create a Departed MyEMemorial",
+    title: "Online Memorials & Digital Memorials | MyEMemorial",
     description:
       "Preserve the life story, photos, videos, music, family history, obituary details, and memories of someone who has passed.",
     url: "/memorials",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Online Memorials | Create a Departed MyEMemorial",
+    title: "Online Memorials & Digital Memorials | MyEMemorial",
     description:
       "Preserve the life story, photos, videos, music, family history, obituary details, and memories of someone who has passed.",
   },
