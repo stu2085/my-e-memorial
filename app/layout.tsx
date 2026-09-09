@@ -180,6 +180,12 @@ export default function RootLayout({
             >
               Preserve Your Life Story
             </Link>
+            <Link
+              href="/gift"
+              className="whitespace-nowrap font-medium text-stone-600 hover:text-stone-900"
+            >
+              Gift a MyEMemorial
+            </Link>
           </nav>
 
           <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-x-4 gap-y-3">
