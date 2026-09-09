@@ -423,9 +423,9 @@ function PersonalEMemorialPageContent({
       </h2>
 
       <p className="mt-4 text-base leading-7 text-stone-200 md:text-lg">
-        In just a few moments, see how a Living MyEMemorial helps you
-        preserve the stories, memories, photos, videos, music, and experiences
-        that make your life uniquely yours.
+        In just a few moments, see how a Living MyEMemorial helps you build
+        a living legacy by preserving the stories, memories, photos, videos,
+        music, and experiences that make your life uniquely yours.
       </p>
 
     <ul className="mt-5 list-disc space-y-2 pl-6 text-base font-semibold text-stone-200">

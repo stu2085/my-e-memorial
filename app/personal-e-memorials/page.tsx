@@ -6,10 +6,11 @@ export const metadata: Metadata = {
     absolute: "Living MyEMemorial | Preserve Your Life Story",
   },
   description:
-    "Create a Living MyEMemorial to preserve your life story, photos, videos, family history, and memories for future generations. Start free and add over time.",
+    "Create a Living MyEMemorial to preserve your life story, photos, videos, family history, and living legacy for future generations. Start free and add over time.",
   keywords: [
     "Living MyEMemorial",
     "living memorial",
+    "living legacy",
     "life story website",
     "preserve my life story",
     "digital legacy",
