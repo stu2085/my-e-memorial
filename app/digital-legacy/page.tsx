@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Digital Legacy: Preserve Your Story for Future Generations | MyEMemorial",
+    absolute: "Digital Legacy: Preserve Your Story | MyEMemorial",
   },
   description:
     "Learn what a digital legacy is and how to preserve your life story, memories, photos, videos, family history, values, and meaningful experiences for future generations.",
