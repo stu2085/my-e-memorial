@@ -152,6 +152,36 @@ export default function RootLayout({
         </div>
 
         <footer className="border-t border-stone-200 bg-white px-4 py-6 text-center text-base text-stone-500 sm:px-10">
+          <nav
+            aria-label="Helpful resources"
+            className="mx-auto mb-4 flex max-w-5xl flex-wrap justify-center gap-x-4 gap-y-3"
+          >
+            <Link
+              href="/memorials"
+              className="whitespace-nowrap font-medium text-stone-600 hover:text-stone-900"
+            >
+              Online Memorials
+            </Link>
+            <Link
+              href="/memorial-websites"
+              className="whitespace-nowrap font-medium text-stone-600 hover:text-stone-900"
+            >
+              Memorial Websites
+            </Link>
+            <Link
+              href="/best-memorial-websites"
+              className="whitespace-nowrap font-medium text-stone-600 hover:text-stone-900"
+            >
+              Best Memorial Websites
+            </Link>
+            <Link
+              href="/preserve-your-life-story"
+              className="whitespace-nowrap font-medium text-stone-600 hover:text-stone-900"
+            >
+              Preserve Your Life Story
+            </Link>
+          </nav>
+
           <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-x-4 gap-y-3">
             <Link
               href="/privacy"
