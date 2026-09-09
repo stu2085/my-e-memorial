@@ -468,7 +468,7 @@ export default function BestMemorialWebsitesPage() {
             </p>
           </section>
 
-          <section className="rounded-[2rem] bg-white p-6 shadow-sm md:p-9">
+          <section className="relative left-1/2 w-[calc(100vw-2rem)] max-w-[1650px] -translate-x-1/2 rounded-[2rem] bg-white p-6 shadow-sm md:p-9">
             <div className="max-w-4xl">
               <p className="text-base font-bold uppercase tracking-[0.16em] text-blue-900">
                 At a Glance
@@ -489,40 +489,40 @@ export default function BestMemorialWebsitesPage() {
               tabIndex={0}
               aria-label="Scrollable memorial website comparison table"
             >
-              <table className="min-w-[1850px] border-collapse text-left text-base leading-6">
+              <table className="min-w-[1600px] border-collapse text-left text-base leading-6">
                 <thead>
                   <tr className="bg-stone-100">
                     <th
                       scope="col"
-                      className="sticky left-0 z-20 w-[220px] border-b border-r border-stone-200 bg-stone-100 px-4 py-4 font-bold text-stone-900"
+                      className="sticky left-0 z-20 w-[175px] border-b border-r border-stone-200 bg-stone-100 px-4 py-4 font-bold text-stone-900"
                     >
                       Feature
                     </th>
                     <th
                       scope="col"
-                      className="w-[250px] border-b border-r border-blue-200 bg-blue-950 px-4 py-4 font-bold text-white"
+                      className="w-[215px] border-b border-r border-blue-200 bg-blue-950 px-4 py-4 font-bold text-white"
                     >
                       MyEMemorial
                     </th>
-                    <th scope="col" className="w-[220px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
+                    <th scope="col" className="w-[175px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
                       CreateMemorial
                     </th>
-                    <th scope="col" className="w-[220px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
+                    <th scope="col" className="w-[175px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
                       Ever Loved
                     </th>
-                    <th scope="col" className="w-[220px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
+                    <th scope="col" className="w-[175px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
                       ForeverMissed
                     </th>
-                    <th scope="col" className="w-[220px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
+                    <th scope="col" className="w-[175px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
                       Keeper
                     </th>
-                    <th scope="col" className="w-[220px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
+                    <th scope="col" className="w-[175px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
                       Scan2Remember
                     </th>
-                    <th scope="col" className="w-[220px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
+                    <th scope="col" className="w-[175px] border-b border-r border-stone-200 px-4 py-4 font-bold text-stone-900">
                       Kudoboard
                     </th>
-                    <th scope="col" className="w-[220px] border-b border-stone-200 px-4 py-4 font-bold text-stone-900">
+                    <th scope="col" className="w-[175px] border-b border-stone-200 px-4 py-4 font-bold text-stone-900">
                       Willowise
                     </th>
                   </tr>
