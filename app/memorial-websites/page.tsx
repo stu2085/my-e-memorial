@@ -131,8 +131,15 @@ export default function MemorialWebsitesPage() {
 
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
               <Link
-                href="/memorials"
+                href="/best-memorial-websites"
                 className="inline-flex min-h-[56px] w-full max-w-[310px] items-center justify-center rounded-full bg-amber-400 px-6 text-center text-base font-bold text-stone-900 transition hover:bg-amber-300"
+              >
+                Compare Best Memorial Websites
+              </Link>
+
+              <Link
+                href="/memorials"
+                className="inline-flex min-h-[56px] w-full max-w-[310px] items-center justify-center rounded-full border-2 border-white/30 bg-white px-6 text-center text-base font-bold text-stone-900 transition hover:bg-stone-100"
               >
                 Explore Online Memorials
               </Link>
@@ -263,10 +270,11 @@ export default function MemorialWebsitesPage() {
             </h2>
 
             <p className="mt-4 text-lg leading-8 text-stone-200">
-              A Departed MyEMemorial is designed to preserve the story between the
-              dates. Families can bring together important life details and meaningful
-              memories in one online memorial rather than leaving them scattered across
-              phones, social media accounts, photo albums, and separate files.
+              A Departed MyEMemorial gives families one place to preserve the stories,
+              memories, and meaningful details that make a life unique. Important life
+              details can be brought together in one online memorial rather than left
+              scattered across phones, social media accounts, photo albums, and separate
+              files.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">

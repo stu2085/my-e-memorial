@@ -504,6 +504,20 @@ export default function MemorialsPage() {
 
                 <div className="mt-7 grid gap-4 sm:grid-cols-2">
                   <Link
+                    href="/best-memorial-websites"
+                    className="rounded-2xl border border-amber-300 bg-amber-50 p-5 transition hover:border-amber-400 hover:bg-amber-100"
+                  >
+                    <h3 className="text-xl font-bold text-stone-900">
+                      Best Memorial Websites in 2026
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      Compare MyEMemorial with leading memorial websites by pricing,
+                      photos, video, music, family contributions, privacy, presentations,
+                      Living memorial options, and more.
+                    </p>
+                  </Link>
+
+                  <Link
                     href="/memorial-websites"
                     className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-blue-300 hover:bg-blue-50"
                   >

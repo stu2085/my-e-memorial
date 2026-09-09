@@ -28,6 +28,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${BASE_URL}/best-memorial-websites`,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
       url: `${BASE_URL}/memorial-websites`,
       changeFrequency: "monthly",
       priority: 0.8,
