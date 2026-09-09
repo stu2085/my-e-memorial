@@ -76,14 +76,14 @@ const comparisonRows: ComparisonRow[] = [
   },
   {
     feature: "Photo capacity",
-    myememorial: "5 Free; 50 Basic; 150 Plus; unlimited Premium",
+    myememorial: "5 Free;\n50 Basic;\n150 Plus;\nunlimited Premium",
     createMemorial: "5 Free; unlimited Premium",
     everLoved: "Primary + 4 additional; contributed photos can also be added",
     foreverMissed: "5 Free; unlimited Premium/Lifetime",
     keeper: "Photos supported; Keeper Plus includes unlimited image storage",
     scan2Remember: "10 Free; unlimited Plus/Pro",
     kudoboard: "Photos in posts; Full Memorial has unlimited posts",
-    willowise: "Up to 50 photos on Premium Memorial Website",
+    willowise: "Up to 50 Free; up to 200 Premium",
   },
   {
     feature: "Direct camera recording",
@@ -98,7 +98,7 @@ const comparisonRows: ComparisonRow[] = [
   },
   {
     feature: "Video",
-    myememorial: "Video Memories: 15 / 30 / 60 minutes on paid plans",
+    myememorial: "Video Memories: 15 / 30 / 60 minutes on paid plans.\nNo set limit on number of videos; the plan limit is total video minutes.",
     createMemorial: "Unlimited video on Premium",
     everLoved: "Visitors can contribute videos",
     foreverMissed: "Music & Video Galleries on paid plans",
@@ -177,6 +177,131 @@ const comparisonRows: ComparisonRow[] = [
     willowise: "Professionally designed slideshow in service/event plans",
   },
   {
+    feature: "Schools & awards",
+    myememorial: "Dedicated Schools & Awards section",
+    createMemorial:
+      "Life timeline available; dedicated Schools & Awards fields not clearly listed",
+    everLoved:
+      "Schools can be included in the life timeline; dedicated awards field not clearly listed",
+    foreverMissed:
+      "Can be included in the life story; dedicated Schools & Awards fields not clearly listed",
+    keeper:
+      "Milestones can be preserved; dedicated Schools & Awards fields not clearly listed",
+    scan2Remember:
+      "Life-story timeline available; dedicated Schools & Awards fields not clearly listed",
+    kudoboard:
+      "Can be included in posts; no dedicated Schools & Awards fields",
+    willowise:
+      "Can be included in obituary/biography; no dedicated Schools & Awards fields clearly listed",
+  },
+  {
+    feature: "Newspaper articles",
+    myememorial: "Dedicated Newspaper Articles section",
+    createMemorial:
+      "No dedicated newspaper-articles section clearly listed",
+    everLoved:
+      "No dedicated newspaper-articles section clearly listed",
+    foreverMissed:
+      "No dedicated newspaper-articles section clearly listed",
+    keeper:
+      "No dedicated newspaper-articles section clearly listed",
+    scan2Remember:
+      "No dedicated newspaper-articles section clearly listed",
+    kudoboard:
+      "Links can be included in posts; no dedicated newspaper-articles section",
+    willowise:
+      "Links can be included in biography content; no dedicated newspaper-articles section clearly listed",
+  },
+  {
+    feature: "Family tree / family history",
+    myememorial: "Dedicated Family History section",
+    createMemorial:
+      "Family can be described in biography/timeline; no dedicated family tree clearly listed",
+    everLoved:
+      "Family of the departed can be listed; no dedicated family-tree builder clearly listed",
+    foreverMissed:
+      "Family can be included in the life story; no dedicated family-tree builder clearly listed",
+    keeper: "Customizable family tree and Loved Ones relationships",
+    scan2Remember: "Family tree builder",
+    kudoboard:
+      "Family stories can be included in posts; no dedicated family-tree builder",
+    willowise:
+      "Family can be included in obituary/biography; no dedicated family-tree builder clearly listed",
+  },
+  {
+    feature: "Places lived",
+    myememorial: "Dedicated Places Lived section",
+    createMemorial:
+      "Locations can be included in the life timeline; no dedicated Places Lived section clearly listed",
+    everLoved:
+      "Timeline events can include locations; no dedicated Places Lived section clearly listed",
+    foreverMissed:
+      "Can be included in the life story; no dedicated Places Lived section clearly listed",
+    keeper:
+      "Life story and milestones can include locations; no dedicated Places Lived section clearly listed",
+    scan2Remember:
+      "Life-story timeline available; no dedicated Places Lived section clearly listed",
+    kudoboard:
+      "Can be included in posts; no dedicated Places Lived section",
+    willowise:
+      "Can be included in obituary/biography; no dedicated Places Lived section clearly listed",
+  },
+  {
+    feature: "Places worked",
+    myememorial: "Dedicated Places Worked section",
+    createMemorial:
+      "Work can be included in the life timeline/biography; no dedicated Places Worked section clearly listed",
+    everLoved:
+      "Work milestones can be included in the timeline; no dedicated Places Worked section clearly listed",
+    foreverMissed:
+      "Can be included in the life story; no dedicated Places Worked section clearly listed",
+    keeper:
+      "Life story and milestones can include work; no dedicated Places Worked section clearly listed",
+    scan2Remember:
+      "Life-story timeline available; no dedicated Places Worked section clearly listed",
+    kudoboard:
+      "Work memories can be included in posts; no dedicated Places Worked section",
+    willowise:
+      "Can be included in obituary/biography; no dedicated Places Worked section clearly listed",
+  },
+  {
+    feature: "Social media links",
+    myememorial: "Dedicated Social Media Links section",
+    createMemorial:
+      "No dedicated social-media-profile section clearly listed",
+    everLoved:
+      "Memorial can be shared through social media; dedicated profile-links section not clearly listed",
+    foreverMissed:
+      "Social sharing available; dedicated profile-links section not clearly listed",
+    keeper:
+      "No dedicated social-media-profile section clearly listed",
+    scan2Remember:
+      "Shareable memorial; dedicated social-media-profile section not clearly listed",
+    kudoboard:
+      "Links can be added to memorial posts",
+    willowise:
+      "Obituary/biography can include links to online destinations",
+  },
+  {
+    feature: "Final resting place / gravesite map",
+    myememorial:
+      "Dedicated Final Resting Place section with gravesite location map",
+    createMemorial:
+      "No dedicated final-resting-place map clearly listed",
+    everLoved:
+      "Final resting place can be listed; examples include a named location/address",
+    foreverMissed:
+      "No dedicated gravesite map clearly listed",
+    keeper:
+      "Resting-place pin, map directions and headstone/scattering-location photo",
+    scan2Remember:
+      "Grave GPS navigation; optional QR plaque can connect visitors to the memorial",
+    kudoboard:
+      "No dedicated final-resting-place map clearly listed",
+    willowise:
+      "Service locations can be listed; dedicated final-resting-place map not clearly listed",
+  },
+  {
     feature: "Privacy / access controls",
     myememorial: "Member controls published content and approved contributions",
     createMemorial: "Public, invite-only & password-protected options",
@@ -200,12 +325,258 @@ const comparisonRows: ComparisonRow[] = [
   },
 ];
 
+
+type CompetitorKey =
+  | "createMemorial"
+  | "everLoved"
+  | "foreverMissed"
+  | "keeper"
+  | "scan2Remember"
+  | "kudoboard"
+  | "willowise";
+
+type MatchStatus = "match" | "partial" | "none";
+
+const competitorKeys: CompetitorKey[] = [
+  "createMemorial",
+  "everLoved",
+  "foreverMissed",
+  "keeper",
+  "scan2Remember",
+  "kudoboard",
+  "willowise",
+];
+
+const comparisonStatuses: Record<
+  string,
+  Record<CompetitorKey, MatchStatus>
+> = {
+  "Starting option": {
+    createMemorial: "match",
+    everLoved: "match",
+    foreverMissed: "match",
+    keeper: "match",
+    scan2Remember: "match",
+    kudoboard: "match",
+    willowise: "none",
+  },
+  "Paid pricing": {
+    createMemorial: "match",
+    everLoved: "match",
+    foreverMissed: "match",
+    keeper: "match",
+    scan2Remember: "partial",
+    kudoboard: "match",
+    willowise: "partial",
+  },
+  "Photo capacity": {
+    createMemorial: "match",
+    everLoved: "match",
+    foreverMissed: "match",
+    keeper: "match",
+    scan2Remember: "match",
+    kudoboard: "match",
+    willowise: "match",
+  },
+  "Direct camera recording": {
+    createMemorial: "none",
+    everLoved: "none",
+    foreverMissed: "none",
+    keeper: "none",
+    scan2Remember: "none",
+    kudoboard: "match",
+    willowise: "none",
+  },
+  Video: {
+    createMemorial: "match",
+    everLoved: "match",
+    foreverMissed: "match",
+    keeper: "match",
+    scan2Remember: "match",
+    kudoboard: "match",
+    willowise: "partial",
+  },
+  "Music / audio": {
+    createMemorial: "match",
+    everLoved: "none",
+    foreverMissed: "match",
+    keeper: "partial",
+    scan2Remember: "match",
+    kudoboard: "none",
+    willowise: "partial",
+  },
+  "Family & friend contributions": {
+    createMemorial: "match",
+    everLoved: "match",
+    foreverMissed: "match",
+    keeper: "match",
+    scan2Remember: "match",
+    kudoboard: "match",
+    willowise: "partial",
+  },
+  "Contribution approval / moderation": {
+    createMemorial: "none",
+    everLoved: "partial",
+    foreverMissed: "partial",
+    keeper: "partial",
+    scan2Remember: "match",
+    kudoboard: "match",
+    willowise: "partial",
+  },
+  "Create while the person is living": {
+    createMemorial: "none",
+    everLoved: "none",
+    foreverMissed: "none",
+    keeper: "match",
+    scan2Remember: "none",
+    kudoboard: "none",
+    willowise: "none",
+  },
+  "Future management / handoff": {
+    createMemorial: "match",
+    everLoved: "partial",
+    foreverMissed: "partial",
+    keeper: "partial",
+    scan2Remember: "partial",
+    kudoboard: "partial",
+    willowise: "partial",
+  },
+  "Funeral / Celebration of Life presentation": {
+    createMemorial: "match",
+    everLoved: "none",
+    foreverMissed: "partial",
+    keeper: "partial",
+    scan2Remember: "match",
+    kudoboard: "partial",
+    willowise: "match",
+  },
+  "Schools & awards": {
+    createMemorial: "partial",
+    everLoved: "partial",
+    foreverMissed: "partial",
+    keeper: "partial",
+    scan2Remember: "partial",
+    kudoboard: "partial",
+    willowise: "partial",
+  },
+  "Newspaper articles": {
+    createMemorial: "none",
+    everLoved: "none",
+    foreverMissed: "none",
+    keeper: "none",
+    scan2Remember: "none",
+    kudoboard: "partial",
+    willowise: "partial",
+  },
+  "Family tree / family history": {
+    createMemorial: "partial",
+    everLoved: "partial",
+    foreverMissed: "partial",
+    keeper: "match",
+    scan2Remember: "match",
+    kudoboard: "partial",
+    willowise: "partial",
+  },
+  "Places lived": {
+    createMemorial: "partial",
+    everLoved: "partial",
+    foreverMissed: "partial",
+    keeper: "partial",
+    scan2Remember: "partial",
+    kudoboard: "partial",
+    willowise: "partial",
+  },
+  "Places worked": {
+    createMemorial: "partial",
+    everLoved: "partial",
+    foreverMissed: "partial",
+    keeper: "partial",
+    scan2Remember: "partial",
+    kudoboard: "partial",
+    willowise: "partial",
+  },
+  "Social media links": {
+    createMemorial: "none",
+    everLoved: "none",
+    foreverMissed: "none",
+    keeper: "none",
+    scan2Remember: "none",
+    kudoboard: "partial",
+    willowise: "partial",
+  },
+  "Final resting place / gravesite map": {
+    createMemorial: "none",
+    everLoved: "partial",
+    foreverMissed: "none",
+    keeper: "match",
+    scan2Remember: "match",
+    kudoboard: "none",
+    willowise: "partial",
+  },
+  "Privacy / access controls": {
+    createMemorial: "match",
+    everLoved: "match",
+    foreverMissed: "match",
+    keeper: "match",
+    scan2Remember: "match",
+    kudoboard: "match",
+    willowise: "partial",
+  },
+  "QR connection": {
+    createMemorial: "none",
+    everLoved: "none",
+    foreverMissed: "none",
+    keeper: "match",
+    scan2Remember: "match",
+    kudoboard: "none",
+    willowise: "none",
+  },
+};
+
+function comparableCount(row: ComparisonRow) {
+  const statuses = comparisonStatuses[row.feature];
+
+  return competitorKeys.filter((key) => statuses[key] === "match").length;
+}
+
+const sortedComparisonRows = [...comparisonRows].sort(
+  (a, b) => comparableCount(b) - comparableCount(a)
+);
+
+const statusCellClasses: Record<MatchStatus, string> = {
+  match: "bg-emerald-50 border-emerald-200",
+  partial: "bg-amber-50 border-amber-200",
+  none: "bg-stone-100 border-stone-200",
+};
+
+const statusBadgeClasses: Record<MatchStatus, string> = {
+  match: "border-emerald-300 bg-emerald-100 text-emerald-900",
+  partial: "border-amber-300 bg-amber-100 text-amber-900",
+  none: "border-stone-300 bg-stone-200 text-stone-700",
+};
+
+const statusLabels: Record<MatchStatus, string> = {
+  match: "Comparable",
+  partial: "Related / partial",
+  none: "Not clearly offered",
+};
+
+function MatchBadge({ status }: { status: MatchStatus }) {
+  return (
+    <span
+      className={`inline-flex rounded-full border px-2 py-1 text-xs font-bold leading-none ${statusBadgeClasses[status]}`}
+    >
+      {statusLabels[status]}
+    </span>
+  );
+}
+
 const services = [
   {
     name: "MyEMemorial",
     bestFor: "Best for preserving the complete story of a life",
     body:
-      "MyEMemorial combines a guided life-story structure with photos, Video Memories, favorite music, family history, places lived and worked, schools and awards, obituary information, final resting place details, and family contributions. It also offers Living MyEMemorials so a person can preserve their own story while living, including recording Video Memories directly through the built-in camera system on a desktop, laptop, or phone.",
+      "MyEMemorial combines a guided life-story structure with photos, Video Memories, favorite music, family history, places lived and worked, schools and awards, newspaper articles, social media links, obituary information, final resting place details and a gravesite map, and family contributions. It also offers Living MyEMemorials so a person can preserve their own story while living, including recording Video Memories directly through the built-in camera system on a desktop, laptop, or phone.",
     pricing:
       "Free to start. Basic is $49.95, Plus is $69.95, and Premium is $89.95. Paid plans are one-time purchases with no recurring subscription fee.",
     standout:
@@ -314,7 +685,12 @@ const faqItems = [
   {
     question: "Does MyEMemorial include a Celebration of Life Presentation?",
     answer:
-      "Yes. MyEMemorial Basic, Plus, and Premium plans include the Celebration of Life Presentation at no additional charge. It can use approved photos, captions, Video Memories, and favorite music already preserved in the MyEMemorial.",
+      "Yes. MyEMemorial Basic, Plus, and Premium plans include the Celebration of Life Presentation at no additional charge. It can use approved photos, captions, Video Memories, and favorite music already preserved in the MyEMemorial. The presentation also comes with a temporary viewing link that can be provided to a funeral home or used at a Celebration of Life event.",
+  },
+  {
+    question: "Can I purchase a Celebration of Life Presentation?",
+    answer:
+      "Yes. You do not need to purchase the presentation separately. It is included free with every paid MyEMemorial plan. The Basic plan is $49.95 and includes both the Basic Departed MyEMemorial and the Celebration of Life Presentation, giving you an online place to remember your loved one and a presentation you can use at a funeral or Celebration of Life event. Plus and Premium also include the presentation at no additional charge.",
   },
 ];
 
@@ -468,7 +844,7 @@ export default function BestMemorialWebsitesPage() {
             </p>
           </section>
 
-          <section className="relative left-1/2 w-[calc(100vw-2rem)] max-w-[1650px] -translate-x-1/2 rounded-[2rem] bg-white p-6 shadow-sm md:p-9">
+          <section className="relative left-1/2 w-[calc(100vw-1rem)] max-w-[1690px] -translate-x-1/2 rounded-[2rem] bg-white p-6 shadow-sm md:p-9">
             <div className="max-w-4xl">
               <p className="text-base font-bold uppercase tracking-[0.16em] text-blue-900">
                 At a Glance
@@ -477,19 +853,52 @@ export default function BestMemorialWebsitesPage() {
                 Memorial Website Feature Comparison
               </h2>
               <p className="mt-4 text-lg leading-8 text-stone-700">
-                The table is intentionally specific. When a provider does not
-                clearly advertise a feature, we say so instead of guessing.
-                On smaller screens, scroll the table horizontally to compare
-                every service.
+                The table is intentionally specific. Competitor rows are ordered
+                from the features most commonly matched by other providers to
+                the features least commonly matched. That makes it easier to
+                see where MyEMemorial offers dedicated capabilities that are
+                uncommon elsewhere. On smaller screens, scroll the table
+                horizontally to compare every service.
+              </p>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-stone-200 bg-stone-50 p-4">
+              <p className="text-base font-bold text-stone-900">
+                Comparison Color Key
+              </p>
+              <div className="mt-3 flex flex-wrap gap-3 text-sm font-semibold text-stone-800">
+                <span className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-2">
+                  <span className="h-4 w-4 rounded border border-blue-300 bg-blue-100" aria-hidden="true" />
+                  Blue — MyEMemorial
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2">
+                  <span className="h-4 w-4 rounded border border-emerald-300 bg-emerald-100" aria-hidden="true" />
+                  Green — Comparable feature
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-2">
+                  <span className="h-4 w-4 rounded border border-amber-300 bg-amber-100" aria-hidden="true" />
+                  Amber — Related or partial feature
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-stone-100 px-3 py-2">
+                  <span className="h-4 w-4 rounded border border-stone-400 bg-stone-200" aria-hidden="true" />
+                  Gray — Not clearly offered
+                </span>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-stone-600">
+                “Comparable” means the provider clearly offers a similar core
+                capability. “Related / partial” means it offers something
+                adjacent but not the same dedicated feature. The labels remain
+                visible inside every cell, so the comparison does not rely on
+                color alone.
               </p>
             </div>
 
             <div
-              className="mt-7 overflow-x-auto rounded-2xl border border-stone-200"
+              className="mt-5 overflow-x-auto rounded-2xl border border-stone-200"
               tabIndex={0}
               aria-label="Scrollable memorial website comparison table"
             >
-              <table className="min-w-[1600px] border-collapse text-left text-base leading-6">
+              <table className="min-w-[1575px] border-collapse text-left text-base leading-6">
                 <thead>
                   <tr className="bg-stone-100">
                     <th
@@ -529,45 +938,71 @@ export default function BestMemorialWebsitesPage() {
                 </thead>
 
                 <tbody>
-                  {comparisonRows.map((row, index) => (
-                    <tr
-                      key={row.feature}
-                      className={index % 2 === 0 ? "bg-white" : "bg-stone-50"}
-                    >
-                      <th
-                        scope="row"
-                        className={`sticky left-0 z-10 border-r border-t border-stone-200 px-4 py-4 font-bold text-stone-900 ${
-                          index % 2 === 0 ? "bg-white" : "bg-stone-50"
-                        }`}
+                  {sortedComparisonRows.map((row, index) => {
+                    const statuses = comparisonStatuses[row.feature];
+                    const count = comparableCount(row);
+
+                    return (
+                      <tr
+                        key={row.feature}
+                        className={index % 2 === 0 ? "bg-white" : "bg-stone-50"}
                       >
-                        {row.feature}
-                      </th>
-                      <td className="border-r border-t border-blue-200 bg-blue-50 px-4 py-4 font-semibold text-stone-900">
-                        {row.myememorial}
-                      </td>
-                      <td className="border-r border-t border-stone-200 px-4 py-4 text-stone-700">
-                        {row.createMemorial}
-                      </td>
-                      <td className="border-r border-t border-stone-200 px-4 py-4 text-stone-700">
-                        {row.everLoved}
-                      </td>
-                      <td className="border-r border-t border-stone-200 px-4 py-4 text-stone-700">
-                        {row.foreverMissed}
-                      </td>
-                      <td className="border-r border-t border-stone-200 px-4 py-4 text-stone-700">
-                        {row.keeper}
-                      </td>
-                      <td className="border-r border-t border-stone-200 px-4 py-4 text-stone-700">
-                        {row.scan2Remember}
-                      </td>
-                      <td className="border-r border-t border-stone-200 px-4 py-4 text-stone-700">
-                        {row.kudoboard}
-                      </td>
-                      <td className="border-t border-stone-200 px-4 py-4 text-stone-700">
-                        {row.willowise}
-                      </td>
-                    </tr>
-                  ))}
+                        <th
+                          scope="row"
+                          className={`sticky left-0 z-10 border-r border-t border-stone-200 px-4 py-4 font-bold text-stone-900 ${
+                            index % 2 === 0 ? "bg-white" : "bg-stone-50"
+                          }`}
+                        >
+                          <span>{row.feature}</span>
+                          <span className="mt-2 block text-xs font-semibold leading-5 text-blue-900">
+                            Comparable: {count} of 7
+                          </span>
+                        </th>
+
+                        <td className="whitespace-pre-line border-r border-t border-blue-200 bg-blue-50 px-4 py-4 font-semibold text-stone-900">
+                          <span className="mb-2 inline-flex rounded-full border border-blue-300 bg-blue-100 px-2 py-1 text-xs font-bold leading-none text-blue-950">
+                            MyEMemorial
+                          </span>
+                          <div>{row.myememorial}</div>
+                        </td>
+
+                        <td className={`border-r border-t px-4 py-4 text-stone-700 ${statusCellClasses[statuses.createMemorial]}`}>
+                          <MatchBadge status={statuses.createMemorial} />
+                          <div className="mt-2">{row.createMemorial}</div>
+                        </td>
+
+                        <td className={`border-r border-t px-4 py-4 text-stone-700 ${statusCellClasses[statuses.everLoved]}`}>
+                          <MatchBadge status={statuses.everLoved} />
+                          <div className="mt-2">{row.everLoved}</div>
+                        </td>
+
+                        <td className={`border-r border-t px-4 py-4 text-stone-700 ${statusCellClasses[statuses.foreverMissed]}`}>
+                          <MatchBadge status={statuses.foreverMissed} />
+                          <div className="mt-2">{row.foreverMissed}</div>
+                        </td>
+
+                        <td className={`border-r border-t px-4 py-4 text-stone-700 ${statusCellClasses[statuses.keeper]}`}>
+                          <MatchBadge status={statuses.keeper} />
+                          <div className="mt-2">{row.keeper}</div>
+                        </td>
+
+                        <td className={`border-r border-t px-4 py-4 text-stone-700 ${statusCellClasses[statuses.scan2Remember]}`}>
+                          <MatchBadge status={statuses.scan2Remember} />
+                          <div className="mt-2">{row.scan2Remember}</div>
+                        </td>
+
+                        <td className={`border-r border-t px-4 py-4 text-stone-700 ${statusCellClasses[statuses.kudoboard]}`}>
+                          <MatchBadge status={statuses.kudoboard} />
+                          <div className="mt-2">{row.kudoboard}</div>
+                        </td>
+
+                        <td className={`border-t px-4 py-4 text-stone-700 ${statusCellClasses[statuses.willowise]}`}>
+                          <MatchBadge status={statuses.willowise} />
+                          <div className="mt-2">{row.willowise}</div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -632,7 +1067,9 @@ export default function BestMemorialWebsitesPage() {
                 uses approved photos, captions, Video Memories and favorite
                 music already preserved in the MyEMemorial and can be shown
                 full-screen on a television or projector at a funeral,
-                memorial service or Celebration of Life.
+                memorial service or Celebration of Life. A temporary viewing
+                link can also be provided to a funeral home or used at the
+                Celebration of Life event.
               </p>
             </div>
 
@@ -778,11 +1215,15 @@ export default function BestMemorialWebsitesPage() {
             <p className="mt-4 text-lg leading-8 text-stone-700">
               Long-term availability matters when choosing any memorial
               service. Some companies specifically advertise lifetime or
-              indefinite hosting. Others use subscriptions or annual hosting
-              charges. MyEMemorial&apos;s paid plans use one-time purchase
-              pricing rather than monthly or annual subscription fees, but
-              MyEMemorial does not promise guaranteed permanent or indefinite
-              availability in its Terms of Service.
+              indefinite hosting, while others use subscriptions or annual
+              hosting charges. MyEMemorial&apos;s paid plans use one-time
+              purchase pricing rather than monthly or annual subscription
+              fees. <strong>Our goal is to preserve every MyEMemorial and keep
+              it available indefinitely</strong> so the stories, memories,
+              photos, videos, and voices entrusted to us can remain accessible
+              to future generations. Like most online services, however, our
+              Terms of Service cannot provide an absolute guarantee of
+              permanent or indefinite availability.
             </p>
 
             <p className="mt-4 text-lg leading-8 text-stone-700">
@@ -806,9 +1247,12 @@ export default function BestMemorialWebsitesPage() {
             <div className="mt-6 grid gap-3 md:grid-cols-2">
               {[
                 ["CreateMemorial Pricing", "https://creatememorial.com/pricing"],
+                ["CreateMemorial Features & Templates", "https://creatememorial.com/templates"],
                 ["Ever Loved Memorial Websites", "https://everloved.com/online-memorials/"],
+                ["Ever Loved Example Memorial", "https://everloved.com/life-of/memorial-website-example/"],
                 ["ForeverMissed Plans", "https://www.forevermissed.com/ourplans"],
                 ["Keeper Memorials", "https://www.mykeeper.com/"],
+                ["Keeper Features & Resting Place", "https://www.mykeeper.com/en/how-it-works"],
                 ["Keeper Living Memorial", "https://faq.mykeeper.com/en/docs/memorial-management/living-memorial/living-memorial-overview"],
                 ["Scan2Remember Digital Memorial", "https://scan2remember.com/pages/digital-memorial"],
                 ["Kudoboard Online Memorial", "https://www.kudoboard.com/online-memorial/"],
