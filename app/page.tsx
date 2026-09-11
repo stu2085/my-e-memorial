@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import HomePageClient from "./HomePageClient";
 
 const homepageTitle =
-  "Online Memorials & Life Stories | MyEMemorial";
+  "Create an Online Memorial Website | MyEMemorial";
 
 const homepageDescription =
-  "Create a Living MyEMemorial or online memorial to preserve life stories, photos, videos, family history, obituaries, and memories for generations.";
+  "Create an online memorial website or Living MyEMemorial to preserve and share life stories, photos, videos, music, family history, and memories.";
 
 export const metadata: Metadata = {
   title: {
@@ -29,6 +29,12 @@ export const metadata: Metadata = {
         alt: "MyEMemorial",
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: homepageTitle,
+    description: homepageDescription,
+    images: ["/myememorial-logo.png"],
   },
 };
 

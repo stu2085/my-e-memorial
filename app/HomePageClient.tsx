@@ -30,7 +30,7 @@ useEffect(() => {
       <section className="relative w-full overflow-hidden shadow-sm">
         <Image
           src="/Images/homepage-hero.png"
-          alt="MyEMemorial — Where Life's Stories Are Told"
+          alt="A woman creating an online memorial website with photos and life stories"
           width={1942}
           height={761}
           sizes="100vw"
@@ -48,14 +48,21 @@ useEffect(() => {
     </Link>
   </div>
 
-  <div className="sr-only">
-    <h1>Where Life&apos;s Stories Are Told.</h1>
-    <p>
-      Preserve the stories, memories, photos, voices, and moments that make
-      every life unique &mdash; today and for generations to come.
-    </p>
-  </div>
 </section>
+
+      <section className="border-y border-stone-200 bg-white px-4 py-7 text-center shadow-sm md:px-8 md:py-9">
+        <div className="mx-auto max-w-5xl">
+          <h1 className="text-3xl font-bold tracking-tight text-stone-900 md:text-5xl">
+            Create an Online Memorial Website
+          </h1>
+          <p className="mx-auto mt-4 max-w-4xl text-lg leading-8 text-stone-700 md:text-xl">
+            Preserve and share a life story in one lasting memorial page.
+            Create a Living MyEMemorial for yourself or an online memorial for
+            someone who has passed, with photos, videos, favorite music, family
+            history, and memories.
+          </p>
+        </div>
+      </section>
 
       <div className="mx-auto w-full max-w-[1800px] px-4 py-6 md:px-8">
         {/*
@@ -85,12 +92,13 @@ useEffect(() => {
       </p>
 
       <h2 className="mt-2 text-2xl font-bold text-stone-900 md:text-3xl">
-        A Life Is More Than Names and Dates
+        See How an Online Memorial Preserves a Life Story
       </h2>
 
       <p className="mx-auto mt-3 max-w-3xl text-base leading-7 text-stone-600 md:text-lg">
-        See how MyEMemorial helps preserve the stories, photos, memories,
-        voices, and experiences that make up a person&apos;s life.
+        See how a MyEMemorial memorial website brings together the stories,
+        photos, memories, voices, and experiences that make a person&apos;s life
+        unique.
       </p>
     </div>
 
@@ -124,11 +132,12 @@ useEffect(() => {
       </p>
 
       <h2 className="mt-2 text-3xl font-bold text-stone-900 md:text-4xl">
-        What would you like to create?
+        Choose the Online Memorial You Want to Create
       </h2>
 
       <p className="mx-auto mt-3 max-w-3xl text-base leading-7 text-stone-600 md:text-lg">
-        MyEMemorial gives you two ways to preserve the story of a life.
+        Create a Living MyEMemorial for yourself or a Departed MyEMemorial for
+        someone who has passed.
       </p>
     </div>
 
@@ -265,12 +274,12 @@ useEffect(() => {
       </p>
 
       <h2 className="mt-2 text-xl font-bold text-stone-900 md:text-2xl">
-        Your story. Your memories. Your control.
+        A Memorial Page Your Family Controls
       </h2>
 
       <p className="mx-auto mt-3 max-w-2xl text-lg leading-7 text-stone-700">
-  Preserve the stories, memories, photos, videos, and family history that
-  make a life unique &mdash; whether you are telling your own story or remembering
+  Preserve stories, memories, photos, videos, and family history in one online
+  memorial page &mdash; whether you are telling your own story or remembering
   someone who has passed.
 </p>
     </div>
@@ -461,9 +470,10 @@ useEffect(() => {
         </h3>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
-          MyEMemorial is an online platform for preserving the story of a life.
-          You can create a Living MyEMemorial for yourself or someone living,
-          or create a Departed MyEMemorial for someone who has passed.
+          MyEMemorial is an online memorial website for preserving and sharing
+          the story of a life. You can create a Living MyEMemorial for yourself
+          or someone living, or create a Departed MyEMemorial for someone who
+          has passed.
         </p>
       </div>
 <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
@@ -596,12 +606,12 @@ useEffect(() => {
       </p>
 
       <h2 className="mt-2 text-xl font-bold md:text-2xl">
-        Every life has a story worth preserving
+        Create an Online Memorial Today
       </h2>
 
       <p className="mt-3 text-lg leading-7 text-stone-300">
-        Start a MyEMemorial today and continue adding stories, photos,
-        memories, and family history over time.
+        Start a memorial page today and continue adding stories, photos,
+        memories, videos, and family history over time.
       </p>
     </div>
 

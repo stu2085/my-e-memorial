@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
 import SideAd from "../components/SideAd";
 import { supabase } from "../lib/supabase";
-import { useRef } from "react";
 
-type Memorial = {
+export type Memorial = {
   id: number;
   slug: string | null;
   full_name: string | null;
@@ -21,8 +21,16 @@ type Memorial = {
   schools_attended: string | null;
   awards_won: string | null;
   featured_photo_url: string | null;
-headstone_photo_1: string | null;
-headstone_photo_2: string | null;
+  headstone_photo_1: string | null;
+  headstone_photo_2: string | null;
+};
+
+type SearchClientProps = {
+  directoryMemorials: Memorial[];
+  directoryPage: number;
+  directoryTotalPages: number;
+  directoryTotalCount: number;
+  directoryErrorMessage: string;
 };
 
 function buildFullName(memorial: Memorial) {
@@ -52,10 +60,97 @@ function getThumbnail(memorial: Memorial) {
   );
 }
 
-export default function SearchPage() {
+function MemorialCard({ memorial }: { memorial: Memorial }) {
+  const fullName = buildFullName(memorial) || "Unnamed Memorial";
+  const thumb = getThumbnail(memorial);
+
+  return (
+    <Link
+      href={`/memorial/${memorial.slug}`}
+      className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+    >
+      <div className="flex flex-col gap-5 p-6 xl:flex-row xl:items-stretch">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-xl font-bold text-stone-900">{fullName}</h3>
+
+          <p className="mt-2 text-base text-stone-600">
+            {getYear(memorial.birth_date) || "Unknown"} -{" "}
+            {getYear(memorial.death_date) || "Unknown"}
+          </p>
+
+          <div className="mt-4 space-y-2 text-base text-stone-700">
+            {memorial.cemetery_name && (
+              <p>
+                <span className="font-semibold">Cemetery:</span>{" "}
+                {memorial.cemetery_name}
+              </p>
+            )}
+
+            {(memorial.city_lived || memorial.state_lived) && (
+              <p>
+                <span className="font-semibold">Location:</span>{" "}
+                {[memorial.city_lived, memorial.state_lived]
+                  .filter(Boolean)
+                  .join(", ")}
+              </p>
+            )}
+
+            {memorial.country_lived && (
+              <p>
+                <span className="font-semibold">Country:</span>{" "}
+                {memorial.country_lived}
+              </p>
+            )}
+
+            {memorial.schools_attended && (
+              <p className="break-words">
+                <span className="font-semibold">School:</span>{" "}
+                {memorial.schools_attended}
+              </p>
+            )}
+
+            {memorial.awards_won && (
+              <p className="break-words">
+                <span className="font-semibold">Award:</span>{" "}
+                {memorial.awards_won}
+              </p>
+            )}
+          </div>
+
+          <span className="mt-5 inline-flex rounded-full bg-stone-900 px-4 py-2 text-base font-semibold text-white">
+            View MyEMemorial
+          </span>
+        </div>
+
+        {thumb ? (
+          <div className="flex w-full items-center justify-center rounded-3xl bg-stone-100 p-3 xl:w-[220px] xl:shrink-0">
+            <img
+              src={thumb}
+              alt={`Featured photo for ${fullName}`}
+              loading="lazy"
+              className="max-h-[260px] max-w-full rounded-2xl object-contain"
+            />
+          </div>
+        ) : (
+          <div className="flex min-h-[220px] w-full items-center justify-center rounded-3xl bg-stone-100 text-base text-stone-400 xl:w-[220px] xl:shrink-0">
+            No Photo Yet
+          </div>
+        )}
+      </div>
+    </Link>
+  );
+}
+
+export default function SearchClient({
+  directoryMemorials,
+  directoryPage,
+  directoryTotalPages,
+  directoryTotalCount,
+  directoryErrorMessage,
+}: SearchClientProps) {
   const [firstName, setFirstName] = useState("");
-const [middleName, setMiddleName] = useState("");
-const [lastName, setLastName] = useState("");
+  const [middleName, setMiddleName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [cemetery, setCemetery] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
@@ -68,14 +163,14 @@ const [lastName, setLastName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [visitorZip, setVisitorZip] = useState<string | null>(null);
   const adCategories = [
-  "estate_planner",
-  "attorney",
-  "funeral_home",
-  "monument_company",
-];
+    "estate_planner",
+    "attorney",
+    "funeral_home",
+    "monument_company",
+  ];
 
-const [leftAdCategory, setLeftAdCategory] = useState("estate_planner");
-const [rightAdCategory, setRightAdCategory] = useState("attorney");
+  const [leftAdCategory, setLeftAdCategory] = useState("estate_planner");
+  const [rightAdCategory, setRightAdCategory] = useState("attorney");
   const hasSearched =
   firstName.trim() !== "" ||
   middleName.trim() !== "" ||
@@ -116,10 +211,14 @@ useEffect(() => {
       setErrorMessage("");
 
       const { data, error } = await supabase
-  .from("memorials")
-  .select("*")
-  .eq("is_published", true)
-  .order("id", { ascending: false });
+        .from("memorials")
+        .select(
+          "id, slug, full_name, first_name, middle_name, last_name, birth_date, death_date, cemetery_name, city_lived, state_lived, country_lived, schools_attended, awards_won, featured_photo_url, headstone_photo_1, headstone_photo_2",
+        )
+        .eq("is_published", true)
+        .not("slug", "is", null)
+        .neq("slug", "")
+        .order("id", { ascending: false });
 
       if (error) {
         setErrorMessage("Could not load memorials.");
@@ -251,16 +350,17 @@ return filtered;
       <section className="bg-white px-4 py-7 text-center shadow-sm md:px-8 md:py-9">
         <div className="mx-auto max-w-5xl">
           <p className="text-base font-semibold uppercase tracking-[0.18em] text-stone-600">
-            Search Public MyEMemorials
+            Public MyEMemorial Directory
           </p>
 
           <h1 className="mt-3 text-3xl font-bold leading-tight text-stone-900 md:text-4xl lg:text-5xl">
-            Find loved ones and preserve family history
+            Search and Browse Public Online Memorials
           </h1>
 
           <p className="mx-auto mt-4 max-w-4xl text-base leading-7 text-stone-700 md:text-lg">
-            Search by first, middle, or last name, cemetery, city, state,
-            country, school, and award.
+            Browse recently published online memorial pages or search by first,
+            middle, or last name, cemetery, city, state, country, school, and
+            award.
           </p>
         </div>
       </section>
@@ -278,7 +378,7 @@ return filtered;
             <section className="rounded-3xl bg-white p-8 shadow-sm">
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-stone-800">
+                  <label className="mb-2 block text-base font-semibold text-stone-800">
                     First Name
                   </label>
                   <input
@@ -286,11 +386,11 @@ return filtered;
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Enter first or middle name"
-                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-stone-500"
                   />
                 </div>
 <div>
-  <label className="mb-2 block text-sm font-semibold text-stone-800">
+  <label className="mb-2 block text-base font-semibold text-stone-800">
     Middle Name
   </label>
   <input
@@ -298,11 +398,11 @@ return filtered;
     value={middleName}
     onChange={(e) => setMiddleName(e.target.value)}
     placeholder="Enter middle name"
-    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-stone-500"
   />
 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-stone-800">
+                  <label className="mb-2 block text-base font-semibold text-stone-800">
                     Last Name
                   </label>
                   <input
@@ -310,12 +410,12 @@ return filtered;
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Enter last name"
-                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-stone-500"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-stone-800">
+                  <label className="mb-2 block text-base font-semibold text-stone-800">
                     Cemetery
                   </label>
                   <input
@@ -323,12 +423,12 @@ return filtered;
                     value={cemetery}
                     onChange={(e) => setCemetery(e.target.value)}
                     placeholder="Enter cemetery name"
-                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-stone-500"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-stone-800">
+                  <label className="mb-2 block text-base font-semibold text-stone-800">
                     City Lived
                   </label>
                   <input
@@ -336,12 +436,12 @@ return filtered;
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     placeholder="Enter city"
-                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-stone-500"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-stone-800">
+                  <label className="mb-2 block text-base font-semibold text-stone-800">
                     State Lived
                   </label>
                   <input
@@ -349,12 +449,12 @@ return filtered;
                     value={state}
                     onChange={(e) => setState(e.target.value)}
                     placeholder="Enter state"
-                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-stone-500"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-stone-800">
+                  <label className="mb-2 block text-base font-semibold text-stone-800">
                     Country Lived
                   </label>
                   <input
@@ -362,12 +462,12 @@ return filtered;
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
                     placeholder="Enter country"
-                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-stone-500"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-stone-800">
+                  <label className="mb-2 block text-base font-semibold text-stone-800">
                     School Attended
                   </label>
                   <input
@@ -375,12 +475,12 @@ return filtered;
                     value={school}
                     onChange={(e) => setSchool(e.target.value)}
                     placeholder="Enter school"
-                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-stone-500"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-stone-800">
+                  <label className="mb-2 block text-base font-semibold text-stone-800">
                     Award Won
                   </label>
                   <input
@@ -388,7 +488,7 @@ return filtered;
                     value={award}
                     onChange={(e) => setAward(e.target.value)}
                     placeholder="Enter award"
-                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500"
+                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-stone-500"
                   />
                 </div>
               </div>
@@ -397,138 +497,152 @@ return filtered;
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="rounded-full border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-700 transition hover:bg-stone-50"
+                  className="rounded-full border border-stone-300 bg-white px-5 py-3 text-base font-semibold text-stone-700 transition hover:bg-stone-50"
                 >
                   Clear Filters
                 </button>
               </div>
             </section>
 
-            {hasSearched && (
-<section className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-2xl font-bold text-stone-900">Results</h2>
-                <p className="text-sm text-stone-600">
-                  {isLoading
-                    ? "Loading..."
-                    : `${filteredMemorials.length} memorial${filteredMemorials.length === 1 ? "" : "s"} found`}
-                </p>
-              </div>
-
-              {isLoading ? (
-                <div className="mt-6 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-10 text-center">
-                  <p className="text-lg font-semibold text-stone-800">
-                    Loading memorials...
+            {hasSearched ? (
+              <section
+                ref={resultsRef}
+                className="mt-8 scroll-mt-28 rounded-3xl bg-white p-8 shadow-sm"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="text-2xl font-bold text-stone-900">
+                    Search Results
+                  </h2>
+                  <p className="text-base text-stone-600">
+                    {isLoading
+                      ? "Loading..."
+                      : `${filteredMemorials.length} memorial${filteredMemorials.length === 1 ? "" : "s"} found`}
                   </p>
                 </div>
-              ) : errorMessage ? (
-                <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
-                  <p className="text-sm text-red-700">{errorMessage}</p>
+
+                {isLoading ? (
+                  <div className="mt-6 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-10 text-center">
+                    <p className="text-lg font-semibold text-stone-800">
+                      Loading memorials...
+                    </p>
+                  </div>
+                ) : errorMessage ? (
+                  <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+                    <p className="text-base text-red-700">{errorMessage}</p>
+                  </div>
+                ) : filteredMemorials.length === 0 ? (
+                  <div className="mt-6 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-10 text-center">
+                    <p className="text-lg font-semibold text-stone-800">
+                      No memorials matched your search.
+                    </p>
+                    <p className="mt-2 text-base text-stone-600">
+                      Try changing or clearing one or more filters.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    {filteredMemorials.map((memorial) => (
+                      <MemorialCard key={memorial.id} memorial={memorial} />
+                    ))}
+                  </div>
+                )}
+              </section>
+            ) : (
+              <section className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                  <div>
+                    <p className="text-base font-semibold uppercase tracking-[0.16em] text-blue-950">
+                      Public Online Memorial Directory
+                    </p>
+                    <h2 className="mt-2 text-2xl font-bold text-stone-900 md:text-3xl">
+                      Browse Recently Published MyEMemorials
+                    </h2>
+                    <p className="mt-3 max-w-3xl text-base leading-7 text-stone-600 md:text-lg">
+                      Explore public online memorial pages and the life stories,
+                      photos, family history, and memories shared by their
+                      members and families.
+                    </p>
+                  </div>
+
+                  {!directoryErrorMessage && directoryTotalCount > 0 && (
+                    <p className="text-base text-stone-600">
+                      {directoryTotalCount} public MyEMemorial
+                      {directoryTotalCount === 1 ? "" : "s"}
+                    </p>
+                  )}
                 </div>
-              ) : filteredMemorials.length === 0 ? (
-                <div className="mt-6 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-10 text-center">
-                  <p className="text-lg font-semibold text-stone-800">
-                    No memorials matched your search.
-                  </p>
-                  <p className="mt-2 text-sm text-stone-600">
-                    Try changing or clearing one or more filters.
-                  </p>
-                </div>
-              ) : (
-                <div ref={resultsRef} className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  {filteredMemorials.map((memorial) => {
-                    const fullName = buildFullName(memorial) || "Unnamed Memorial";
-                    const thumb = getThumbnail(memorial);
 
-                        return (
-  <a
-  key={memorial.id}
-  href={`/memorial/${memorial.slug}`}
-  className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
->
-    <div className="flex flex-col gap-5 p-6 xl:flex-row xl:items-stretch">
-  <div className="min-w-0 flex-1">
-        <h3 className="text-xl font-bold text-stone-900">
-          {fullName}
-        </h3>
+                {directoryErrorMessage ? (
+                  <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+                    <p className="text-base text-red-700">
+                      {directoryErrorMessage}
+                    </p>
+                  </div>
+                ) : directoryMemorials.length === 0 ? (
+                  <div className="mt-6 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-10 text-center">
+                    <p className="text-lg font-semibold text-stone-800">
+                      No public MyEMemorials are available yet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    {directoryMemorials.map((memorial) => (
+                      <MemorialCard key={memorial.id} memorial={memorial} />
+                    ))}
+                  </div>
+                )}
 
-        <p className="mt-2 text-sm text-stone-600">
-          {getYear(memorial.birth_date) || "Unknown"} -{" "}
-          {getYear(memorial.death_date) || "Unknown"}
-        </p>
+                {directoryTotalPages > 1 && (
+                  <nav
+                    aria-label="Public MyEMemorial directory pages"
+                    className="mt-8 flex flex-wrap items-center justify-center gap-4 border-t border-stone-200 pt-6"
+                  >
+                    {directoryPage > 1 ? (
+                      <Link
+                        href={
+                          directoryPage === 2
+                            ? "/search"
+                            : `/search?page=${directoryPage - 1}`
+                        }
+                        rel="prev"
+                        className="inline-flex min-h-[44px] items-center rounded-full border border-stone-300 bg-white px-5 py-2 text-base font-semibold text-stone-800 transition hover:bg-stone-50"
+                      >
+                        Previous
+                      </Link>
+                    ) : (
+                      <span className="inline-flex min-h-[44px] items-center rounded-full border border-stone-200 bg-stone-100 px-5 py-2 text-base font-semibold text-stone-400">
+                        Previous
+                      </span>
+                    )}
 
-        <div className="mt-4 space-y-2 text-sm text-stone-700">
-          {memorial.cemetery_name && (
-            <p>
-              <span className="font-semibold">Cemetery:</span>{" "}
-              {memorial.cemetery_name}
-            </p>
-          )}
+                    <span className="text-base font-medium text-stone-700">
+                      Page {directoryPage} of {directoryTotalPages}
+                    </span>
 
-          {(memorial.city_lived || memorial.state_lived) && (
-            <p>
-              <span className="font-semibold">Location:</span>{" "}
-              {[memorial.city_lived, memorial.state_lived]
-                .filter(Boolean)
-                .join(", ")}
-            </p>
-          )}
-
-          {memorial.country_lived && (
-            <p>
-              <span className="font-semibold">Country:</span>{" "}
-              {memorial.country_lived}
-            </p>
-          )}
-
-          {memorial.schools_attended && (
-  <p className="break-words">
-    <span className="font-semibold">School:</span>{" "}
-    {memorial.schools_attended}
-  </p>
-)}
-
-{memorial.awards_won && (
-  <p className="break-words">
-    <span className="font-semibold">Award:</span>{" "}
-    {memorial.awards_won}
-  </p>
-)}
-        </div>
-
-        <div className="mt-5 inline-flex rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white">
-          View Memorial
-        </div>
-      </div>
-
-      {thumb ? (
-        <div className="flex w-full items-center justify-center rounded-3xl bg-stone-100 p-3 xl:w-[220px] xl:shrink-0">
-          <img
-            src={thumb}
-            alt={fullName}
-            className="max-h-[260px] max-w-full rounded-2xl object-contain"
-          />
-        </div>
-      ) : (
-        <div className="flex min-h-[220px] w-full items-center justify-center rounded-3xl bg-stone-100 text-sm text-stone-400 xl:w-[220px] xl:shrink-0">
-          No Photo Yet
-        </div>
-      )}
-    </div>
-  </a>
-);
-                  })}
-                </div>
-              )}
-            </section>
-)}
+                    {directoryPage < directoryTotalPages ? (
+                      <Link
+                        href={`/search?page=${directoryPage + 1}`}
+                        rel="next"
+                        className="inline-flex min-h-[44px] items-center rounded-full border border-stone-300 bg-white px-5 py-2 text-base font-semibold text-stone-800 transition hover:bg-stone-50"
+                      >
+                        Next
+                      </Link>
+                    ) : (
+                      <span className="inline-flex min-h-[44px] items-center rounded-full border border-stone-200 bg-stone-100 px-5 py-2 text-base font-semibold text-stone-400">
+                        Next
+                      </span>
+                    )}
+                  </nav>
+                )}
+              </section>
+            )}
           </div>
         </div>
 
         <SideAd
   pageType="search"
   memorialZip={visitorZip}
-  categorySlot={leftAdCategory}
+  categorySlot={rightAdCategory}
 />
         </div>
       </div>

@@ -22,16 +22,19 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.myememorial.com"),
 
   title: {
-    default: "MyEMemorial | Online Memorials & Life Stories",
+    default: "Online Memorial Websites & Life Stories | MyEMemorial",
     template: "%s | MyEMemorial",
   },
 
   description:
-    "Create a Living MyEMemorial or online memorial to preserve life stories, photos, videos, family history, obituaries, and memories for generations.",
+    "Create an online memorial website or Living MyEMemorial to preserve and share life stories, photos, videos, music, family history, and memories.",
 
   keywords: [
     "online memorial",
+    "online memorial website",
     "memorial website",
+    "memorial page",
+    "online memorial pages",
     "digital memorial",
     "Living MyEMemorial",
     "living memorial",
@@ -57,9 +60,9 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: "MyEMemorial | Online Memorials & Life Stories",
+    title: "Online Memorial Websites & Life Stories | MyEMemorial",
     description:
-      "Preserve your own life story with a Living MyEMemorial or create a lasting online memorial for someone who has passed.",
+      "Create an online memorial website or Living MyEMemorial to preserve and share a life story with photos, videos, music, family history, and memories.",
     url: "https://www.myememorial.com",
     siteName: "MyEMemorial",
     type: "website",
@@ -75,9 +78,9 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "MyEMemorial | Online Memorials & Life Stories",
+    title: "Online Memorial Websites & Life Stories | MyEMemorial",
     description:
-      "Preserve your own life story with a Living MyEMemorial or create a lasting online memorial for someone who has passed.",
+      "Create an online memorial website or Living MyEMemorial to preserve and share a life story with photos, videos, music, family history, and memories.",
     images: ["https://www.myememorial.com/myememorial-logo.png"],
   },
 
@@ -119,7 +122,7 @@ export default function RootLayout({
               url: "https://www.myememorial.com",
               logo: "https://www.myememorial.com/myememorial-logo.png",
               description:
-                "MyEMemorial helps people preserve life stories, photos, videos, family history, and memories through Living MyEMemorials and Departed MyEMemorials.",
+                "MyEMemorial is an online memorial website for preserving and sharing life stories, photos, videos, music, family history, and memories through Living and Departed MyEMemorials.",
               sameAs: [
                 "https://www.facebook.com/MyEmemorial",
                 "https://www.instagram.com/myememorial/",
@@ -138,7 +141,7 @@ export default function RootLayout({
               alternateName: ["My E Memorial", "MyEMemorial.com"],
               url: "https://www.myememorial.com/",
               description:
-                "Create Living or Departed MyEMemorials that preserve life stories and memories for future generations.",
+                "Create an online memorial website or Living MyEMemorial that preserves and shares a life story for future generations.",
             }),
           }}
         />

@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
 
 const BASE_URL = "https://www.myememorial.com";
+const DIRECTORY_PAGE_SIZE = 24;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -133,7 +134,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .from("memorials")
     .select("slug, updated_at")
     .eq("is_published", true)
-    .not("slug", "is", null);
+    .not("slug", "is", null)
+    .neq("slug", "");
 
   if (error) {
     console.error("SITEMAP MEMORIAL QUERY ERROR:", error);
@@ -151,5 +153,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     }));
 
-  return [...staticPages, ...memorialPages];
+  const totalDirectoryPages = Math.ceil(
+    memorialPages.length / DIRECTORY_PAGE_SIZE
+  );
+
+  const paginatedDirectoryPages: MetadataRoute.Sitemap = Array.from(
+    { length: Math.max(0, totalDirectoryPages - 1) },
+    (_, index) => ({
+      url: `${BASE_URL}/search?page=${index + 2}`,
+      changeFrequency: "daily" as const,
+      priority: 0.6,
+    })
+  );
+
+  return [...staticPages, ...paginatedDirectoryPages, ...memorialPages];
 }
