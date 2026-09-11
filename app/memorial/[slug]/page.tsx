@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
 import MemorialDetailClient from "./MemorialDetailClient";
@@ -13,13 +14,18 @@ type PageProps = {
 };
 
 const getMemorial = cache(async (slug: string) => {
-  const { data } = await supabaseServer
+  const { data, error } = await supabaseServer
     .from("memorials")
     .select(
       "slug, full_name, first_name, middle_name, last_name, birth_date, death_date, obituary, life_story, featured_photo_url, headstone_photo_1, is_published, is_living_preplan"
     )
     .eq("slug", slug)
     .maybeSingle();
+
+  if (error) {
+    console.error("PUBLIC MEMORIAL QUERY ERROR:", error);
+    throw new Error("Unable to load the public memorial.");
+  }
 
   return data;
 });
@@ -103,44 +109,44 @@ export default async function Page({ params }: PageProps) {
   const { slug } = await params;
   const data = await getMemorial(slug);
 
-  const name = data?.full_name || "MyEMemorial";
+  if (!data || data.is_published !== true) {
+    notFound();
+  }
+
+  const name = data.full_name || "MyEMemorial";
   const url = `https://www.myememorial.com/memorial/${slug}`;
 
-  const structuredData =
-    data && data.is_published === true
-      ? {
-          "@context": "https://schema.org",
-          "@type": "Person",
-          name,
-          givenName: data.first_name || undefined,
-          additionalName: data.middle_name || undefined,
-          familyName: data.last_name || undefined,
-          birthDate: data.birth_date || undefined,
-          deathDate: data.death_date || undefined,
-          description:
-            data.is_living_preplan === true
-              ? `Living MyEMemorial for ${name}, preserving life stories, photos, videos, family history, memories, and experiences for future generations.`
-              : `Online memorial for ${name} featuring life stories, photos, videos, family history, obituary details, favorite music, and memories shared by family and friends.`,
-          image:
-            data.featured_photo_url ||
-            data.headstone_photo_1 ||
-            undefined,
-          url,
-          mainEntityOfPage: url,
-        }
-      : null;
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name,
+    givenName: data.first_name || undefined,
+    additionalName: data.middle_name || undefined,
+    familyName: data.last_name || undefined,
+    birthDate: data.birth_date || undefined,
+    deathDate: data.death_date || undefined,
+    description:
+      data.is_living_preplan === true
+        ? `Living MyEMemorial for ${name}, preserving life stories, photos, videos, family history, memories, and experiences for future generations.`
+        : `Online memorial for ${name} featuring life stories, photos, videos, family history, obituary details, favorite music, and memories shared by family and friends.`,
+    image:
+      data.featured_photo_url || data.headstone_photo_1 || undefined,
+    url,
+    mainEntityOfPage: url,
+  };
+
+  const structuredDataJson = JSON.stringify(structuredData).replace(
+    /</g,
+    "\\u003c"
+  );
 
   return (
     <>
-      {structuredData && (
-        <script
-          id="memorial-structured-data"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData),
-          }}
-        />
-      )}
+      <script
+        id="memorial-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: structuredDataJson }}
+      />
 
       <MemorialDetailClient />
     </>
