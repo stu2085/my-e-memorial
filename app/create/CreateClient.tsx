@@ -405,6 +405,23 @@ const POST_DEATH_BACKUP_OWNER_LOCKED_CHAPTERS =
   ]);
 
 
+const FREE_LIVING_GUIDED_CHAPTER_IDS: readonly GuidedChapter["id"][] = [
+  "basic-information",
+  "life-story",
+  "photo-gallery",
+  "review",
+];
+
+const FREE_DEPARTED_GUIDED_CHAPTER_IDS: readonly GuidedChapter["id"][] = [
+  "basic-information",
+  "life-story",
+  "photo-gallery",
+  "obituary",
+  "final-resting-place",
+  "review",
+];
+
+
 
 function getApiWarningMessage(result: unknown) {
   if (!result || typeof result !== "object") {
@@ -5162,9 +5179,7 @@ const isBackupChapterReadOnly = (
             bannerUrl={
               bannerPhotoPreviewUrl ||
               form.bannerPhotoUrl ||
-              (draftMemorialId === 149 || !form.isLivingPreplan
-                ? "/memorial-banners/sample-sunset-lake-banner.jpg"
-                : null)
+              "/memorial-banners/sample-sunset-lake-banner.jpg"
             }
             bannerPositionX={form.bannerPositionX}
             bannerPositionY={form.bannerPositionY}
@@ -5311,10 +5326,39 @@ const isBackupChapterReadOnly = (
           )}
         </ul>
 
-        <p className="mt-4 text-sm text-stone-500">
-          Some additional chapters are shown in the Guided Memory Builder
-          and are available with paid plans.
-        </p>
+        {form.plan === "free" && (
+          <div className="mt-5 rounded-2xl border border-stone-200 bg-stone-50 p-5">
+            <p className="text-base font-semibold text-stone-800">
+              More ways to preserve the story
+            </p>
+
+            <p className="mt-2 text-base leading-7 text-stone-600">
+              If you decide later that you want to preserve more, paid
+              MyEMemorial plans also make these sections and features available:
+            </p>
+
+            <ul className="mt-3 grid gap-x-6 gap-y-2 text-base text-stone-600 md:grid-cols-2">
+              <li>• Family Roots</li>
+              <li>• Places Lived</li>
+              <li>• Places Worked</li>
+              <li>• Schools &amp; Awards</li>
+              <li>• Social Media Links</li>
+              <li>• Newspaper Articles</li>
+              <li>• Favorite Songs</li>
+              <li>• More than 5 Gallery Photos</li>
+              <li>• Video Memories</li>
+              <li>• Celebration of Life Presentation</li>
+              {form.isLivingPreplan && (
+                <li>• Designated Person &amp; Future Instructions</li>
+              )}
+            </ul>
+
+            <p className="mt-4 text-base leading-7 text-stone-500">
+              You can upgrade later if you decide you want these additional
+              ways to preserve the story.
+            </p>
+          </div>
+        )}
       </div>
     )}
   </div>
@@ -5506,6 +5550,13 @@ const isBackupChapterReadOnly = (
              <GuidedMemoryBuilder
   chapterNavTargetId="memorial-builder-chapter-nav"
   experienceType={guidedExperienceType}
+  includedChapterIds={
+    form.plan === "free" || !isPaid
+      ? form.isLivingPreplan
+        ? FREE_LIVING_GUIDED_CHAPTER_IDS
+        : FREE_DEPARTED_GUIDED_CHAPTER_IDS
+      : undefined
+  }
   isSaving={isSubmitting}
   initialChapterId={guidedInitialChapterId}
   isReady={draftReady}

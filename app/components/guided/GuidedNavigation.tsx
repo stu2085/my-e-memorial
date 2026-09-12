@@ -47,7 +47,11 @@ export default function GuidedNavigation({
         disabled={isSaving}
         className="rounded-full bg-stone-900 px-7 py-3 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isLastChapter ? finalButtonLabel : "Save & Continue"}
+        {isLastChapter
+          ? finalButtonLabel
+          : currentChapterIndex === totalChapters - 2
+            ? "Review MyEMemorial"
+            : "Save & Continue"}
       </button>
     </div>
 

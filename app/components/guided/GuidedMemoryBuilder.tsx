@@ -30,6 +30,7 @@ type GuidedMemoryBuilderProps = {
   isReady?: boolean;
   finalButtonLabel?: string;
   chapterNavTargetId?: string;
+  includedChapterIds?: readonly GuidedChapter["id"][];
   renderChapter: (chapter: GuidedChapter) => ReactNode;
   onSaveAndContinue?: (
     chapter: GuidedChapter
@@ -47,15 +48,25 @@ export default function GuidedMemoryBuilder({
   isReady = true,
   finalButtonLabel = "Finish Review",
   chapterNavTargetId,
+  includedChapterIds,
   renderChapter,
   onSaveAndContinue,
   onSaveAndExit,
   onSafetySave,
 }: GuidedMemoryBuilderProps) {
-  const chapters = useMemo(
-    () => getGuidedChapters(experienceType),
-    [experienceType]
-  );
+  const chapters = useMemo(() => {
+    const availableChapters = getGuidedChapters(experienceType);
+
+    if (!includedChapterIds) {
+      return availableChapters;
+    }
+
+    const includedChapterIdSet = new Set(includedChapterIds);
+
+    return availableChapters.filter((chapter) =>
+      includedChapterIdSet.has(chapter.id)
+    );
+  }, [experienceType, includedChapterIds]);
 
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
 const [isChangingChapter, setIsChangingChapter] = useState(false);
@@ -63,6 +74,14 @@ const [chapterNavTarget, setChapterNavTarget] =
   useState<HTMLElement | null>(null);
 
 const hasRestoredInitialChapter = useRef(false);
+
+useEffect(() => {
+  if (currentChapterIndex < chapters.length) {
+    return;
+  }
+
+  setCurrentChapterIndex(Math.max(0, chapters.length - 1));
+}, [chapters.length, currentChapterIndex]);
 
 useEffect(() => {
   if (!chapterNavTargetId) {
