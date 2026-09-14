@@ -136,6 +136,23 @@ async function getAuthorizedPresentation(
     };
   }
 
+  const isPublicView =
+    req.method === "GET" &&
+    req.nextUrl.searchParams.get("view") ===
+      "public";
+
+  if (
+    isPublicView &&
+    presentation.status === "active" &&
+    presentation.payment_status === "paid"
+  ) {
+    return {
+      presentation,
+      error: "",
+      status: 200,
+    };
+  }
+
   const cookieName =
     `celebration_edit_${publicId}`;
 

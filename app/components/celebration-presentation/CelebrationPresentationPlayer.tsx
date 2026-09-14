@@ -143,7 +143,7 @@ export default function CelebrationPresentationPlayer({
         const response = await fetch(
           `/api/celebration-presentations/${encodeURIComponent(
             publicId
-          )}`,
+          )}?view=public`,
           {
             method: "GET",
             credentials: "include",
