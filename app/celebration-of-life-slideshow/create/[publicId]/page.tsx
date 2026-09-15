@@ -2,6 +2,7 @@
 
 import {
   ChangeEvent,
+  FormEvent,
   useCallback,
   useEffect,
   useRef,
@@ -103,6 +104,9 @@ export default function CelebrationPresentationBuilderPage() {
 
   const [loading, setLoading] =
     useState(true);
+  const [startingCheckout, setStartingCheckout] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState("");
+  const [recoveryMessage, setRecoveryMessage] = useState("");
 
   const [uploadingPhoto, setUploadingPhoto] =
     useState(false);
@@ -251,6 +255,58 @@ export default function CelebrationPresentationBuilderPage() {
   useEffect(() => {
     void loadPresentation();
   }, [loadPresentation]);
+
+  useEffect(() => {
+    const payment = new URLSearchParams(window.location.search).get("payment");
+    if (payment === "cancelled") setStatusMessage("Payment was cancelled. You can continue editing your presentation.");
+    if (payment !== "success") return;
+    setStatusMessage("Your payment is being confirmed. Your presentation will become active shortly.");
+    let attempts = 0;
+    const timer = window.setInterval(async () => {
+      attempts += 1;
+      try {
+        const response = await fetch(`/api/celebration-presentations/${encodeURIComponent(publicId)}`, { credentials: "include", cache: "no-store" });
+        const result = await response.json();
+        if (response.ok && result?.presentation?.paymentStatus === "paid") {
+          setPresentation(result.presentation as Presentation);
+          setStatusMessage("Payment confirmed. Your presentation is active. Your private edit link is being emailed to you.");
+          window.clearInterval(timer);
+        }
+      } catch { /* Stripe webhook may still be processing. */ }
+      if (attempts >= 15) window.clearInterval(timer);
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, [publicId]);
+
+  async function startCheckout() {
+    try {
+      setStartingCheckout(true);
+      setErrorMessage("");
+      const response = await fetch(`/api/celebration-presentations/${encodeURIComponent(publicId)}/checkout`, {
+        method: "POST", credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok || !result?.url) throw new Error(result?.error || "Checkout could not be started.");
+      window.location.assign(result.url);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Checkout could not be started.");
+      setStartingCheckout(false);
+    }
+  }
+
+  async function requestAccess(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    try {
+      const response = await fetch(`/api/celebration-presentations/${encodeURIComponent(publicId)}/access-request`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: recoveryEmail }),
+      });
+      const result = await response.json();
+      setRecoveryMessage(result?.message || "If this is the purchaser email, a private access link will arrive shortly.");
+    } catch {
+      setRecoveryMessage("The access request could not be sent. Please try again.");
+    }
+  }
 
   const photoItems = items.filter(
     (item) =>
@@ -1266,6 +1322,14 @@ export default function CelebrationPresentationBuilderPage() {
           <p className="mt-4 text-base text-red-700">
             {errorMessage}
           </p>
+          <form onSubmit={(event) => void requestAccess(event)} className="mt-6 text-left">
+            <label htmlFor="recovery-email" className="block text-base font-semibold text-stone-900">Purchased this presentation? Request a private edit link</label>
+            <input id="recovery-email" type="email" required value={recoveryEmail}
+              onChange={(event) => setRecoveryEmail(event.target.value)} placeholder="Purchaser email"
+              className="mt-2 w-full rounded-xl border border-stone-300 px-4 py-3 text-base" />
+            <button type="submit" className="mt-3 min-h-12 rounded-full bg-[#244f40] px-5 py-2 text-base font-bold text-white">Email My Edit Link</button>
+            {recoveryMessage && <p role="status" className="mt-3 text-base text-stone-700">{recoveryMessage}</p>}
+          </form>
         </div>
       </main>
     );
@@ -1306,6 +1370,20 @@ export default function CelebrationPresentationBuilderPage() {
               A Life Well Remembered
             </p>
           </div>
+
+          {presentation?.paymentStatus !== "paid" ? (
+            <div className="mt-7 rounded-2xl border border-[#d6c29b] bg-white/90 p-5 text-center shadow-sm">
+              <p className="text-base font-semibold text-[#173a31]">One-time purchase: $19.95 · Hosted for 60 days</p>
+              <p className="mt-2 text-base text-stone-700">You can create and preview your presentation now. Purchase to activate the shareable presentation.</p>
+              <p className="mt-2 text-base text-stone-700">You will receive a single-use $19.95 code to credit this purchase toward a new paid MyEMemorial.</p>
+              <button type="button" onClick={() => void startCheckout()} disabled={startingCheckout}
+                className="mt-4 min-h-14 rounded-full bg-[#244f40] px-7 py-3 text-lg font-bold text-white disabled:opacity-60">
+                {startingCheckout ? "Opening checkout..." : "Purchase Presentation"}
+              </button>
+            </div>
+          ) : (
+            <p className="mt-7 rounded-2xl bg-green-50 px-5 py-4 text-center text-base font-semibold text-green-900">Purchased · Your shareable presentation is active for 60 days.</p>
+          )}
 
           <div className="mt-8 space-y-3">
             <BuilderMediaAccordion

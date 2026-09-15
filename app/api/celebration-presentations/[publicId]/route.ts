@@ -116,6 +116,7 @@ async function getAuthorizedPresentation(
       price_cents,
       amount_paid_cents,
       hosting_days,
+      stripe_checkout_session_id,
       edit_token_hash,
       contributions_enabled,
       activated_at,
@@ -144,7 +145,9 @@ async function getAuthorizedPresentation(
   if (
     isPublicView &&
     presentation.status === "active" &&
-    presentation.payment_status === "paid"
+    presentation.payment_status === "paid" &&
+    presentation.expires_at &&
+    new Date(presentation.expires_at).getTime() > Date.now()
   ) {
     return {
       presentation,
@@ -327,7 +330,7 @@ export async function GET(
             presentation.public_id,
 
           customerEmail:
-            presentation.customer_email,
+            req.nextUrl.searchParams.get("view") === "public" ? null : presentation.customer_email,
 
           personName:
             presentation.person_name,
@@ -382,10 +385,22 @@ export async function GET(
         },
 
         items:
-          itemsResult.data || [],
+          req.nextUrl.searchParams.get("view") === "public"
+            ? (itemsResult.data || [])
+                .filter((item) => item.approval_status === "approved")
+                .map((item) => ({ id: item.id, item_type: item.item_type,
+                  photo_url: item.photo_url, mux_playback_id: item.mux_playback_id,
+                  caption: item.caption, attribution: item.attribution, source: item.source,
+                  approval_status: item.approval_status, sort_order: item.sort_order,
+                  duration_seconds: item.duration_seconds }))
+            : itemsResult.data || [],
 
         music:
-          musicResult.data || [],
+          req.nextUrl.searchParams.get("view") === "public"
+            ? (musicResult.data || []).map((track) => ({ id: track.id,
+                source_type: track.source_type, source_url: track.source_url,
+                title: track.title, artist: track.artist, sort_order: track.sort_order }))
+            : musicResult.data || [],
       },
       {
         headers: {
@@ -497,6 +512,9 @@ export async function PATCH(
         "customerEmail"
       )
     ) {
+      if (presentation.stripe_checkout_session_id) {
+        return NextResponse.json({ error: "The purchaser email cannot be changed after checkout starts." }, { status: 409 });
+      }
       const customerEmail =
         normalizeEmail(
           body.customerEmail

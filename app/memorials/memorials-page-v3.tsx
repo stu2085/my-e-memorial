@@ -420,6 +420,13 @@ export default function MemorialsPage() {
                     </p>
 
                     <p className="mt-4 text-lg leading-8 text-stone-200">
+                      If you only need a presentation, the standalone option is $19.95 for 60 days of hosted sharing.
+                    </p>
+                    <Link href="/celebration-of-life-slideshow/create" className="mt-5 inline-flex min-h-14 items-center justify-center rounded-full bg-amber-300 px-6 py-3 text-base font-bold text-blue-950 hover:bg-amber-200">
+                      Create a Standalone Presentation
+                    </Link>
+
+                    <p className="mt-4 text-lg leading-8 text-stone-200">
                       Present memorial photos and captions, play Video Memories
                       in full, use favorite music, pause when needed, loop the
                       presentation, and display it full-screen without the normal
@@ -727,4 +734,3 @@ function PlanCard({
     </div>
   );
 }
-

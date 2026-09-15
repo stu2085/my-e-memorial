@@ -74,6 +74,8 @@ export default function CelebrationPresentationStartPage() {
           <h1 className="mt-3 text-3xl font-bold text-stone-900 sm:text-4xl">
             Who are we celebrating?
           </h1>
+          <p className="mt-4 text-base text-stone-700">Create a standalone Celebration of Life Presentation. Preview as you build, then purchase for $19.95 to share it for 60 days.</p>
+          <p className="mt-2 text-base text-stone-700">Your purchase also includes a single-use $19.95 credit toward a new Basic, Plus, or Premium MyEMemorial.</p>
         </div>
 
         <form
