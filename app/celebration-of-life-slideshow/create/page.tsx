@@ -64,28 +64,41 @@ export default function CelebrationPresentationStartPage() {
   }
 
   return (
-    <main className="min-h-screen bg-stone-50 px-4 py-10 sm:py-14">
-      <div className="mx-auto w-full max-w-xl">
+    <main
+      className="min-h-screen px-4 py-10 sm:py-14"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(250,247,238,0.28), rgba(250,247,238,0.38)), url('/Images/celebration-builder-background.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center top",
+      }}
+    >
+      <div className="mx-auto w-full max-w-2xl rounded-[2rem] border border-[#d9cbb0] bg-[#fffcf5]/95 px-5 py-8 shadow-xl shadow-[#38483d]/15 backdrop-blur-sm sm:px-10 sm:py-10">
         <div className="text-center">
-          <p className="text-base font-bold uppercase tracking-[0.14em] text-stone-600">
+          <p className="text-base font-bold uppercase tracking-[0.14em] text-[#244f40]">
             Celebration of Life Presentation
           </p>
+          <div className="mx-auto mt-4 flex max-w-40 items-center gap-3 text-[#b99a68]" aria-hidden="true">
+            <span className="h-px flex-1 bg-current" />
+            <span>♥</span>
+            <span className="h-px flex-1 bg-current" />
+          </div>
 
-          <h1 className="mt-3 text-3xl font-bold text-stone-900 sm:text-4xl">
+          <h1 className="mt-4 font-serif text-3xl font-bold text-[#173a31] sm:text-4xl">
             Who are we celebrating?
           </h1>
-          <p className="mt-4 text-base text-stone-700">Create a standalone Celebration of Life Presentation. Preview as you build, then purchase for $19.95 to share it for 60 days.</p>
-          <p className="mt-2 text-base text-stone-700">Your purchase also includes a single-use $19.95 credit toward a new Basic, Plus, or Premium MyEMemorial.</p>
+          <p className="mx-auto mt-4 max-w-lg text-base text-[#344f43]">Gather their photos, videos, and music into a presentation that honors the life they lived.</p>
+          <p className="mx-auto mt-3 max-w-lg text-base text-[#344f43]">Create and preview first. A one-time $19.95 purchase lets you share it for 60 days and includes a single-use $19.95 credit toward a new Basic, Plus, or Premium MyEMemorial.</p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="mt-8 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8"
+          className="mt-8 rounded-3xl border border-[#e3d9c5] bg-white/90 p-6 shadow-sm sm:p-8"
         >
           <div>
             <label
               htmlFor="personName"
-              className="block text-base font-bold text-stone-900"
+              className="block text-base font-bold text-[#173a31]"
             >
               Their Name
             </label>
@@ -98,7 +111,7 @@ export default function CelebrationPresentationStartPage() {
               value={personName}
               onChange={(event) => setPersonName(event.target.value)}
               placeholder="Full name"
-              className="mt-2 w-full rounded-2xl border border-stone-300 bg-white px-4 py-4 text-base text-stone-900 outline-none transition focus:border-stone-600 focus:ring-2 focus:ring-stone-200"
+              className="mt-2 w-full rounded-2xl border border-[#cfc9bd] bg-white px-4 py-4 text-base text-stone-900 outline-none transition focus:border-[#244f40] focus:ring-2 focus:ring-[#dfe8e2]"
               disabled={isStarting}
               required
             />
@@ -107,7 +120,7 @@ export default function CelebrationPresentationStartPage() {
           <div className="mt-6">
             <label
               htmlFor="customerEmail"
-              className="block text-base font-bold text-stone-900"
+              className="block text-base font-bold text-[#173a31]"
             >
               Your Email
             </label>
@@ -121,7 +134,7 @@ export default function CelebrationPresentationStartPage() {
               value={customerEmail}
               onChange={(event) => setCustomerEmail(event.target.value)}
               placeholder="you@example.com"
-              className="mt-2 w-full rounded-2xl border border-stone-300 bg-white px-4 py-4 text-base text-stone-900 outline-none transition focus:border-stone-600 focus:ring-2 focus:ring-stone-200"
+              className="mt-2 w-full rounded-2xl border border-[#cfc9bd] bg-white px-4 py-4 text-base text-stone-900 outline-none transition focus:border-[#244f40] focus:ring-2 focus:ring-[#dfe8e2]"
               disabled={isStarting}
               required
             />
@@ -139,7 +152,7 @@ export default function CelebrationPresentationStartPage() {
           <button
             type="submit"
             disabled={isStarting}
-            className="mt-7 inline-flex min-h-14 w-full items-center justify-center rounded-full bg-stone-900 px-6 py-4 text-lg font-bold text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-7 inline-flex min-h-14 w-full items-center justify-center rounded-full bg-[#244f40] px-6 py-4 text-lg font-bold text-white transition hover:bg-[#193b30] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isStarting ? "Starting..." : "Continue"}
           </button>
