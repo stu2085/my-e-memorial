@@ -21,6 +21,7 @@ type Presentation = {
   customerEmail: string;
   birthDate: string | null;
   deathDate: string | null;
+  featuredPhotoUrl: string | null;
   theme: string;
   status: string;
   paymentStatus: string;
@@ -263,7 +264,7 @@ export default function CelebrationPresentationBuilderPage() {
 
   async function uploadOnePhoto(
     file: File
-  ) {
+  ): Promise<string> {
     const ticketResponse =
       await fetch(
         `/api/celebration-presentations/${encodeURIComponent(
@@ -356,6 +357,80 @@ export default function CelebrationPresentationBuilderPage() {
           "The photo could not be added."
       );
     }
+
+    const photoUrl = String(
+      itemResult?.item?.photo_url || ""
+    ).trim();
+
+    if (!photoUrl) {
+      throw new Error(
+        "The uploaded photo could not be prepared for the presentation."
+      );
+    }
+
+    return photoUrl;
+  }
+
+  async function saveFeaturedPhoto(
+    featuredPhotoUrl: string
+  ) {
+    const response = await fetch(
+      `/api/celebration-presentations/${encodeURIComponent(
+        publicId
+      )}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          featuredPhotoUrl,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result?.error ||
+          "The featured photo could not be saved."
+      );
+    }
+
+    setPresentation((current) =>
+      current
+        ? {
+            ...current,
+            featuredPhotoUrl:
+              featuredPhotoUrl || null,
+          }
+        : current
+    );
+  }
+
+  async function selectFeaturedPhoto(
+    featuredPhotoUrl: string
+  ) {
+    try {
+      setErrorMessage("");
+      setStatusMessage("");
+
+      await saveFeaturedPhoto(
+        featuredPhotoUrl
+      );
+
+      setStatusMessage(
+        "Featured photo selected."
+      );
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "The featured photo could not be saved."
+      );
+    }
   }
 
   async function handlePhotos(
@@ -373,8 +448,23 @@ export default function CelebrationPresentationBuilderPage() {
       setErrorMessage("");
       setStatusMessage("");
 
+      let firstUploadedPhotoUrl = "";
+
       for (const file of files) {
-        await uploadOnePhoto(file);
+        const photoUrl = await uploadOnePhoto(file);
+
+        if (!firstUploadedPhotoUrl) {
+          firstUploadedPhotoUrl = photoUrl;
+        }
+      }
+
+      if (
+        !presentation?.featuredPhotoUrl &&
+        firstUploadedPhotoUrl
+      ) {
+        await saveFeaturedPhoto(
+          firstUploadedPhotoUrl
+        );
       }
 
       setStatusMessage(
@@ -1283,16 +1373,41 @@ export default function CelebrationPresentationBuilderPage() {
                         className="overflow-hidden rounded-2xl border border-[#dfdad0] bg-white shadow-sm"
                       >
                         {item.photo_url && (
-                          <img
-                            src={item.photo_url}
-                            alt={`Photo ${
-                              index + 1
-                            }`}
-                            className="aspect-square w-full object-cover"
-                          />
+                          <div className="relative">
+                            <img
+                              src={item.photo_url}
+                              alt={`Photo ${
+                                index + 1
+                              }`}
+                              className="aspect-square w-full object-cover"
+                            />
+
+                            {presentation?.featuredPhotoUrl ===
+                              item.photo_url && (
+                              <span className="absolute left-2 top-2 rounded-full bg-[#244f40] px-3 py-1 text-sm font-bold text-white shadow-md">
+                                Featured Photo
+                              </span>
+                            )}
+                          </div>
                         )}
 
                         <div className="p-3">
+                          {item.photo_url &&
+                            presentation?.featuredPhotoUrl !==
+                              item.photo_url && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  void selectFeaturedPhoto(
+                                    item.photo_url || ""
+                                  )
+                                }
+                                className="mb-3 min-h-11 w-full rounded-xl border-2 border-[#587667] bg-[#eef4f0] px-3 py-2 text-base font-bold text-[#173a31] transition hover:bg-[#dfe8e2]"
+                              >
+                                Make Featured Photo
+                              </button>
+                            )}
+
                           <label className="block text-base font-semibold text-stone-800">
                             Caption{" "}
                             <span className="font-normal text-stone-500">

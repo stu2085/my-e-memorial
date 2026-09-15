@@ -521,6 +521,39 @@ export async function PATCH(
         customerEmail;
     }
 
+    if (
+      Object.prototype.hasOwnProperty.call(
+        body,
+        "featuredPhotoUrl"
+      )
+    ) {
+      const featuredPhotoUrl =
+        normalizeText(
+          body.featuredPhotoUrl
+        );
+
+      const expectedPhotoPrefix =
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL || ""}/storage/v1/object/public/memorial-photos/celebration-presentations/${publicId}/photos/`;
+
+      if (
+        featuredPhotoUrl &&
+        !featuredPhotoUrl.startsWith(
+          expectedPhotoPrefix
+        )
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "This featured photo does not belong to this presentation.",
+          },
+          { status: 400 }
+        );
+      }
+
+      updates.featured_photo_url =
+        featuredPhotoUrl || null;
+    }
+
     let nextBirthDate:
       | string
       | null =

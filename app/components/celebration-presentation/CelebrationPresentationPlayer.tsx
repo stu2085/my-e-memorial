@@ -63,6 +63,7 @@ type PlayerProps = {
 };
 
 const PHOTO_SECONDS = 7;
+const CLOSING_SCREEN_SECONDS = 8;
 
 function formatDate(date: string | null) {
   if (!date) {
@@ -113,6 +114,9 @@ export default function CelebrationPresentationPlayer({
     useState("");
 
   const [hasStarted, setHasStarted] =
+    useState(false);
+
+  const [showClosingScreen, setShowClosingScreen] =
     useState(false);
 
   const [currentIndex, setCurrentIndex] =
@@ -270,23 +274,33 @@ export default function CelebrationPresentationPlayer({
         return;
       }
 
-      if (loop) {
-        setCurrentIndex(0);
-        return;
-      }
-
-      setHasStarted(false);
       setPaused(false);
-      setCurrentIndex(0);
+      setShowClosingScreen(true);
     }, [
       currentIndex,
-      loop,
       playableItems.length,
     ]);
 
   useEffect(() => {
+    if (!showClosingScreen || !loop) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setCurrentIndex(0);
+      setPaused(false);
+      setShowClosingScreen(false);
+    }, CLOSING_SCREEN_SECONDS * 1000);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [loop, showClosingScreen]);
+
+  useEffect(() => {
     if (
       !hasStarted ||
+      showClosingScreen ||
       paused ||
       currentItem?.item_type !==
         "photo"
@@ -307,6 +321,7 @@ export default function CelebrationPresentationPlayer({
     currentItem,
     hasStarted,
     paused,
+    showClosingScreen,
   ]);
 
   useEffect(() => {
@@ -319,8 +334,10 @@ export default function CelebrationPresentationPlayer({
     const shouldPlay =
       hasStarted &&
       !paused &&
-      currentItem?.item_type ===
-        "photo" &&
+      ((showClosingScreen && loop) ||
+        (!showClosingScreen &&
+          currentItem?.item_type ===
+            "photo")) &&
       Boolean(currentMusic);
 
     if (shouldPlay) {
@@ -335,7 +352,9 @@ export default function CelebrationPresentationPlayer({
     currentItem,
     currentMusic,
     hasStarted,
+    loop,
     paused,
+    showClosingScreen,
   ]);
 
   useEffect(() => {
@@ -363,6 +382,7 @@ export default function CelebrationPresentationPlayer({
     setCurrentIndex(0);
     setMusicIndex(0);
     setPaused(false);
+    setShowClosingScreen(false);
     setHasStarted(true);
   }
 
@@ -393,7 +413,8 @@ export default function CelebrationPresentationPlayer({
     setCurrentIndex(0);
     setMusicIndex(0);
     setPaused(false);
-    setHasStarted(true);
+    setShowClosingScreen(false);
+    setHasStarted(false);
   }
 
   async function enterFullScreen() {
@@ -482,6 +503,22 @@ export default function CelebrationPresentationPlayer({
     .filter(Boolean)
     .join(" — ");
 
+  const sampleNameSuffix =
+    " (Sample Presentation)";
+
+  const isSamplePresentation =
+    presentation.personName.endsWith(
+      sampleNameSuffix
+    );
+
+  const displayPersonName =
+    isSamplePresentation
+      ? presentation.personName.slice(
+          0,
+          -sampleNameSuffix.length
+        )
+      : presentation.personName;
+
   return (
     <main
       ref={playerContainerRef}
@@ -498,8 +535,11 @@ export default function CelebrationPresentationPlayer({
             if (
               hasStarted &&
               !paused &&
-              currentItem?.item_type ===
-                "photo"
+              ((showClosingScreen &&
+                loop) ||
+                (!showClosingScreen &&
+                  currentItem?.item_type ===
+                    "photo"))
             ) {
               void audioRef.current
                 ?.play()
@@ -513,28 +553,39 @@ export default function CelebrationPresentationPlayer({
 
       {!hasStarted ? (
         <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden px-6 py-12 text-center">
-          {presentation.featuredPhotoUrl && (
-            <>
-              <img
-                src={
-                  presentation.featuredPhotoUrl
-                }
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover opacity-35 blur-sm"
-              />
+          <img
+            src="/Images/celebration-builder-background.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
 
-              <div className="absolute inset-0 bg-black/65" />
-            </>
-          )}
+          <div className="absolute inset-0 bg-slate-950/20" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(2,6,23,0.28)_100%)]" />
 
           <div className="relative z-10 mx-auto max-w-4xl">
             <p className="font-serif text-xl tracking-[0.22em] text-amber-200 uppercase sm:text-2xl">
-              A Life Well Remembered
+              Celebration of Life
             </p>
 
-            <h1 className="mt-6 font-serif text-5xl font-semibold leading-tight sm:text-7xl">
-              {presentation.personName}
+            {presentation.featuredPhotoUrl && (
+              <div className="mx-auto mt-7 h-60 w-48 overflow-hidden rounded-2xl border-2 border-amber-200/80 bg-slate-900 shadow-2xl sm:h-80 sm:w-64">
+                <img
+                  src={presentation.featuredPhotoUrl}
+                  alt={displayPersonName}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
+
+            <h1 className="mt-6 font-serif text-4xl font-semibold leading-tight text-white sm:text-6xl">
+              {displayPersonName}
             </h1>
+
+            {isSamplePresentation && (
+              <p className="mt-2 text-lg font-semibold tracking-wide text-amber-100 sm:text-xl">
+                Sample Presentation
+              </p>
+            )}
 
             {dates && (
               <p className="mt-5 text-xl text-stone-200 sm:text-2xl">
@@ -557,6 +608,67 @@ export default function CelebrationPresentationPlayer({
                 Add at least one photo or
                 video before starting the
                 presentation.
+              </p>
+            )}
+          </div>
+        </section>
+      ) : showClosingScreen ? (
+        <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden px-6 py-12 text-center">
+          <img
+            src="/Images/celebration-builder-background.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+
+          <div className="absolute inset-0 bg-slate-950/20" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(2,6,23,0.28)_100%)]" />
+
+          <div className="relative z-10 mx-auto max-w-4xl">
+            <p className="font-serif text-xl tracking-[0.22em] text-amber-200 uppercase sm:text-2xl">
+              In Loving Memory
+            </p>
+
+            {presentation.featuredPhotoUrl && (
+              <div className="mx-auto mt-7 h-60 w-48 overflow-hidden rounded-2xl border-2 border-amber-200/80 bg-slate-900 shadow-2xl sm:h-80 sm:w-64">
+                <img
+                  src={presentation.featuredPhotoUrl}
+                  alt={displayPersonName}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
+
+            <h1 className="mt-6 font-serif text-4xl font-semibold leading-tight text-white sm:text-6xl">
+              {displayPersonName}
+            </h1>
+
+            {isSamplePresentation && (
+              <p className="mt-2 text-lg font-semibold tracking-wide text-amber-100 sm:text-xl">
+                Sample Presentation
+              </p>
+            )}
+
+            {dates && (
+              <p className="mt-4 text-xl text-stone-200 sm:text-2xl">
+                {dates}
+              </p>
+            )}
+
+            <p className="mt-6 font-serif text-xl italic text-amber-100 sm:text-2xl">
+              Where Life&apos;s Stories Are Told.
+            </p>
+
+            <button
+              type="button"
+              onClick={restartPresentation}
+              className="mt-9 rounded-full bg-amber-500 px-8 py-4 text-lg font-bold text-stone-950 shadow-xl transition hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-200"
+            >
+              Replay Presentation
+            </button>
+
+            {loop && (
+              <p className="mt-4 text-base text-stone-300">
+                Loop is on. The presentation will restart automatically.
               </p>
             )}
           </div>
