@@ -81,11 +81,13 @@ export async function activateCelebrationPurchase(stripe: Stripe, session: Strip
 
   const origin = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.myememorial.com").origin;
   const link = `${origin}/celebration-of-life-slideshow/access/${publicId}?token=${accessToken}`;
+  const viewingLink = `${origin}/celebration-of-life-slideshow/${publicId}`;
+  const thankYou = "As a thank you for purchasing a Celebration of Life Presentation, your purchase includes a single-use $19.95 credit toward a new Basic, Plus, or Premium MyEMemorial.";
   await transporter.sendMail({
     from: '"MyEMemorial" <help@myememorial.com>', to: presentation.customer_email,
     subject: "Your Celebration of Life Presentation is ready",
-    html: `<p>Thank you for your purchase.</p><p>Your Celebration of Life Presentation for <strong>${escapeHtml(presentation.person_name)}</strong> is ready to edit and share for 60 days.</p><p><a href="${link}">Open your private presentation builder</a></p><p>This private link may be used once during your 60-day hosting period. Keep it for your records.</p><p>When you purchase a Basic, Plus, or Premium MyEMemorial, enter your single-use credit code <strong>${escapeHtml(creditCode)}</strong> in Stripe Checkout to apply $19.95 toward that plan.</p><p>MyEMemorial</p>`,
-    text: `Your Celebration of Life Presentation for ${presentation.person_name} is ready. Open your private builder: ${link}\nThis private link may be used once during your 60-day hosting period.\nUse your single-use $19.95 credit on a new paid MyEMemorial at Checkout: ${creditCode}`,
+    html: `<p>Thank you for your purchase.</p><p>Your Celebration of Life Presentation for <strong>${escapeHtml(presentation.person_name)}</strong> is ready to edit and share for 60 days.</p><p><a href="${viewingLink}">View and share the presentation</a></p><p>Share this viewing link with family or the event venue: ${viewingLink}</p><p><a href="${link}">Open your private presentation builder</a></p><p>This private edit link may be used once during your 60-day hosting period. Do not share it with viewers.</p><p>${escapeHtml(thankYou)}</p><p>Enter your single-use credit code <strong>${escapeHtml(creditCode)}</strong> when purchasing a new paid MyEMemorial in Stripe Checkout.</p><p>MyEMemorial</p>`,
+    text: `Your Celebration of Life Presentation for ${presentation.person_name} is ready to edit and share for 60 days.\n\nView and share the presentation: ${viewingLink}\n\nYour private builder link: ${link}\nThis private edit link may be used once during your 60-day hosting period. Do not share it with viewers.\n\n${thankYou}\nEnter your single-use credit code when purchasing a new paid MyEMemorial in Stripe Checkout: ${creditCode}`,
   });
 }
 

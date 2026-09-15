@@ -59,13 +59,22 @@ export default function CelebrationOfLifeProductPage() {
         ))}
       </section>
 
+      <section className="mx-auto max-w-5xl px-4 pb-12 sm:pb-16">
+        <div className="rounded-3xl border border-[#e3d9c5] bg-[#fffcf5] px-6 py-8 text-center shadow-sm sm:px-10">
+          <h2 className="font-serif text-3xl font-bold">Your presentation, ready to share</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[#344f43]">
+            After purchase, we email you the viewing link to share with family and the event venue, along with a separate private link for editing your presentation.
+          </p>
+        </div>
+      </section>
+
       <section className="bg-[#e9eadd] px-4 py-12 sm:py-16">
         <div className="mx-auto max-w-3xl rounded-[2rem] border border-[#d9cbb0] bg-[#fffcf5] px-6 py-9 text-center shadow-sm sm:px-12">
           <h2 className="font-serif text-3xl font-bold">A simple way to begin</h2>
           <p className="mt-4 text-base leading-7 text-[#344f43]">Start with their name and your email. Build and preview the presentation before you buy.</p>
           <p className="mt-6 font-serif text-4xl font-bold">$19.95</p>
           <p className="mt-2 text-base leading-7 text-[#344f43]">One-time purchase · Shareable presentation hosted for 60 days</p>
-          <p className="mt-4 text-base leading-7 text-[#344f43]">Your purchase includes a single-use $19.95 credit toward a new Basic, Plus, or Premium MyEMemorial.</p>
+          <p className="mt-4 text-base leading-7 text-[#344f43]">As a thank you for purchasing a Celebration of Life Presentation, your purchase includes a single-use $19.95 credit toward a new Basic, Plus, or Premium MyEMemorial.</p>
           <Link
             href={startHref}
             className="mt-7 inline-flex min-h-14 items-center justify-center rounded-full bg-[#244f40] px-8 py-4 text-lg font-bold text-white transition hover:bg-[#193b30]"

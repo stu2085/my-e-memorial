@@ -294,6 +294,17 @@ export default function CelebrationPresentationBuilderPage() {
     }
   }
 
+  async function copyViewingLink() {
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/celebration-of-life-slideshow/${encodeURIComponent(publicId)}`
+      );
+      setStatusMessage("Viewing link copied. You can share it with family or the event venue.");
+    } catch {
+      setErrorMessage("Could not copy the link. Open the presentation and copy its address instead.");
+    }
+  }
+
   async function requestAccess(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
@@ -1382,7 +1393,20 @@ export default function CelebrationPresentationBuilderPage() {
               </button>
             </div>
           ) : (
-            <p className="mt-7 rounded-2xl bg-green-50 px-5 py-4 text-center text-base font-semibold text-green-900">Purchased · Your shareable presentation is active for 60 days.</p>
+            <div className="mt-7 rounded-2xl border border-[#b5ccba] bg-[#f4faf2] px-5 py-5 text-center">
+              <p className="text-base font-semibold text-[#173a31]">Purchased · Your shareable presentation is active for 60 days.</p>
+              <p className="mt-2 text-base text-[#344f43]">Your viewing link was emailed to you. You can also open or copy it here.</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-3">
+                <a href={`/celebration-of-life-slideshow/${encodeURIComponent(publicId)}`} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex min-h-12 items-center rounded-full bg-[#244f40] px-5 py-2 text-base font-bold text-white hover:bg-[#193b30]">
+                  Open Viewing Link
+                </a>
+                <button type="button" onClick={() => void copyViewingLink()}
+                  className="min-h-12 rounded-full border-2 border-[#244f40] bg-white px-5 py-2 text-base font-bold text-[#173a31] hover:bg-[#e9f0e8]">
+                  Copy Viewing Link
+                </button>
+              </div>
+            </div>
           )}
 
           <div className="mt-8 space-y-3">
