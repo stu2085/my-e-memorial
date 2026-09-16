@@ -89,15 +89,28 @@ export default function CelebrationOfLifeProductPage() {
             Celebration of Life Presentation
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[#344f43]">
-            Bring together the photos, videos, and music that tell their story. Share a warm presentation for a service, a family gathering, or quiet moments of remembrance.
+            Bring together the photos, videos, and music that tell their story for a service, family gathering, or quiet moment of remembrance.
           </p>
-          <Link
-            href={startHref}
-            className="mt-8 inline-flex min-h-14 items-center justify-center rounded-full bg-[#244f40] px-8 py-4 text-lg font-bold text-white transition hover:bg-[#193b30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244f40]"
-          >
-            Create Their Presentation
-          </Link>
-          <p className="mt-4 text-base text-[#344f43]">Purchase once, then create, preview, share, and download your presentation.</p>
+          <p className="mt-6 font-serif text-4xl font-bold text-[#173a31]">
+            Only $29.95
+          </p>
+          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href={startHref}
+              className="inline-flex min-h-14 items-center justify-center rounded-full bg-[#244f40] px-8 py-4 text-lg font-bold text-white transition hover:bg-[#193b30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244f40]"
+            >
+              Start Creating
+            </Link>
+            <Link
+              href="/celebration-of-life-presentation/sample"
+              className="inline-flex min-h-14 items-center justify-center rounded-full border-2 border-[#244f40] bg-white px-8 py-4 text-lg font-bold text-[#244f40] transition hover:bg-[#edf4ef] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244f40]"
+            >
+              View a Sample
+            </Link>
+          </div>
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-7 text-[#344f43]">
+            Includes 60 days of online access, an MP4 Offline Copy, and guided Offline Backup steps for events without internet. Your purchase also includes a single-use $29.95 credit toward a new Basic, Plus, or Premium MyEMemorial.
+          </p>
         </div>
       </section>
 
@@ -131,23 +144,6 @@ export default function CelebrationOfLifeProductPage() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className="bg-[#e9eadd] px-4 py-12 sm:py-16">
-        <div className="mx-auto max-w-3xl rounded-[2rem] border border-[#d9cbb0] bg-[#fffcf5] px-6 py-9 text-center shadow-sm sm:px-12">
-          <h2 className="font-serif text-3xl font-bold">A simple way to begin</h2>
-          <p className="mt-4 text-base leading-7 text-[#344f43]">Start with their name and your email, then complete your $29.95 purchase to begin creating.</p>
-          <p className="mt-6 font-serif text-4xl font-bold">$29.95</p>
-          <p className="mt-2 text-base leading-7 text-[#344f43]">One-time purchase · Shareable presentation hosted for 60 days</p>
-          <p className="mt-4 text-base leading-7 text-[#344f43]">As a thank you for purchasing a Celebration of Life Presentation, your purchase includes a single-use $29.95 credit toward a new Basic, Plus, or Premium MyEMemorial.</p>
-          <Link
-            href={startHref}
-            className="mt-7 inline-flex min-h-14 items-center justify-center rounded-full bg-[#244f40] px-8 py-4 text-lg font-bold text-white transition hover:bg-[#193b30]"
-          >
-            Start Creating
-          </Link>
-          <p className="mt-5 text-base text-[#344f43]">A paid MyEMemorial plan already includes its own Celebration of Life Presentation.</p>
         </div>
       </section>
     </main>
