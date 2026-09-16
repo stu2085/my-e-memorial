@@ -6,7 +6,7 @@ const productTitle =
   "Celebration of Life Presentation | MyEMemorial";
 
 const productDescription =
-  "Create a Celebration of Life Presentation with photos, videos, and music. Purchase once, then create, preview, share, and download an MP4 with 60 days of online access.";
+  "Create a Celebration of Life Presentation with photos, videos, and music. Only $29.95 with an MP4 Offline Copy and 60 days of online sharing.";
 
 export const metadata: Metadata = {
   title: {
