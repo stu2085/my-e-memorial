@@ -88,7 +88,7 @@ export default function CelebrationPresentationStartPage() {
             Who are we celebrating?
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-base text-[#344f43]">Gather their photos, videos, and music into a presentation that honors the life they lived.</p>
-          <p className="mx-auto mt-3 max-w-lg text-base text-[#344f43]">Create and preview first. A one-time $19.95 purchase lets you share it for 60 days and includes a single-use $19.95 credit toward a new Basic, Plus, or Premium MyEMemorial.</p>
+          <p className="mx-auto mt-3 max-w-lg text-base text-[#344f43]">Complete your purchase first, then create, preview, share, and download your presentation. A one-time $29.95 purchase lets you share it for 60 days and includes a single-use $29.95 credit toward a new Basic, Plus, or Premium MyEMemorial.</p>
         </div>
 
         <form

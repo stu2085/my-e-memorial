@@ -1,40 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
-
-const productTitle =
-  "Celebration of Life Presentation | MyEMemorial";
-
-const productDescription =
-  "Create a Celebration of Life Presentation with photos, videos, and music. Purchase once, then create, preview, share, and download an MP4 with 60 days of online access.";
-
 export const metadata: Metadata = {
-  title: {
-    absolute: productTitle,
-  },
-  description: productDescription,
-  alternates: {
-    canonical: "/celebration-of-life-presentation",
-  },
-  openGraph: {
-    title: productTitle,
-    description: productDescription,
-    url: "/celebration-of-life-presentation",
-    siteName: "MyEMemorial",
-    type: "website",
-    images: [
-      {
-        url: "/Images/celebration-builder-background.png",
-        alt: "Celebration of Life Presentation by MyEMemorial",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: productTitle,
-    description: productDescription,
-    images: ["/Images/celebration-builder-background.png"],
-  },
+  title: "Celebration of Life Presentation | MyEMemorial",
+  description:
+    "Create a Celebration of Life Presentation with photos, videos, and music. Purchase once, then create, preview, share, and download your standalone presentation with 60 days of online access.",
 };
 
 const startHref = "/celebration-of-life-slideshow/create";
@@ -42,31 +12,6 @@ const startHref = "/celebration-of-life-slideshow/create";
 export default function CelebrationOfLifeProductPage() {
   return (
     <main className="bg-[#f9f5eb] text-[#173a31]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Service",
-            name: "Celebration of Life Presentation",
-            description:
-              "A one-time purchase presentation service for creating, sharing, and downloading a Celebration of Life Presentation with photos, videos, and music.",
-            url: "https://www.myememorial.com/celebration-of-life-presentation",
-            provider: {
-              "@type": "Organization",
-              name: "MyEMemorial",
-              url: "https://www.myememorial.com",
-            },
-            offers: {
-              "@type": "Offer",
-              price: "29.95",
-              priceCurrency: "USD",
-              availability: "https://schema.org/InStock",
-              url: "https://www.myememorial.com/celebration-of-life-presentation",
-            },
-          }),
-        }}
-      />
       <section
         className="px-4 py-14 sm:py-20"
         style={{
@@ -77,7 +22,7 @@ export default function CelebrationOfLifeProductPage() {
         }}
       >
         <div className="mx-auto max-w-4xl rounded-[2rem] border border-[#d9cbb0] bg-[#fffcf5]/95 px-6 py-10 text-center shadow-xl shadow-[#38483d]/15 backdrop-blur-sm sm:px-12 sm:py-14">
-          <p className="text-base font-semibold uppercase tracking-[0.14em] text-[#244f40]">
+          <p className="text-lg font-semibold uppercase tracking-[0.14em] text-[#244f40]">
             A presentation to honor their life
           </p>
           <div className="mx-auto mt-5 flex max-w-40 items-center gap-3 text-[#b99a68]" aria-hidden="true">
@@ -97,7 +42,7 @@ export default function CelebrationOfLifeProductPage() {
           >
             Create Their Presentation
           </Link>
-          <p className="mt-4 text-base text-[#344f43]">Purchase once, then create, preview, share, and download your presentation.</p>
+          <p className="mt-4 text-lg text-[#344f43]">Create and preview before purchasing.</p>
         </div>
       </section>
 
@@ -109,7 +54,7 @@ export default function CelebrationOfLifeProductPage() {
         ].map(([title, description]) => (
           <div key={title} className="rounded-3xl border border-[#e3d9c5] bg-[#fffcf5] p-7 shadow-sm">
             <h2 className="font-serif text-2xl font-bold">{title}</h2>
-            <p className="mt-3 text-base leading-7 text-[#344f43]">{description}</p>
+            <p className="mt-3 text-lg leading-8 text-[#344f43]">{description}</p>
           </div>
         ))}
       </section>
@@ -120,14 +65,14 @@ export default function CelebrationOfLifeProductPage() {
           <div className="mt-7 grid gap-4 text-left sm:grid-cols-2">
             <div className="rounded-2xl bg-[#f9f5eb] p-6">
               <h3 className="font-serif text-2xl font-bold">Share a viewing link</h3>
-              <p className="mt-3 text-base leading-7 text-[#344f43]">
+              <p className="mt-3 text-lg leading-8 text-[#344f43]">
                 After purchase, we email you a link to share with family or the event venue. Your presentation can be viewed online for 60 days. We also send a separate private link so you can continue editing.
               </p>
             </div>
             <div className="rounded-2xl bg-[#f9f5eb] p-6">
-              <h3 className="font-serif text-2xl font-bold">Download for offline playback</h3>
-              <p className="mt-3 text-base leading-7 text-[#344f43]">
-                Download your finished presentation as an MP4 video and save it to the device you will use at the event. Play it without Wi-Fi or an internet connection. Test the file on that device before the gathering.
+              <h3 className="font-serif text-2xl font-bold">Create an offline event backup</h3>
+              <p className="mt-3 text-lg leading-8 text-[#344f43]">
+                After purchase, we guide you through saving a complete offline copy to the laptop you will use at the event. Test it with Wi-Fi turned off, then copy the entire backup folder to a USB thumb drive for a second backup.
               </p>
             </div>
           </div>
@@ -137,17 +82,17 @@ export default function CelebrationOfLifeProductPage() {
       <section className="bg-[#e9eadd] px-4 py-12 sm:py-16">
         <div className="mx-auto max-w-3xl rounded-[2rem] border border-[#d9cbb0] bg-[#fffcf5] px-6 py-9 text-center shadow-sm sm:px-12">
           <h2 className="font-serif text-3xl font-bold">A simple way to begin</h2>
-          <p className="mt-4 text-base leading-7 text-[#344f43]">Start with their name and your email, then complete your $29.95 purchase to begin creating.</p>
+          <p className="mt-4 text-lg leading-8 text-[#344f43]">Start with their name and your email. Build and preview the presentation before you buy.</p>
           <p className="mt-6 font-serif text-4xl font-bold">$29.95</p>
-          <p className="mt-2 text-base leading-7 text-[#344f43]">One-time purchase · Shareable presentation hosted for 60 days</p>
-          <p className="mt-4 text-base leading-7 text-[#344f43]">As a thank you for purchasing a Celebration of Life Presentation, your purchase includes a single-use $29.95 credit toward a new Basic, Plus, or Premium MyEMemorial.</p>
+          <p className="mt-2 text-lg leading-8 text-[#344f43]">One-time purchase · Shareable presentation hosted for 60 days</p>
+          <p className="mt-4 text-lg leading-8 text-[#344f43]">As a thank you for purchasing a Celebration of Life Presentation, your purchase includes a single-use $29.95 credit toward a new Basic, Plus, or Premium MyEMemorial.</p>
           <Link
             href={startHref}
             className="mt-7 inline-flex min-h-14 items-center justify-center rounded-full bg-[#244f40] px-8 py-4 text-lg font-bold text-white transition hover:bg-[#193b30]"
           >
             Start Creating
           </Link>
-          <p className="mt-5 text-base text-[#344f43]">A paid MyEMemorial plan already includes its own Celebration of Life Presentation.</p>
+          <p className="mt-5 text-lg text-[#344f43]">A paid MyEMemorial plan already includes its own Celebration of Life Presentation.</p>
         </div>
       </section>
     </main>

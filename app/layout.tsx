@@ -166,6 +166,12 @@ export default function RootLayout({
               Online Memorials
             </Link>
             <Link
+              href="/celebration-of-life-presentation"
+              className="whitespace-nowrap font-medium text-stone-600 hover:text-stone-900"
+            >
+              Celebration of Life Presentation
+            </Link>
+            <Link
               href="/memorial-websites"
               className="whitespace-nowrap font-medium text-stone-600 hover:text-stone-900"
             >

@@ -15,6 +15,7 @@ import CameraPhotoCapture from "../../../components/celebration-presentation/Cam
 import CelebrationVideoRecorder from "../../../components/celebration-presentation/CelebrationVideoRecorder";
 import ArrangePresentationSection from "../../../components/celebration-presentation/ArrangePresentationSection";
 import BuilderMediaAccordion from "../../../components/celebration-presentation/BuilderMediaAccordion";
+import OfflineVideoSection from "../../../components/celebration-presentation/OfflineVideoSection";
 
 type Presentation = {
   publicId: string;
@@ -257,10 +258,29 @@ export default function CelebrationPresentationBuilderPage() {
   }, [loadPresentation]);
 
   useEffect(() => {
-    const payment = new URLSearchParams(window.location.search).get("payment");
-    if (payment === "cancelled") setStatusMessage("Payment was cancelled. You can continue editing your presentation.");
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get("payment");
+    const sessionId = params.get("session_id");
+
+    if (payment === "cancelled") {
+      setStatusMessage("Payment was cancelled. You can continue editing your presentation.");
+    }
     if (payment !== "success") return;
+
     setStatusMessage("Your payment is being confirmed. Your presentation will become active shortly.");
+
+    if (sessionId) {
+      void fetch(
+        `/api/celebration-presentations/${encodeURIComponent(publicId)}/confirm-payment`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ sessionId }),
+        }
+      ).catch(() => null);
+    }
+
     let attempts = 0;
     const timer = window.setInterval(async () => {
       attempts += 1;
@@ -1106,7 +1126,7 @@ export default function CelebrationPresentationBuilderPage() {
           item.id === itemId
             ? {
                 ...item,
-                caption: String(caption).trim().slice(0, 500),
+                caption: String(caption).trim().slice(0, 35),
               }
             : item
         )
@@ -1384,9 +1404,9 @@ export default function CelebrationPresentationBuilderPage() {
 
           {presentation?.paymentStatus !== "paid" ? (
             <div className="mt-7 rounded-2xl border border-[#d6c29b] bg-white/90 p-5 text-center shadow-sm">
-              <p className="text-base font-semibold text-[#173a31]">One-time purchase: $19.95 · Hosted for 60 days</p>
+              <p className="text-base font-semibold text-[#173a31]">One-time purchase: $29.95 · Hosted for 60 days</p>
               <p className="mt-2 text-base text-stone-700">You can create and preview your presentation now. Purchase to activate the shareable presentation.</p>
-              <p className="mt-2 text-base text-stone-700">You will receive a single-use $19.95 code to credit this purchase toward a new paid MyEMemorial.</p>
+              <p className="mt-2 text-base text-stone-700">You will receive a single-use $29.95 code to credit this purchase toward a new Basic, Plus, or Premium MyEMemorial.</p>
               <button type="button" onClick={() => void startCheckout()} disabled={startingCheckout}
                 className="mt-4 min-h-14 rounded-full bg-[#244f40] px-7 py-3 text-lg font-bold text-white disabled:opacity-60">
                 {startingCheckout ? "Opening checkout..." : "Purchase Presentation"}
@@ -1407,6 +1427,17 @@ export default function CelebrationPresentationBuilderPage() {
                 </button>
               </div>
             </div>
+          )}
+
+
+          {presentation?.paymentStatus === "paid" && (
+            <OfflineVideoSection
+              publicId={publicId}
+              personName={presentation.personName}
+              paymentStatus={presentation.paymentStatus}
+              status={presentation.status}
+              music={music}
+            />
           )}
 
           <div className="mt-8 space-y-3">
@@ -1519,7 +1550,7 @@ export default function CelebrationPresentationBuilderPage() {
 
                           <input
                             type="text"
-                            maxLength={500}
+                            maxLength={35}
                             defaultValue={
                               item.caption || ""
                             }
@@ -1641,7 +1672,7 @@ export default function CelebrationPresentationBuilderPage() {
 
                           <input
                             type="text"
-                            maxLength={500}
+                            maxLength={35}
                             defaultValue={
                               item.caption || ""
                             }

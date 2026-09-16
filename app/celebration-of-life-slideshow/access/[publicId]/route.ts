@@ -29,6 +29,6 @@ export async function GET(req: NextRequest, context: { params: Promise<{ publicI
   response.headers.set("Cache-Control", "no-store");
   response.headers.set("Referrer-Policy", "no-referrer");
   response.cookies.set({ name: `celebration_edit_${publicId}`, value: token, httpOnly: true,
-    secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 24 * 60 * 60 });
+    secure: process.env.NODE_ENV === "production" && req.nextUrl.protocol === "https:", sameSite: "lax", path: "/", maxAge: 60 * 24 * 60 * 60 });
   return response;
 }

@@ -11,7 +11,6 @@ export async function POST(req: NextRequest, context: { params: Promise<{ public
   const { publicId } = await context.params;
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   const priceId = process.env.STRIPE_CELEBRATION_PRICE_ID;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.myememorial.com";
 
   if (!publicIdPattern.test(publicId)) {
     return NextResponse.json({ error: "Presentation not found." }, { status: 404 });
@@ -37,7 +36,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ public
   if (presentation.payment_status === "paid") {
     return NextResponse.json({ error: "This presentation has already been purchased." }, { status: 409 });
   }
-  if (presentation.status !== "draft" || presentation.price_cents !== 1995 || presentation.hosting_days !== 60) {
+  if (presentation.status !== "draft" || presentation.price_cents !== 2995 || presentation.hosting_days !== 60) {
     return NextResponse.json({ error: "This presentation is not available for checkout." }, { status: 409 });
   }
 
@@ -56,7 +55,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ public
     if (!price.active || price.type !== "one_time" || price.currency !== "usd" || price.unit_amount !== presentation.price_cents) {
       return NextResponse.json({ error: "The presentation price is not configured correctly." }, { status: 503 });
     }
-    const origin = new URL(siteUrl).origin;
+    const origin = req.nextUrl.origin;
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: presentation.customer_email,

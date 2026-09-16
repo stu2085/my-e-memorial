@@ -9,12 +9,12 @@ function escapeHtml(value: string) {
   return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] || character);
 }
 
-export async function activateCelebrationPurchase(stripe: Stripe, session: Stripe.Checkout.Session, eventCreated: number) {
+export async function activateCelebrationPurchase(stripe: Stripe, session: Stripe.Checkout.Session, eventCreated: number, originOverride?: string) {
   const publicId = session.metadata?.publicId || "";
   const presentationId = Number(session.metadata?.presentationId);
   const configuredPriceId = process.env.STRIPE_CELEBRATION_PRICE_ID;
   if (!configuredPriceId || !Number.isSafeInteger(presentationId) || presentationId < 1 ||
-      session.payment_status !== "paid" || session.currency !== "usd" || session.amount_subtotal !== 1995) {
+      session.payment_status !== "paid" || session.currency !== "usd" || session.amount_subtotal !== 2995) {
     throw new Error("Celebration payment failed validation.");
   }
   const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 10 });
@@ -24,7 +24,7 @@ export async function activateCelebrationPurchase(stripe: Stripe, session: Strip
   const { data: presentation, error } = await admin.from("celebration_presentations")
     .select("id, public_id, person_name, customer_email, price_cents, hosting_days, payment_status, stripe_checkout_session_id, credit_coupon_id, credit_promotion_code_id, credit_code")
     .eq("id", presentationId).eq("public_id", publicId).maybeSingle();
-  if (error || !presentation || presentation.price_cents !== 1995 || presentation.hosting_days !== 60 ||
+  if (error || !presentation || presentation.price_cents !== 2995 || presentation.hosting_days !== 60 ||
       presentation.customer_email.toLowerCase() !== (session.customer_details?.email || "").toLowerCase()) {
     throw new Error("Celebration presentation or purchaser could not be verified.");
   }
@@ -39,7 +39,7 @@ export async function activateCelebrationPurchase(stripe: Stripe, session: Strip
     const activatedAt = new Date(eventCreated * 1000);
     const expiresAt = new Date(activatedAt.getTime() + 60 * 24 * 60 * 60 * 1000);
     const { data: activated, error: updateError } = await admin.from("celebration_presentations")
-      .update({ status: "active", payment_status: "paid", amount_paid_cents: session.amount_total || 1995,
+      .update({ status: "active", payment_status: "paid", amount_paid_cents: session.amount_total || 2995,
         stripe_checkout_session_id: session.id, stripe_payment_intent_id: typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id || null,
         activated_at: activatedAt.toISOString(), expires_at: expiresAt.toISOString() })
       .eq("id", presentation.id).eq("payment_status", "unpaid").select("id").maybeSingle();
@@ -50,8 +50,8 @@ export async function activateCelebrationPurchase(stripe: Stripe, session: Strip
   let creditCode = presentation.credit_code as string | null;
   let couponId = presentation.credit_coupon_id as string | null;
   if (!couponId) {
-    const coupon = await stripe.coupons.create({ amount_off: 1995, currency: "usd", duration: "once",
-      max_redemptions: 1, name: "Standalone Celebration Presentation $19.95 MyEMemorial credit",
+    const coupon = await stripe.coupons.create({ amount_off: 2995, currency: "usd", duration: "once",
+      max_redemptions: 1, name: "Celebration Presentation $29.95 Credit",
       metadata: { presentationId: String(presentation.id) } });
     couponId = coupon.id;
     const { error: couponError } = await admin.from("celebration_presentations")
@@ -79,10 +79,10 @@ export async function activateCelebrationPurchase(stripe: Stripe, session: Strip
     .eq("id", presentation.id).eq("stripe_checkout_session_id", session.id);
   if (deliveryError) throw deliveryError;
 
-  const origin = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.myememorial.com").origin;
+  const origin = new URL(originOverride || process.env.NEXT_PUBLIC_SITE_URL || "https://www.myememorial.com").origin;
   const link = `${origin}/celebration-of-life-slideshow/access/${publicId}?token=${accessToken}`;
   const viewingLink = `${origin}/celebration-of-life-slideshow/${publicId}`;
-  const thankYou = "As a thank you for purchasing a Celebration of Life Presentation, your purchase includes a single-use $19.95 credit toward a new Basic, Plus, or Premium MyEMemorial.";
+  const thankYou = "As a thank you for purchasing a Celebration of Life Presentation, your purchase includes a single-use $29.95 credit toward a new Basic, Plus, or Premium MyEMemorial.";
   await transporter.sendMail({
     from: '"MyEMemorial" <help@myememorial.com>', to: presentation.customer_email,
     subject: "Your Celebration of Life Presentation is ready",

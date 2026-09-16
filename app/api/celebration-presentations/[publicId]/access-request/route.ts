@@ -31,7 +31,16 @@ export async function POST(req: NextRequest, context: { params: Promise<{ public
     : update.is("email_access_requested_at", null);
   const { data: updated, error } = await update.select("id").maybeSingle();
   if (error || !updated) return reply;
-  const origin = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.myememorial.com").origin;
+  const requestOrigin = req.nextUrl.origin;
+  const isLocalRequest =
+    requestOrigin.includes("localhost") ||
+    requestOrigin.includes("127.0.0.1");
+  const origin = isLocalRequest
+    ? requestOrigin
+    : new URL(
+        process.env.NEXT_PUBLIC_SITE_URL ||
+          "https://www.myememorial.com"
+      ).origin;
   const link = `${origin}/celebration-of-life-slideshow/access/${publicId}?token=${token}`;
   try {
     await transporter.sendMail({ from: '"MyEMemorial" <help@myememorial.com>', to: presentation.customer_email,

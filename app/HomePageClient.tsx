@@ -221,8 +221,8 @@ useEffect(() => {
     </div>
     <div className="mt-6 rounded-3xl border border-amber-200 bg-white p-6 text-center shadow-sm">
       <h3 className="text-2xl font-bold text-stone-900">Need only a Celebration of Life Presentation?</h3>
-      <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-stone-700">Create a standalone presentation with photos, videos, and music. One-time $19.95 purchase includes a shareable presentation hosted for 60 days. Paid MyEMemorial plans already include their own presentation.</p>
-      <p className="mx-auto mt-2 max-w-2xl text-base text-stone-700">If you later buy a paid MyEMemorial, apply your single-use $19.95 credit code at checkout.</p>
+      <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-stone-700">Create a standalone presentation with photos, videos, and music. One-time $29.95 purchase includes a shareable presentation hosted for 60 days. Paid MyEMemorial plans already include their own presentation.</p>
+      <p className="mx-auto mt-2 max-w-2xl text-base text-stone-700">If you later buy a paid MyEMemorial, apply your single-use $29.95 credit code at checkout.</p>
       <Link href="/celebration-of-life-presentation" className="mt-5 inline-flex min-h-14 items-center justify-center rounded-full bg-blue-950 px-7 py-3 text-base font-bold text-white hover:bg-blue-900">Explore the Standalone Presentation</Link>
     </div>
   </div>
