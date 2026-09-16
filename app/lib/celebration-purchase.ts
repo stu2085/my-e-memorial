@@ -84,7 +84,7 @@ export async function activateCelebrationPurchase(stripe: Stripe, session: Strip
   const viewingLink = `${origin}/celebration-of-life-slideshow/${publicId}`;
   const thankYou = "As a thank you for purchasing a Celebration of Life Presentation, your purchase includes a single-use $29.95 credit toward a new Basic, Plus, or Premium MyEMemorial.";
   await transporter.sendMail({
-    from: '"MyEMemorial" <help@myememorial.com>', to: presentation.customer_email,
+    from: '"MyEMemorial" <info@myememorial.com>', to: presentation.customer_email,
     subject: "Your Celebration of Life Presentation is ready",
     html: `
       <div style="margin:0;padding:28px 12px;background:#f4f1e8;font-family:Arial,Helvetica,sans-serif;color:#173a31;">

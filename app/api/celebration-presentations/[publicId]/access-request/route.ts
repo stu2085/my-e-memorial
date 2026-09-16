@@ -43,7 +43,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ public
       ).origin;
   const link = `${origin}/celebration-of-life-slideshow/access/${publicId}?token=${token}`;
   try {
-    await transporter.sendMail({ from: '"MyEMemorial" <help@myememorial.com>', to: presentation.customer_email,
+    await transporter.sendMail({ from: '"MyEMemorial" <info@myememorial.com>', to: presentation.customer_email,
       subject: "Your private Celebration of Life Presentation link",
       html: `
         <div style="margin:0;padding:28px 12px;background:#f4f1e8;font-family:Arial,Helvetica,sans-serif;color:#173a31;">
