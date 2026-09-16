@@ -298,6 +298,10 @@ const memorialProductDescription =
       ],
       mode: "payment",
 
+      allow_promotion_codes:
+        (plan === "basic" || plan === "plus" || plan === "premium") &&
+        (!checkoutType || checkoutType === "standard"),
+
       automatic_tax: {
         enabled: shouldCollectTax,
       },

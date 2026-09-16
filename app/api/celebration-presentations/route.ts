@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
         edit_token_hash: editTokenHash,
         status: "draft",
         payment_status: "unpaid",
-        price_cents: 1995,
+        price_cents: 2995,
         hosting_days: 60,
       })
       .select(

@@ -286,11 +286,32 @@ export default function NavBar() {
     }
   }
 
+  if (
+    pathname === "/celebration-of-life-presentation" ||
+    pathname.startsWith("/celebration-of-life-slideshow")
+  ) {
+    return (
+      <header className="border-b border-[#e3d9c5] bg-[#fffcf5] px-4 py-3 sm:px-8" aria-label="MyEMemorial">
+        <Link href="/" className="mx-auto flex w-fit max-w-[1600px] items-center" aria-label="MyEMemorial home">
+          <Image
+            src="/Images/myememorial-logo-navbar.png"
+            alt="MyEMemorial"
+            width={972}
+            height={287}
+            sizes="(max-width: 639px) 210px, 260px"
+            loading="eager"
+            className="h-16 w-auto max-w-[210px] object-contain sm:h-20 sm:max-w-[260px]"
+          />
+        </Link>
+      </header>
+    );
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200 bg-white/95 backdrop-blur">
       <div className="mx-auto max-w-[1600px] px-3 py-2 min-[1380px]:flex min-[1380px]:items-center min-[1380px]:gap-1 min-[1380px]:px-3 xl:px-4 2xl:px-6">
         <div className="flex w-full items-center justify-between gap-3 min-[1380px]:w-auto">
-          <a
+          <Link
             href="/"
             className="flex min-w-0 shrink-0 items-center"
             aria-label="MyEMemorial home"
@@ -305,7 +326,7 @@ export default function NavBar() {
               loading="eager"
               className="h-16 w-auto max-w-[225px] object-contain sm:h-20 sm:max-w-none min-[1380px]:h-[88px] 2xl:h-24"
             />
-          </a>
+          </Link>
 
           <button
             type="button"

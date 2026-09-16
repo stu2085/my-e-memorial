@@ -8,6 +8,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 );
 import { transporter } from "../../lib/email";
+import { activateCelebrationPurchase, cancelFullyRefundedCelebration } from "../../lib/celebration-purchase";
 
 type MetaPurchaseEventInput = {
   eventId: string;
@@ -193,6 +194,18 @@ const canSendCustomerEmail =
 const checkoutType =
   session.metadata?.checkoutType ||
   session.metadata?.type;
+if (checkoutType === "celebration_presentation") {
+  try {
+    await activateCelebrationPurchase(stripe, session, event.created);
+    const { error: processedError } = await supabase.from("processed_webhooks")
+      .upsert({ event_id: eventId }, { onConflict: "event_id", ignoreDuplicates: true });
+    if (processedError) throw processedError;
+    return NextResponse.json({ received: true });
+  } catch (purchaseError) {
+    console.error("CELEBRATION PURCHASE WEBHOOK ERROR:", purchaseError);
+    return NextResponse.json({ error: "Presentation payment processing could not be completed." }, { status: 500 });
+  }
+}
 const fromPlan = session.metadata?.fromPlan;
 const toPlan = session.metadata?.toPlan;
 
@@ -1437,6 +1450,18 @@ if (processedError) {
   );
 }
 
+}
+
+if (event.type === "charge.refunded") {
+  try {
+    await cancelFullyRefundedCelebration(stripe, event.data.object as Stripe.Charge);
+    const { error: processedError } = await supabase.from("processed_webhooks")
+      .upsert({ event_id: eventId }, { onConflict: "event_id", ignoreDuplicates: true });
+    if (processedError) throw processedError;
+  } catch (refundError) {
+    console.error("CELEBRATION REFUND WEBHOOK ERROR:", refundError);
+    return NextResponse.json({ error: "Presentation refund could not be recorded." }, { status: 500 });
+  }
 }
 
 return NextResponse.json({ received: true });

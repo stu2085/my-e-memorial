@@ -427,6 +427,13 @@ export default function MemorialsPage() {
                       photos, captions, Video Memories, and favorite music already
                       preserved in their MyEMemorial.
                     </p>
+
+                    <Link
+                      href="/celebration-of-life-presentation"
+                      className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full border border-amber-300 bg-white px-5 py-3 text-base font-bold text-blue-950 transition hover:bg-amber-100"
+                    >
+                      Need only a service presentation? Create one for $29.95
+                    </Link>
                   </div>
 
                   <div className="bg-white/5 p-7 md:p-8">

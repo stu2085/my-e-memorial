@@ -503,7 +503,7 @@ export async function PATCH(
       body?.caption || ""
     )
       .trim()
-      .slice(0, 500);
+      .slice(0, 35);
 
     const {
       data: updated,
