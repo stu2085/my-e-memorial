@@ -86,7 +86,32 @@ export async function activateCelebrationPurchase(stripe: Stripe, session: Strip
   await transporter.sendMail({
     from: '"MyEMemorial" <help@myememorial.com>', to: presentation.customer_email,
     subject: "Your Celebration of Life Presentation is ready",
-    html: `<p>Thank you for your purchase.</p><p>Your Celebration of Life Presentation for <strong>${escapeHtml(presentation.person_name)}</strong> is ready to edit and share for 60 days.</p><p><a href="${viewingLink}">View and share the presentation</a></p><p>Share this viewing link with family or the event venue: ${viewingLink}</p><p><a href="${link}">Open your private presentation builder</a></p><p>This private edit link may be used once during your 60-day hosting period. Do not share it with viewers.</p><p>${escapeHtml(thankYou)}</p><p>Enter your single-use credit code <strong>${escapeHtml(creditCode)}</strong> when purchasing a new paid MyEMemorial in Stripe Checkout.</p><p>MyEMemorial</p>`,
+    html: `
+      <div style="margin:0;padding:28px 12px;background:#f4f1e8;font-family:Arial,Helvetica,sans-serif;color:#173a31;">
+        <table role="presentation" align="center" width="640" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #ded4c0;border-radius:18px;overflow:hidden;">
+          <tr><td align="center" style="padding:26px;background:#ffffff;"><a href="https://www.myememorial.com"><img src="https://www.myememorial.com/myememorial-logo.png" width="210" alt="MyEMemorial" style="display:block;border:0;width:210px;max-width:100%;height:auto;" /></a></td></tr>
+          <tr><td style="padding:30px 34px 34px;">
+            <p style="margin:0 0 10px;font-size:13px;font-weight:700;letter-spacing:1.5px;text-align:center;color:#9b713a;">CELEBRATION OF LIFE PRESENTATION</p>
+            <h1 style="margin:0 0 18px;font-family:Georgia,serif;font-size:30px;line-height:1.25;text-align:center;color:#173a31;">Your presentation is ready</h1>
+            <p style="margin:0 0 18px;font-size:16px;line-height:1.6;">Thank you for your purchase. Your Celebration of Life Presentation for <strong>${escapeHtml(presentation.person_name)}</strong> is ready to edit and share for 60 days.</p>
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:24px auto;"><tr><td style="border-radius:999px;background:#244f40;"><a href="${viewingLink}" style="display:inline-block;padding:14px 24px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;">View &amp; Share Presentation</a></td></tr></table>
+            <div style="margin:26px 0;padding:22px;background:#edf5f0;border:1px solid #c9ddd2;border-radius:12px;">
+              <h2 style="margin:0 0 9px;font-family:Georgia,serif;font-size:22px;color:#173a31;">Your private builder</h2>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Use this private link to add photos, videos, captions, music, and create your Offline Copy. It can be used once during the 60-day hosting period. Please do not share it with viewers.</p>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td style="border-radius:999px;background:#244f40;"><a href="${link}" style="display:inline-block;padding:13px 21px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">Open Private Builder</a></td></tr></table>
+            </div>
+            <div style="margin:26px 0 0;padding:22px;background:#fbf7ed;border:1px solid #e0d2b4;border-radius:12px;">
+              <h2 style="margin:0 0 10px;font-family:Georgia,serif;font-size:22px;color:#173a31;">Your $29.95 MyEMemorial credit</h2>
+              <p style="margin:0 0 14px;font-size:15px;line-height:1.55;">${escapeHtml(thankYou)}</p>
+              <p style="margin:0 0 8px;font-size:14px;color:#4e5d55;">Enter this single-use code during Stripe Checkout:</p>
+              <p style="margin:0;font-size:24px;font-weight:700;letter-spacing:1px;color:#173a31;">${escapeHtml(creditCode)}</p>
+            </div>
+            <p style="margin:28px 0 0;font-size:14px;line-height:1.55;color:#5b665f;">You may share this viewing link with family or the event venue:<br /><a href="${viewingLink}" style="color:#244f40;word-break:break-all;">${viewingLink}</a></p>
+          </td></tr>
+          <tr><td align="center" style="padding:20px 28px;background:#173a31;color:#ffffff;"><p style="margin:0;font-size:14px;font-weight:700;">MyEMemorial</p><p style="margin:5px 0 0;font-size:12px;color:#d9e4de;">Where Life's Stories Are Told</p></td></tr>
+        </table>
+      </div>
+    `,
     text: `Your Celebration of Life Presentation for ${presentation.person_name} is ready to edit and share for 60 days.\n\nView and share the presentation: ${viewingLink}\n\nYour private builder link: ${link}\nThis private edit link may be used once during your 60-day hosting period. Do not share it with viewers.\n\n${thankYou}\nEnter your single-use credit code when purchasing a new paid MyEMemorial in Stripe Checkout: ${creditCode}`,
   });
 }
