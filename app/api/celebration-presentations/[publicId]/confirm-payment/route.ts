@@ -21,6 +21,7 @@ export async function POST(
   }
 
   const stripeKey = process.env.STRIPE_SECRET_KEY;
+
   if (!stripeKey) {
     return NextResponse.json(
       { error: "Payment confirmation is not available." },
@@ -30,7 +31,9 @@ export async function POST(
 
   const body = await req.json().catch(() => ({}));
   const sessionId =
-    typeof body?.sessionId === "string" ? body.sessionId.trim() : "";
+    typeof body?.sessionId === "string"
+      ? body.sessionId.trim()
+      : "";
 
   if (!sessionId.startsWith("cs_")) {
     return NextResponse.json(
@@ -60,11 +63,13 @@ export async function POST(
   }
 
   const token =
-    req.cookies.get(`celebration_edit_${publicId}`)?.value || "";
+    req.cookies.get(`celebration_edit_${publicId}`)?.value ||
+    "";
 
   const supplied = Buffer.from(
     createHash("sha256").update(token).digest("hex")
   );
+
   const expected = Buffer.from(
     String(presentation.edit_token_hash || "")
   );
@@ -75,7 +80,10 @@ export async function POST(
     !timingSafeEqual(supplied, expected)
   ) {
     return NextResponse.json(
-      { error: "Editing access is required to confirm this payment." },
+      {
+        error:
+          "Editing access is required to confirm this payment.",
+      },
       { status: 403 }
     );
   }
@@ -85,7 +93,10 @@ export async function POST(
     presentation.stripe_checkout_session_id !== sessionId
   ) {
     return NextResponse.json(
-      { error: "This payment session does not match the presentation." },
+      {
+        error:
+          "This payment session does not match the presentation.",
+      },
       { status: 409 }
     );
   }
@@ -95,17 +106,23 @@ export async function POST(
       apiVersion: "2026-04-22.dahlia",
     });
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const session =
+      await stripe.checkout.sessions.retrieve(sessionId);
 
     if (
       session.status !== "complete" ||
       session.payment_status !== "paid" ||
-      session.metadata?.checkoutType !== "celebration_presentation" ||
+      session.metadata?.checkoutType !==
+        "celebration_presentation" ||
       session.metadata?.publicId !== publicId ||
-      Number(session.metadata?.presentationId) !== presentation.id
+      Number(session.metadata?.presentationId) !==
+        presentation.id
     ) {
       return NextResponse.json(
-        { error: "Stripe has not confirmed this presentation payment." },
+        {
+          error:
+            "Stripe has not confirmed this presentation payment.",
+        },
         { status: 409 }
       );
     }
@@ -117,9 +134,30 @@ export async function POST(
       req.nextUrl.origin
     );
 
+    const taxAmount = Number(
+      session.total_details?.amount_tax || 0
+    );
+
+    const conversionValueCents = Math.max(
+      0,
+      Number(session.amount_total || 0) - taxAmount
+    );
+
     return NextResponse.json(
-      { ok: true, paymentStatus: "paid" },
-      { headers: { "Cache-Control": "no-store" } }
+      {
+        ok: true,
+        paymentStatus: "paid",
+        conversionValue: conversionValueCents / 100,
+        conversionCurrency: String(
+          session.currency || "usd"
+        ).toUpperCase(),
+        transactionId: session.id,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      }
     );
   } catch (confirmationError) {
     console.error(

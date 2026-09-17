@@ -270,7 +270,9 @@ export default function CelebrationPresentationBuilderPage() {
     setStatusMessage("Your payment is being confirmed. Your presentation will become active shortly.");
 
     if (sessionId) {
-      void fetch(
+  void (async () => {
+    try {
+      const confirmationResponse = await fetch(
         `/api/celebration-presentations/${encodeURIComponent(publicId)}/confirm-payment`,
         {
           method: "POST",
@@ -278,8 +280,52 @@ export default function CelebrationPresentationBuilderPage() {
           credentials: "include",
           body: JSON.stringify({ sessionId }),
         }
-      ).catch(() => null);
+      );
+
+      const confirmationResult =
+        await confirmationResponse.json();
+
+      if (
+        confirmationResponse.ok &&
+        confirmationResult?.ok === true &&
+        confirmationResult?.paymentStatus === "paid"
+      ) {
+        const conversionValue = Number(
+          confirmationResult?.conversionValue
+        );
+
+        const conversionCurrency = String(
+          confirmationResult?.conversionCurrency || "USD"
+        );
+
+        const transactionId = String(
+          confirmationResult?.transactionId || sessionId
+        );
+
+        if (
+          typeof window !== "undefined" &&
+          typeof (window as any).gtag === "function" &&
+          Number.isFinite(conversionValue) &&
+          conversionValue > 0 &&
+          transactionId
+        ) {
+          (window as any).gtag("event", "conversion", {
+            send_to:
+              "AW-18425931513/S-_aCO006-wcEPnNldJE",
+            value: conversionValue,
+            currency: conversionCurrency,
+            transaction_id: transactionId,
+          });
+        }
+      }
+    } catch (confirmationError) {
+      console.error(
+        "CELEBRATION GOOGLE PURCHASE TRACKING ERROR:",
+        confirmationError
+      );
     }
+  })();
+}
 
     let attempts = 0;
     const timer = window.setInterval(async () => {

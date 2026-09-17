@@ -2164,9 +2164,33 @@ if (giftToken) {
       const data = await res.json();
 
       if (data.paid === true) {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+  const conversionValue = Number(data?.conversionValue);
+  const conversionCurrency = String(
+    data?.conversionCurrency || "USD"
+  );
+  const transactionId = String(
+    data?.transactionId || sessionId
+  );
+
+  if (
+    typeof window !== "undefined" &&
+    typeof (window as any).gtag === "function" &&
+    Number.isFinite(conversionValue) &&
+    conversionValue > 0 &&
+    transactionId
+  ) {
+    (window as any).gtag("event", "conversion", {
+      send_to:
+        "AW-18425931513/S-_aCO006-wcEPnNldJE",
+      value: conversionValue,
+      currency: conversionCurrency,
+      transaction_id: transactionId,
+    });
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
         if (!user) {
           const paidBuilderPath =

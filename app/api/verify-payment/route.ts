@@ -464,15 +464,29 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json({
-      paid: true,
-      checkoutType,
-      plan: isPaidPlan(
-        String(session.metadata?.plan || "")
-      )
-        ? String(session.metadata?.plan)
-        : null,
-    });
+    const taxAmount = Number(
+  session.total_details?.amount_tax || 0
+);
+
+const conversionValueCents = Math.max(
+  0,
+  Number(session.amount_total || 0) - taxAmount
+);
+
+return NextResponse.json({
+  paid: true,
+  checkoutType,
+  plan: isPaidPlan(
+    String(session.metadata?.plan || "")
+  )
+    ? String(session.metadata?.plan)
+    : null,
+  conversionValue:
+    conversionValueCents / 100,
+  conversionCurrency:
+    String(session.currency || "usd").toUpperCase(),
+  transactionId: session.id,
+});
   } catch (err) {
     console.error("VERIFY ERROR:", err);
 
