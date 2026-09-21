@@ -156,7 +156,8 @@ export default function CelebrationPresentationBuilderPage() {
     setStatusMessage,
   ] =
     useState("");
-
+const [showUpgradeOffer, setShowUpgradeOffer] =
+  useState(false);
   const loadPresentation =
     useCallback(async () => {
       if (!publicId) {
@@ -335,8 +336,13 @@ export default function CelebrationPresentationBuilderPage() {
         const result = await response.json();
         if (response.ok && result?.presentation?.paymentStatus === "paid") {
           setPresentation(result.presentation as Presentation);
-          setStatusMessage("Payment confirmed. Your presentation is active. Your private edit link is being emailed to you.");
-          window.clearInterval(timer);
+          setStatusMessage(
+  "Payment confirmed. Your presentation is active. Your private edit link is being emailed to you."
+);
+
+setShowUpgradeOffer(true);
+
+window.clearInterval(timer);
         }
       } catch { /* Stripe webhook may still be processing. */ }
       if (attempts >= 15) window.clearInterval(timer);
@@ -1871,6 +1877,33 @@ export default function CelebrationPresentationBuilderPage() {
               }
             </p>
           )}
+        {showUpgradeOffer && (
+  <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-5 text-center">
+    <h2 className="font-serif text-2xl font-semibold text-stone-900">
+      Your Purchase Includes a $29.95 MyEMemorial Credit
+    </h2>
+
+    <p className="mt-3 text-base text-stone-700">
+      Apply your full $29.95 Celebration Presentation purchase toward a new
+      Basic, Plus, or Premium MyEMemorial.
+    </p>
+
+    <p className="mt-2 text-base font-semibold text-stone-900">
+      Basic is only $20 more before tax.
+    </p>
+
+    <p className="mt-2 text-base text-stone-700">
+      Your single-use credit code has been sent to your email.
+    </p>
+
+    <a
+      href="/memorials"
+      className="mt-4 inline-flex rounded-full bg-[#244f40] px-6 py-3 text-base font-semibold text-white hover:bg-[#1c4034]"
+    >
+      Explore MyEMemorial Plans
+    </a>
+  </div>
+)}  
         </div>
       </main>
 
