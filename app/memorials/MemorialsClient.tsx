@@ -85,7 +85,16 @@ export default function MemorialsPage() {
 
   return (
     <main className="min-h-screen bg-[#f7f3ec]">
-      <h1 className="sr-only">Online Memorials — Create a Departed MyEMemorial</h1>
+      <div className="px-4 pt-8 text-center md:px-8 md:pt-10">
+  <h1 className="text-3xl font-bold leading-tight text-stone-900 md:text-4xl">
+    Create an Online Memorial for Someone You Love
+  </h1>
+
+  <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-600">
+    A Departed MyEMemorial brings their life story, photos, videos, music,
+    and memories together in one lasting place.
+  </p>
+</div>
       {/* HERO */}
       <section className="px-4 py-8 md:px-8 md:py-12">
         <div className="mx-auto max-w-7xl">
