@@ -59,6 +59,16 @@ export default function HowToMakeCelebrationPresentationPage() {
             provide the memories; MyEMemorial gives you a straightforward way
             to create, share, and download the finished presentation.
           </p>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[#344f43]">
+            If you are searching for a memorial slideshow or funeral slideshow,{" "}
+            <Link
+              href="/memorial-slideshow-maker"
+              className="font-bold text-[#244f40] underline underline-offset-4"
+            >
+              see our Memorial Slideshow Maker
+            </Link>
+            .
+          </p>
           <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/celebration-of-life-slideshow/create"

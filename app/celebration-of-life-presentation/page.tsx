@@ -111,6 +111,16 @@ export default function CelebrationOfLifeProductPage() {
           <p className="mx-auto mt-5 max-w-3xl text-base leading-7 text-[#344f43]">
             Includes 60 days of online access, an MP4 Offline Copy, and guided Offline Backup steps for events without internet. Your purchase also includes a single-use $29.95 credit toward a new Basic, Plus, or Premium MyEMemorial.
           </p>
+          <p className="mx-auto mt-4 max-w-3xl text-base leading-7 text-[#344f43]">
+            Looking specifically for a slideshow for a funeral or memorial service?{" "}
+            <Link
+              href="/memorial-slideshow-maker"
+              className="font-bold text-[#244f40] underline underline-offset-4"
+            >
+              Learn about our Memorial Slideshow Maker
+            </Link>
+            .
+          </p>
         </div>
       </section>
 
