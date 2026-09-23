@@ -216,8 +216,14 @@ export default function MemorialWebsitesPage() {
             </div>
 
             <p className="mt-5 text-base leading-7 text-stone-700">
-              Read more in our upcoming guide to{" "}
-              <span className="font-semibold">online memorials vs. obituaries</span>.
+              Read more about{" "}
+              <Link
+                href="/online-memorial-vs-obituary"
+                className="font-semibold text-blue-900 underline underline-offset-4 hover:text-blue-700"
+              >
+                online memorials vs. obituaries
+              </Link>
+              .
             </p>
           </section>
 
@@ -301,6 +307,17 @@ export default function MemorialWebsitesPage() {
                 </div>
               ))}
             </div>
+
+            <p className="mt-6 text-base leading-7 text-stone-200">
+              Looking specifically for a funeral or memorial slideshow?{" "}
+              <Link
+                href="/memorial-slideshow-maker"
+                className="font-bold text-amber-300 underline underline-offset-4 hover:text-amber-200"
+              >
+                Learn about our Memorial Slideshow Maker
+              </Link>
+              .
+            </p>
 
             <div className="mt-7">
               <Link
