@@ -295,6 +295,17 @@ export default function WhatIsAnOnlineMemorialPage() {
                 </p>
               </div>
             </div>
+
+            <p className="mt-6 text-base leading-7 text-stone-700">
+              Ready for the next step?{" "}
+              <Link
+                href="/create-an-online-memorial"
+                className="font-semibold text-blue-900 underline underline-offset-4 hover:text-blue-700"
+              >
+                See our step-by-step guide to creating an online memorial
+              </Link>
+              .
+            </p>
           </section>
 
           <section className="rounded-[2rem] bg-blue-950 p-6 text-white shadow-sm md:p-9">
@@ -340,6 +351,17 @@ export default function WhatIsAnOnlineMemorialPage() {
               That makes an online memorial useful not only immediately after a loss,
               but also later when children, grandchildren, relatives, and friends want
               to return to the person&apos;s story.
+            </p>
+
+            <p className="mt-5 text-base leading-7 text-stone-700">
+              For a closer comparison, read{" "}
+              <Link
+                href="/online-memorial-vs-obituary"
+                className="font-semibold text-blue-900 underline underline-offset-4 hover:text-blue-700"
+              >
+                Online Memorial vs. Obituary
+              </Link>
+              .
             </p>
           </section>
 
