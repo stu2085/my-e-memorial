@@ -1120,6 +1120,16 @@ export default function BestMemorialWebsitesPage() {
                 link can also be provided to a funeral home or used at the
                 Celebration of Life event.
               </p>
+              <p className="mt-4 text-base leading-7 text-stone-100">
+                Looking for a dedicated funeral or memorial slideshow tool?{" "}
+                <Link
+                  href="/memorial-slideshow-maker"
+                  className="font-bold text-amber-300 underline underline-offset-4 hover:text-amber-200"
+                >
+                  Learn about our Memorial Slideshow Maker
+                </Link>
+                .
+              </p>
             </div>
 
             <div className="mt-6 rounded-2xl bg-white p-5 text-stone-900">
@@ -1425,6 +1435,20 @@ export default function BestMemorialWebsitesPage() {
                 <p className="mt-2 text-base leading-7 text-stone-600">
                   Compare the role of an obituary with the broader story a
                   memorial website can preserve.
+                </p>
+              </Link>
+
+              <Link
+                href="/memorial-slideshow-maker"
+                className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-blue-300 hover:bg-blue-50"
+              >
+                <h3 className="text-xl font-bold text-stone-900">
+                  Memorial Slideshow Maker
+                </h3>
+                <p className="mt-2 text-base leading-7 text-stone-600">
+                  Create a funeral or memorial slideshow with photos, videos,
+                  captions, and meaningful music, then share it online or
+                  download an MP4.
                 </p>
               </Link>
             </div>
