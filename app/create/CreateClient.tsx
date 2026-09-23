@@ -1190,6 +1190,9 @@ const builderModeQuery = isPersonalModeFromUrl
     ? "mode=memorial&"
     : "";
 const paymentSessionId = params.get("session_id");
+const presentationPublicId = String(
+  params.get("presentation") || ""
+).trim();
 const isUpgradePaymentReturn =
   isEditingExistingMemorial &&
   params.get("upgrade_success") === "true" &&
@@ -1813,6 +1816,114 @@ setIsResolvingPaymentReturn(false);
 return;
 }
 
+if (presentationPublicId) {
+  if (isPersonalModeFromUrl) {
+    setErrorMessage(
+      "A Celebration of Life Presentation can only be linked to a Departed MyEMemorial."
+    );
+    setDraftReady(true);
+    setIsResolvingPaymentReturn(false);
+    return;
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    const presentationBuilderPath =
+      `/create?mode=memorial&plan=free&presentation=${encodeURIComponent(
+        presentationPublicId
+      )}`;
+
+    window.location.replace(
+      `/login?mode=choice&redirect=${encodeURIComponent(
+        presentationBuilderPath
+      )}`
+    );
+    return;
+  }
+
+  try {
+    const claimResponse = await fetch(
+      `/api/celebration-presentations/${encodeURIComponent(
+        presentationPublicId
+      )}/claim`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      }
+    );
+
+    const claimResult = await claimResponse.json();
+
+    if (!claimResponse.ok) {
+      setErrorMessage(
+        claimResult.error ||
+          "This Celebration Presentation could not be claimed."
+      );
+      setDraftReady(true);
+      setIsResolvingPaymentReturn(false);
+      return;
+    }
+
+    const linkedMemorialId = Number(
+      claimResult?.memorialId || 0
+    );
+
+    if (
+      Number.isFinite(linkedMemorialId) &&
+      linkedMemorialId > 0
+    ) {
+      window.location.replace(
+        `/create?mode=memorial&edit=${encodeURIComponent(
+          String(linkedMemorialId)
+        )}`
+      );
+      return;
+    }
+
+    /*
+     * A newly claimed Presentation must start a new MyEMemorial.
+     * Never reuse a browser draft that may belong to another person.
+     */
+    localStorage.removeItem("memorialDraft");
+    localStorage.removeItem("guidedDraftMemorialId");
+    localStorage.removeItem("guidedDraftMemorialSlug");
+    localStorage.removeItem("guidedDraftCurrentChapter");
+    localStorage.removeItem("guidedDraftGalleryPhotoUrls");
+    localStorage.removeItem("guidedDraftGalleryPhotoCaptions");
+    localStorage.removeItem("paidExtraVideos");
+
+    setDraftMemorialId(null);
+    setDraftMemorialSlug("");
+
+    setForm((previousForm) => ({
+      ...previousForm,
+      plan: "free",
+      isLivingPreplan: false,
+    }));
+
+    setSuccessMessage(
+      "Your Celebration of Life Presentation is connected. Complete your included Free MyEMemorial below."
+    );
+  } catch (error) {
+    console.error(
+      "CELEBRATION PRESENTATION CLAIM ERROR:",
+      error
+    );
+
+    setErrorMessage(
+      "This Celebration Presentation could not be claimed. Please try again."
+    );
+    setDraftReady(true);
+    setIsResolvingPaymentReturn(false);
+    return;
+  }
+}
+
     const rawSavedDraft = localStorage.getItem("memorialDraft");
     const extraVideosPaid = Number(params.get("extra_videos_paid") || 0);
     const promoFromUrl = params.get("promo");
@@ -1944,13 +2055,15 @@ if (
   }
 }
     const selectedPlan =
-  planFromUrl === "free" ||
-  planFromUrl === "basic" ||
-  planFromUrl === "plus" ||
-  planFromUrl === "premium"
-    ? planFromUrl
-    : parsedDraft?.plan ||
-      (isPersonalModeFromUrl ? "free" : form.plan || "basic");
+  presentationPublicId
+    ? "free"
+    : planFromUrl === "free" ||
+        planFromUrl === "basic" ||
+        planFromUrl === "plus" ||
+        planFromUrl === "premium"
+      ? planFromUrl
+      : parsedDraft?.plan ||
+        (isPersonalModeFromUrl ? "free" : form.plan || "basic");
 setForm((prev) => ({
   ...prev,
   plan: selectedPlan,
@@ -3329,6 +3442,8 @@ if (draftMemorialId) {
       searchParams.get("session_id"),
     promoCode:
       form.betaCode.trim() || null,
+    presentationPublicId:
+      searchParams.get("presentation"),
   });
 
   if (!createResult.success || !createResult.memorialId) {
@@ -5032,6 +5147,8 @@ if (draftMemorialId) {
       giftToken: searchParams.get("gift"),
       sessionId: searchParams.get("session_id"),
       promoCode: form.betaCode.trim() || null,
+      presentationPublicId:
+        searchParams.get("presentation"),
     });
 
   if (

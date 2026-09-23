@@ -9,6 +9,7 @@ type CreateMemorialOptions = {
   giftToken?: string | null;
   sessionId?: string | null;
   promoCode?: string | null;
+  presentationPublicId?: string | null;
 };
 type MemorialVideoInsert = {
   playbackId: string;
@@ -78,7 +79,7 @@ finalRestingType: string;
   betaCode: string;
   promotionCategory: string;
   isLivingPreplan: boolean;
-  funeralPresentationMusicSource: "favorite_songs" | "funeral_home";
+  funeralPresentationMusicSource: "favorite_songs" |"funeral_home";
   bannerPositionX: number;
   bannerPositionY: number;
   bannerNeedsExtension: boolean;
@@ -275,6 +276,7 @@ promotion_category: usingBetaCode
   giftToken = null,
   sessionId = null,
   promoCode = null,
+  presentationPublicId = null,
 }: CreateMemorialOptions): Promise<MemorialCreationResult> {
   try {
     const {
@@ -301,6 +303,7 @@ promotion_category: usingBetaCode
   giftToken,
   sessionId,
   promoCode,
+  presentationPublicId,
 }),
     });
 
@@ -397,14 +400,14 @@ promotion_category: usingBetaCode
     console.error("VIDEO INSERT ERROR:", error);
     throw new Error(error.message);
   }
-}static async incrementPromoCodeUsage(code: string): Promise<void> {
+}static async incrementPromoCodeUsage(code: string):Promise<void> {
   const normalizedCode = code.trim().toUpperCase();
 
   if (!normalizedCode) {
     return;
   }
 
-  const { data: promoCode, error: promoLookupError } = await supabase
+  const { data: promoCode, error: promoLookupError }= await supabase
     .from("promo_codes")
     .select("id, uses_count")
     .eq("code", normalizedCode)
