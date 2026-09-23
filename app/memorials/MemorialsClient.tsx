@@ -87,12 +87,13 @@ export default function MemorialsPage() {
     <main className="min-h-screen bg-[#f7f3ec]">
       <div className="px-4 pt-8 text-center md:px-8 md:pt-10">
   <h1 className="text-3xl font-bold leading-tight text-stone-900 md:text-4xl">
-    Create an Online Memorial for Someone You Love
+    Create an Online Memorial Website for Someone You Love
   </h1>
 
   <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-600">
-    A Departed MyEMemorial brings their life story, photos, videos, music,
-    and memories together in one lasting place.
+    A Departed MyEMemorial is an online memorial website that brings their
+    life story, photos, videos, music, family history, and memories together in
+    one lasting place.
   </p>
 </div>
       {/* HERO */}
@@ -443,6 +444,16 @@ export default function MemorialsPage() {
                     >
                       Need only a service presentation? Create one for $29.95
                     </Link>
+                    <p className="mt-4 text-base leading-7 text-stone-200">
+                      Looking specifically for a funeral or memorial slideshow?{" "}
+                      <Link
+                        href="/memorial-slideshow-maker"
+                        className="font-bold text-amber-300 underline underline-offset-4 hover:text-amber-200"
+                      >
+                        Learn about our Memorial Slideshow Maker
+                      </Link>
+                      .
+                    </p>
                   </div>
 
                   <div className="bg-white/5 p-7 md:p-8">
@@ -582,6 +593,19 @@ export default function MemorialsPage() {
                     <p className="mt-2 text-base leading-7 text-stone-600">
                       Understand how an obituary and an online memorial serve different
                       purposes and how families may choose to use both.
+                    </p>
+                  </Link>
+
+                  <Link
+                    href="/memorial-slideshow-maker"
+                    className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-blue-300 hover:bg-blue-50"
+                  >
+                    <h3 className="text-xl font-bold text-stone-900">
+                      Memorial Slideshow Maker
+                    </h3>
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      Create a memorial or funeral slideshow with photos, videos, captions,
+                      and meaningful music, then share it online or download an MP4.
                     </p>
                   </Link>
                 </div>
