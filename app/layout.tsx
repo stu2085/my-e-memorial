@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Create an online memorial website or Living MyEMemorial to preserve and share life stories, photos, videos, music, family history, and memories.",
+    "Create a Departed MyEMemorial for someone who has passed or a Living MyEMemorial to preserve and share life stories, photos, videos, music, family history, and memories.",
 
   keywords: [
     "online memorial",
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Online Memorial Websites & Life Stories | MyEMemorial",
     description:
-      "Create an online memorial website or Living MyEMemorial to preserve and share a life story with photos, videos, music, family history, and memories.",
+      "Create a Departed MyEMemorial for someone who has passed or a Living MyEMemorial to preserve and share a life story with photos, videos, music, family history, and memories.",
     url: "https://www.myememorial.com",
     siteName: "MyEMemorial",
     type: "website",
@@ -80,7 +80,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Online Memorial Websites & Life Stories | MyEMemorial",
     description:
-      "Create an online memorial website or Living MyEMemorial to preserve and share a life story with photos, videos, music, family history, and memories.",
+      "Create a Departed MyEMemorial for someone who has passed or a Living MyEMemorial to preserve and share a life story with photos, videos, music, family history, and memories.",
     images: ["https://www.myememorial.com/myememorial-logo.png"],
   },
 
@@ -122,7 +122,7 @@ export default function RootLayout({
               url: "https://www.myememorial.com",
               logo: "https://www.myememorial.com/myememorial-logo.png",
               description:
-                "MyEMemorial is an online memorial website for preserving and sharing life stories, photos, videos, music, family history, and memories through Living and Departed MyEMemorials.",
+                "MyEMemorial is an online memorial website for preserving and sharing life stories, photos, videos, music, family history, and memories through Departed and Living MyEMemorials.",
               sameAs: [
                 "https://www.facebook.com/MyEmemorial",
                 "https://www.instagram.com/myememorial/",
@@ -141,7 +141,7 @@ export default function RootLayout({
               alternateName: ["My E Memorial", "MyEMemorial.com"],
               url: "https://www.myememorial.com/",
               description:
-                "Create an online memorial website or Living MyEMemorial that preserves and shares a life story for future generations.",
+                "Create a Departed MyEMemorial for someone who has passed or a Living MyEMemorial to preserve and share a life story for future generations.",
             }),
           }}
         />
