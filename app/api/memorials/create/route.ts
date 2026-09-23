@@ -71,6 +71,9 @@ const sessionId = String(body?.sessionId || "").trim();
 const promoCode = String(body?.promoCode || "")
   .trim()
   .toUpperCase();
+const presentationPublicId = String(
+  body?.presentationPublicId || ""
+).trim();
 
     if (
       !slug ||
@@ -273,10 +276,139 @@ if (promoCode) {
   verifiedPromotionCategory =
     promo.promotion_category || null;
 }
+
+let verifiedPresentationId: number | null = null;
+
+if (presentationPublicId) {
+  const {
+    data: presentation,
+    error: presentationError,
+  } = await supabaseAdmin
+    .from("celebration_presentations")
+    .select(`
+      id,
+      customer_email,
+      status,
+      payment_status,
+      expires_at,
+      claimed_by,
+      claimed_at,
+      memorial_id
+    `)
+    .eq("public_id", presentationPublicId)
+    .maybeSingle();
+
+  if (presentationError) {
+    console.error(
+      "PRESENTATION ENTITLEMENT VERIFICATION ERROR:",
+      presentationError
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          "Could not verify this Celebration Presentation.",
+      },
+      { status: 500 }
+    );
+  }
+
+  if (!presentation) {
+    return NextResponse.json(
+      {
+        error:
+          "This Celebration Presentation could not be verified.",
+      },
+      { status: 403 }
+    );
+  }
+
+  if (
+    String(presentation.customer_email || "").toLowerCase() !==
+    String(user.email || "").toLowerCase()
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "This Celebration Presentation belongs to a different account.",
+      },
+      { status: 403 }
+    );
+  }
+
+  if (
+    presentation.payment_status !== "paid" ||
+    presentation.status !== "active"
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "This Celebration Presentation is not eligible to create a MyEMemorial.",
+      },
+      { status: 403 }
+    );
+  }
+
+  if (
+    presentation.expires_at &&
+    new Date(presentation.expires_at).getTime() <
+      Date.now()
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "This Celebration Presentation's 60-day access period has expired.",
+      },
+      { status: 410 }
+    );
+  }
+
+  if (
+    !presentation.claimed_at ||
+    presentation.claimed_by !== user.id
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "This Celebration Presentation has not been claimed by your account.",
+      },
+      { status: 403 }
+    );
+  }
+
+  if (presentation.memorial_id) {
+    return NextResponse.json(
+      {
+        error:
+          "This Celebration Presentation is already linked to a MyEMemorial.",
+      },
+      { status: 409 }
+    );
+  }
+
+  const parsedPresentationId = Number(presentation.id);
+
+  if (
+    !Number.isFinite(parsedPresentationId) ||
+    parsedPresentationId <= 0
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "This Celebration Presentation could not be verified.",
+      },
+      { status: 500 }
+    );
+  }
+
+  verifiedPresentationId = parsedPresentationId;
+}
+
 const hasVerifiedEntitlement =
   Boolean(verifiedGiftPlan) ||
   Boolean(verifiedStripePlan) ||
-  Boolean(verifiedPromoPlan);
+  Boolean(verifiedPromoPlan) ||
+  Boolean(verifiedPresentationId);
 
 const isDraft =
   memorialData.is_draft === true;
@@ -285,7 +417,7 @@ if (!hasVerifiedEntitlement && !isDraft) {
   return NextResponse.json(
     {
       error:
-        "A valid payment, gift, or promotional code is required before completing this memorial.",
+        "A valid payment, gift, promotional code, or claimed Celebration Presentation is required before completing this memorial.",
     },
     { status: 403 }
   );
@@ -334,7 +466,17 @@ if (!hasVerifiedEntitlement && !isDraft) {
           promotion_category:
             verifiedPromotionCategory,
         }
-      : {}),
+      : verifiedPresentationId
+        ? {
+            plan: "free",
+            payment_status: "free",
+            payment_source: "free_plan",
+            beta_code_used: null,
+            promotion_category: null,
+            is_published: false,
+            needs_review: false,
+          }
+        : {}),
 
       /*
        * Never accept ownership from the browser.
@@ -380,6 +522,52 @@ if (!hasVerifiedEntitlement && !isDraft) {
         { error: "The memorial was not created." },
         { status: 500 }
       );
+    }
+
+    if (verifiedPresentationId) {
+      const {
+        data: linkedPresentation,
+        error: linkError,
+      } = await supabaseAdmin
+        .from("celebration_presentations")
+        .update({
+          memorial_id: createdMemorial.id,
+        })
+        .eq("id", verifiedPresentationId)
+        .eq("claimed_by", user.id)
+        .is("memorial_id", null)
+        .select("id")
+        .maybeSingle();
+
+      if (linkError || !linkedPresentation) {
+        console.error(
+          "PRESENTATION MEMORIAL LINK ERROR:",
+          linkError ||
+            "Presentation was linked by another request."
+        );
+
+        const { error: rollbackError } =
+          await supabaseAdmin
+            .from("memorials")
+            .delete()
+            .eq("id", createdMemorial.id)
+            .eq("owner_id", user.id);
+
+        if (rollbackError) {
+          console.error(
+            "PRESENTATION MEMORIAL ROLLBACK ERROR:",
+            rollbackError
+          );
+        }
+
+        return NextResponse.json(
+          {
+            error:
+              "The MyEMemorial could not be linked to this Celebration Presentation. Please try again.",
+          },
+          { status: linkError ? 500 : 409 }
+        );
+      }
     }
 
     return NextResponse.json({
