@@ -297,6 +297,17 @@ export default function CreateAnOnlineMemorialPage() {
               ))}
             </div>
 
+            <p className="mt-6 text-base leading-7 text-stone-200">
+              Looking specifically for a funeral or memorial slideshow?{" "}
+              <Link
+                href="/memorial-slideshow-maker"
+                className="font-bold text-amber-300 underline underline-offset-4 hover:text-amber-200"
+              >
+                Learn about our Memorial Slideshow Maker
+              </Link>
+              .
+            </p>
+
             <Link
               href="/memorials"
               className="mt-7 inline-flex min-h-[52px] items-center justify-center rounded-full bg-amber-400 px-6 text-base font-bold text-stone-900 transition hover:bg-amber-300"
