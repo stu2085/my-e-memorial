@@ -33,7 +33,7 @@ export default function PlanSection({
                 onClick={() => handleUpgradePlan(paidPlan)}
                 className="rounded-full bg-stone-900 px-5 py-3 text-base font-semibold text-white hover:bg-stone-700"
               >
-                Upgrade to {paidPlan[0].toUpperCase() + paidPlan.slice(1)} â€” {price}
+                Upgrade to {paidPlan[0].toUpperCase() + paidPlan.slice(1)} — {price}
               </button>
             ))}
           </div>
@@ -46,7 +46,7 @@ export default function PlanSection({
               onClick={() => handleUpgradePlan("plus")}
               className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
             >
-              Upgrade to Plus â€” $20.00
+              Upgrade to Plus — $20.00
             </button>
 
             <button
@@ -54,7 +54,7 @@ export default function PlanSection({
               onClick={() => handleUpgradePlan("premium")}
               className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
             >
-              Upgrade to Premium â€” $40.00
+              Upgrade to Premium — $40.00
             </button>
           </div>
         )}
@@ -66,7 +66,7 @@ export default function PlanSection({
               onClick={() => handleUpgradePlan("premium")}
               className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
             >
-              Upgrade to Premium â€” $20.00
+              Upgrade to Premium — $20.00
             </button>
           </div>
         )}
@@ -80,4 +80,5 @@ export default function PlanSection({
     </FormSection>
   );
 }
+
 
