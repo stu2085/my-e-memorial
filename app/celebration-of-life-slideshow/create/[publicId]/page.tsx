@@ -125,6 +125,12 @@ export default function CelebrationPresentationBuilderPage() {
   const [syncingFromMemorial, setSyncingFromMemorial] =
     useState(false);
 
+  const [syncResultMessage, setSyncResultMessage] =
+    useState("");
+
+  const [syncResultIsError, setSyncResultIsError] =
+    useState(false);
+
   const [photosOpen, setPhotosOpen] =
     useState(false);
 
@@ -370,12 +376,12 @@ window.clearInterval(timer);
     }
   }
 
-  async function copyViewingLink() {
+  async function copyVideoLink() {
     try {
       await navigator.clipboard.writeText(
         `${window.location.origin}/celebration-of-life-slideshow/${encodeURIComponent(publicId)}`
       );
-      setStatusMessage("Viewing link copied. You can share it with family or the event venue.");
+      setStatusMessage("Video link copied. You can share it with family or the event venue.");
     } catch {
       setErrorMessage("Could not copy the link. Open the presentation and copy its address instead.");
     }
@@ -1398,6 +1404,8 @@ window.clearInterval(timer);
       setSyncingFromMemorial(true);
       setErrorMessage("");
       setStatusMessage("");
+      setSyncResultMessage("");
+      setSyncResultIsError(false);
 
       const response = await fetch(
         `/api/celebration-presentations/${encodeURIComponent(
@@ -1420,15 +1428,17 @@ window.clearInterval(timer);
 
       await loadPresentation();
 
-      setStatusMessage(
+      setSyncResultIsError(false);
+      setSyncResultMessage(
         result?.message ||
-          "Presentation updated from MyEMemorial."
+          "Celebration of Life Presentation update complete."
       );
     } catch (error) {
-      setErrorMessage(
+      setSyncResultIsError(true);
+      setSyncResultMessage(
         error instanceof Error
           ? error.message
-          : "The Presentation could not be updated from MyEMemorial."
+          : "The Celebration of Life Presentation could not be updated from MyEMemorial."
       );
     } finally {
       setSyncingFromMemorial(false);
@@ -1529,15 +1539,15 @@ window.clearInterval(timer);
                   ? "Purchased · Preserved with your paid MyEMemorial."
                   : "Purchased · Your shareable presentation is active for 60 days."}
               </p>
-              <p className="mt-2 text-base text-[#344f43]">Your viewing link was emailed to you. You can also open or copy it here.</p>
+              <p className="mt-2 text-base text-[#344f43]">Your video link was emailed to you. You can also play it or copy the link here.</p>
               <div className="mt-4 flex flex-wrap justify-center gap-3">
                 <a href={`/celebration-of-life-slideshow/${encodeURIComponent(publicId)}`} target="_blank" rel="noopener noreferrer"
                   className="inline-flex min-h-12 items-center rounded-full bg-[#244f40] px-5 py-2 text-base font-bold text-white hover:bg-[#193b30]">
-                  Open Viewing Link
+                  Play Video
                 </a>
-                <button type="button" onClick={() => void copyViewingLink()}
+                <button type="button" onClick={() => void copyVideoLink()}
                   className="min-h-12 rounded-full border-2 border-[#244f40] bg-white px-5 py-2 text-base font-bold text-[#173a31] hover:bg-[#e9f0e8]">
-                  Copy Viewing Link
+                  Copy Video Link
                 </button>
               </div>
             </div>
@@ -1548,7 +1558,7 @@ window.clearInterval(timer);
           {presentation?.convertedMemorialId && (
             <div className="mt-7 rounded-2xl border border-[#b7c8c0] bg-white/90 px-5 py-5 text-center shadow-sm">
               <h2 className="font-serif text-2xl font-bold text-[#173a31]">
-                Update from MyEMemorial
+                Update Celebration of Life Presentation Video
               </h2>
               <p className="mx-auto mt-2 max-w-3xl text-base leading-7 text-stone-700">
                 Bring in new photos, videos, revised captions, approved family
@@ -1568,9 +1578,23 @@ window.clearInterval(timer);
                 className="mt-4 min-h-12 rounded-full bg-[#244f40] px-6 py-3 text-base font-bold text-white transition hover:bg-[#193b30] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {syncingFromMemorial
-                  ? "Updating from MyEMemorial..."
-                  : "Update from MyEMemorial"}
+                  ? "Updating Celebration of Life Presentation Video..."
+                  : "Update Celebration of Life Presentation Video"}
               </button>
+
+              {syncResultMessage && (
+                <p
+                  className={`mt-4 rounded-xl px-4 py-3 text-base font-semibold ${
+                    syncResultIsError
+                      ? "bg-red-50 text-red-700"
+                      : "bg-green-50 text-green-800"
+                  }`}
+                  role={syncResultIsError ? "alert" : "status"}
+                  aria-live="polite"
+                >
+                  {syncResultMessage}
+                </p>
+              )}
             </div>
           )}
 

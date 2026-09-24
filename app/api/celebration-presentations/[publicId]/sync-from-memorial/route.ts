@@ -1003,10 +1003,52 @@ export async function POST(
       musicUpdated +
       featuredPhotoUpdated;
 
+    const changeSummary: string[] = [];
+
+    if (photosAdded > 0) {
+      changeSummary.push(
+        `${photosAdded} photo${photosAdded === 1 ? "" : "s"} added`
+      );
+    }
+
+    if (photosUpdated > 0) {
+      changeSummary.push(
+        `${photosUpdated} photo${photosUpdated === 1 ? "" : "s"} updated`
+      );
+    }
+
+    if (videosAdded > 0) {
+      changeSummary.push(
+        `${videosAdded} video${videosAdded === 1 ? "" : "s"} added`
+      );
+    }
+
+    if (videosUpdated > 0) {
+      changeSummary.push(
+        `${videosUpdated} video${videosUpdated === 1 ? "" : "s"} updated`
+      );
+    }
+
+    if (musicAdded > 0) {
+      changeSummary.push(
+        `${musicAdded} music track${musicAdded === 1 ? "" : "s"} added`
+      );
+    }
+
+    if (musicUpdated > 0) {
+      changeSummary.push(
+        `${musicUpdated} music track${musicUpdated === 1 ? "" : "s"} updated`
+      );
+    }
+
+    if (featuredPhotoUpdated > 0) {
+      changeSummary.push("featured photo updated");
+    }
+
     let message =
       totalChanges === 0
-        ? "Your Presentation is already up to date with MyEMemorial."
-        : "Presentation updated from MyEMemorial.";
+        ? "Update complete. No additional MyEMemorial changes were found."
+        : `Update complete: ${changeSummary.join(", " )}.`;
 
     if (musicSkipped > 0) {
       message +=
