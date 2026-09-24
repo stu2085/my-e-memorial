@@ -1044,7 +1044,12 @@ const [presentationClaimedInThisSession, setPresentationClaimedInThisSession] = 
 const [linkedPresentationLookup, setLinkedPresentationLookup] = useState<{
   memorialId: number;
   status: "paid" | "unlinked" | "unavailable";
+  publicId: string | null;
 } | null>(null);
+const [isOpeningLinkedPresentation, setIsOpeningLinkedPresentation] =
+  useState(false);
+const [linkedPresentationMessage, setLinkedPresentationMessage] =
+  useState("");
 
 const [isBackupAccess, setIsBackupAccess] = useState(false);
 
@@ -1085,13 +1090,23 @@ useEffect(() => {
           status: result?.presentation?.paymentStatus === "paid"
             ? "paid"
             : "unlinked",
+          publicId:
+            typeof result?.presentation?.publicId === "string" &&
+            result.presentation.publicId.trim()
+              ? result.presentation.publicId.trim()
+              : null,
         });
+        setLinkedPresentationMessage("");
       }
     } catch (error) {
       console.error("LINKED PRESENTATION LOOKUP ERROR:", error);
 
       if (!cancelled) {
-        setLinkedPresentationLookup({ memorialId, status: "unavailable" });
+        setLinkedPresentationLookup({
+          memorialId,
+          status: "unavailable",
+          publicId: null,
+        });
       }
     }
   }
@@ -1102,6 +1117,70 @@ useEffect(() => {
     cancelled = true;
   };
 }, [draftReady, draftMemorialId, form.isLivingPreplan, isBackupAccess]);
+
+async function handleOpenLinkedCelebrationPresentation() {
+  const publicId = linkedPresentationLookup?.publicId;
+
+  if (
+    linkedPresentationLookup?.status !== "paid" ||
+    !publicId
+  ) {
+    setLinkedPresentationMessage(
+      "The connected Celebration Presentation is not available right now."
+    );
+    return;
+  }
+
+  try {
+    setIsOpeningLinkedPresentation(true);
+    setLinkedPresentationMessage("");
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      throw new Error(
+        "Please sign in again before opening the Presentation Builder."
+      );
+    }
+
+    const response = await fetch(
+      `/celebration-of-life-slideshow/access/${encodeURIComponent(publicId)}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        credentials: "include",
+        cache: "no-store",
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result?.url) {
+      throw new Error(
+        result?.error ||
+          "The Presentation Builder could not be opened."
+      );
+    }
+
+    window.location.assign(result.url);
+  } catch (error) {
+    console.error(
+      "OPEN LINKED CELEBRATION PRESENTATION ERROR:",
+      error
+    );
+
+    setLinkedPresentationMessage(
+      error instanceof Error
+        ? error.message
+        : "The Presentation Builder could not be opened."
+    );
+    setIsOpeningLinkedPresentation(false);
+  }
+}
 
 /*
  * When Stripe returns a brand-new paid memorial with a session_id, keep the
@@ -5505,6 +5584,51 @@ const isBackupChapterReadOnly = (
       </div>
     )}
 
+    {linkedPresentationStatus === "paid" && !form.isLivingPreplan && (
+      <div className="mt-5 rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
+        <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-800">
+          Connected Paid Presentation
+        </p>
+
+        <p className="mt-2 text-lg font-bold text-stone-900">
+          Celebration of Life Presentation
+        </p>
+
+        <p className="mt-2 text-base leading-7 text-stone-700">
+          Your paid Celebration of Life Presentation is connected to this
+          MyEMemorial. You can return to the Presentation Builder at any time.
+        </p>
+
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={handleOpenLinkedCelebrationPresentation}
+            disabled={isOpeningLinkedPresentation}
+            className="inline-flex items-center justify-center rounded-full bg-blue-800 px-6 py-3 text-base font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isOpeningLinkedPresentation
+              ? "Opening Presentation..."
+              : "Open Presentation Builder"}
+          </button>
+
+          {draftMemorialSlug && (
+            <a
+              href={`/memorial/${encodeURIComponent(draftMemorialSlug)}/manage`}
+              className="inline-flex items-center justify-center rounded-full border border-blue-300 bg-white px-6 py-3 text-base font-bold text-blue-900 transition hover:bg-blue-100"
+            >
+              Manage MyEMemorial
+            </a>
+          )}
+        </div>
+
+        {linkedPresentationMessage && (
+          <p className="mt-4 rounded-xl border border-blue-200 bg-white px-4 py-3 text-base font-semibold leading-7 text-stone-700">
+            {linkedPresentationMessage}
+          </p>
+        )}
+      </div>
+    )}
+
     {(form.plan === "free" || !isPaid) && (
       <div className="mt-4">
         <p className="text-base font-semibold text-stone-800">
@@ -5563,23 +5687,15 @@ const isBackupChapterReadOnly = (
               )}
             </ul>
 
-            {(linkedPresentationStatus === "paid" ||
-              (!draftMemorialId && presentationClaimedInThisSession)) &&
+            {!draftMemorialId &&
+              presentationClaimedInThisSession &&
               !form.isLivingPreplan && (
-              <p className="mt-4 text-base leading-7 text-stone-700">
-                {draftMemorialId
-                  ? "Your paid Celebration of Life Presentation is connected. "
-                  : "Your paid Celebration of Life Presentation is ready to connect. Save this MyEMemorial to manage it here. "}
-                {draftMemorialSlug && (
-                  <a
-                    href={`/memorial/${encodeURIComponent(draftMemorialSlug)}/manage`}
-                    className="font-semibold text-amber-800 underline underline-offset-2 hover:text-amber-950"
-                  >
-                    Manage MyEMemorial
-                  </a>
-                )}
-              </p>
-            )}
+                <p className="mt-4 text-base leading-7 text-stone-700">
+                  Your paid Celebration of Life Presentation is ready to
+                  connect. Save this MyEMemorial, then you can open the
+                  Presentation Builder directly from this page.
+                </p>
+              )}
 
             {linkedPresentationStatus === "unavailable" && !form.isLivingPreplan && (
               <p className="mt-4 text-base leading-7 text-stone-700">

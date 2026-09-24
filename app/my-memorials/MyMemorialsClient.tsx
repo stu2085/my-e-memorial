@@ -204,12 +204,21 @@ export default function MyMemorialsClient() {
 
                 <div className="flex flex-wrap gap-3">
   {memorial.is_draft ? (
-    <Link
-      href={`/create?draft=${memorial.id}`}
-      className="rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700"
-    >
-      Continue Creating
-    </Link>
+    <>
+      <Link
+        href={`/create?draft=${memorial.id}`}
+        className="rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700"
+      >
+        Continue Creating
+      </Link>
+
+      <Link
+        href={`/memorial/${memorial.slug}/manage`}
+        className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-100"
+      >
+        Manage
+      </Link>
+    </>
   ) : (
     <>
       <Link
