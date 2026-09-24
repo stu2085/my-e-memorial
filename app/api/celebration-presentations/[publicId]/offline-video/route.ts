@@ -12,7 +12,7 @@ const HEIGHT = 1080;
 const INTRO_FRAMES = 5 * FPS;
 const PHOTO_FRAMES = 7 * FPS;
 const CLOSING_FRAMES = 8 * FPS;
-const RENDER_CONFIG_VERSION = "celebration-offline-v3";
+const RENDER_CONFIG_VERSION = "celebration-offline-v4";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -751,7 +751,7 @@ function buildRenderPayload(
       height: 130,
       styles: {
         fontFamily: "Roboto",
-        fontSize: "44px",
+        fontSize: "64px",
         fontWeight: "500",
         color: "#FFFFFF",
         textAlign: "center",
