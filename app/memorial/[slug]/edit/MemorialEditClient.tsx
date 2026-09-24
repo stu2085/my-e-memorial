@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import EditActionButtons from "../../../components/EditActionButtons";
 import SubmissionPhotoViewerModal from "../../../components/SubmissionPhotoViewerModal";
@@ -493,7 +493,7 @@ async function handleBackupLogin() {
   const files = Array.from(e.target.files || []);
   if (files.length === 0) return;
 
-  // 🔒 1. Size check
+  // ðŸ”’ 1. Size check
   const oversizedFile = files.find(
     (file) => file.size > MAX_VIDEO_SIZE_BYTES
   );
@@ -506,7 +506,7 @@ async function handleBackupLogin() {
     return;
   }
 
-  // 🔒 2. Plan minute limit
+  // ðŸ”’ 2. Plan minute limit
 const baseVideoMinutes =
   form.plan === "premium" ? 60 : form.plan === "plus" ? 30 : 15;
 
@@ -548,7 +548,7 @@ if (totalVideoSeconds > maxVideoMinutes * 60) {
   return;
 }
 
-  // 🔒 3. Duration check (ADD THIS BACK)
+  // ðŸ”’ 3. Duration check (ADD THIS BACK)
   try {
     for (const file of files) {
       const duration = await getVideoDuration(file);
@@ -1271,8 +1271,8 @@ setSelectedVideoDurations([]);
 
       setSuccessMessage(
   videoFiles.length > 0
-    ? `✅ Changes saved successfully. ${videoFiles.length} video${videoFiles.length === 1 ? "" : "s"} uploaded. Videos may take a few moments to finish processing.`
-    : "✅ Changes saved successfully."
+    ? `âœ… Changes saved successfully. ${videoFiles.length} video${videoFiles.length === 1 ? "" : "s"} uploaded. Videos may take a few moments to finish processing.`
+    : "âœ… Changes saved successfully."
 );
     
 
@@ -1337,7 +1337,7 @@ async function handleBuyExtraVideos(extraCount: number, submissionId?: number) {
     alert("Error starting checkout.");
   }
 }
-async function handleUpgradePlan(toPlan: "plus" | "premium") {
+async function handleUpgradePlan(toPlan: "basic" | "plus" | "premium") {
   if (!(isOwner || isBackupUnlocked)) {
     alert("You do not have permission to upgrade this memorial.");
     return;
@@ -1348,8 +1348,8 @@ async function handleUpgradePlan(toPlan: "plus" | "premium") {
     return;
   }
 
-  const currentPlan = form.plan as keyof typeof PLAN_PRICES;
-  const currentPrice = PLAN_PRICES[currentPlan] || PLAN_PRICES.basic;
+  const currentPlan = form.plan as "free" | keyof typeof PLAN_PRICES;
+  const currentPrice = currentPlan === "free" ? 0 : PLAN_PRICES[currentPlan];
   const newPrice = PLAN_PRICES[toPlan];
   const upgradeAmount = newPrice - currentPrice;
 
@@ -1452,7 +1452,7 @@ async function handlePublishMemorial() {
       href="/my-memorials"
       className="inline-flex w-fit rounded-full border border-stone-300 bg-white px-4 py-2 text-base font-semibold text-stone-700 hover:bg-stone-100"
     >
-      ← Back to My Memorials
+      â† Back to My Memorials
     </Link>
   </div>
   <div className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-8 px-4 lg:grid-cols-[180px_minmax(0,900px)_180px] lg:justify-center"></div>
@@ -2020,4 +2020,5 @@ function GraveLocationMap({
     </div>
   );
 }
+
 

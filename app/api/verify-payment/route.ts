@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import { preserveLinkedCelebration } from "../../lib/preserve-linked-celebration";
 
 export const runtime = "nodejs";
 
@@ -340,6 +341,7 @@ export async function POST(req: Request) {
           }
         }
 
+        await preserveLinkedCelebration(supabaseAdmin, memorialId, user.id);
         return NextResponse.json({
           paid: true,
           checkoutType: "upgrade",
@@ -436,6 +438,7 @@ export async function POST(req: Request) {
             racedMemorial.payment_status === "paid"
           )
         ) {
+          await preserveLinkedCelebration(supabaseAdmin, memorialId, user.id);
           return NextResponse.json({
             paid: true,
             checkoutType: "upgrade",
@@ -455,6 +458,7 @@ export async function POST(req: Request) {
         );
       }
 
+      await preserveLinkedCelebration(supabaseAdmin, memorialId, user.id);
       return NextResponse.json({
         paid: true,
         checkoutType: "upgrade",

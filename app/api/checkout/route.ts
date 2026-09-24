@@ -82,6 +82,34 @@ export async function POST(req: Request) {
   }
 
   verifiedFromPlan = memorial.plan;
+
+  if (verifiedFromPlan === "free") {
+    const { data: linked, error: linkedError } = await supabaseAdmin
+      .from("celebration_presentations")
+      .select("claimed_by, status, payment_status, expires_at, converted_memorial_id")
+      .eq("memorial_id", memorial.id)
+      .maybeSingle();
+
+    if (linkedError) {
+      return NextResponse.json(
+        { error: "The connected Presentation could not be checked before checkout." },
+        { status: 500 }
+      );
+    }
+
+    if (linked && !linked.converted_memorial_id && (
+      linked.claimed_by !== user.id ||
+      linked.status !== "active" ||
+      linked.payment_status !== "paid" ||
+      !linked.expires_at ||
+      new Date(linked.expires_at).getTime() <= Date.now()
+    )) {
+      return NextResponse.json(
+        { error: "This connected Presentation can no longer be preserved through a plan upgrade." },
+        { status: 409 }
+      );
+    }
+  }
 }
 if (plan === "extra_videos" && memorialId) {
   const authHeader = req.headers.get("authorization");
@@ -300,7 +328,8 @@ const memorialProductDescription =
 
       allow_promotion_codes:
         (plan === "basic" || plan === "plus" || plan === "premium") &&
-        (!checkoutType || checkoutType === "standard"),
+        (!checkoutType || checkoutType === "standard" ||
+          (checkoutType === "upgrade" && verifiedFromPlan === "free")),
 
       automatic_tax: {
         enabled: shouldCollectTax,

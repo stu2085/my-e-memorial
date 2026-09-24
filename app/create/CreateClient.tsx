@@ -1040,8 +1040,68 @@ const [removingContributionId, setRemovingContributionId] =
 const [draftReady, setDraftReady] = useState(false);
 const [draftMemorialId, setDraftMemorialId] = useState<number | null>(null);
 const [draftMemorialSlug, setDraftMemorialSlug] = useState("");
+const [presentationClaimedInThisSession, setPresentationClaimedInThisSession] = useState(false);
+const [linkedPresentationLookup, setLinkedPresentationLookup] = useState<{
+  memorialId: number;
+  status: "paid" | "unlinked" | "unavailable";
+} | null>(null);
 
 const [isBackupAccess, setIsBackupAccess] = useState(false);
+
+useEffect(() => {
+  if (!draftReady || !draftMemorialId || form.isLivingPreplan || isBackupAccess) {
+    return;
+  }
+
+  let cancelled = false;
+  const memorialId = draftMemorialId;
+
+  async function checkLinkedPresentation() {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        throw new Error("Sign-in is required to check the connected Presentation.");
+      }
+
+      const response = await fetch(
+        `/api/celebration-presentations/linked?memorialId=${encodeURIComponent(String(memorialId))}`,
+        {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Could not check the connected Presentation.");
+      }
+
+      const result = await response.json();
+
+      if (!cancelled) {
+        setLinkedPresentationLookup({
+          memorialId,
+          status: result?.presentation?.paymentStatus === "paid"
+            ? "paid"
+            : "unlinked",
+        });
+      }
+    } catch (error) {
+      console.error("LINKED PRESENTATION LOOKUP ERROR:", error);
+
+      if (!cancelled) {
+        setLinkedPresentationLookup({ memorialId, status: "unavailable" });
+      }
+    }
+  }
+
+  void checkLinkedPresentation();
+
+  return () => {
+    cancelled = true;
+  };
+}, [draftReady, draftMemorialId, form.isLivingPreplan, isBackupAccess]);
 
 /*
  * When Stripe returns a brand-new paid memorial with a session_id, keep the
@@ -1899,6 +1959,7 @@ if (presentationPublicId) {
 
     setDraftMemorialId(null);
     setDraftMemorialSlug("");
+    setPresentationClaimedInThisSession(true);
 
     setForm((previousForm) => ({
       ...previousForm,
@@ -5306,6 +5367,11 @@ const isBackupChapterReadOnly = (
     );
   }
 
+  const linkedPresentationStatus =
+    draftMemorialId && linkedPresentationLookup?.memorialId === draftMemorialId
+      ? linkedPresentationLookup.status
+      : null;
+
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
       <MemorialBuilderPageFrame
@@ -5475,7 +5541,7 @@ const isBackupChapterReadOnly = (
 
             <p className="mt-2 text-base leading-7 text-stone-600">
               If you decide later that you want to preserve more, paid
-              MyEMemorial plans also make these sections and features available:
+              MyEMemorial plans make these additional sections and features available:
             </p>
 
             <ul className="mt-3 grid gap-x-6 gap-y-2 text-base text-stone-600 md:grid-cols-2">
@@ -5488,11 +5554,50 @@ const isBackupChapterReadOnly = (
               <li>• Favorite Songs</li>
               <li>• More than 5 Gallery Photos</li>
               <li>• Video Memories</li>
-              <li>• Celebration of Life Presentation</li>
+              {(form.isLivingPreplan || (!draftMemorialId && !presentationClaimedInThisSession) ||
+                linkedPresentationStatus === "unlinked") && (
+                <li>• Celebration of Life Presentation</li>
+              )}
               {form.isLivingPreplan && (
                 <li>• Designated Person &amp; Future Instructions</li>
               )}
             </ul>
+
+            {(linkedPresentationStatus === "paid" ||
+              (!draftMemorialId && presentationClaimedInThisSession)) &&
+              !form.isLivingPreplan && (
+              <p className="mt-4 text-base leading-7 text-stone-700">
+                {draftMemorialId
+                  ? "Your paid Celebration of Life Presentation is connected. "
+                  : "Your paid Celebration of Life Presentation is ready to connect. Save this MyEMemorial to manage it here. "}
+                {draftMemorialSlug && (
+                  <a
+                    href={`/memorial/${encodeURIComponent(draftMemorialSlug)}/manage`}
+                    className="font-semibold text-amber-800 underline underline-offset-2 hover:text-amber-950"
+                  >
+                    Manage MyEMemorial
+                  </a>
+                )}
+              </p>
+            )}
+
+            {linkedPresentationStatus === "unavailable" && !form.isLivingPreplan && (
+              <p className="mt-4 text-base leading-7 text-stone-700">
+                Presentation status is temporarily unavailable.
+                {draftMemorialSlug && (
+                  <>
+                    {' '}Check your{' '}
+                    <a
+                      href={`/memorial/${encodeURIComponent(draftMemorialSlug)}/manage`}
+                      className="font-semibold text-amber-800 underline underline-offset-2 hover:text-amber-950"
+                    >
+                      Manage MyEMemorial
+                    </a>
+                    {' '}page.
+                  </>
+                )}
+              </p>
+            )}
 
             <p className="mt-4 text-base leading-7 text-stone-500">
               You can upgrade later if you decide you want these additional

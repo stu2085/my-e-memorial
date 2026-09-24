@@ -36,6 +36,15 @@ type ManageMemorial = {
   is_published: boolean | null;
 };
 
+type LinkedCelebrationPresentation = {
+  publicId: string;
+  personName: string;
+  status: string;
+  paymentStatus: string;
+  expiresAt: string | null;
+  convertedMemorialId: number | null;
+};
+
 export default function ManageMemorialClient() {
   const params = useParams<{ slug: string }>();
   const slug = params?.slug ?? "";
@@ -62,6 +71,11 @@ const [presentationMessage, setPresentationMessage] = useState("");
 const [isActivatingSecondary, setIsActivatingSecondary] = useState(false);
 const [secondaryActivationMessage, setSecondaryActivationMessage] = useState("");
 const [hasSecondaryBackupPerson, setHasSecondaryBackupPerson] = useState(false);
+const [linkedCelebrationPresentation, setLinkedCelebrationPresentation] =
+  useState<LinkedCelebrationPresentation | null>(null);
+const [isOpeningLinkedPresentation, setIsOpeningLinkedPresentation] =
+  useState(false);
+const [linkedPresentationMessage, setLinkedPresentationMessage] = useState("");
 
   const [submissionPhotoViewer, setSubmissionPhotoViewer] = useState<{
     photos: string[];
@@ -282,6 +296,46 @@ if (!ownerAccess && !backupAccessValid) {
         );
       }
 
+      if (ownerAccess && session?.access_token) {
+        try {
+          const linkedPresentationResponse = await fetch(
+            `/api/celebration-presentations/linked?memorialId=${memorialData.id}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              credentials: "include",
+              cache: "no-store",
+            }
+          );
+
+          const linkedPresentationResult =
+            await linkedPresentationResponse.json();
+
+          if (linkedPresentationResponse.ok) {
+            setLinkedCelebrationPresentation(
+              linkedPresentationResult?.presentation || null
+            );
+          } else {
+            setLinkedCelebrationPresentation(null);
+            setLinkedPresentationMessage(
+              linkedPresentationResult?.error ||
+                "The connected Celebration Presentation could not be loaded."
+            );
+          }
+        } catch (error) {
+          console.error(
+            "LOAD LINKED CELEBRATION PRESENTATION ERROR:",
+            error
+          );
+          setLinkedCelebrationPresentation(null);
+          setLinkedPresentationMessage(
+            "The connected Celebration Presentation could not be loaded."
+          );
+        }
+      }
+
       setLoading(false);
     }
 
@@ -406,7 +460,7 @@ if (!ownerAccess && !backupAccessValid) {
     }
   }
   async function handleUpgradePlan(
-  toPlan: "plus" | "premium"
+  toPlan: "basic" | "plus" | "premium"
 ) {
   if (!memorial) {
     alert(
@@ -415,11 +469,11 @@ if (!ownerAccess && !backupAccessValid) {
     return;
   }
 
-  const currentPlan =
-    memorial.plan as keyof typeof PLAN_PRICES;
+  const currentPlan = memorial.plan || "free";
 
-  const currentPrice =
-    PLAN_PRICES[currentPlan] || PLAN_PRICES.basic;
+  const currentPrice = currentPlan === "free"
+    ? 0
+    : PLAN_PRICES[currentPlan as keyof typeof PLAN_PRICES] || PLAN_PRICES.basic;
 
   const newPrice = PLAN_PRICES[toPlan];
 
@@ -457,8 +511,8 @@ if (!ownerAccess && !backupAccessValid) {
         fromPlan: currentPlan,
         toPlan,
         returnUrl:
-          `${window.location.origin}/memorial/${memorial.slug}/manage` +
-          "?upgrade_success=true",
+          `${window.location.origin}/create?mode=memorial&edit=${memorial.id}` +
+          "&upgrade_success=true",
       }),
     });
 
@@ -575,6 +629,67 @@ async function handleCopyPresentationLink() {
     );
   } finally {
     setIsCreatingPresentationLink(false);
+  }
+}
+
+async function handleOpenLinkedCelebrationPresentation() {
+  if (!linkedCelebrationPresentation) {
+    setLinkedPresentationMessage(
+      "The connected Celebration Presentation is not available."
+    );
+    return;
+  }
+
+  try {
+    setIsOpeningLinkedPresentation(true);
+    setLinkedPresentationMessage("");
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      throw new Error(
+        "Please sign in again before opening the Presentation Builder."
+      );
+    }
+
+    const response = await fetch(
+      `/celebration-of-life-slideshow/access/${encodeURIComponent(
+        linkedCelebrationPresentation.publicId
+      )}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        credentials: "include",
+        cache: "no-store",
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result?.url) {
+      throw new Error(
+        result?.error ||
+          "The Presentation Builder could not be opened."
+      );
+    }
+
+    window.location.assign(result.url);
+  } catch (error) {
+    console.error(
+      "OPEN LINKED CELEBRATION PRESENTATION ERROR:",
+      error
+    );
+
+    setLinkedPresentationMessage(
+      error instanceof Error
+        ? error.message
+        : "The Presentation Builder could not be opened."
+    );
+    setIsOpeningLinkedPresentation(false);
   }
 }
 
@@ -988,6 +1103,76 @@ if (
       )}
     </section>
   )}
+
+{isOwner && linkedCelebrationPresentation && (
+  <section className="rounded-3xl border-2 border-blue-300 bg-blue-50 p-8 shadow-sm">
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="max-w-2xl">
+        <p className="text-base font-bold uppercase tracking-[0.16em] text-blue-800">
+          Connected Paid Presentation
+        </p>
+
+        <h2 className="mt-2 text-3xl font-bold text-stone-900">
+          Celebration of Life Presentation
+        </h2>
+
+        <p className="mt-3 text-lg leading-8 text-stone-700">
+          Your paid Presentation for{" "}
+          {linkedCelebrationPresentation.personName ||
+            memorial.full_name ||
+            "this MyEMemorial"}{" "}
+          is connected to this MyEMemorial. Open the Presentation Builder to
+          edit it, view it, or create and download its Offline Copy.
+        </p>
+
+        {linkedCelebrationPresentation.convertedMemorialId === memorial.id ? (
+          <p className="mt-3 text-base font-semibold leading-7 text-green-800">
+            This Presentation is preserved with your paid Departed MyEMemorial.
+          </p>
+        ) : linkedCelebrationPresentation.expiresAt && (
+          <p className="mt-3 text-base font-semibold leading-7 text-stone-700">
+            Online access ends{" "}
+            {new Date(
+              linkedCelebrationPresentation.expiresAt
+            ).toLocaleDateString()}.
+          </p>
+        )}
+        {memorial.plan === "free" && (
+          <p className="mt-3 text-base leading-7 text-stone-700">
+            Upgrade this Departed MyEMemorial before online access ends to
+            preserve your connected Presentation. Your purchase includes a
+            single-use $29.95 credit toward Basic, Plus, or Premium. Enter the
+            code from your Presentation purchase email at Stripe Checkout.
+          </p>
+        )}
+        {memorial.plan !== "free" &&
+          linkedCelebrationPresentation.convertedMemorialId !== memorial.id && (
+            <p className="mt-3 text-base font-semibold leading-7 text-amber-900">
+              Your plan is paid, but Presentation preservation has not been
+              confirmed. Contact MyEMemorial support before online access ends.
+            </p>
+          )}
+      </div>
+
+      <button
+        type="button"
+        onClick={handleOpenLinkedCelebrationPresentation}
+        disabled={isOpeningLinkedPresentation}
+        className="inline-flex min-w-fit items-center justify-center rounded-full bg-blue-800 px-6 py-4 text-base font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {isOpeningLinkedPresentation
+          ? "Opening Builder..."
+          : "Open Presentation Builder"}
+      </button>
+    </div>
+
+    {linkedPresentationMessage && (
+      <p className="mt-5 rounded-2xl border border-blue-200 bg-white px-5 py-4 text-base font-semibold leading-7 text-stone-700">
+        {linkedPresentationMessage}
+      </p>
+    )}
+  </section>
+)}
 
 {((isOwner &&
     memorial.is_published === true &&

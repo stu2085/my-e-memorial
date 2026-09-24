@@ -1,8 +1,8 @@
-import FormSection from "./FormSection";
+﻿import FormSection from "./FormSection";
 
 type PlanSectionProps = {
   plan: string;
-  handleUpgradePlan: (plan: "plus" | "premium") => void;
+  handleUpgradePlan: (plan: "basic" | "plus" | "premium") => void;
 };
 
 export default function PlanSection({
@@ -20,6 +20,25 @@ export default function PlanSection({
           {plan}
         </p>
 
+        {plan === "free" && (
+          <div className="mt-4 flex flex-wrap gap-3">
+            {([
+              ["basic", "$49.95"],
+              ["plus", "$69.95"],
+              ["premium", "$89.95"],
+            ] as const).map(([paidPlan, price]) => (
+              <button
+                key={paidPlan}
+                type="button"
+                onClick={() => handleUpgradePlan(paidPlan)}
+                className="rounded-full bg-stone-900 px-5 py-3 text-base font-semibold text-white hover:bg-stone-700"
+              >
+                Upgrade to {paidPlan[0].toUpperCase() + paidPlan.slice(1)} â€” {price}
+              </button>
+            ))}
+          </div>
+        )}
+
         {plan === "basic" && (
           <div className="mt-4 flex flex-wrap gap-3">
             <button
@@ -27,7 +46,7 @@ export default function PlanSection({
               onClick={() => handleUpgradePlan("plus")}
               className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
             >
-              Upgrade to Plus — $20.00
+              Upgrade to Plus â€” $20.00
             </button>
 
             <button
@@ -35,7 +54,7 @@ export default function PlanSection({
               onClick={() => handleUpgradePlan("premium")}
               className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
             >
-              Upgrade to Premium — $40.00
+              Upgrade to Premium â€” $40.00
             </button>
           </div>
         )}
@@ -47,7 +66,7 @@ export default function PlanSection({
               onClick={() => handleUpgradePlan("premium")}
               className="rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white hover:bg-stone-700"
             >
-              Upgrade to Premium — $20.00
+              Upgrade to Premium â€” $20.00
             </button>
           </div>
         )}
@@ -61,3 +80,4 @@ export default function PlanSection({
     </FormSection>
   );
 }
+

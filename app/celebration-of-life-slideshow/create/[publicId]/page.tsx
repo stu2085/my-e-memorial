@@ -27,6 +27,7 @@ type Presentation = {
   theme: string;
   status: string;
   paymentStatus: string;
+  convertedMemorialId?: number | null;
 };
 
 type PresentationMusic = {
@@ -1466,7 +1467,11 @@ window.clearInterval(timer);
             </div>
           ) : (
             <div className="mt-7 rounded-2xl border border-[#b5ccba] bg-[#f4faf2] px-5 py-5 text-center">
-              <p className="text-base font-semibold text-[#173a31]">Purchased · Your shareable presentation is active for 60 days.</p>
+              <p className="text-base font-semibold text-[#173a31]">
+                {presentation.convertedMemorialId
+                  ? "Purchased · Preserved with your paid MyEMemorial."
+                  : "Purchased · Your shareable presentation is active for 60 days."}
+              </p>
               <p className="mt-2 text-base text-[#344f43]">Your viewing link was emailed to you. You can also open or copy it here.</p>
               <div className="mt-4 flex flex-wrap justify-center gap-3">
                 <a href={`/celebration-of-life-slideshow/${encodeURIComponent(publicId)}`} target="_blank" rel="noopener noreferrer"

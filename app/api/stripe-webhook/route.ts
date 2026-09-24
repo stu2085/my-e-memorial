@@ -9,6 +9,7 @@ const supabase = createClient(
 );
 import { transporter } from "../../lib/email";
 import { activateCelebrationPurchase, cancelFullyRefundedCelebration } from "../../lib/celebration-purchase";
+import { preserveLinkedCelebration } from "../../lib/preserve-linked-celebration";
 
 type MetaPurchaseEventInput = {
   eventId: string;
@@ -545,7 +546,8 @@ const billingPlanLabel =
 
   if (
     session.payment_status !== "paid" ||
-    session.amount_total !== expectedUpgradeAmount
+    session.metadata?.plan !== toPlan ||
+    session.amount_subtotal !== expectedUpgradeAmount
   ) {
     console.error(
       "Upgrade payment verification failed:",
@@ -568,7 +570,7 @@ const billingPlanLabel =
     error: memorialLookupError,
   } = await supabase
     .from("memorials")
-    .select("id, plan")
+    .select("id, plan, owner_id, payment_status")
     .eq("id", memorialId)
     .single();
 
@@ -584,7 +586,7 @@ const billingPlanLabel =
     );
   }
 
-  if (currentMemorial.plan !== fromPlan) {
+  if (currentMemorial.plan !== fromPlan && currentMemorial.plan !== toPlan) {
     console.error(
       "Upgrade memorial plan mismatch:",
       {
@@ -609,22 +611,48 @@ const billingPlanLabel =
     upgradeFields.payment_source = "stripe";
   }
 
-  const { error: upgradeError } = await supabase
-    .from("memorials")
-    .update(upgradeFields)
-    .eq("id", memorialId)
-    .eq("plan", fromPlan);
+  if (currentMemorial.plan === fromPlan) {
+    const { error: upgradeError } = await supabase
+      .from("memorials")
+      .update(upgradeFields)
+      .eq("id", memorialId)
+      .eq("plan", fromPlan);
 
-  if (upgradeError) {
-    console.error(
-      "Plan upgrade error:",
-      upgradeError
-    );
+    if (upgradeError) {
+      console.error("Plan upgrade error:", upgradeError);
+      return NextResponse.json({ error: upgradeError.message }, { status: 500 });
+    }
+  }
 
-    return NextResponse.json(
-      { error: upgradeError.message },
-      { status: 500 }
-    );
+  if (currentMemorial.plan === toPlan && fromPlan === "free" &&
+      currentMemorial.payment_status !== "paid") {
+    const { error: paidStateError } = await supabase
+      .from("memorials")
+      .update({ payment_status: "paid", payment_source: "stripe" })
+      .eq("id", memorialId)
+      .eq("owner_id", currentMemorial.owner_id);
+
+    if (paidStateError) {
+      return NextResponse.json({ error: "The paid plan state could not be confirmed." }, { status: 500 });
+    }
+  }
+
+  if (!currentMemorial.owner_id) {
+    return NextResponse.json({ error: "The MyEMemorial owner could not be verified." }, { status: 500 });
+  }
+
+  try {
+      await preserveLinkedCelebration(
+        supabase,
+        Number(memorialId),
+        currentMemorial.owner_id
+      );
+    } catch (preservationError) {
+      console.error("PAID PRESENTATION PRESERVATION ERROR:", preservationError);
+      return NextResponse.json(
+        { error: "The paid plan was activated, but the connected Presentation could not be preserved." },
+        { status: 500 }
+      );
   }
 
   if (canSendCustomerEmail) {
