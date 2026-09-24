@@ -75,6 +75,8 @@ const [linkedCelebrationPresentation, setLinkedCelebrationPresentation] =
   useState<LinkedCelebrationPresentation | null>(null);
 const [isOpeningLinkedPresentation, setIsOpeningLinkedPresentation] =
   useState(false);
+const [isCreatingIncludedPresentation, setIsCreatingIncludedPresentation] =
+  useState(false);
 const [linkedPresentationMessage, setLinkedPresentationMessage] = useState("");
 
   const [submissionPhotoViewer, setSubmissionPhotoViewer] = useState<{
@@ -632,6 +634,69 @@ async function handleCopyPresentationLink() {
   }
 }
 
+async function handleCreateIncludedCelebrationPresentation() {
+  if (!memorial?.id) {
+    setLinkedPresentationMessage(
+      "The MyEMemorial record is not loaded."
+    );
+    return;
+  }
+
+  try {
+    setIsCreatingIncludedPresentation(true);
+    setLinkedPresentationMessage("");
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      throw new Error(
+        "Please sign in again before creating the Presentation."
+      );
+    }
+
+    const response = await fetch(
+      "/api/celebration-presentations/from-memorial",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        credentials: "include",
+        cache: "no-store",
+        body: JSON.stringify({
+          memorialId: memorial.id,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result?.url) {
+      throw new Error(
+        result?.error ||
+          "The Celebration of Life Presentation could not be created."
+      );
+    }
+
+    window.location.assign(result.url);
+  } catch (error) {
+    console.error(
+      "CREATE INCLUDED CELEBRATION PRESENTATION ERROR:",
+      error
+    );
+
+    setLinkedPresentationMessage(
+      error instanceof Error
+        ? error.message
+        : "The Celebration of Life Presentation could not be created."
+    );
+    setIsCreatingIncludedPresentation(false);
+  }
+}
+
 async function handleOpenLinkedCelebrationPresentation() {
   if (!linkedCelebrationPresentation) {
     setLinkedPresentationMessage(
@@ -1104,6 +1169,51 @@ if (
     </section>
   )}
 
+{isOwner &&
+  !linkedCelebrationPresentation &&
+  memorial.is_living_preplan !== true &&
+  (memorial.plan === "basic" ||
+    memorial.plan === "plus" ||
+    memorial.plan === "premium") && (
+    <section className="rounded-3xl border-2 border-blue-300 bg-blue-50 p-8 shadow-sm">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="max-w-2xl">
+          <p className="text-base font-bold uppercase tracking-[0.16em] text-blue-800">
+            Included With Your Paid Plan
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold text-stone-900">
+            Celebration of Life Presentation
+          </h2>
+
+          <p className="mt-3 text-lg leading-8 text-stone-700">
+            Your {memorial.plan} Departed MyEMemorial includes the full
+            Presentation Builder at no additional charge. We will start it
+            with the photos, videos, captions, approved family contributions,
+            and favorite music already saved in this MyEMemorial.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleCreateIncludedCelebrationPresentation}
+          disabled={isCreatingIncludedPresentation}
+          className="inline-flex min-w-fit items-center justify-center rounded-full bg-blue-800 px-6 py-4 text-base font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isCreatingIncludedPresentation
+            ? "Creating Presentation..."
+            : "Create Celebration Presentation"}
+        </button>
+      </div>
+
+      {linkedPresentationMessage && (
+        <p className="mt-5 rounded-2xl border border-blue-200 bg-white px-5 py-4 text-base font-semibold leading-7 text-stone-700">
+          {linkedPresentationMessage}
+        </p>
+      )}
+    </section>
+  )}
+
 {isOwner && linkedCelebrationPresentation && (
   <section className="rounded-3xl border-2 border-blue-300 bg-blue-50 p-8 shadow-sm">
     <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -1174,12 +1284,9 @@ if (
   </section>
 )}
 
-{((isOwner &&
-    memorial.is_published === true &&
-    memorial.is_living_preplan !== true) ||
-  (isBackupUnlocked &&
-    !isOwner &&
-    isPostDeathUnlocked)) && (
+{isBackupUnlocked &&
+  !isOwner &&
+  isPostDeathUnlocked && (
     <section className="rounded-3xl border-2 border-amber-300 bg-amber-50 p-8 shadow-sm">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-2xl">

@@ -1048,6 +1048,8 @@ const [linkedPresentationLookup, setLinkedPresentationLookup] = useState<{
 } | null>(null);
 const [isOpeningLinkedPresentation, setIsOpeningLinkedPresentation] =
   useState(false);
+const [isCreatingIncludedPresentation, setIsCreatingIncludedPresentation] =
+  useState(false);
 const [linkedPresentationMessage, setLinkedPresentationMessage] =
   useState("");
 
@@ -1117,6 +1119,69 @@ useEffect(() => {
     cancelled = true;
   };
 }, [draftReady, draftMemorialId, form.isLivingPreplan, isBackupAccess]);
+
+async function handleCreateIncludedCelebrationPresentation() {
+  if (!draftMemorialId) {
+    setLinkedPresentationMessage(
+      "Save this MyEMemorial before creating its Celebration of Life Presentation."
+    );
+    return;
+  }
+
+  try {
+    setIsCreatingIncludedPresentation(true);
+    setLinkedPresentationMessage("");
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      throw new Error(
+        "Please sign in again before creating the Presentation."
+      );
+    }
+
+    const response = await fetch(
+      "/api/celebration-presentations/from-memorial",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        credentials: "include",
+        cache: "no-store",
+        body: JSON.stringify({
+          memorialId: draftMemorialId,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result?.url) {
+      throw new Error(
+        result?.error ||
+          "The Celebration of Life Presentation could not be created."
+      );
+    }
+
+    window.location.assign(result.url);
+  } catch (error) {
+    console.error(
+      "CREATE INCLUDED CELEBRATION PRESENTATION ERROR:",
+      error
+    );
+
+    setLinkedPresentationMessage(
+      error instanceof Error
+        ? error.message
+        : "The Celebration of Life Presentation could not be created."
+    );
+    setIsCreatingIncludedPresentation(false);
+  }
+}
 
 async function handleOpenLinkedCelebrationPresentation() {
   const publicId = linkedPresentationLookup?.publicId;
@@ -5583,6 +5648,46 @@ const isBackupChapterReadOnly = (
         </button>
       </div>
     )}
+
+    {linkedPresentationStatus === "unlinked" &&
+      !form.isLivingPreplan &&
+      form.plan !== "free" &&
+      isPaid &&
+      draftMemorialId && (
+        <div className="mt-5 rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
+          <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-800">
+            Included With Your Paid Plan
+          </p>
+
+          <p className="mt-2 text-lg font-bold text-stone-900">
+            Celebration of Life Presentation
+          </p>
+
+          <p className="mt-2 text-base leading-7 text-stone-700">
+            Your paid Departed MyEMemorial includes the full Presentation
+            Builder at no additional charge. Create it from the photos,
+            videos, captions, approved family contributions, and favorite
+            music already saved in this MyEMemorial.
+          </p>
+
+          <button
+            type="button"
+            onClick={handleCreateIncludedCelebrationPresentation}
+            disabled={isCreatingIncludedPresentation}
+            className="mt-4 inline-flex items-center justify-center rounded-full bg-blue-800 px-6 py-3 text-base font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isCreatingIncludedPresentation
+              ? "Creating Presentation..."
+              : "Create Celebration Presentation"}
+          </button>
+
+          {linkedPresentationMessage && (
+            <p className="mt-4 rounded-xl border border-blue-200 bg-white px-4 py-3 text-base font-semibold leading-7 text-stone-700">
+              {linkedPresentationMessage}
+            </p>
+          )}
+        </div>
+      )}
 
     {linkedPresentationStatus === "paid" && !form.isLivingPreplan && (
       <div className="mt-5 rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
