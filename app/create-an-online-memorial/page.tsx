@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     absolute: "Create an Online Memorial Website for a Loved One | MyEMemorial",
   },
   description:
-    "Learn how to create an online memorial website for someone you love. Preserve their life story, photos, videos, music, family history, obituary information, and memories in one shareable place.",
+    "Learn how to create an online memorial website for someone you love. Preserve their life story, photos, videos, music, family history, and memories.",
   keywords: [
     "create an online memorial",
     "create a memorial website",
