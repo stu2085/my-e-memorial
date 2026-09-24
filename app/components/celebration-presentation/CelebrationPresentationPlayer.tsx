@@ -63,6 +63,7 @@ type PlayerProps = {
 };
 
 const PHOTO_SECONDS = 7;
+const OPENING_SCREEN_SECONDS = 5;
 const CLOSING_SCREEN_SECONDS = 8;
 
 function formatDate(date: string | null) {
@@ -96,6 +97,9 @@ export default function CelebrationPresentationPlayer({
       null
     );
 
+  const controlsHideTimerRef =
+    useRef<number | null>(null);
+
   const [presentation, setPresentation] =
     useState<Presentation | null>(null);
 
@@ -116,8 +120,17 @@ export default function CelebrationPresentationPlayer({
   const [hasStarted, setHasStarted] =
     useState(false);
 
+  const [showOpeningScreen, setShowOpeningScreen] =
+    useState(false);
+
   const [showClosingScreen, setShowClosingScreen] =
     useState(false);
+
+  const [isFullscreen, setIsFullscreen] =
+    useState(false);
+
+  const [controlsVisible, setControlsVisible] =
+    useState(true);
 
   const [currentIndex, setCurrentIndex] =
     useState(0);
@@ -136,6 +149,60 @@ export default function CelebrationPresentationPlayer({
 
   const [muted, setMuted] =
     useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const active =
+        document.fullscreenElement ===
+        playerContainerRef.current;
+
+      setIsFullscreen(active);
+      setControlsVisible(!active);
+
+      if (controlsHideTimerRef.current !== null) {
+        window.clearTimeout(controlsHideTimerRef.current);
+        controlsHideTimerRef.current = null;
+      }
+    };
+
+    document.addEventListener(
+      "fullscreenchange",
+      handleFullscreenChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "fullscreenchange",
+        handleFullscreenChange
+      );
+
+      if (controlsHideTimerRef.current !== null) {
+        window.clearTimeout(controlsHideTimerRef.current);
+      }
+    };
+  }, []);
+
+  const scheduleControlsHide =
+    useCallback(() => {
+      setControlsVisible(true);
+
+      if (controlsHideTimerRef.current !== null) {
+        window.clearTimeout(controlsHideTimerRef.current);
+        controlsHideTimerRef.current = null;
+      }
+
+      if (isFullscreen && hasStarted) {
+        controlsHideTimerRef.current =
+          window.setTimeout(() => {
+            setControlsVisible(false);
+            controlsHideTimerRef.current = null;
+          }, 2500);
+      }
+    }, [
+      hasStarted,
+      isFullscreen,
+    ]);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -282,6 +349,20 @@ export default function CelebrationPresentationPlayer({
     ]);
 
   useEffect(() => {
+    if (!hasStarted || !showOpeningScreen) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setShowOpeningScreen(false);
+    }, OPENING_SCREEN_SECONDS * 1000);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [hasStarted, showOpeningScreen]);
+
+  useEffect(() => {
     if (!showClosingScreen || !loop || paused) {
       return;
     }
@@ -290,6 +371,7 @@ export default function CelebrationPresentationPlayer({
       setCurrentIndex(0);
       setPaused(false);
       setShowClosingScreen(false);
+      setShowOpeningScreen(true);
     }, CLOSING_SCREEN_SECONDS * 1000);
 
     return () => {
@@ -300,6 +382,7 @@ export default function CelebrationPresentationPlayer({
   useEffect(() => {
     if (
       !hasStarted ||
+      showOpeningScreen ||
       showClosingScreen ||
       paused ||
       currentItem?.item_type !==
@@ -322,6 +405,7 @@ export default function CelebrationPresentationPlayer({
     hasStarted,
     paused,
     showClosingScreen,
+    showOpeningScreen,
   ]);
 
   useEffect(() => {
@@ -334,6 +418,7 @@ export default function CelebrationPresentationPlayer({
     const shouldPlay =
       hasStarted &&
       !paused &&
+      !showOpeningScreen &&
       ((showClosingScreen && loop) ||
         (!showClosingScreen &&
           currentItem?.item_type ===
@@ -355,6 +440,7 @@ export default function CelebrationPresentationPlayer({
     loop,
     paused,
     showClosingScreen,
+    showOpeningScreen,
   ]);
 
   useEffect(() => {
@@ -383,7 +469,14 @@ export default function CelebrationPresentationPlayer({
     setMusicIndex(0);
     setPaused(false);
     setShowClosingScreen(false);
+    setShowOpeningScreen(true);
     setHasStarted(true);
+
+    if (!document.fullscreenElement) {
+      void playerContainerRef.current
+        ?.requestFullscreen()
+        .catch(() => undefined);
+    }
   }
 
   function togglePause() {
@@ -413,6 +506,7 @@ export default function CelebrationPresentationPlayer({
     setCurrentIndex(0);
     setMusicIndex(0);
     setPaused(false);
+    setShowOpeningScreen(false);
     setShowClosingScreen(false);
     setHasStarted(false);
   }
@@ -533,6 +627,8 @@ export default function CelebrationPresentationPlayer({
   return (
     <main
       ref={playerContainerRef}
+      onMouseMove={scheduleControlsHide}
+      onTouchStart={scheduleControlsHide}
       className="relative flex min-h-screen overflow-hidden bg-black text-white"
     >
       {currentMusic && (
@@ -546,6 +642,7 @@ export default function CelebrationPresentationPlayer({
             if (
               hasStarted &&
               !paused &&
+              !showOpeningScreen &&
               ((showClosingScreen &&
                 loop) ||
                 (!showClosingScreen &&
@@ -564,17 +661,6 @@ export default function CelebrationPresentationPlayer({
 
       {!hasStarted ? (
         <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black px-6 py-12 text-center">
-          {presentation.featuredPhotoUrl && (
-            <>
-              <img
-                src={presentation.featuredPhotoUrl}
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover opacity-[0.22]"
-              />
-              <div className="absolute inset-0 bg-slate-950/60" />
-            </>
-          )}
-
           <div className="relative z-10 mx-auto max-w-4xl">
             <p className="font-serif text-xl tracking-[0.22em] text-amber-200 uppercase sm:text-2xl">
               Celebration of Life
@@ -621,6 +707,38 @@ export default function CelebrationPresentationPlayer({
             )}
           </div>
         </section>
+      ) : showOpeningScreen ? (
+        <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black px-6 py-8 text-center">
+          <div className="relative z-10 mx-auto w-full max-w-5xl">
+            <p className="text-3xl font-bold tracking-wide text-amber-200 uppercase sm:text-6xl">
+              Celebration of Life
+            </p>
+
+            {presentation.featuredPhotoUrl && (
+              <div className="mx-auto mt-7 h-72 w-56 overflow-hidden rounded-2xl border border-amber-200/60 bg-slate-900 shadow-2xl sm:h-[440px] sm:w-[335px]">
+                <img
+                  src={presentation.featuredPhotoUrl}
+                  alt={displayPersonName}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
+
+            <h1 className="mt-7 text-4xl font-semibold leading-tight text-white sm:text-7xl">
+              {displayPersonName}
+            </h1>
+
+            {isSamplePresentation ? (
+              <p className="mt-5 text-2xl font-semibold text-amber-100 sm:text-4xl">
+                Sample Presentation
+              </p>
+            ) : years ? (
+              <p className="mt-5 text-2xl font-medium text-amber-100 sm:text-4xl">
+                {years}
+              </p>
+            ) : null}
+          </div>
+        </section>
       ) : showClosingScreen ? (
         <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black px-6 py-12 text-center">
           <div className="relative z-10 mx-auto w-full max-w-5xl">
@@ -638,31 +756,6 @@ export default function CelebrationPresentationPlayer({
               </p>
             )}
 
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={togglePause}
-                className="rounded-full border border-white/40 px-6 py-3 text-base font-semibold text-white hover:bg-white/10"
-              >
-                {paused ? "Resume" : "Pause"}
-              </button>
-
-              <button
-                type="button"
-                onClick={restartPresentation}
-                className="rounded-full bg-amber-500 px-8 py-3 text-base font-bold text-stone-950 shadow-xl transition hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-200"
-              >
-                Replay Presentation
-              </button>
-            </div>
-
-            {loop && (
-              <p className="mt-4 text-base text-stone-400">
-                {paused
-                  ? "Presentation paused."
-                  : "Loop is on. The presentation will restart automatically."}
-              </p>
-            )}
           </div>
 
           <p className="absolute inset-x-0 bottom-6 px-4 text-center text-sm text-stone-400 sm:text-base">
@@ -717,7 +810,7 @@ export default function CelebrationPresentationPlayer({
                       currentItem.caption ||
                       `Celebration of Life for ${presentation.personName}`,
                   }}
-                  className="h-full w-full"
+                  className="h-full w-full [--controls:none]"
                   onPlay={() => {
                     audioRef.current?.pause();
                   }}
@@ -729,7 +822,7 @@ export default function CelebrationPresentationPlayer({
 
             {currentItem?.caption && (
               <div className="pointer-events-none absolute inset-x-0 bottom-20 z-20 bg-gradient-to-t from-black/90 to-transparent px-6 pb-8 pt-16 text-center">
-                <p className="mx-auto max-w-5xl font-serif text-xl text-white drop-shadow-lg sm:text-3xl">
+                <p className="mx-auto max-w-6xl font-serif text-4xl leading-tight text-white drop-shadow-lg sm:text-6xl">
                   {currentItem.caption}
                 </p>
 
@@ -744,7 +837,18 @@ export default function CelebrationPresentationPlayer({
             )}
           </section>
 
-          <div className="absolute inset-x-0 bottom-0 z-30 flex flex-wrap items-center justify-center gap-3 bg-black/75 px-4 py-3 backdrop-blur">
+        </>
+      )}
+
+
+      {hasStarted && !showOpeningScreen && (
+        <div
+            className={`absolute inset-x-0 bottom-0 z-30 flex flex-wrap items-center justify-center gap-3 bg-black/75 px-4 py-3 backdrop-blur transition-opacity duration-300 ${
+              isFullscreen && !controlsVisible
+                ? "pointer-events-none opacity-0"
+                : "opacity-100"
+            }`}
+          >
             <button
               type="button"
               onClick={togglePause}
@@ -843,7 +947,6 @@ export default function CelebrationPresentationPlayer({
               {playableItems.length}
             </p>
           </div>
-        </>
       )}
 
       {errorMessage &&
