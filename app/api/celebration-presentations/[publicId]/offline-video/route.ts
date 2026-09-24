@@ -1292,6 +1292,9 @@ export async function GET(
       );
     }
 
+    const wantsDownload =
+      req.nextUrl.searchParams.get("download") === "1";
+
     const { items, music } = await loadPresentationMedia(presentation.id);
     const hash = contentHash(presentation, items, music);
     const marker = parseRenderMarker(
@@ -1299,6 +1302,16 @@ export async function GET(
     );
 
     if (!marker || marker.hash !== hash) {
+      if (wantsDownload) {
+        return NextResponse.json(
+          {
+            error:
+              "This Offline Copy is no longer current. Please create a new Offline Copy.",
+          },
+          { status: 409 }
+        );
+      }
+
       return NextResponse.json({
         success: true,
         status: "not_started",
@@ -1314,6 +1327,16 @@ export async function GET(
         "CELEBRATION OFFLINE VIDEO STATUS ERROR:",
         error
       );
+
+      if (wantsDownload) {
+        return NextResponse.json(
+          {
+            error:
+              "The Offline Copy could not be retrieved. Please try again.",
+          },
+          { status: 502 }
+        );
+      }
 
       return NextResponse.json({
         success: true,
@@ -1344,9 +1367,103 @@ export async function GET(
         new Date(completedAt).getTime();
 
       if (ageMs > 28 * 24 * 60 * 60 * 1000) {
+        if (wantsDownload) {
+          return NextResponse.json(
+            {
+              error:
+                "This Offline Copy has expired. Please create a new Offline Copy.",
+            },
+            { status: 410 }
+          );
+        }
+
         return NextResponse.json({
           success: true,
           status: "not_started",
+        });
+      }
+
+      if (wantsDownload) {
+        const outputUrl = String(renderStatus.outputUrl || "").trim();
+        let parsedOutputUrl: URL;
+
+        try {
+          parsedOutputUrl = new URL(outputUrl);
+        } catch {
+          return NextResponse.json(
+            {
+              error:
+                "The Offline Copy download address is invalid. Please try again.",
+            },
+            { status: 502 }
+          );
+        }
+
+        if (parsedOutputUrl.protocol !== "https:") {
+          return NextResponse.json(
+            {
+              error:
+                "The Offline Copy download address is not secure. Please try again.",
+            },
+            { status: 502 }
+          );
+        }
+
+        const videoResponse = await fetch(outputUrl, {
+          method: "GET",
+          cache: "no-store",
+          redirect: "follow",
+        });
+
+        if (!videoResponse.ok || !videoResponse.body) {
+          console.error(
+            "CELEBRATION OFFLINE VIDEO DOWNLOAD FETCH ERROR:",
+            videoResponse.status,
+            videoResponse.statusText
+          );
+
+          return NextResponse.json(
+            {
+              error:
+                "Your Offline Copy could not be downloaded. Please try again.",
+            },
+            { status: 502 }
+          );
+        }
+
+        const downloadName = safeDownloadName(
+          presentation.person_name
+        );
+        const headers = new Headers();
+
+        headers.set(
+          "Content-Type",
+          videoResponse.headers.get("content-type") || "video/mp4"
+        );
+        const asciiDownloadName =
+          downloadName
+            .replace(/[^\x20-\x7E]/g, "")
+            .trim() || "Celebration of Life - Presentation.mp4";
+
+        headers.set(
+          "Content-Disposition",
+          `attachment; filename="${asciiDownloadName}"; filename*=UTF-8''${encodeURIComponent(
+            downloadName
+          )}`
+        );
+        headers.set("Cache-Control", "private, no-store");
+        headers.set("X-Content-Type-Options", "nosniff");
+
+        const contentLength =
+          videoResponse.headers.get("content-length");
+
+        if (contentLength) {
+          headers.set("Content-Length", contentLength);
+        }
+
+        return new Response(videoResponse.body, {
+          status: 200,
+          headers,
         });
       }
 
@@ -1380,6 +1497,16 @@ export async function GET(
             "The Offline Copy could not be prepared. Please try again.",
         },
         { status: 500 }
+      );
+    }
+
+    if (wantsDownload) {
+      return NextResponse.json(
+        {
+          error:
+            "Your Offline Copy is not ready to download yet.",
+        },
+        { status: 409 }
       );
     }
 

@@ -328,23 +328,18 @@ export default function OfflineVideoSection({
       setDownloading(true);
       setErrorMessage("");
 
-      const response = await fetch(outputUrl, {
-        method: "GET",
-        mode: "cors",
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          "Your Offline Copy could not be downloaded. Please try again."
-        );
-      }
-
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
+      /*
+       * Download through MyEMemorial instead of fetching Renderly/S3
+       * directly in the browser. The server verifies this presentation,
+       * confirms the current render is ready, and streams the MP4 back
+       * with an attachment filename. This avoids cross-origin download
+       * failures from the Renderly storage URL.
+       */
       const anchor = document.createElement("a");
-
-      anchor.href = blobUrl;
+      anchor.href =
+        `/api/celebration-presentations/${encodeURIComponent(
+          publicId
+        )}/offline-video?download=1`;
       anchor.download = filename;
       anchor.style.display = "none";
 
@@ -353,15 +348,16 @@ export default function OfflineVideoSection({
       anchor.remove();
 
       window.setTimeout(() => {
-        window.URL.revokeObjectURL(blobUrl);
-      }, 60000);
+        if (aliveRef.current) {
+          setDownloading(false);
+        }
+      }, 2500);
     } catch (error) {
       console.error("OFFLINE COPY DOWNLOAD ERROR:", error);
 
       setErrorMessage(
         "Your Offline Copy could not be downloaded. Please try again."
       );
-    } finally {
       setDownloading(false);
     }
   }
