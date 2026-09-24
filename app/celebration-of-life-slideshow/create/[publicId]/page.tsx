@@ -122,6 +122,9 @@ export default function CelebrationPresentationBuilderPage() {
   const [movingItemId, setMovingItemId] =
     useState<number | null>(null);
 
+  const [syncingFromMemorial, setSyncingFromMemorial] =
+    useState(false);
+
   const [photosOpen, setPhotosOpen] =
     useState(false);
 
@@ -1382,6 +1385,56 @@ window.clearInterval(timer);
     }
   }
 
+
+  async function updateFromMyEMemorial() {
+    if (
+      syncingFromMemorial ||
+      !presentation?.convertedMemorialId
+    ) {
+      return;
+    }
+
+    try {
+      setSyncingFromMemorial(true);
+      setErrorMessage("");
+      setStatusMessage("");
+
+      const response = await fetch(
+        `/api/celebration-presentations/${encodeURIComponent(
+          publicId
+        )}/sync-from-memorial`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+            "The Presentation could not be updated from MyEMemorial."
+        );
+      }
+
+      await loadPresentation();
+
+      setStatusMessage(
+        result?.message ||
+          "Presentation updated from MyEMemorial."
+      );
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "The Presentation could not be updated from MyEMemorial."
+      );
+    } finally {
+      setSyncingFromMemorial(false);
+    }
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen bg-stone-50 px-4 py-10">
@@ -1453,6 +1506,10 @@ window.clearInterval(timer);
             <p className="mt-2 font-serif text-xl italic text-[#8d6c3f] sm:text-2xl">
               A Life Well Remembered
             </p>
+
+            <p className="mt-3 text-base font-semibold text-[#587667]">
+              Your changes save automatically as you work.
+            </p>
           </div>
 
           {presentation?.paymentStatus !== "paid" ? (
@@ -1486,6 +1543,36 @@ window.clearInterval(timer);
             </div>
           )}
 
+
+
+          {presentation?.convertedMemorialId && (
+            <div className="mt-7 rounded-2xl border border-[#b7c8c0] bg-white/90 px-5 py-5 text-center shadow-sm">
+              <h2 className="font-serif text-2xl font-bold text-[#173a31]">
+                Update from MyEMemorial
+              </h2>
+              <p className="mx-auto mt-2 max-w-3xl text-base leading-7 text-stone-700">
+                Bring in new photos, videos, revised captions, approved family
+                contributions, and favorite music from this MyEMemorial. Your
+                current Presentation order stays the same, and new items are
+                added to the end so you can arrange them where you want.
+              </p>
+              <button
+                type="button"
+                onClick={() => void updateFromMyEMemorial()}
+                disabled={
+                  syncingFromMemorial ||
+                  uploadingPhoto ||
+                  uploadingVideo ||
+                  uploadingMusic
+                }
+                className="mt-4 min-h-12 rounded-full bg-[#244f40] px-6 py-3 text-base font-bold text-white transition hover:bg-[#193b30] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {syncingFromMemorial
+                  ? "Updating from MyEMemorial..."
+                  : "Update from MyEMemorial"}
+              </button>
+            </div>
+          )}
 
           {presentation?.paymentStatus === "paid" && (
             <OfflineVideoSection

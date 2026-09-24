@@ -135,18 +135,31 @@ function isYoutubeUrl(value: string) {
 }
 
 function dedupePhotos(photos: ImportedPhoto[]) {
-  const seen = new Set<string>();
+  const byUrl = new Map<string, ImportedPhoto>();
 
-  return photos.filter((photo) => {
+  for (const photo of photos) {
     const key = photo.url.trim();
 
-    if (!key || seen.has(key)) {
-      return false;
+    if (!key) {
+      continue;
     }
 
-    seen.add(key);
-    return true;
-  });
+    const existing = byUrl.get(key);
+
+    if (!existing) {
+      byUrl.set(key, photo);
+      continue;
+    }
+
+    if (!existing.caption && photo.caption) {
+      byUrl.set(key, {
+        ...existing,
+        caption: photo.caption,
+      });
+    }
+  }
+
+  return [...byUrl.values()];
 }
 
 function dedupeVideos(videos: ImportedVideo[]) {
