@@ -98,12 +98,16 @@ export default function ExistingVideoList({
           )}
 
           <input
+            maxLength={35}
             type="text"
             placeholder="Video caption or memory..."
             value={videoNotes[index] || ""}
             onChange={(e) => onVideoNoteChange(index, e.target.value)}
             className="mt-3 w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
           />
+          <p className="mt-1 text-right text-xs text-stone-500">
+            {String(videoNotes[index] || "").length} / 35
+          </p>
 
           <p className="mt-2 text-xs text-stone-500">
             Preview only loads when clicked to keep this edit page fast.

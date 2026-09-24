@@ -176,6 +176,7 @@ setForm,
         />
 
         <textarea
+          maxLength={35}
           rows={4}
           placeholder="Video caption or memory..."
           value={savedVideoNotes[index] || ""}
@@ -190,6 +191,9 @@ setForm,
           }}
           className="mt-3 w-full resize-y rounded-xl border border-stone-300 px-3 py-3 text-base leading-7"
         />
+        <p className="mt-1 text-right text-xs text-stone-500">
+          {String(savedVideoNotes[index] || "").length} / 35
+        </p>
 
         <div className="mt-3 grid grid-cols-3 gap-2">
           <button
@@ -313,6 +317,7 @@ setForm,
                 </div>
 
                 <textarea
+                  maxLength={35}
                   rows={4}
                   placeholder="Video caption or memory..."
                   value={videoNotes[index] || ""}
@@ -323,6 +328,9 @@ setForm,
                   }}
                   className="mt-3 w-full resize-y rounded-xl border border-stone-300 px-3 py-3 text-base leading-7"
                 />
+                <p className="mt-1 text-right text-xs text-stone-500">
+                  {String(videoNotes[index] || "").length} / 35
+                </p>
               </li>
             ))}
           </ul>
@@ -365,6 +373,7 @@ setForm,
         />
 
         <textarea
+          maxLength={35}
   rows={4}
   value={form.videoLinkNotes?.[index] ?? ""}
   onChange={(e) => {
@@ -383,6 +392,9 @@ setForm,
   placeholder="Video caption or memory..."
   className="mt-3 w-full resize-y rounded-xl border border-stone-300 bg-white px-3 py-3 text-base leading-7"
 />
+        <p className="mt-1 text-right text-xs text-stone-500">
+          {String(form.videoLinkNotes?.[index] ?? "").length} / 35
+        </p>
 {getYouTubeEmbedUrl(url) && (
   <iframe
     src={getYouTubeEmbedUrl(url)}

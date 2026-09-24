@@ -58,12 +58,16 @@ export default function SortableGalleryPhotoCard({
       />
 
       <textarea
+        maxLength={35}
         value={note}
         onChange={(e) => onNoteChange(index, e.target.value)}
         rows={3}
         placeholder="Add a description for this photo..."
         className="mt-3 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900"
       />
+      <p className="mt-1 text-right text-xs text-stone-500">
+        {String(note).length} / 35
+      </p>
 
       <button
         type="button"

@@ -298,6 +298,7 @@ export default function VideoUploadSection({
                         </label>
 
                         <textarea
+                          maxLength={35}
                           id={`selected-video-note-${index}`}
                           rows={3}
                           placeholder="Describe this video or share the memory behind it..."
@@ -310,6 +311,9 @@ export default function VideoUploadSection({
                           }
                           className="mt-2 w-full resize-y rounded-xl border border-stone-300 px-3 py-2 text-sm text-stone-900 outline-none focus:border-stone-500 focus:ring-2 focus:ring-stone-200"
                         />
+                        <p className="mt-1 text-right text-xs text-stone-500">
+                          {String(selectedVideoNotes[index] ?? "").length} / 35
+                        </p>
                       </div>
 
                       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -359,6 +363,7 @@ export default function VideoUploadSection({
           />
 
           <input
+            maxLength={35}
             type="text"
             placeholder="Description or memory..."
             value={newVideoLinkNote}
@@ -367,6 +372,9 @@ export default function VideoUploadSection({
             }
             className="w-full rounded-xl border border-stone-300 px-4 py-3"
           />
+          <p className="mt-1 text-right text-xs text-stone-500">
+            {String(newVideoLinkNote).length} / 35
+          </p>
 
           <button
             type="button"

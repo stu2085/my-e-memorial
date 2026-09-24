@@ -321,6 +321,7 @@ const remainingPhotos = hasFiniteLimit
 
         <div className="space-y-2 bg-white p-2">
           <textarea
+            maxLength={35}
             rows={5}
             value={savedGalleryPhotoCaptions[index] ?? ""}
             onChange={(e) => {
@@ -335,6 +336,9 @@ const remainingPhotos = hasFiniteLimit
             placeholder="Add a caption"
             className="-mx-2 w-[calc(100%+1rem)] resize-y rounded-xl border border-stone-300 bg-white px-3 py-3 text-base leading-7 text-stone-900"
           />
+          <p className="mt-1 text-right text-xs text-stone-500">
+            {String(savedGalleryPhotoCaptions[index] ?? "").length} / 35
+          </p>
 
           <button
             type="button"
@@ -453,6 +457,7 @@ const remainingPhotos = hasFiniteLimit
         </div>
 
         <textarea
+          maxLength={35}
           rows={5}
           value={photo.caption}
           onChange={(e) => {
@@ -472,6 +477,9 @@ const remainingPhotos = hasFiniteLimit
           placeholder="Add a caption"
           className="w-full resize-y border-t border-stone-200 bg-white px-3 py-3 text-base leading-7 text-stone-900"
         />
+        <p className="mt-1 text-right text-xs text-stone-500">
+          {String(photo.caption).length} / 35
+        </p>
       </div>
     ))}
   </div>
