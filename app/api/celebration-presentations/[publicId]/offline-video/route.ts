@@ -12,7 +12,7 @@ const HEIGHT = 1080;
 const INTRO_FRAMES = 5 * FPS;
 const PHOTO_FRAMES = 7 * FPS;
 const CLOSING_FRAMES = 8 * FPS;
-const RENDER_CONFIG_VERSION = "celebration-offline-v4";
+const RENDER_CONFIG_VERSION = "celebration-offline-v5";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -166,6 +166,19 @@ function dateLine(presentation: PresentationRow) {
   return [formatDate(presentation.birth_date), formatDate(presentation.death_date)]
     .filter(Boolean)
     .join(" — ");
+}
+
+function yearLine(presentation: PresentationRow) {
+  return [
+    presentation.birth_date
+      ? String(presentation.birth_date).slice(0, 4)
+      : "",
+    presentation.death_date
+      ? String(presentation.death_date).slice(0, 4)
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" – ");
 }
 
 async function getAuthorizedPresentation(
@@ -611,6 +624,7 @@ function buildRenderPayload(
   const personName = displayPersonName(presentation.person_name);
   const sample = isSamplePresentation(presentation.person_name);
   const dates = dateLine(presentation);
+  const years = yearLine(presentation);
 
   const addText = (
     content: string,
@@ -897,50 +911,66 @@ function buildRenderPayload(
   }
 
   // Closing: 8 seconds.
-  addBackground(closingFrom, CLOSING_FRAMES, 155, 790, 340, 450);
+  overlays.push({
+    id: nextId(),
+    type: "shape",
+    content: "rectangle",
+    from: closingFrom,
+    durationInFrames: CLOSING_FRAMES,
+    row: 4,
+    top: 0,
+    left: 0,
+    width: WIDTH,
+    height: HEIGHT,
+    styles: {
+      fill: "#000000",
+    },
+  });
+
   addText(
     "IN LOVING MEMORY",
     closingFrom,
     CLOSING_FRAMES,
-    65,
+    125,
     90,
-    "38px",
+    "56px",
     "600",
     "#FDE68A"
   );
+
   addText(
     personName,
     closingFrom,
     CLOSING_FRAMES,
-    dates ? 625 : 650,
-    110,
-    "64px",
+    390,
+    120,
+    "76px",
     "600",
     "#FFFFFF"
   );
 
-  if (dates) {
+  if (years) {
     addText(
-      dates,
+      years,
       closingFrom,
       CLOSING_FRAMES,
-      745,
-      65,
-      "30px",
+      545,
+      80,
+      "44px",
       "500",
-      "#FFFFFF"
+      "#FDE68A"
     );
   }
 
   addText(
-    "Where Life's Stories Are Told.",
+    "Celebration of Life Presentation by MyEMemorial.",
     closingFrom,
     CLOSING_FRAMES,
-    dates ? 835 : 790,
-    90,
-    "38px",
-    "500",
-    "#FEF3C7"
+    990,
+    45,
+    "24px",
+    "400",
+    "#D1D5DB"
   );
 
   addMusicOverlays(

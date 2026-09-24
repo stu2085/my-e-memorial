@@ -282,7 +282,7 @@ export default function CelebrationPresentationPlayer({
     ]);
 
   useEffect(() => {
-    if (!showClosingScreen || !loop) {
+    if (!showClosingScreen || !loop || paused) {
       return;
     }
 
@@ -295,7 +295,7 @@ export default function CelebrationPresentationPlayer({
     return () => {
       window.clearTimeout(timer);
     };
-  }, [loop, showClosingScreen]);
+  }, [loop, paused, showClosingScreen]);
 
   useEffect(() => {
     if (
@@ -503,6 +503,17 @@ export default function CelebrationPresentationPlayer({
     .filter(Boolean)
     .join(" — ");
 
+  const years = [
+    presentation.birthDate
+      ? String(presentation.birthDate).slice(0, 4)
+      : "",
+    presentation.deathDate
+      ? String(presentation.deathDate).slice(0, 4)
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" – ");
+
   const sampleNameSuffix =
     " (Sample Presentation)";
 
@@ -552,80 +563,21 @@ export default function CelebrationPresentationPlayer({
       )}
 
       {!hasStarted ? (
-        <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden px-6 py-12 text-center">
-          <img
-            src="/Images/celebration-builder-background.png"
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-
-          <div className="absolute inset-0 bg-slate-950/20" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(2,6,23,0.28)_100%)]" />
+        <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black px-6 py-12 text-center">
+          {presentation.featuredPhotoUrl && (
+            <>
+              <img
+                src={presentation.featuredPhotoUrl}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover opacity-[0.22]"
+              />
+              <div className="absolute inset-0 bg-slate-950/60" />
+            </>
+          )}
 
           <div className="relative z-10 mx-auto max-w-4xl">
             <p className="font-serif text-xl tracking-[0.22em] text-amber-200 uppercase sm:text-2xl">
               Celebration of Life
-            </p>
-
-            {presentation.featuredPhotoUrl && (
-              <div className="mx-auto mt-7 h-60 w-48 overflow-hidden rounded-2xl border-2 border-amber-200/80 bg-slate-900 shadow-2xl sm:h-80 sm:w-64">
-                <img
-                  src={presentation.featuredPhotoUrl}
-                  alt={displayPersonName}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            )}
-
-            <h1 className="mt-6 font-serif text-4xl font-semibold leading-tight text-white sm:text-6xl">
-              {displayPersonName}
-            </h1>
-
-            {isSamplePresentation && (
-              <p className="mt-2 text-lg font-semibold tracking-wide text-amber-100 sm:text-xl">
-                Sample Presentation
-              </p>
-            )}
-
-            {dates && (
-              <p className="mt-5 text-xl text-stone-200 sm:text-2xl">
-                {dates}
-              </p>
-            )}
-
-            {playableItems.length > 0 ? (
-              <button
-                type="button"
-                onClick={
-                  beginPresentation
-                }
-                className="mt-10 rounded-full bg-amber-500 px-8 py-4 text-lg font-bold text-stone-950 shadow-xl transition hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-200"
-              >
-                Begin Presentation
-              </button>
-            ) : (
-              <p className="mt-10 rounded-xl border border-amber-200/40 bg-black/40 px-6 py-4 text-lg">
-                Add at least one photo or
-                video before starting the
-                presentation.
-              </p>
-            )}
-          </div>
-        </section>
-      ) : showClosingScreen ? (
-        <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden px-6 py-12 text-center">
-          <img
-            src="/Images/celebration-builder-background.png"
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-
-          <div className="absolute inset-0 bg-slate-950/20" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(2,6,23,0.28)_100%)]" />
-
-          <div className="relative z-10 mx-auto max-w-4xl">
-            <p className="font-serif text-xl tracking-[0.22em] text-amber-200 uppercase sm:text-2xl">
-              In Loving Memory
             </p>
 
             {presentation.featuredPhotoUrl && (
@@ -654,24 +606,68 @@ export default function CelebrationPresentationPlayer({
               </p>
             )}
 
-            <p className="mt-6 font-serif text-xl italic text-amber-100 sm:text-2xl">
-              Where Life&apos;s Stories Are Told.
-            </p>
-
-            <button
-              type="button"
-              onClick={restartPresentation}
-              className="mt-9 rounded-full bg-amber-500 px-8 py-4 text-lg font-bold text-stone-950 shadow-xl transition hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-200"
-            >
-              Replay Presentation
-            </button>
-
-            {loop && (
-              <p className="mt-4 text-base text-stone-300">
-                Loop is on. The presentation will restart automatically.
+            {playableItems.length > 0 ? (
+              <button
+                type="button"
+                onClick={beginPresentation}
+                className="mt-10 rounded-full bg-amber-500 px-8 py-4 text-lg font-bold text-stone-950 shadow-xl transition hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-200"
+              >
+                Begin Presentation
+              </button>
+            ) : (
+              <p className="mt-10 rounded-xl border border-amber-200/40 bg-black/40 px-6 py-4 text-lg">
+                Add at least one photo or video before starting the presentation.
               </p>
             )}
           </div>
+        </section>
+      ) : showClosingScreen ? (
+        <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black px-6 py-12 text-center">
+          <div className="relative z-10 mx-auto w-full max-w-5xl">
+            <p className="font-serif text-2xl tracking-[0.2em] text-amber-200 uppercase sm:text-4xl">
+              In Loving Memory
+            </p>
+
+            <h1 className="mt-14 font-serif text-4xl font-semibold leading-tight text-white sm:text-6xl">
+              {displayPersonName}
+            </h1>
+
+            {years && (
+              <p className="mt-6 font-serif text-2xl text-amber-200 sm:text-4xl">
+                {years}
+              </p>
+            )}
+
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={togglePause}
+                className="rounded-full border border-white/40 px-6 py-3 text-base font-semibold text-white hover:bg-white/10"
+              >
+                {paused ? "Resume" : "Pause"}
+              </button>
+
+              <button
+                type="button"
+                onClick={restartPresentation}
+                className="rounded-full bg-amber-500 px-8 py-3 text-base font-bold text-stone-950 shadow-xl transition hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-200"
+              >
+                Replay Presentation
+              </button>
+            </div>
+
+            {loop && (
+              <p className="mt-4 text-base text-stone-400">
+                {paused
+                  ? "Presentation paused."
+                  : "Loop is on. The presentation will restart automatically."}
+              </p>
+            )}
+          </div>
+
+          <p className="absolute inset-x-0 bottom-6 px-4 text-center text-sm text-stone-400 sm:text-base">
+            Celebration of Life Presentation by MyEMemorial.
+          </p>
         </section>
       ) : (
         <>
