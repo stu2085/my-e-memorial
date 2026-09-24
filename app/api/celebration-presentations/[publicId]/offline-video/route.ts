@@ -12,7 +12,7 @@ const HEIGHT = 1080;
 const INTRO_FRAMES = 5 * FPS;
 const PHOTO_FRAMES = 7 * FPS;
 const CLOSING_FRAMES = 8 * FPS;
-const RENDER_CONFIG_VERSION = "celebration-offline-v2";
+const RENDER_CONFIG_VERSION = "celebration-offline-v3";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -729,12 +729,12 @@ function buildRenderPayload(
       from,
       durationInFrames,
       row: 1,
-      top: 890,
+      top: 850,
       left: 0,
       width: WIDTH,
-      height: 190,
+      height: 230,
       styles: {
-        fill: "rgba(0,0,0,0.38)",
+        fill: "rgba(0,0,0,0.68)",
       },
     });
 
@@ -745,13 +745,13 @@ function buildRenderPayload(
       from,
       durationInFrames,
       row: 0,
-      top: 875,
-      left: 100,
-      width: 1720,
-      height: 175,
+      top: 890,
+      left: 120,
+      width: 1680,
+      height: 130,
       styles: {
         fontFamily: "Roboto",
-        fontSize: "32px",
+        fontSize: "44px",
         fontWeight: "500",
         color: "#FFFFFF",
         textAlign: "center",
