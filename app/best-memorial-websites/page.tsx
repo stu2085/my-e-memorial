@@ -1455,6 +1455,24 @@ export default function BestMemorialWebsitesPage() {
           </section>
         </div>
       </section>
-    </main>
+
+      {/* RELATED MEMORIAL SLIDESHOW COMPARISON */}
+      <section className="mx-auto max-w-5xl px-4 pb-12 sm:pb-16">
+        <div className="rounded-3xl border border-stone-200 bg-white px-6 py-8 text-center shadow-sm sm:px-10">
+          <h2 className="text-2xl font-bold text-stone-900">
+            Comparing Memorial Slideshow Makers Too?
+          </h2>
+          <p className="mx-auto mt-3 max-w-3xl text-base leading-7 text-stone-700">
+            Our separate slideshow comparison looks at major memorial brands and Canva, including online sharing, offline playback, memorial connections, and pricing.
+          </p>
+          <Link
+            href="/best-memorial-slideshow-makers"
+            className="mt-5 inline-flex min-h-[52px] items-center justify-center rounded-full bg-blue-950 px-6 text-center text-base font-bold text-white transition hover:bg-blue-900"
+          >
+            See the Memorial Slideshow Maker Comparison
+          </Link>
+        </div>
+      </section>
+</main>
   );
 }
