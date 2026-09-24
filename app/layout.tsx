@@ -118,6 +118,7 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
+              "@id": "https://www.myememorial.com/#organization",
               name: "MyEMemorial",
               url: "https://www.myememorial.com",
               logo: "https://www.myememorial.com/myememorial-logo.png",
@@ -137,9 +138,13 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
+              "@id": "https://www.myememorial.com/#website",
               name: "MyEMemorial",
               alternateName: ["My E Memorial", "MyEMemorial.com"],
               url: "https://www.myememorial.com/",
+              publisher: {
+                "@id": "https://www.myememorial.com/#organization",
+              },
               description:
                 "Create a Departed MyEMemorial for someone who has passed or a Living MyEMemorial to preserve and share a life story for future generations.",
             }),

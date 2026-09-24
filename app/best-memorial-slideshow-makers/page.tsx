@@ -258,11 +258,13 @@ const articleJsonLd = {
   dateModified: "2026-09-24",
   author: {
     "@type": "Organization",
+    "@id": "https://www.myememorial.com/#organization",
     name: "MyEMemorial",
     url: "https://www.myememorial.com",
   },
   publisher: {
     "@type": "Organization",
+    "@id": "https://www.myememorial.com/#organization",
     name: "MyEMemorial",
     url: "https://www.myememorial.com",
   },

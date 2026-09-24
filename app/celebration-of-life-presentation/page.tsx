@@ -47,15 +47,17 @@ export default function CelebrationOfLifeProductPage() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "Service",
+            "@type": "Product",
+            "@id": "https://www.myememorial.com/celebration-of-life-presentation#product",
             name: "Celebration of Life Presentation",
             description:
               "A one-time purchase presentation service for creating, sharing, and downloading a Celebration of Life Presentation with photos, videos, and music.",
             url: "https://www.myememorial.com/celebration-of-life-presentation",
-            provider: {
+            image: "https://www.myememorial.com/Images/celebration-builder-background.png",
+            brand: {
               "@type": "Organization",
+              "@id": "https://www.myememorial.com/#organization",
               name: "MyEMemorial",
-              url: "https://www.myememorial.com",
             },
             offers: {
               "@type": "Offer",
@@ -63,6 +65,7 @@ export default function CelebrationOfLifeProductPage() {
               priceCurrency: "USD",
               availability: "https://schema.org/InStock",
               url: "https://www.myememorial.com/celebration-of-life-presentation",
+            image: "https://www.myememorial.com/Images/celebration-builder-background.png",
             },
           }),
         }}
