@@ -2505,6 +2505,19 @@ if (giftToken) {
       transaction_id: transactionId,
     });
   }
+  if (
+  typeof window !== "undefined" &&
+  Number.isFinite(conversionValue) &&
+  conversionValue > 0 &&
+  transactionId
+) {
+  (window as any).uetq = (window as any).uetq || [];
+
+  (window as any).uetq.push("event", "purchase", {
+  revenue_value: conversionValue,
+  currency: conversionCurrency,
+});
+}
 
   const {
     data: { user },
