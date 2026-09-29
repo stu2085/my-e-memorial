@@ -316,116 +316,141 @@ export default function MemorialsPage() {
                 </div>
               </section>
 
-              {/* MAIN VALUE PROPOSITION */}
-              <section className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
-                <div className="grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
-                  <div>
-                    <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-900">
-                      More Than an Obituary
-                    </p>
-
-                    <h2 className="mt-2 text-3xl font-bold text-stone-900 md:text-4xl">
-                      Remember the Life, Not Just the Facts
-                    </h2>
-
-                    <p className="mt-4 text-lg leading-8 text-stone-600">
-                      An obituary records important facts. A Departed MyEMemorial is a
-                      digital memorial that brings those facts to life with the stories,
-                      photographs, video, music, family history, and memories that show
-                      who they really were.
-                    </p>
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {[
-                      ["📖", "Their Story", "Preserve the experiences and memories that made their life unique."],
-                      ["📷", "Photos, Video & Music", "Keep meaningful media together in one lasting place."],
-                      ["👨‍👩‍👧‍👦", "Loved Ones Sharing", "Invite family and friends to submit stories, photos and videos."],
-                      ["🌳", "Future Generations", "Give family a place to know and remember them for years to come."],
-                    ].map(([icon, title, copy]) => (
-                      <div
-                        key={title}
-                        className="rounded-2xl border border-stone-200 bg-stone-50 p-5"
-                      >
-                        <div className="text-3xl">{icon}</div>
-                        <h3 className="mt-2 text-xl font-bold text-stone-900">
-                          {title}
-                        </h3>
-                        <p className="mt-2 text-base leading-7 text-stone-600">
-                          {copy}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-
-              {/* HOW IT WORKS */}
-              <section className="rounded-[2rem] bg-[#eee7dc] p-6 shadow-sm md:p-8">
+              {/* PRICING */}
+              <section
+                id="pricing"
+                className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8"
+              >
                 <div className="text-center">
-                  <p className="text-base font-bold uppercase tracking-[0.18em] text-amber-700">
-                    How It Works
+                  <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-900">
+                    Departed MyEMemorial Plans
                   </p>
 
                   <h2 className="mt-2 text-3xl font-bold text-stone-900">
-                    Three Simple Steps
+                    Start Free or Choose the Plan That Fits Their Story
                   </h2>
+
+                  <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-600">
+                    Choose the amount of space your family needs for photos,
+                    Video Memories, music, family history, and the memories that
+                    tell their story.
+                  </p>
                 </div>
 
-                <div className="mt-8 grid gap-5 md:grid-cols-3">
-                  <div className="rounded-3xl bg-white p-6 text-center shadow-sm">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-950 text-xl font-bold text-white">
-                      1
-                    </div>
+                <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                  <PlanCard
+                    title="Free Departed MyEMemorial"
+                    price="$0"
+                    href="/create?mode=memorial&plan=free"
+                    badge="Free Plan"
+                    items={[
+                      "Featured photo",
+                      "Up to 5 gallery photos",
+                      "Life story",
+                      "Basic personal information",
+                      "Shared Memories Approval",
+                      "Public & shareable MyEMemorial",
+                      "Upgrade anytime",
+                    ]}
+                  />
 
-                    <h3 className="mt-4 text-xl font-bold text-stone-900">
-                      Create Their Departed MyEMemorial
-                    </h3>
+                  <PlanCard
+                    title="Basic Departed MyEMemorial"
+                    price="$49.95"
+                    href="/create?mode=memorial&plan=basic"
+                    items={[
+                      "Up to 50 photos",
+                      "Up to 15 minutes of Video Memories",
+                      "Favorite music",
+                      "Life story",
+                      "Family history",
+                      "Places lived & worked",
+                      "Schools & awards",
+                      "Social media links",
+                      "Shared Memories Approval",
+                      "__NEW_CELEBRATION_PRESENTATION__",
+                    ]}
+                  />
 
-                    <p className="mt-2 text-base leading-7 text-stone-600">
-                      Start Free or choose Basic, Plus, or Premium.
-                    </p>
-                  </div>
+                  <PlanCard
+                    title="Plus Departed MyEMemorial"
+                    price="$69.95"
+                    href="/create?mode=memorial&plan=plus"
+                    dark
+                    badge="Most Popular"
+                    items={[
+                      "Up to 150 photos",
+                      "Up to 30 minutes of Video Memories",
+                      "Favorite music",
+                      "Life story",
+                      "Family history",
+                      "Places lived & worked",
+                      "Schools & awards",
+                      "Social media links",
+                      "Shared Memories Approval",
+                      "__NEW_CELEBRATION_PRESENTATION__",
+                    ]}
+                  />
 
-                  <div className="rounded-3xl bg-white p-6 text-center shadow-sm">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-950 text-xl font-bold text-white">
-                      2
-                    </div>
-
-                    <h3 className="mt-4 text-xl font-bold text-stone-900">
-                      Add Their Story and Memories
-                    </h3>
-
-                    <p className="mt-2 text-base leading-7 text-stone-600">
-                      Add the stories, photos, video, music, and life details you want remembered.
-                    </p>
-                  </div>
-
-                  <div className="rounded-3xl bg-white p-6 text-center shadow-sm">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-950 text-xl font-bold text-white">
-                      3
-                    </div>
-
-                    <h3 className="mt-4 text-xl font-bold text-stone-900">
-                      Share and Preserve It
-                    </h3>
-
-                    <p className="mt-2 text-base leading-7 text-stone-600">
-                      Save your MyEMemorial and share it with family and friends so they can add memories, photos and videos.
-                    </p>
-                  </div>
+                  <PlanCard
+                    title="Premium Departed MyEMemorial"
+                    price="$89.95"
+                    href="/create?mode=memorial&plan=premium"
+                    items={[
+                      "Unlimited photos",
+                      "Up to 60 minutes of Video Memories",
+                      "Favorite music",
+                      "Life story",
+                      "Family history",
+                      "Places lived & worked",
+                      "Schools & awards",
+                      "Social media links",
+                      "Shared Memories Approval",
+                      "__NEW_CELEBRATION_PRESENTATION__",
+                    ]}
+                  />
                 </div>
+
+                <p className="mt-5 text-center text-base leading-7 text-stone-500">
+                  Paid plans are one-time payments with no recurring subscription fee.
+                </p>
               </section>
 
               {/* CELEBRATION OF LIFE PRESENTATION */}
-              <section className="overflow-hidden rounded-[2rem] bg-blue-950 text-white shadow-sm">
+              <details className="group overflow-hidden rounded-[2rem] bg-blue-950 text-white shadow-sm">
+                <summary className="cursor-pointer p-6 marker:text-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-amber-300 md:p-8">
+                  <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-8">
+                    <div>
+                      <h2 className="text-2xl font-bold leading-tight text-amber-300 md:text-3xl">
+                        Celebration of Life Presentation
+                      </h2>
+                      <p className="mt-3 text-base leading-7 text-stone-200">
+                        Included with Basic, Plus, and Premium at no additional charge.
+                      </p>
+                      <span className="mt-2 block text-base font-semibold text-amber-300 group-open:hidden">
+                        View presentation details
+                      </span>
+                      <span className="mt-2 hidden text-base font-semibold text-amber-300 group-open:block">
+                        Hide presentation details
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-4 group-open:hidden md:justify-end">
+                      <NewBurst compact />
+                      <div className="text-left md:text-right">
+                        <p className="text-2xl font-bold leading-tight text-white">
+                          Only $29.95
+                        </p>
+                        <p className="mt-2 text-base font-semibold leading-6 text-stone-200">
+                          Can Be Purchased Separately
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </summary>
                 <div className="grid items-center gap-0 lg:grid-cols-[0.9fr_1.1fr]">
                   <div className="p-7 md:p-8">
                     <NewBurst />
-
-                    <h2 className="mt-4 text-3xl font-bold leading-tight text-amber-300 md:text-4xl">
-                      Celebration of Life Presentation
-                    </h2>
 
                     <p className="mt-3 text-xl font-semibold leading-snug text-white md:text-2xl">
                       Helping to Simplify Celebration of Life Events.
@@ -484,7 +509,7 @@ export default function MemorialsPage() {
                     </ul>
                   </div>
                 </div>
-              </section>
+              </details>
 
               {/* GIFT */}
               <section className="rounded-[2rem] border border-amber-200 bg-amber-50 p-6 shadow-sm md:p-7">
@@ -511,16 +536,130 @@ export default function MemorialsPage() {
                 </div>
               </section>
 
+              {/* MAIN VALUE PROPOSITION */}
+              <details className="group rounded-[2rem] bg-white shadow-sm">
+                <summary className="cursor-pointer p-6 marker:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-blue-900 md:p-8">
+                  <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-900">
+                    More Than an Obituary
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold text-stone-900 md:text-3xl">
+                    Remember the Life, Not Just the Facts
+                  </h2>
+                  <span className="mt-2 block text-base font-semibold text-blue-900 group-open:hidden">
+                    View why a MyEMemorial is more than an obituary
+                  </span>
+                  <span className="mt-2 hidden text-base font-semibold text-blue-900 group-open:block">
+                    Hide details
+                  </span>
+                </summary>
+
+                <div className="px-6 pb-6 md:px-8 md:pb-8">
+                  <div className="grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+                    <div>
+                      <p className="text-lg leading-8 text-stone-600">
+                        An obituary records important facts. A Departed MyEMemorial is a
+                        digital memorial that brings those facts to life with the stories,
+                        photographs, video, music, family history, and memories that show
+                        who they really were.
+                      </p>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {[
+                        ["📖", "Their Story", "Preserve the experiences and memories that made their life unique."],
+                        ["📷", "Photos, Video & Music", "Keep meaningful media together in one lasting place."],
+                        ["👨‍👩‍👧‍👦", "Loved Ones Sharing", "Invite family and friends to submit stories, photos and videos."],
+                        ["🌳", "Future Generations", "Give family a place to know and remember them for years to come."],
+                      ].map(([icon, title, copy]) => (
+                        <div
+                          key={title}
+                          className="rounded-2xl border border-stone-200 bg-stone-50 p-5"
+                        >
+                          <div className="text-3xl">{icon}</div>
+                          <h3 className="mt-2 text-xl font-bold text-stone-900">
+                            {title}
+                          </h3>
+                          <p className="mt-2 text-base leading-7 text-stone-600">
+                            {copy}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              {/* HOW IT WORKS */}
+              <section className="rounded-[2rem] bg-[#eee7dc] p-6 shadow-sm md:p-8">
+                <div className="text-center">
+                  <p className="text-base font-bold uppercase tracking-[0.18em] text-amber-700">
+                    How It Works
+                  </p>
+
+                  <h2 className="mt-2 text-3xl font-bold text-stone-900">
+                    Three Simple Steps
+                  </h2>
+                </div>
+
+                <div className="mt-8 grid gap-5 md:grid-cols-3">
+                  <div className="rounded-3xl bg-white p-6 text-center shadow-sm">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-950 text-xl font-bold text-white">
+                      1
+                    </div>
+
+                    <h3 className="mt-4 text-xl font-bold text-stone-900">
+                      Create Their Departed MyEMemorial
+                    </h3>
+
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      Start Free or choose Basic, Plus, or Premium.
+                    </p>
+                  </div>
+
+                  <div className="rounded-3xl bg-white p-6 text-center shadow-sm">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-950 text-xl font-bold text-white">
+                      2
+                    </div>
+
+                    <h3 className="mt-4 text-xl font-bold text-stone-900">
+                      Add Their Story and Memories
+                    </h3>
+
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      Add the stories, photos, video, music, and life details you want remembered.
+                    </p>
+                  </div>
+
+                  <div className="rounded-3xl bg-white p-6 text-center shadow-sm">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-950 text-xl font-bold text-white">
+                      3
+                    </div>
+
+                    <h3 className="mt-4 text-xl font-bold text-stone-900">
+                      Share and Preserve It
+                    </h3>
+
+                    <p className="mt-2 text-base leading-7 text-stone-600">
+                      Save your MyEMemorial and share it with family and friends so they can add memories, photos and videos.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
               {/* HELPFUL MEMORIAL GUIDES */}
-              <section className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
+              <details className="group rounded-[2rem] bg-white shadow-sm">
+                <summary className="cursor-pointer p-6 marker:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-blue-900 md:p-8">
+                  <h2 className="inline text-2xl font-bold text-stone-900 md:text-3xl">
+                    Learn More About Online Memorials
+                  </h2>
+                  <span className="mt-2 block text-base font-semibold text-blue-900 group-open:hidden">View helpful memorial guides</span>
+                  <span className="mt-2 hidden text-base font-semibold text-blue-900 group-open:block">Hide helpful memorial guides</span>
+                </summary>
+                <div className="px-6 pb-6 md:px-8 md:pb-8">
                 <div className="text-center">
                   <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-900">
                     Helpful Memorial Guides
                   </p>
-
-                  <h2 className="mt-2 text-3xl font-bold text-stone-900">
-                    Learn More About Online Memorials
-                  </h2>
 
                   <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-600">
                     Explore practical guides about memorial websites, online memorials,
@@ -609,107 +748,10 @@ export default function MemorialsPage() {
                     </p>
                   </Link>
                 </div>
-              </section>
-
-              {/* PRICING */}
-              <section
-                id="pricing"
-                className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8"
-              >
-                <div className="text-center">
-                  <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-900">
-                    Departed MyEMemorial Plans
-                  </p>
-
-                  <h2 className="mt-2 text-3xl font-bold text-stone-900">
-                    Start Free or Choose the Plan That Fits Their Story
-                  </h2>
-
-                  <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-600">
-                    Choose the amount of space your family needs for photos,
-                    Video Memories, music, family history, and the memories that
-                    tell their story.
-                  </p>
                 </div>
+              </details>
 
-                <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-                  <PlanCard
-                    title="Free Departed MyEMemorial"
-                    price="$0"
-                    href="/create?mode=memorial&plan=free"
-                    badge="Start Free"
-                    items={[
-                      "Featured photo",
-                      "Up to 5 gallery photos",
-                      "Life story",
-                      "Basic personal information",
-                      "Shared Memories Approval",
-                      "Public & shareable MyEMemorial",
-                      "Upgrade anytime",
-                    ]}
-                  />
 
-                  <PlanCard
-                    title="Basic Departed MyEMemorial"
-                    price="$49.95"
-                    href="/create?mode=memorial&plan=basic"
-                    items={[
-                      "Up to 50 photos",
-                      "Up to 15 minutes of Video Memories",
-                      "Favorite music",
-                      "Life story",
-                      "Family history",
-                      "Places lived & worked",
-                      "Schools & awards",
-                      "Social media links",
-                      "Shared Memories Approval",
-                      "__NEW_CELEBRATION_PRESENTATION__",
-                    ]}
-                  />
-
-                  <PlanCard
-                    title="Plus Departed MyEMemorial"
-                    price="$69.95"
-                    href="/create?mode=memorial&plan=plus"
-                    dark
-                    badge="Most Popular"
-                    items={[
-                      "Up to 150 photos",
-                      "Up to 30 minutes of Video Memories",
-                      "Favorite music",
-                      "Life story",
-                      "Family history",
-                      "Places lived & worked",
-                      "Schools & awards",
-                      "Social media links",
-                      "Shared Memories Approval",
-                      "__NEW_CELEBRATION_PRESENTATION__",
-                    ]}
-                  />
-
-                  <PlanCard
-                    title="Premium Departed MyEMemorial"
-                    price="$89.95"
-                    href="/create?mode=memorial&plan=premium"
-                    items={[
-                      "Unlimited photos",
-                      "Up to 60 minutes of Video Memories",
-                      "Favorite music",
-                      "Life story",
-                      "Family history",
-                      "Places lived & worked",
-                      "Schools & awards",
-                      "Social media links",
-                      "Shared Memories Approval",
-                      "__NEW_CELEBRATION_PRESENTATION__",
-                    ]}
-                  />
-                </div>
-
-                <p className="mt-5 text-center text-base leading-7 text-stone-500">
-                  Paid plans are one-time payments with no recurring subscription fee.
-                </p>
-              </section>
 
             </div>
           </div>
@@ -847,7 +889,7 @@ function PlanCard({
               : "bg-stone-900 text-white hover:bg-stone-700"
           }`}
         >
-          {badge === "Start Free" ? "Start Free" : "Choose Plan"}
+          {badge === "Free Plan" ? "Free Plan" : "Choose Plan"}
         </Link>
       </div>
     </div>
