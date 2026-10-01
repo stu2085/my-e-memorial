@@ -119,6 +119,10 @@ type FormState = {
   obituary: string;
 obituaryUrl: string;
 obituaryImageUrl: string;
+funeralDate: string;
+funeralTime: string;
+funeralVenueName: string;
+funeralAddress: string;
 newspaperArticles: string;
   lifeStory: string;
   greatGrandparentsNames: string;
@@ -253,6 +257,10 @@ const initialForm: FormState = {
  obituary: "",
 obituaryUrl: "",
 obituaryImageUrl: "",
+funeralDate: "",
+funeralTime: "",
+funeralVenueName: "",
+funeralAddress: "",
 newspaperArticles: "",
   lifeStory: "",
   greatGrandparentsNames: "",
@@ -1722,6 +1730,10 @@ setForm({
     obituary: draftData.obituary ?? "",
 obituaryUrl: draftData.obituary_url ?? "",
 obituaryImageUrl: draftData.obituary_image_url ?? "",
+funeralDate: draftData.funeral_date ?? "",
+funeralTime: draftData.funeral_time?.slice(0, 5) ?? "",
+funeralVenueName: draftData.funeral_venue_name ?? "",
+funeralAddress: draftData.funeral_address ?? "",
 newspaperArticles: draftData.newspaper_articles ?? "",
     lifeStory: draftData.life_story ?? "",
     greatGrandparentsNames:
@@ -3580,7 +3592,8 @@ if (form.betaCode.trim()) {
   }
 }
 
-const memorialData = PersistenceEngine.buildMemorialData({
+const memorialData = {
+  ...PersistenceEngine.buildMemorialData({
   slug,
   form,
   fullName,
@@ -3610,7 +3623,12 @@ guidedCurrentChapter: null,
 existingIsPublished: isExistingMemorialEdit
   ? true
   : null,
-});
+  }),
+  funeral_date: (form.funeralDate ?? "").trim() || null,
+  funeral_time: (form.funeralTime ?? "").trim() || null,
+  funeral_venue_name: (form.funeralVenueName ?? "").trim() || null,
+  funeral_address: (form.funeralAddress ?? "").trim() || null,
+};
 
 let completedMemorialId: number;
 
@@ -5291,7 +5309,8 @@ const nextGuidedChapterId =
   currentGuidedChapterIndex < guidedChapters.length - 1
     ? guidedChapters[currentGuidedChapterIndex + 1].id
     : chapter.id;
-const memorialData = PersistenceEngine.buildMemorialData({
+const memorialData = {
+  ...PersistenceEngine.buildMemorialData({
   slug,
   form,
   fullName,
@@ -5325,7 +5344,12 @@ const memorialData = PersistenceEngine.buildMemorialData({
   existingIsPublished: isExistingMemorialEdit
     ? existingMemorialIsPublished
     : null,
-});
+  }),
+  funeral_date: (form.funeralDate ?? "").trim() || null,
+  funeral_time: (form.funeralTime ?? "").trim() || null,
+  funeral_venue_name: (form.funeralVenueName ?? "").trim() || null,
+  funeral_address: (form.funeralAddress ?? "").trim() || null,
+};
 let savedMemorialId = draftMemorialId;
 if (draftMemorialId) {
   const updateResponse =
@@ -6914,6 +6938,16 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
                       ? "Obituary image added"
                       : ""
               }
+            />
+
+            <ReviewItem
+              label="Funeral Information"
+              value={[
+                form.funeralDate && `Date: ${form.funeralDate}`,
+                form.funeralTime && `Time: ${form.funeralTime} (venue local time)`,
+                form.funeralVenueName,
+                form.funeralAddress,
+              ].filter(Boolean).join(" — ")}
             />
 
             <ReviewItem

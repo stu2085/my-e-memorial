@@ -41,6 +41,10 @@ type Memorial = {
   obituary?: string;
   obituary_url: string | null;
   obituary_image_url?: string | null;
+  funeral_date?: string | null;
+  funeral_time?: string | null;
+  funeral_venue_name?: string | null;
+  funeral_address?: string | null;
   life_story?: string;
 great_grandparents_names?: string;
 grandparents_father_side?: string;
@@ -340,6 +344,14 @@ function VideoLinkPreview({
     </a>
   );
 }
+function formatFuneralTime(value?: string | null) {
+  if (!value) return "";
+  const match = /^(\d{2}):(\d{2})/.exec(value);
+  if (!match) return value;
+  const hour = Number(match[1]);
+  return `${hour % 12 || 12}:${match[2]} ${hour >= 12 ? "PM" : "AM"}`;
+}
+
 function formatDate(value?: string) {
   if (!value) return "-";
 
@@ -1839,8 +1851,14 @@ const hasSocialMedia = Boolean(
     data.social_link_5
 );
 
+const hasFuneralInformation = Boolean(
+  data.funeral_date || data.funeral_time ||
+  data.funeral_venue_name?.trim() || data.funeral_address?.trim()
+);
+
 const hasObituary = Boolean(
-  data.obituary?.trim() || data.obituary_image_url || data.obituary_url
+  data.obituary?.trim() || data.obituary_image_url || data.obituary_url ||
+  hasFuneralInformation
 );
 
 const publicNavChapters = [
@@ -3049,9 +3067,40 @@ function showNextPhoto() {
     )}
   </section>
 )}   
-{(data.obituary || data.obituary_image_url || data.obituary_url) && (
+{hasObituary && (
   <section id="public-obituary" className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary</h2>
+    {hasFuneralInformation && (
+      <div className="mt-4 rounded-2xl border border-stone-200 bg-stone-50 p-4">
+        <h3 className="text-xl font-semibold text-stone-900">Funeral Information</h3>
+        <dl className="mt-3 grid gap-4 text-base text-stone-700 sm:grid-cols-2">
+          {data.funeral_date && (
+            <div>
+              <dt className="font-semibold">Date</dt>
+              <dd className="mt-1">{formatDate(data.funeral_date)}</dd>
+            </div>
+          )}
+          {data.funeral_time && (
+            <div>
+              <dt className="font-semibold">Time</dt>
+              <dd className="mt-1">{formatFuneralTime(data.funeral_time)} (local time at venue)</dd>
+            </div>
+          )}
+          {data.funeral_venue_name?.trim() && (
+            <div className="sm:col-span-2">
+              <dt className="font-semibold">Venue</dt>
+              <dd className="mt-1 break-words">{data.funeral_venue_name}</dd>
+            </div>
+          )}
+          {data.funeral_address?.trim() && (
+            <div className="sm:col-span-2">
+              <dt className="font-semibold">Address</dt>
+              <dd className="mt-1 whitespace-pre-line break-words">{data.funeral_address}</dd>
+            </div>
+          )}
+        </dl>
+      </div>
+    )}
     {data.obituary && <p className="mt-4 whitespace-pre-line text-stone-700">{data.obituary}</p>}
     {data.obituary_image_url && (
   <img

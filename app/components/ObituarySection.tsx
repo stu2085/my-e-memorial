@@ -31,11 +31,71 @@ export default function ObituarySection({
   return (
     <FormSection
       title="Obituary"
-      description="Preserve the obituary by entering the text, uploading an image, or adding a link to the original obituary."
+      description="Preserve the obituary by entering the text, uploading an image, or adding a link to the original obituary. You can also share funeral arrangements below."
     >
       <div className="space-y-6">
+        <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+          <h3 className="text-xl font-semibold text-stone-900">Funeral Information</h3>
+          <p className="mt-2 text-base text-stone-700">
+            Share the funeral date, time, venue, and address. All fields are optional
+            and can be updated when arrangements are confirmed.
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="block text-base font-semibold text-stone-700">
+              Funeral Date (Optional)
+              <input
+                type="date"
+                name="funeralDate"
+                value={form.funeralDate ?? ""}
+                onChange={handleChange}
+                className="mt-2 block min-w-0 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base font-normal text-stone-900"
+              />
+            </label>
+            <label className="block text-base font-semibold text-stone-700">
+              Funeral Time (Optional)
+              <input
+                type="time"
+                name="funeralTime"
+                step={60}
+                value={(form.funeralTime ?? "").slice(0, 5)}
+                onChange={handleChange}
+                aria-describedby="funeral-time-help"
+                className="mt-2 block min-w-0 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base font-normal text-stone-900"
+              />
+            </label>
+          </div>
+          <p id="funeral-time-help" className="mt-2 text-base text-stone-600">
+            Enter the local time at the funeral venue.
+          </p>
+          <div className="mt-4 space-y-4">
+            <label className="block text-base font-semibold text-stone-700">
+              Funeral Venue Name (Optional)
+              <input
+                type="text"
+                name="funeralVenueName"
+                value={form.funeralVenueName ?? ""}
+                onChange={handleChange}
+                maxLength={200}
+                placeholder="Name of funeral home, church, or other venue"
+                className="mt-2 block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base font-normal text-stone-900"
+              />
+            </label>
+            <label className="block text-base font-semibold text-stone-700">
+              Funeral Address (Optional)
+              <textarea
+                name="funeralAddress"
+                value={form.funeralAddress ?? ""}
+                onChange={handleChange}
+                maxLength={1000}
+                rows={3}
+                placeholder="Street address, city, state, ZIP code, and country if needed"
+                className="mt-2 block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base font-normal text-stone-900"
+              />
+            </label>
+          </div>
+        </div>
         <div>
-          <p className="mb-2 text-sm font-semibold text-stone-700">
+          <p className="mb-2 text-base font-semibold text-stone-700">
             Option 1 — Enter Obituary Text
           </p>
 
@@ -50,11 +110,11 @@ export default function ObituarySection({
 
         {setForm && setObituaryImageFile && (
   <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
-    <p className="text-sm font-semibold text-stone-700">
+    <p className="text-base font-semibold text-stone-700">
       Option 2 — Upload an Obituary Image
     </p>
 
-    <p className="mt-1 text-sm text-stone-600">
+    <p className="mt-1 text-base text-stone-600">
       Upload a newspaper clipping, screenshot, scan, or JPG image of the
       obituary if text cannot be copied.
     </p>
@@ -79,7 +139,7 @@ export default function ObituarySection({
 
         setObituaryImageFile(null);
       }}
-      className="w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
+      className="w-full rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-base font-semibold text-red-700"
     >
       Delete Obituary Image
     </button>
@@ -87,7 +147,7 @@ export default function ObituarySection({
 )}
 
     {!isPaid && (
-      <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-base text-amber-800">
         Choose a memorial plan and complete payment before uploading an obituary
         image.
       </p>
@@ -106,7 +166,7 @@ export default function ObituarySection({
 )}
 
         <div>
-  <p className="mb-2 text-sm font-semibold text-stone-700">
+  <p className="mb-2 text-base font-semibold text-stone-700">
     Option 3 — Add the Original Obituary Website Link
   </p>
 

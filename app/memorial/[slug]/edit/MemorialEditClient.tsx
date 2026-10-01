@@ -98,6 +98,10 @@ greatGrandchildrenNames: string
   obituary: string;
   obituaryUrl: string;
   obituaryImageUrl: string;
+  funeralDate: string;
+  funeralTime: string;
+  funeralVenueName: string;
+  funeralAddress: string;
   lifeStory: string;
 backupPersonName: string;
   finalRestingType: string;
@@ -172,6 +176,10 @@ greatGrandchildrenNames: "",
     obituary: "",
   obituaryUrl: "",
   obituaryImageUrl: "",
+  funeralDate: "",
+  funeralTime: "",
+  funeralVenueName: "",
+  funeralAddress: "",
   lifeStory: "",
 backupPersonName: "",
   finalRestingType: "",
@@ -706,6 +714,10 @@ greatGrandchildrenNames: data.great_grandchildren_names || "",
         obituary: data.obituary ?? "",
         obituaryUrl: data.obituary_url ?? "",
         obituaryImageUrl: data.obituary_image_url ?? "",
+        funeralDate: data.funeral_date ?? "",
+        funeralTime: data.funeral_time?.slice(0, 5) ?? "",
+        funeralVenueName: data.funeral_venue_name ?? "",
+        funeralAddress: data.funeral_address ?? "",
         lifeStory: data.life_story ?? "",
         backupPersonName: data.backup_person_name ?? "",
         finalRestingType: data.final_resting_type ?? "",
@@ -1091,6 +1103,10 @@ grandchildren_names: form.grandchildrenNames,
         obituary: form.obituary,
         obituary_url: form.obituaryUrl,
         obituary_image_url: obituaryImageUrl,
+        funeral_date: form.funeralDate.trim() || null,
+        funeral_time: form.funeralTime.trim() || null,
+        funeral_venue_name: form.funeralVenueName.trim() || null,
+        funeral_address: form.funeralAddress.trim() || null,
         life_story: form.lifeStory,
 backup_person_name: form.backupPersonName,
         final_resting_type: form.finalRestingType || null,

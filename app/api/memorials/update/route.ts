@@ -649,6 +649,10 @@ if (!isOwner && hasBackupAccess) {
     "obituary",
     "obituary_url",
     "obituary_image_url",
+    "funeral_date",
+    "funeral_time",
+    "funeral_venue_name",
+    "funeral_address",
 
     "final_resting_type",
     "cemetery_name",
@@ -684,6 +688,49 @@ if (!isOwner && hasBackupAccess) {
       ([key]) => backupPostDeathAllowedFields.has(key)
     )
   );
+}
+
+// Validate only supplied funeral fields. Older clients that omit them preserve
+// existing arrangements; an explicitly cleared field is stored as null.
+for (const [field, maxLength] of [
+  ["funeral_date", 10],
+  ["funeral_time", 8],
+  ["funeral_venue_name", 200],
+  ["funeral_address", 1000],
+] as const) {
+  if (!Object.prototype.hasOwnProperty.call(safeUpdatePayload, field)) continue;
+  const raw = safeUpdatePayload[field];
+  if (raw !== null && typeof raw !== "string") {
+    return NextResponse.json(
+      { error: "Funeral information must contain text values." },
+      { status: 400 }
+    );
+  }
+  const value = typeof raw === "string" ? raw.trim() : "";
+  if (value.length > maxLength) {
+    return NextResponse.json(
+      { error: "One of the funeral information fields is too long." },
+      { status: 400 }
+    );
+  }
+  if (value && field === "funeral_date") {
+    const date = new Date(`${value}T00:00:00Z`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || value.startsWith("0000") ||
+        Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
+      return NextResponse.json(
+        { error: "Please enter a valid funeral date." },
+        { status: 400 }
+      );
+    }
+  }
+  if (value && field === "funeral_time" &&
+      !/^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(value)) {
+    return NextResponse.json(
+      { error: "Please enter a valid funeral time." },
+      { status: 400 }
+    );
+  }
+  safeUpdatePayload[field] = value || null;
 }
 
 const oldBackupEmail =
