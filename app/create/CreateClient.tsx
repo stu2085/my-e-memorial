@@ -2516,6 +2516,20 @@ if (giftToken) {
       currency: conversionCurrency,
       transaction_id: transactionId,
     });
+
+    (window as any).gtag("event", "purchase", {
+      transaction_id: transactionId,
+      value: conversionValue,
+      currency: conversionCurrency,
+      items: [
+        {
+          item_id: selectedPlan,
+          item_name: `${selectedPlan} MyEMemorial`,
+          price: conversionValue,
+          quantity: 1,
+        },
+      ],
+    });
   }
   if (
   typeof window !== "undefined" &&

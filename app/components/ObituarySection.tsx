@@ -30,16 +30,11 @@ export default function ObituarySection({
 }: Props) {
   return (
     <FormSection
-      title="Obituary"
-      description="Preserve the obituary by entering the text, uploading an image, or adding a link to the original obituary. You can also share funeral arrangements below."
+      title="Funeral Information"
+      description="Share the funeral date, time, venue, and address. All fields are optional and can be updated when arrangements are confirmed."
     >
       <div className="space-y-6">
         <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-          <h3 className="text-xl font-semibold text-stone-900">Funeral Information</h3>
-          <p className="mt-2 text-base text-stone-700">
-            Share the funeral date, time, venue, and address. All fields are optional
-            and can be updated when arrangements are confirmed.
-          </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="block text-base font-semibold text-stone-700">
               Funeral Date (Optional)
@@ -94,6 +89,16 @@ export default function ObituarySection({
             </label>
           </div>
         </div>
+
+        <div>
+          <h3 className="text-2xl font-bold tracking-tight text-stone-900">
+            Obituary
+          </h3>
+          <p className="mt-2 text-base leading-7 text-stone-700">
+            Preserve the obituary by entering the text, uploading an image, or adding a link to the original obituary.
+          </p>
+        </div>
+
         <div>
           <p className="mb-2 text-base font-semibold text-stone-700">
             Option 1 — Enter Obituary Text

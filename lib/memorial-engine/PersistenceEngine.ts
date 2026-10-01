@@ -114,6 +114,31 @@ isDraft?: boolean;
 guidedCurrentChapter?: string | null;
 existingIsPublished?: boolean | null;
 };
+function normalizeObituaryUrl(value: string | null | undefined): string {
+  const trimmed = (value ?? "").trim();
+
+  if (!trimmed) return "";
+
+  const candidate = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+
+  try {
+    const parsed = new URL(candidate);
+
+    if (
+      !["http:", "https:"].includes(parsed.protocol) ||
+      !parsed.hostname ||
+      !parsed.hostname.includes(".")
+    ) {
+      return "";
+    }
+
+    return candidate;
+  } catch {
+    return "";
+  }
+}
 export class PersistenceEngine {
   static buildMemorialData({
   slug,
@@ -179,7 +204,7 @@ guided_current_chapter: guidedCurrentChapter,
     birth_date: form.birthDate || null,
     death_date: form.deathDate || null,
     obituary: form.obituary,
-obituary_url: form.obituaryUrl,
+obituary_url: normalizeObituaryUrl(form.obituaryUrl),
 obituary_image_url: obituaryImageUrl,
 life_story: form.lifeStory,
     great_grandparents_names: form.greatGrandparentsNames,

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import EditActionButtons from "../../../components/EditActionButtons";
 import SubmissionPhotoViewerModal from "../../../components/SubmissionPhotoViewerModal";
@@ -248,6 +248,31 @@ function sanitizeFileName(name: string) {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_");
 }
 
+function normalizeObituaryUrl(value: string | null | undefined): string {
+  const trimmed = (value ?? "").trim();
+
+  if (!trimmed) return "";
+
+  const candidate = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+
+  try {
+    const parsed = new URL(candidate);
+
+    if (
+      !["http:", "https:"].includes(parsed.protocol) ||
+      !parsed.hostname ||
+      !parsed.hostname.includes(".")
+    ) {
+      return "";
+    }
+
+    return candidate;
+  } catch {
+    return "";
+  }
+}
 export default function MemorialEditClient() {
   const MAX_VIDEO_SIZE_BYTES = 1000 * 1000 * 1000; // 1 GB
   const EXTRA_VIDEO_PRICE = 9.95;
@@ -1101,7 +1126,7 @@ spouse_names: form.spouseNames,
 children_names: form.childrenNames,
 grandchildren_names: form.grandchildrenNames,
         obituary: form.obituary,
-        obituary_url: form.obituaryUrl,
+        obituary_url: normalizeObituaryUrl(form.obituaryUrl),
         obituary_image_url: obituaryImageUrl,
         funeral_date: form.funeralDate.trim() || null,
         funeral_time: form.funeralTime.trim() || null,

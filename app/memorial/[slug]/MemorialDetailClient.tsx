@@ -1852,14 +1852,42 @@ const hasSocialMedia = Boolean(
 );
 
 const hasFuneralInformation = Boolean(
-  data.funeral_date || data.funeral_time ||
-  data.funeral_venue_name?.trim() || data.funeral_address?.trim()
+  data.funeral_date ||
+  data.funeral_time ||
+  data.funeral_venue_name?.trim() ||
+  data.funeral_address?.trim()
 );
 
+const rawObituaryUrl = data.obituary_url?.trim() || "";
+
+const obituaryUrl = (() => {
+  if (!rawObituaryUrl) return "";
+
+  const normalizedUrl = /^https?:\/\//i.test(rawObituaryUrl)
+    ? rawObituaryUrl
+    : `https://${rawObituaryUrl}`;
+
+  try {
+    const parsedUrl = new URL(normalizedUrl);
+
+    if (!parsedUrl.hostname || !parsedUrl.hostname.includes(".")) {
+      return "";
+    }
+
+    return normalizedUrl;
+  } catch {
+    return "";
+  }
+})();
+
 const hasObituary = Boolean(
-  data.obituary?.trim() || data.obituary_image_url || data.obituary_url ||
+  data.obituary?.trim() ||
+  data.obituary_image_url?.trim() ||
+  obituaryUrl ||
   hasFuneralInformation
 );
+
+const isDepartedMemorial = data.is_living_preplan !== true;
 
 const publicNavChapters = [
   { id: "basic-information", title: "Basic Information", show: true },
@@ -1874,7 +1902,7 @@ const publicNavChapters = [
   { id: "photo-gallery", title: "Photo Gallery", show: combinedGalleryPhotos.length > 0 },
   { id: "video-memories", title: "Video Memories", show: publicMemorialVideos.length > 0 || videoLinkUrls.length > 0 },
   { id: "family-and-friends", title: "Family & Friends", show: approvedSubmissions.length > 0 },
-  { id: "obituary", title: "Obituary", show: hasObituary },
+  { id: "obituary", title: "Obituary", show: isDepartedMemorial },
   { id: "final-resting-place", title: "Final Resting Place", show: hasFinalRestingPlace },
 ]
   .filter((chapter) => chapter.show)
@@ -3067,9 +3095,16 @@ function showNextPhoto() {
     )}
   </section>
 )}   
-{hasObituary && (
+{isDepartedMemorial && (
   <section id="public-obituary" className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary</h2>
+
+    {!hasObituary && (
+      <p className="mt-4 rounded-xl bg-stone-50 px-4 py-3 text-base text-stone-600">
+        No information provided at this time.
+      </p>
+    )}
+
     {hasFuneralInformation && (
       <div className="mt-4 rounded-2xl border border-stone-200 bg-stone-50 p-4">
         <h3 className="text-xl font-semibold text-stone-900">Funeral Information</h3>
@@ -3109,12 +3144,12 @@ function showNextPhoto() {
     className="mt-4 w-full rounded-2xl border border-stone-200"
   />
 )}
-    {data.obituary_url && (
+    {obituaryUrl && (
       <a
   href={
-    /^https?:\/\//i.test(data.obituary_url)
-      ? data.obituary_url
-      : `https://${data.obituary_url}`
+    /^https?:\/\//i.test(obituaryUrl)
+      ? obituaryUrl
+      : `https://${obituaryUrl}`
   }
   target="_blank"
   rel="noopener noreferrer"
