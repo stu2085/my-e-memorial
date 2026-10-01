@@ -1413,6 +1413,11 @@ const isUpgradePaymentReturn =
   params.get("success") === "true" &&
   Boolean(paymentSessionId);
 let verifiedExistingUpgrade = false;
+if (params.get("success") === "false") {
+  setErrorMessage(
+    "Payment was not completed. Your MyEMemorial has been saved and you have not been charged. You can try again below or use a different card. If your bank declined the payment, you may also want to contact your card issuer."
+  );
+}
 
       if (memorialId > 0) {
   const {
