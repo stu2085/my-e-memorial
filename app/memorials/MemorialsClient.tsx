@@ -348,6 +348,8 @@ export default function MemorialsPage() {
                       "Up to 5 gallery photos",
                       "Life story",
                       "Basic personal information",
+                      "Obituary & Service Information",
+                      "Final Resting Place",
                       "Shared Memories Approval",
                       "Public & shareable MyEMemorial",
                       "Upgrade anytime",
@@ -367,6 +369,8 @@ export default function MemorialsPage() {
                       "Places lived & worked",
                       "Schools & awards",
                       "Social media links",
+                      "Obituary & Service Information",
+                      "Final Resting Place",
                       "Shared Memories Approval",
                       "__NEW_CELEBRATION_PRESENTATION__",
                     ]}
@@ -387,6 +391,8 @@ export default function MemorialsPage() {
                       "Places lived & worked",
                       "Schools & awards",
                       "Social media links",
+                      "Obituary & Service Information",
+                      "Final Resting Place",
                       "Shared Memories Approval",
                       "__NEW_CELEBRATION_PRESENTATION__",
                     ]}
@@ -405,6 +411,8 @@ export default function MemorialsPage() {
                       "Places lived & worked",
                       "Schools & awards",
                       "Social media links",
+                      "Obituary & Service Information",
+                      "Final Resting Place",
                       "Shared Memories Approval",
                       "__NEW_CELEBRATION_PRESENTATION__",
                     ]}
