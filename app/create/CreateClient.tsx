@@ -1060,6 +1060,8 @@ const [isCreatingIncludedPresentation, setIsCreatingIncludedPresentation] =
   useState(false);
 const [linkedPresentationMessage, setLinkedPresentationMessage] =
   useState("");
+const [isSavingForCelebrationPresentation, setIsSavingForCelebrationPresentation] =
+  useState(false);
 
 const [isBackupAccess, setIsBackupAccess] = useState(false);
 
@@ -5516,6 +5518,154 @@ const guidedExperienceType =
       ? "personal"
       : "memorial";
 
+
+async function handleObituaryCelebrationPresentation() {
+  const obituaryChapter = getGuidedChapters(guidedExperienceType).find(
+    (guidedChapter) => guidedChapter.id === "obituary"
+  );
+
+  if (!obituaryChapter) {
+    setLinkedPresentationMessage(
+      "The Obituary and Service Information chapter could not be found."
+    );
+    return;
+  }
+
+  try {
+    setIsSavingForCelebrationPresentation(true);
+    setLinkedPresentationMessage("");
+
+    // Always save the current chapter before leaving for the Presentation.
+    await saveGuidedDraft(obituaryChapter, false, true);
+
+    const storedMemorialId =
+      typeof window !== "undefined"
+        ? Number(localStorage.getItem("guidedDraftMemorialId") || 0)
+        : 0;
+
+    const memorialId = draftMemorialId || storedMemorialId;
+
+    if (!memorialId) {
+      throw new Error(
+        "Your MyEMemorial was saved, but the Presentation could not be opened yet. Please click the button again."
+      );
+    }
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      throw new Error(
+        "Please sign in again before opening the Celebration of Life Presentation."
+      );
+    }
+
+    // Check for an already-connected paid Presentation first.
+    const linkedResponse = await fetch(
+      `/api/celebration-presentations/linked?memorialId=${encodeURIComponent(
+        String(memorialId)
+      )}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!linkedResponse.ok) {
+      throw new Error(
+        "Your MyEMemorial was saved, but Presentation status could not be checked. Please try again."
+      );
+    }
+
+    const linkedResult = await linkedResponse.json();
+
+    const linkedPublicId =
+      typeof linkedResult?.presentation?.publicId === "string"
+        ? linkedResult.presentation.publicId.trim()
+        : "";
+
+    if (
+      linkedResult?.presentation?.paymentStatus === "paid" &&
+      linkedPublicId
+    ) {
+      const accessResponse = await fetch(
+        `/celebration-of-life-slideshow/access/${encodeURIComponent(
+          linkedPublicId
+        )}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      const accessResult = await accessResponse.json();
+
+      if (!accessResponse.ok || !accessResult?.url) {
+        throw new Error(
+          accessResult?.error ||
+            "The Presentation Builder could not be opened."
+        );
+      }
+
+      window.location.assign(accessResult.url);
+      return;
+    }
+
+    // Paid Departed MyEMemorials include the Presentation.
+    if (form.plan !== "free" && isPaid) {
+      const response = await fetch(
+        "/api/celebration-presentations/from-memorial",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          credentials: "include",
+          cache: "no-store",
+          body: JSON.stringify({
+            memorialId,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || !result?.url) {
+        throw new Error(
+          result?.error ||
+            "The Celebration of Life Presentation could not be created."
+        );
+      }
+
+      window.location.assign(result.url);
+      return;
+    }
+
+    // Free Departed MyEMemorial: standalone Presentation purchase.
+    window.location.assign("/celebration-of-life-presentation");
+  } catch (error) {
+    console.error(
+      "OBITUARY CELEBRATION PRESENTATION ERROR:",
+      error
+    );
+
+    setLinkedPresentationMessage(
+      error instanceof Error
+        ? error.message
+        : "The Celebration of Life Presentation could not be opened."
+    );
+
+    setIsSavingForCelebrationPresentation(false);
+  }
+}
 const memorialBuilderDisplayName = [
   form.firstName,
   form.middleName,
@@ -5806,7 +5956,7 @@ const isBackupChapterReadOnly = (
 
           {!form.isLivingPreplan && (
             <>
-              <li>✓ Obituary</li>
+              <li>✓ Obituary and Service Information</li>
               <li>✓ Final Resting Place</li>
 
             </>
@@ -6593,6 +6743,20 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
       isSaving={isSubmitting}
       isPublished={false}
       isPaid={isPaid}
+      onCelebrationPresentation={handleObituaryCelebrationPresentation}
+      celebrationPresentationLabel={
+        linkedPresentationStatus === "paid"
+          ? "Open Celebration of Life Presentation"
+          : form.plan !== "free" && isPaid
+            ? "Create Celebration of Life Presentation"
+            : "Create Celebration of Life Presentation — $29.95"
+      }
+      isCelebrationPresentationBusy={
+        isSavingForCelebrationPresentation ||
+        isCreatingIncludedPresentation ||
+        isOpeningLinkedPresentation
+      }
+      celebrationPresentationMessage={linkedPresentationMessage}
     />
   );
 

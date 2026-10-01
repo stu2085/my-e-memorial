@@ -150,9 +150,9 @@ export const GUIDED_CHAPTERS: GuidedChapter[] = [
   },
   {
     id: "obituary",
-    title: "Obituary",
+    title: "Obituary and Service Information",
     description:
-      "Preserve the obituary or other written announcement of this life.",
+      "Share service details and preserve the obituary or other written announcement of this life.",
     availability: "memorial-only",
   },
   {

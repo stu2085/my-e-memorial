@@ -1902,7 +1902,7 @@ const publicNavChapters = [
   { id: "photo-gallery", title: "Photo Gallery", show: combinedGalleryPhotos.length > 0 },
   { id: "video-memories", title: "Video Memories", show: publicMemorialVideos.length > 0 || videoLinkUrls.length > 0 },
   { id: "family-and-friends", title: "Family & Friends", show: approvedSubmissions.length > 0 },
-  { id: "obituary", title: "Obituary", show: isDepartedMemorial },
+  { id: "obituary", title: "Obituary and Service Information", show: isDepartedMemorial },
   { id: "final-resting-place", title: "Final Resting Place", show: hasFinalRestingPlace },
 ]
   .filter((chapter) => chapter.show)
@@ -3097,7 +3097,7 @@ function showNextPhoto() {
 )}   
 {isDepartedMemorial && (
   <section id="public-obituary" className="rounded-2xl bg-white p-5 shadow-sm">
-    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary</h2>
+    <h2 className="text-[28px] font-bold tracking-tight text-stone-900">Obituary and Service Information</h2>
 
     {!hasObituary && (
       <p className="mt-4 rounded-xl bg-stone-50 px-4 py-3 text-base text-stone-600">
@@ -3107,7 +3107,7 @@ function showNextPhoto() {
 
     {hasFuneralInformation && (
       <div className="mt-4 rounded-2xl border border-stone-200 bg-stone-50 p-4">
-        <h3 className="text-xl font-semibold text-stone-900">Funeral Information</h3>
+        <h3 className="text-xl font-semibold text-stone-900">Service Information</h3>
         <dl className="mt-3 grid gap-4 text-base text-stone-700 sm:grid-cols-2">
           {data.funeral_date && (
             <div>

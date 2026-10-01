@@ -17,6 +17,10 @@ type Props = {
   isSaving: boolean;
   isPublished: boolean;
   isPaid?: boolean;
+  onCelebrationPresentation?: () => void | Promise<void>;
+  celebrationPresentationLabel?: string;
+  isCelebrationPresentationBusy?: boolean;
+  celebrationPresentationMessage?: string;
 };
 
 export default function ObituarySection({
@@ -27,17 +31,21 @@ export default function ObituarySection({
   isSaving,
   isPublished,
   isPaid = true,
+  onCelebrationPresentation,
+  celebrationPresentationLabel = "Create a Celebration of Life Presentation",
+  isCelebrationPresentationBusy = false,
+  celebrationPresentationMessage = "",
 }: Props) {
   return (
     <FormSection
-      title="Funeral Information"
+      title="Service Information"
       description="Share the funeral date, time, venue, and address. All fields are optional and can be updated when arrangements are confirmed."
     >
       <div className="space-y-6">
         <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="block text-base font-semibold text-stone-700">
-              Funeral Date (Optional)
+              Service Date (Optional)
               <input
                 type="date"
                 name="funeralDate"
@@ -47,7 +55,7 @@ export default function ObituarySection({
               />
             </label>
             <label className="block text-base font-semibold text-stone-700">
-              Funeral Time (Optional)
+              Service Time (Optional)
               <input
                 type="time"
                 name="funeralTime"
@@ -60,23 +68,23 @@ export default function ObituarySection({
             </label>
           </div>
           <p id="funeral-time-help" className="mt-2 text-base text-stone-600">
-            Enter the local time at the funeral venue.
+            Enter the local time at the service venue.
           </p>
           <div className="mt-4 space-y-4">
             <label className="block text-base font-semibold text-stone-700">
-              Funeral Venue Name (Optional)
+              Service Venue Name (Optional)
               <input
                 type="text"
                 name="funeralVenueName"
                 value={form.funeralVenueName ?? ""}
                 onChange={handleChange}
                 maxLength={200}
-                placeholder="Name of funeral home, church, or other venue"
+                placeholder="Name of funeral home, church, event venue, or other location"
                 className="mt-2 block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base font-normal text-stone-900"
               />
             </label>
             <label className="block text-base font-semibold text-stone-700">
-              Funeral Address (Optional)
+              Service Address (Optional)
               <textarea
                 name="funeralAddress"
                 value={form.funeralAddress ?? ""}
@@ -184,6 +192,40 @@ export default function ObituarySection({
 </div>
       </div>
 
+        {onCelebrationPresentation && (
+          <div className="rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
+            <p className="text-lg font-bold text-stone-900">
+              Celebration of Life Presentation
+            </p>
+
+            <p className="mt-2 text-base leading-7 text-stone-700">
+              Create a presentation with photos, videos, music, and memories
+              for the funeral, memorial service, Celebration of Life, or other
+              remembrance event.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => void onCelebrationPresentation()}
+              disabled={isCelebrationPresentationBusy}
+              className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-blue-800 px-6 py-3 text-base font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            >
+              {isCelebrationPresentationBusy
+                ? "Saving MyEMemorial..."
+                : celebrationPresentationLabel}
+            </button>
+
+            <p className="mt-3 text-base text-stone-600">
+              Your MyEMemorial will be saved before you continue.
+            </p>
+
+            {celebrationPresentationMessage && (
+              <p className="mt-3 rounded-xl border border-blue-200 bg-white px-4 py-3 text-base font-semibold text-stone-700">
+                {celebrationPresentationMessage}
+              </p>
+            )}
+          </div>
+        )}
       <QuickSaveButton
   sectionId="obituary"
   isSaving={isSaving}

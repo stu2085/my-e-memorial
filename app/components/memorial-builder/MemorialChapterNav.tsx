@@ -27,7 +27,7 @@ const CHAPTER_LABELS: Record<string, string> = {
   "favorite-songs": "Favorite Songs",
   "photo-gallery": "Photo Gallery",
   "video-memories": "Video Memories",
-  obituary: "Obituary",
+  obituary: "Obituary & Service Info",
   "final-resting-place": "Final Resting Place",
   "backup-person": "Backup Person",
   review: "Review",
