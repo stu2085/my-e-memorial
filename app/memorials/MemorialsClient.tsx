@@ -87,7 +87,7 @@ export default function MemorialsPage() {
     <main className="min-h-screen bg-[#f7f3ec]">
       <div className="px-4 pt-8 text-center md:px-8 md:pt-10">
   <h1 className="text-3xl font-bold leading-tight text-stone-900 md:text-4xl">
-    Create an Online Memorial Website for Someone You Love
+    Departed MyEMemorials — For Those Who Have Passed
   </h1>
 
   <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-600">

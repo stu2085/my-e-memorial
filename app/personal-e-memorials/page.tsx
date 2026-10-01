@@ -3,10 +3,10 @@ import PersonalEMemorialClient from "./PersonalEMemorialClient";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Living MyEMemorial | Preserve Your Life Story",
+    absolute: "Living MyEMemorials | Tell Your Own Life Story",
   },
   description:
-    "Create a Living MyEMemorial to preserve your life story, photos, videos, family history, and living legacy for future generations. Start free and add over time.",
+    "Create a Living MyEMemorial while you are living to tell your own story. Preserve your life story, photos, videos, family history, memories, and legacy for future generations.",
   keywords: [
     "Living MyEMemorial",
     "living memorial",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     canonical: "/personal-e-memorials",
   },
   openGraph: {
-    title: "Living MyEMemorial | Preserve Your Life Story",
+    title: "Living MyEMemorials | Tell Your Own Life Story",
     description:
       "Tell your story in your own words and preserve your memories, photos, videos, family history, and legacy for future generations.",
     url: "/personal-e-memorials",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Living MyEMemorial | Preserve Your Life Story",
+    title: "Living MyEMemorials | Tell Your Own Life Story",
     description:
       "Tell your story in your own words and preserve your memories, photos, videos, family history, and legacy for future generations.",
   },

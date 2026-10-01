@@ -147,11 +147,11 @@ useEffect(() => {
         <div className="text-4xl">{"\u2764\uFE0F"}</div>
 
         <h3 className="mt-4 text-2xl font-bold text-stone-900 md:text-3xl">
-          Living MyEMemorial
+          Living MyEMemorials
         </h3>
 
         <p className="mt-2 text-base font-semibold text-stone-600 md:text-lg">
-          For yourself or someone living
+          For those still here who want to tell their own story
         </p>
 
         <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-stone-700 md:text-lg">
@@ -186,11 +186,11 @@ useEffect(() => {
         <div className="text-4xl">{"\uD83D\uDD4A\uFE0F"}</div>
 
         <h3 className="mt-4 text-2xl font-bold md:text-3xl">
-          Departed MyEMemorial
+          Departed MyEMemorials
         </h3>
 
         <p className="mt-2 text-base font-semibold text-stone-300 md:text-lg">
-          For Someone Who Has Passed
+          For those who have passed
         </p>
 
         <p className="mt-2 text-base font-semibold text-stone-300 md:text-lg">

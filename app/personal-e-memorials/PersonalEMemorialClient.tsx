@@ -244,7 +244,9 @@ function PersonalEMemorialPageContent({
 
   return (
     <main className="min-h-screen bg-[#f7f3ec]">
-      <h1 className="sr-only">Living MyEMemorial — Preserve Your Life Story</h1>
+      <h1 className="px-4 pt-8 text-center text-3xl font-bold leading-tight text-stone-900 md:px-8 md:pt-10 md:text-4xl">
+  Living MyEMemorials — For Those Still Here Who Want to Tell Their Own Story
+</h1>
       <section className="px-4 py-8 md:px-8 md:py-12">
         <div className="mx-auto max-w-7xl">
           <div className="overflow-hidden rounded-[2rem] bg-white shadow-sm">

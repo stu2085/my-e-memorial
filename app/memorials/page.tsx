@@ -3,10 +3,10 @@ import MemorialsClient from "./MemorialsClient";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Create an Online Memorial Website | MyEMemorial",
+    absolute: "Departed MyEMemorials | Online Memorials for Loved Ones",
   },
   description:
-    "Create an online memorial website for someone you love. A Departed MyEMemorial preserves their life story, photos, videos, music, family history, obituary details, and memories in one place.",
+    "Create a Departed MyEMemorial for someone who has passed. Preserve their life story, photos, videos, music, family history, obituary, and memories in one online memorial.",
   keywords: [
     "online memorial",
     "memorial website",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     canonical: "/memorials",
   },
   openGraph: {
-    title: "Create an Online Memorial Website | MyEMemorial",
+    title: "Departed MyEMemorials | Online Memorials for Loved Ones",
     description:
       "Create an online memorial website to preserve the life story, photos, videos, music, family history, obituary details, and memories of someone who has passed.",
     url: "/memorials",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Create an Online Memorial Website | MyEMemorial",
+    title: "Departed MyEMemorials | Online Memorials for Loved Ones",
     description:
       "Create an online memorial website to preserve the life story, photos, videos, music, family history, obituary details, and memories of someone who has passed.",
   },
