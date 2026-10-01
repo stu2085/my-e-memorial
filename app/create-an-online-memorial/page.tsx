@@ -384,10 +384,10 @@ export default function CreateAnOnlineMemorialPage() {
             </p>
 
             <Link
-              href="/memorials#pricing"
+              href="/free-online-memorial"
               className="mt-6 inline-flex min-h-[52px] items-center justify-center rounded-full bg-stone-900 px-6 text-base font-bold text-white transition hover:bg-stone-700"
             >
-              Compare Memorial Plans
+              Explore the Free Memorial Plan
             </Link>
           </section>
 
@@ -433,7 +433,7 @@ export default function CreateAnOnlineMemorialPage() {
               </Link>
 
               <Link
-                href="/memorials#pricing"
+                href="/plans-pricing"
                 className="inline-flex min-h-[56px] w-full max-w-[290px] items-center justify-center rounded-full bg-amber-400 px-6 text-center text-base font-bold text-stone-900 transition hover:bg-amber-300"
               >
                 Compare Plans

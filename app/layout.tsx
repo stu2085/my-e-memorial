@@ -191,6 +191,20 @@ export default function RootLayout({
             >
               Online Memorials
             </Link>
+
+            <Link
+              href="/plans-pricing"
+              className="whitespace-nowrap font-medium text-stone-600 hover:text-stone-900"
+            >
+              Plans & Pricing
+            </Link>
+
+            <Link
+              href="/free-online-memorial"
+              className="whitespace-nowrap font-medium text-stone-600 hover:text-stone-900"
+            >
+              Free Online Memorial
+            </Link>
             <Link
               href="/celebration-of-life-presentation"
               className="whitespace-nowrap font-medium text-stone-600 hover:text-stone-900"
