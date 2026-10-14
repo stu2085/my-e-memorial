@@ -8,6 +8,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import FacebookPixel from "./components/FacebookPixel";
+import PublicClarity from "./components/PublicClarity";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -133,6 +134,7 @@ export default function RootLayout({
     });
   `}
 </Script>
+        <PublicClarity />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
