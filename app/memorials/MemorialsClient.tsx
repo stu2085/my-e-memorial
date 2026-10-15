@@ -113,17 +113,10 @@ export default function MemorialsPage() {
 
             <div className="flex flex-col items-center justify-center gap-3 border-t border-stone-200 bg-white px-6 py-6 sm:flex-row sm:flex-wrap md:py-7">
               <Link
-                href="#pricing"
-                className="inline-flex min-h-[68px] w-full max-w-[350px] items-center justify-center rounded-full bg-blue-950 px-8 text-center text-lg font-bold text-white shadow-sm transition hover:bg-blue-900"
-              >
-                Choose a Departed MyEMemorial Plan
-              </Link>
-
-              <Link
                 href="/gift?type=memorial"
                 className="inline-flex min-h-[68px] w-full max-w-[350px] items-center justify-center rounded-full bg-amber-400 px-8 text-center text-lg font-bold text-stone-900 shadow-sm transition hover:bg-amber-300"
               >
-                🎁 Give a Departed MyEMemorial
+                🎁 Gift a Departed MyEMemorial
               </Link>
 
               <Link
@@ -272,50 +265,6 @@ export default function MemorialsPage() {
             </aside>
 
             <div className="space-y-8">
-              {/* DEPARTED MYEMEMORIAL INTRODUCTION VIDEO PLACEHOLDER */}
-              <section className="overflow-hidden rounded-[2rem] bg-blue-950 text-white shadow-sm">
-                <div className="grid items-stretch lg:grid-cols-[0.9fr_1.1fr]">
-                  <div className="flex flex-col justify-center p-7 md:p-9">
-                    <p className="text-base font-bold uppercase tracking-[0.2em] text-amber-300">
-                      See What a Departed MyEMemorial Can Become
-                    </p>
-
-                    <h2 className="mt-3 text-2xl font-bold leading-tight md:text-3xl">
-                      Preserve Their Story. Keep Their Memory Close.
-                    </h2>
-
-                    <p className="mt-4 text-base leading-7 text-stone-200 md:text-lg">
-                      In just a few moments, see how a Departed MyEMemorial helps
-                      preserve the stories, memories, photos, videos, music, and
-                      experiences that made their life uniquely theirs.
-                    </p>
-
-                    <ul className="mt-5 list-disc space-y-2 pl-6 text-base font-semibold text-stone-200">
-                      <li>Tell their story</li>
-                      <li>Add photos &amp; videos</li>
-                      <li>Invite family and friends to share memories</li>
-                    </ul>
-                  </div>
-
-                  <div className="relative min-h-[300px] bg-black lg:min-h-[390px]">
-                    <video
-                      className="absolute inset-0 h-full w-full object-contain"
-                      controls
-                      playsInline
-                      preload="metadata"
-                      poster="/videos/departed-myememorial-introduction-poster.jpg"
-                      aria-label="Introduction to Departed MyEMemorials"
-                    >
-                      <source
-                        src="/videos/departed-myememorial-introduction.mp4"
-                        type="video/mp4"
-                      />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-                </div>
-              </section>
-
               {/* PRICING */}
               <section
                 id="pricing"
@@ -372,7 +321,7 @@ export default function MemorialsPage() {
                       "Obituary & Service Information",
                       "Final Resting Place",
                       "Shared Memories Approval",
-                      "__NEW_CELEBRATION_PRESENTATION__",
+                      "Celebration of Life Presentation",
                     ]}
                   />
 
@@ -394,7 +343,7 @@ export default function MemorialsPage() {
                       "Obituary & Service Information",
                       "Final Resting Place",
                       "Shared Memories Approval",
-                      "__NEW_CELEBRATION_PRESENTATION__",
+                      "Celebration of Life Presentation",
                     ]}
                   />
 
@@ -414,7 +363,7 @@ export default function MemorialsPage() {
                       "Obituary & Service Information",
                       "Final Resting Place",
                       "Shared Memories Approval",
-                      "__NEW_CELEBRATION_PRESENTATION__",
+                      "Celebration of Life Presentation",
                     ]}
                   />
                 </div>
@@ -430,7 +379,7 @@ export default function MemorialsPage() {
                   <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-8">
                     <div>
                       <h2 className="text-2xl font-bold leading-tight text-amber-300 md:text-3xl">
-                        Celebration of Life Presentation
+                        Or Purchase a Celebration of Life Presentation Separately
                       </h2>
                       <p className="mt-3 text-base leading-7 text-stone-200">
                         Included with Basic, Plus, and Premium at no additional charge.
@@ -444,13 +393,9 @@ export default function MemorialsPage() {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4 group-open:hidden md:justify-end">
-                      <NewBurst compact />
                       <div className="text-left md:text-right">
                         <p className="text-2xl font-bold leading-tight text-white">
                           Only $29.95
-                        </p>
-                        <p className="mt-2 text-base font-semibold leading-6 text-stone-200">
-                          Can Be Purchased Separately
                         </p>
                       </div>
                     </div>
@@ -458,8 +403,6 @@ export default function MemorialsPage() {
                 </summary>
                 <div className="grid items-center gap-0 lg:grid-cols-[0.9fr_1.1fr]">
                   <div className="p-7 md:p-8">
-                    <NewBurst />
-
                     <p className="mt-3 text-xl font-semibold leading-snug text-white md:text-2xl">
                       Helping to Simplify Celebration of Life Events.
                     </p>
@@ -539,7 +482,7 @@ export default function MemorialsPage() {
                     href="/gift?type=memorial"
                     className="inline-flex min-h-[56px] w-full max-w-[300px] shrink-0 items-center justify-center rounded-full bg-amber-400 px-6 text-center text-base font-bold text-stone-900 transition hover:bg-amber-300"
                   >
-                    🎁 Give a Departed MyEMemorial
+                    🎁 Gift a Departed MyEMemorial
                   </Link>
                 </div>
               </section>
@@ -598,8 +541,8 @@ export default function MemorialsPage() {
               </details>
 
               {/* HOW IT WORKS */}
-              <section className="rounded-[2rem] bg-[#eee7dc] p-6 shadow-sm md:p-8">
-                <div className="text-center">
+              <details className="group rounded-[2rem] bg-[#eee7dc] p-6 shadow-sm md:p-8">
+                <summary className="cursor-pointer text-center marker:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-900">
                   <p className="text-base font-bold uppercase tracking-[0.18em] text-amber-700">
                     How It Works
                   </p>
@@ -607,7 +550,13 @@ export default function MemorialsPage() {
                   <h2 className="mt-2 text-3xl font-bold text-stone-900">
                     Three Simple Steps
                   </h2>
-                </div>
+                  <span className="mt-2 block text-base font-semibold text-blue-900 group-open:hidden">
+                    View the steps
+                  </span>
+                  <span className="mt-2 hidden text-base font-semibold text-blue-900 group-open:block">
+                    Hide the steps
+                  </span>
+                </summary>
 
                 <div className="mt-8 grid gap-5 md:grid-cols-3">
                   <div className="rounded-3xl bg-white p-6 text-center shadow-sm">
@@ -652,7 +601,7 @@ export default function MemorialsPage() {
                     </p>
                   </div>
                 </div>
-              </section>
+              </details>
 
               {/* HELPFUL MEMORIAL GUIDES */}
               <details className="group rounded-[2rem] bg-white shadow-sm">
@@ -770,29 +719,6 @@ export default function MemorialsPage() {
 }
 
 
-function NewBurst({ compact = false }: { compact?: boolean }) {
-  return (
-    <div
-      className={`inline-flex shrink-0 items-center justify-center bg-yellow-300 text-stone-950 shadow-lg font-black uppercase ${
-        compact
-          ? "h-16 w-16 text-base tracking-normal"
-          : "h-28 w-28 text-xl tracking-[0.08em]"
-      }`}
-      style={{
-        clipPath:
-          "polygon(50% 0%, 59% 18%, 76% 6%, 78% 27%, 98% 24%, 84% 40%, 100% 50%, 82% 59%, 96% 76%, 76% 75%, 74% 96%, 58% 82%, 50% 100%, 41% 82%, 24% 95%, 23% 75%, 3% 77%, 17% 59%, 0% 50%, 17% 41%, 3% 24%, 24% 27%, 25% 5%, 42% 18%)",
-      }}
-      aria-label="All New"
-    >
-      <span className={`text-center ${compact ? "leading-none" : "leading-tight"}`}>
-        ALL
-        <br />
-        NEW
-      </span>
-    </div>
-  );
-}
-
 function PlanCard({
   title,
   price,
@@ -862,30 +788,12 @@ function PlanCard({
           dark ? "text-stone-100" : "text-stone-700"
         }`}
       >
-        {items.map((item) =>
-          item === "__NEW_CELEBRATION_PRESENTATION__" ? (
-            <li
-              key={item}
-              className="mt-3 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-2.5 py-2.5 text-center text-stone-950 shadow-sm"
-            >
-              <div className="flex items-center justify-center gap-1">
-                <NewBurst compact />
-                <p className="min-w-0 flex-1 pr-1 text-base font-medium leading-5">
-                  Celebration
-                  <br />
-                  of Life
-                  <br />
-                  Presentation
-                </p>
-              </div>
-            </li>
-          ) : (
-            <li key={item} className="flex items-start gap-2">
-              <span className="shrink-0 font-bold">✓</span>
-              <span>{item}</span>
-            </li>
-          )
-        )}
+        {items.map((item) => (
+          <li key={item} className="flex items-start gap-2">
+            <span aria-hidden="true" className="shrink-0 font-bold">✓</span>
+            <span>{item}</span>
+          </li>
+        ))}
       </ul>
 
       <div className="mt-auto pt-5">

@@ -472,6 +472,18 @@ const isPersonalMode =
   const isGiftFlow = Boolean(searchParams.get("gift"));
   const isExistingMemorialEdit =
   Number(searchParams.get("edit") || 0) > 0;
+  const selectedEntryPlan = searchParams.get("plan");
+  const isNewPaidPlanEntry =
+    (selectedEntryPlan === "basic" ||
+      selectedEntryPlan === "plus" ||
+      selectedEntryPlan === "premium") &&
+    !["draft", "edit", "resume", "gift", "promo", "presentation", "session_id", "success"]
+      .some((key) => searchParams.has(key));
+  const [entryCheckoutError, setEntryCheckoutError] = useState("");
+  const entryCheckoutRequestRef = useRef<{
+    key: string;
+    promise: Promise<string>;
+  } | null>(null);
   const [isPaid, setIsPaid] = useState(false);
   const [isStartingPlanCheckout, setIsStartingPlanCheckout] = useState(false);
 
@@ -1388,6 +1400,53 @@ const rightAdCategory = adCategoryPair[1];
 useEffect(() => {
   async function verifyPayment() {
     const params = searchParams;
+
+    // Start a new paid purchase before restoring or displaying a Builder draft.
+    if (isNewPaidPlanEntry) {
+      const plan = selectedEntryPlan as "basic" | "plus" | "premium";
+      const prices = { basic: 4995, plus: 6995, premium: 8995 };
+      const entryMode = isPersonalMode ? "personal" : "memorial";
+      const requestKey = `${entryMode}:${plan}`;
+      setEntryCheckoutError("");
+
+      // Reuse the request during React effect replay to avoid duplicate sessions.
+      if (entryCheckoutRequestRef.current?.key !== requestKey) {
+        entryCheckoutRequestRef.current = {
+          key: requestKey,
+          promise: (async () => {
+            const response = await fetch("/api/checkout", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                plan,
+                amount: prices[plan],
+                returnUrl: `${window.location.origin}/create?mode=${entryMode}&plan=${plan}`,
+                cancelUrl: `${window.location.origin}/${isPersonalMode ? "personal-e-memorials" : "memorials"}?checkout=cancelled#pricing`,
+              }),
+            });
+            const result = await response.json();
+            if (!response.ok || typeof result.url !== "string" || !result.url) {
+              throw new Error(result.error || "Checkout could not be started. Please try again.");
+            }
+            return result.url;
+          })(),
+        };
+      }
+
+      try {
+        const request = entryCheckoutRequestRef.current;
+        if (!request) throw new Error("Checkout could not be started. Please try again.");
+        const checkoutUrl = await request.promise;
+        window.location.assign(checkoutUrl);
+      } catch (error) {
+        setEntryCheckoutError(
+          error instanceof Error
+            ? error.message
+            : "Checkout could not be started. Please try again."
+        );
+      }
+      return;
+    }
 const mode = params.get("mode");
 const draftId = Number(params.get("draft") || 0);
 const editId = Number(params.get("edit") || 0);
@@ -5699,6 +5758,38 @@ const isBackupChapterReadOnly = (
     chapterId
   );
 };
+
+  if (isNewPaidPlanEntry) {
+    return (
+      <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
+        <div className="mx-auto flex min-h-[60vh] max-w-3xl items-center justify-center">
+          <section className="w-full rounded-3xl border border-stone-200 bg-white p-8 text-center shadow-sm">
+            <h1 className="text-2xl font-bold text-stone-900">
+              {entryCheckoutError ? "Checkout Could Not Be Opened" : "Opening Secure Checkout"}
+            </h1>
+            <p className="mt-4 text-base leading-7 text-stone-700" role={entryCheckoutError ? "alert" : "status"}>
+              {entryCheckoutError || "Taking you to Stripe to purchase your selected plan."}
+            </p>
+            {entryCheckoutError && (
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="mt-6 min-h-12 rounded-full bg-blue-950 px-6 py-3 text-base font-bold text-white"
+              >
+                Try Again
+              </button>
+            )}
+            <a
+              href={isPersonalMode ? "/personal-e-memorials#pricing" : "/memorials#pricing"}
+              className="mt-6 block text-base font-semibold text-blue-900 underline underline-offset-4"
+            >
+              Back to Plan Choices
+            </a>
+          </section>
+        </div>
+      </main>
+    );
+  }
 
   if (isResolvingPaymentReturn) {
     return (

@@ -16,6 +16,7 @@ export async function POST(req: Request) {
     amount,
     quantity,
     returnUrl,
+    cancelUrl,
     advertiserId,
     isRenewal,
     billingPlan,
@@ -262,6 +263,29 @@ if (returnUrl) {
 const separator =
   safeReturnUrl.includes("?") ? "&" : "?";
 
+// Keep existing cancellation behavior unless a new-plan entry supplies a
+// same-origin plan-selection page. Never redirect to an arbitrary origin.
+let safeCancelUrl = `${safeReturnUrl}${separator}success=false`;
+if (
+  typeof cancelUrl === "string" &&
+  (!checkoutType || checkoutType === "standard") &&
+  (plan === "basic" || plan === "plus" || plan === "premium")
+) {
+  try {
+    const parsedCancelUrl = new URL(cancelUrl, productionSiteUrl);
+    if (
+      allowedOrigins.has(parsedCancelUrl.origin) &&
+      (parsedCancelUrl.pathname === "/memorials" ||
+        parsedCancelUrl.pathname === "/personal-e-memorials")
+    ) {
+      safeCancelUrl = parsedCancelUrl.toString();
+    }
+  } catch {
+    // Retain the existing cancellation URL.
+  }
+}
+
+
 const isPersonalCheckout = (() => {
   try {
     const parsedReturnUrl = new URL(
@@ -357,7 +381,7 @@ toPlan: toPlan || "",
   `${safeReturnUrl}${separator}success=true&session_id={CHECKOUT_SESSION_ID}`,
 
 cancel_url:
-  `${safeReturnUrl}${separator}success=false`,
+  safeCancelUrl,
     });
 
     return NextResponse.json({ url: session.url });
