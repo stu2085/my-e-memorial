@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = {
+  title: { absolute: "Privacy Policy | MyEMemorial" },
+  description: "Learn how MyEMemorial collects, uses, and protects account details, memorial content, payment information, and visitor data, and how to contact us.",
+  alternates: { canonical: "/privacy" },
+};
+
 export default function PrivacyPage() {
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">

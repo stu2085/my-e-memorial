@@ -1,5 +1,6 @@
 "use client";
 
+import { funnelContext, trackFunnel } from "../../lib/funnel-tracking";
 import MuxPlayer from "@mux/mux-player-react";
 
 import { SlugEngine } from "../../lib/memorial-engine/SlugEngine";
@@ -1450,6 +1451,7 @@ const paymentSuccessBoxRef = useRef<HTMLDivElement | null>(null);
     }
   }
 
+ const builderEntryTracked = useRef(false);
  const [adCategoryPair, setAdCategoryPair] = useState<[string, string]>([
   "attorney",
   "estate_planner",
@@ -1488,6 +1490,10 @@ useEffect(() => {
           return;
         }
         if (error) throw error;
+        if (!builderEntryTracked.current) {
+          builderEntryTracked.current = true;
+          trackFunnel("builder_opened", funnelContext(window.location.href));
+        }
         setFreeEntryAuthStatus("ready");
       } catch {
         setFreeEntryAuthStatus("error");
@@ -1509,6 +1515,7 @@ useEffect(() => {
         entryCheckoutRequestRef.current = {
           key: requestKey,
           promise: (async () => {
+            trackFunnel("begin_checkout", { plan, memorial_type: entryMode === "personal" ? "living" : "departed" });
             const response = await fetch("/api/checkout", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -2722,6 +2729,10 @@ if (giftToken) {
           return;
         }
 
+        if (!builderEntryTracked.current) {
+          builderEntryTracked.current = true;
+          trackFunnel("builder_opened", funnelContext(window.location.href));
+        }
         setIsPaid(true);
         setSuccessMessage("Payment Successful");
         setIsResolvingPaymentReturn(false);

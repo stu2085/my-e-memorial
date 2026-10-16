@@ -1,5 +1,6 @@
 "use client";
 
+import { funnelContext, trackFunnel } from "../../lib/funnel-tracking";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
@@ -131,6 +132,13 @@ export default function PublicClarity() {
       const target = event.target;
       if (!(target instanceof Element)) return;
       const link = target.closest("a[href]") as HTMLAnchorElement | null;
+      if (link) {
+        const destination = new URL(link.href, window.location.href);
+        if (destination.origin === window.location.origin && destination.pathname === "/create" &&
+            ["free", "basic", "plus", "premium"].includes(destination.searchParams.get("plan") || "")) {
+          trackFunnel("plan_selected", funnelContext(destination.href));
+        }
+      }
       if (link && shouldStopForDestination(link.href)) {
         stopClarity();
         // Use a fresh document for private pages: the Clarity runtime cannot

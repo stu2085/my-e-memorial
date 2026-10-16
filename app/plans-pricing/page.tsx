@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import PlanArtwork from "../components/PlanArtwork";
 
 export const metadata: Metadata = {
   title: {
@@ -192,8 +193,8 @@ function PricingCard({ plan }: { plan: PricingPlan }) {
     <div
       className={`relative flex min-w-0 flex-col rounded-[1.5rem] p-5 pt-8 shadow-sm ${
         dark
-          ? "border-2 border-blue-950 bg-blue-950 text-white"
-          : "border border-stone-200 bg-amber-50 text-stone-900"
+          ? "border-2 border-amber-400 bg-[#fff9ed] text-stone-900"
+          : "border border-[#e5d8c7] bg-[#fffdf8] text-stone-900"
       }`}
     >
       {(plan.popular || plan.free) && (
@@ -210,6 +211,7 @@ function PricingCard({ plan }: { plan: PricingPlan }) {
         </div>
       )}
 
+      <PlanArtwork plan={new URLSearchParams(plan.href.split("?")[1]).get("plan") || "basic"} />
       <div className="min-h-[110px] text-center">
         <h3 className="text-base font-bold uppercase tracking-[0.12em]">
           {plan.name}
@@ -219,7 +221,7 @@ function PricingCard({ plan }: { plan: PricingPlan }) {
           <span className="text-3xl font-bold">{plan.price}</span>
           <span
             className={`ml-2 text-base ${
-              dark ? "text-stone-300" : "text-stone-500"
+              dark ? "text-stone-600" : "text-stone-500"
             }`}
           >
             one-time
@@ -240,7 +242,7 @@ function PricingCard({ plan }: { plan: PricingPlan }) {
         href={plan.href}
         className={`mt-7 inline-flex min-h-[54px] w-full items-center justify-center rounded-full px-5 text-center text-base font-bold transition ${
           dark
-            ? "bg-white text-blue-950 hover:bg-stone-100"
+            ? "bg-blue-950 text-white hover:bg-blue-900"
             : "bg-stone-900 text-white hover:bg-stone-700"
         }`}
       >

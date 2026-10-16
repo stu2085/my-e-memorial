@@ -2,6 +2,8 @@
 
 import { Suspense, useEffect, useRef } from "react";
 import Script from "next/script";
+import AccountWelcome from "../components/AccountWelcome";
+import { funnelContext, trackFunnel } from "../../lib/funnel-tracking";
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
@@ -23,6 +25,15 @@ const isFreeBuilderReturn = redirectTo.startsWith("/create?") &&
   new URLSearchParams(redirectTo.split("?")[1]).get("plan") === "free";
   const prefilledEmail = searchParams.get("email") || "";
   const isSignupMode = mode === "signup";
+  const accountViewRef = useRef("");
+  useEffect(() => {
+    if (!["choice", "signup", "login"].includes(mode)) return;
+    const view = `${mode}:${redirectTo}`;
+    if (accountViewRef.current === view) return;
+    accountViewRef.current = view;
+    trackFunnel("account_screen_opened", { ...funnelContext(redirectTo), account_screen: mode });
+  }, [mode, redirectTo]);
+
   const isBackupMode = mode === "backup";
 const isAccessChoiceMode = mode === "access";
 const [isSubmitting, setIsSubmitting] = useState(false);
@@ -281,6 +292,10 @@ if (isBackupMode) {
         return;
       }
 
+      // Supabase can return an obfuscated empty identities array for existing accounts.
+      if (data.user && (data.session || (data.user.identities?.length ?? 0) > 0)) {
+        trackFunnel(data.session ? "sign_up" : "signup_confirmation_required", { ...funnelContext(redirectTo), method: "email" });
+      }
       if (!data.session) {
         setMessage("Please check your email to confirm your account. After confirming, sign in here to continue.");
         setIsSubmitting(false);
@@ -303,6 +318,7 @@ return;
   return;
 }
 
+    trackFunnel("login", { ...funnelContext(redirectTo), method: "email" });
     window.location.assign(redirectTo);
   }
   if (isBuilderReturnMode) {
@@ -372,9 +388,10 @@ return;
 }
 if (isChoiceMode) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm">
-        <h1 className="text-4xl font-bold text-stone-900">
+    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,#f1eadb,#faf7f0_65%)] px-4 py-8">
+      <div className="w-full max-w-lg rounded-3xl border border-[#e5d8c7] bg-[#fffdf8] p-6 shadow-sm md:p-8">
+        <AccountWelcome living={funnelContext(redirectTo).memorial_type === "living"} />
+        <h1 className="mt-5 text-center text-2xl font-bold text-blue-950">
           Continue to MyEMemorial
         </h1>
 
@@ -402,12 +419,13 @@ if (isChoiceMode) {
   );
 }
   return (
-    <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4">
+    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,#f1eadb,#faf7f0_65%)] px-4 py-8">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm"
+        className="w-full max-w-lg rounded-3xl border border-[#e5d8c7] bg-[#fffdf8] p-6 shadow-sm md:p-8"
       >
-       <h1 className="text-4xl font-bold text-stone-900">
+       <AccountWelcome living={funnelContext(redirectTo).memorial_type === "living"} />
+        <h1 className="mt-5 text-center text-2xl font-bold text-blue-950">
   {isSignupMode
     ? "Create Account"
     : isBackupMode
@@ -419,7 +437,7 @@ if (isChoiceMode) {
 
 <p className="mt-2 text-base leading-7 text-stone-600">
   {isSignupMode
-    ? "Create your account first so your memorial ownership is saved correctly."
+    ? "Create your account to begin preserving the memories that matter most."
     : isBackupMode
       ? "Enter the email address and password assigned to you by the owner of the Living MyEMemorial."
       : "Log in to access and manage your MyEMemorials."}
@@ -630,7 +648,7 @@ if (isChoiceMode) {
         <button
           type="submit"
           disabled={isSubmitting}
-         className="mt-6 w-full rounded-full border border-stone-300 bg-white px-6 py-3 text-base font-semibold text-stone-800 hover:bg-stone-100"
+         className="mt-6 w-full rounded-full bg-blue-950 px-6 py-3 text-base font-semibold text-white hover:bg-blue-900 disabled:opacity-60"
         >
          {isSubmitting
   ? isSignupMode
@@ -661,6 +679,8 @@ if (isChoiceMode) {
             Already have an account? Log in
           </a>
         )}
+        <p className="mt-6 text-center text-base leading-6 text-stone-600">You can save your progress and return whenever you are ready.</p>
+        <p className="mt-3 text-center font-serif text-base text-blue-950">Where Life’s Stories Are Told.</p>
       </form>
     </main>
   );

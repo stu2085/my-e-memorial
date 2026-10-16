@@ -315,14 +315,26 @@ const memorialProductName =
 
 const memorialProductDescription =
   isPersonalCheckout
-    ? "Living MyEMemorial plan on MyEMemorial"
-    : "Departed MyEMemorial plan on MyEMemorial";
+    ? "Keep your stories, photos, and memories together for generations."
+    : "Keep their stories, photos, and memories together for generations.";
 
     const shouldCollectTax =
       plan !== "advertiser" && !isRenewal;
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
+      ...(["basic", "plus", "premium"].includes(plan) ? {
+        branding_settings: {
+          background_color: "#f3e9db",
+          button_color: "#172554",
+          border_style: "rounded" as const,
+          font_family: "lora" as const,
+          display_name: "MyEMemorial",
+        },
+        ...(!checkoutType || checkoutType === "standard" ? {
+          custom_text: { submit: { message: isPersonalCheckout ? "After payment, return to MyEMemorial to create an account or sign in and begin preserving your story." : "After payment, return to MyEMemorial to create an account or sign in and begin preserving their story." } },
+        } : {}),
+      } : {}),
       line_items: [
         {
           price_data: {
@@ -342,6 +354,11 @@ const memorialProductDescription =
                   : plan === "advertiser"
                     ? "Advertising placement on MyEMemorial"
                     : memorialProductDescription,
+              ...(["basic", "plus", "premium"].includes(plan) ? {
+                images: [
+                  new URL(`/Images/plans/${plan}-checkout.png`, productionSiteUrl).href,
+                ],
+              } : {}),
             },
             unit_amount: safeUnitAmount,
           },

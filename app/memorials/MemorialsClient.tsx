@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import PlanArtwork from "../components/PlanArtwork";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import SideAd from "../components/SideAd";
@@ -738,8 +739,8 @@ function PlanCard({
     <div
       className={`relative flex min-w-0 flex-col rounded-[1.25rem] p-5 pt-8 shadow-sm ${
         dark
-          ? "border-2 border-blue-950 bg-blue-950 text-white"
-          : "border border-stone-200 bg-stone-50 text-stone-900"
+          ? "border-2 border-amber-400 bg-[#fff9ed] text-stone-900"
+          : "border border-[#e5d8c7] bg-[#fffdf8] text-stone-900"
       }`}
     >
       {badge && (
@@ -762,10 +763,11 @@ function PlanCard({
         </div>
       )}
 
+      <PlanArtwork plan={new URLSearchParams(href.split("?")[1]).get("plan") || "basic"} />
       <div className="flex min-h-[94px] flex-col items-center justify-start text-center">
         <p
           className={`text-base font-bold uppercase tracking-[0.12em] ${
-            dark ? "text-stone-200" : "text-stone-600"
+            dark ? "text-stone-700" : "text-stone-600"
           }`}
         >
           {title}
@@ -775,7 +777,7 @@ function PlanCard({
           <span className="text-3xl font-bold">{price}</span>
           <span
             className={`pb-1 text-base ${
-              dark ? "text-stone-300" : "text-stone-500"
+              dark ? "text-stone-600" : "text-stone-500"
             }`}
           >
             one-time
@@ -785,7 +787,7 @@ function PlanCard({
 
       <ul
         className={`mt-2 space-y-1.5 text-base leading-6 ${
-          dark ? "text-stone-100" : "text-stone-700"
+          dark ? "text-stone-700" : "text-stone-700"
         }`}
       >
         {items.map((item) => (
@@ -801,7 +803,7 @@ function PlanCard({
           href={href}
           className={`inline-flex min-h-[50px] w-full items-center justify-center rounded-full px-5 py-2.5 text-base font-semibold transition ${
             dark
-              ? "bg-white text-stone-900 hover:bg-stone-200"
+              ? "bg-blue-950 text-white hover:bg-blue-900"
               : "bg-stone-900 text-white hover:bg-stone-700"
           }`}
         >
