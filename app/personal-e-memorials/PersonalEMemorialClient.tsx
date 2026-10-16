@@ -147,6 +147,7 @@ function PersonalEMemorialPageContent({
         body: JSON.stringify({
           plan,
           amount: planPrices[plan],
+          cancelUrl: `${window.location.origin}/personal-e-memorials#pricing`,
           returnUrl:
             `${window.location.origin}/create?mode=personal` +
             `&plan=${encodeURIComponent(plan)}`,
