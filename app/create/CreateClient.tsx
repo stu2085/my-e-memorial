@@ -463,6 +463,20 @@ function getApiWarningMessage(result: unknown) {
 }
 
 
+async function withBuilderTimeout<T>(operation: PromiseLike<T>, waitMs = 10000): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      Promise.resolve(operation),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error("The account check timed out. Please try signing in again.")), waitMs);
+      }),
+    ]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
+}
+
 function CreatePageContent() {
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode");
@@ -479,6 +493,16 @@ const isPersonalMode =
       selectedEntryPlan === "premium") &&
     !["draft", "edit", "resume", "gift", "promo", "presentation", "session_id", "success"]
       .some((key) => searchParams.has(key));
+  const isNewFreePlanEntry =
+    (selectedEntryPlan === "free" || (isPersonalMode && !selectedEntryPlan)) &&
+    !["draft", "edit", "resume", "gift", "promo", "presentation", "session_id"]
+      .some((key) => searchParams.has(key));
+  const [freeEntryAuthStatus, setFreeEntryAuthStatus] =
+    useState<"checking" | "ready" | "error">("checking");
+  const [showMemberSignIn, setShowMemberSignIn] = useState(false);
+  const [memberSignInMessage, setMemberSignInMessage] = useState("");
+  const [isCheckingMemberSignIn, setIsCheckingMemberSignIn] = useState(false);
+  const builderErrorRef = useRef<HTMLElement | null>(null);
   const [entryCheckoutError, setEntryCheckoutError] = useState("");
   const entryCheckoutRequestRef = useRef<{
     key: string;
@@ -1374,6 +1398,58 @@ const paymentSuccessBoxRef = useRef<HTMLDivElement | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  useEffect(() => {
+    if (!isNewFreePlanEntry || (freeEntryAuthStatus === "ready" && draftReady)) return;
+    const timer = setTimeout(() => setFreeEntryAuthStatus("error"), 15000);
+    return () => clearTimeout(timer);
+  }, [isNewFreePlanEntry, freeEntryAuthStatus, draftReady]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      builderErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      builderErrorRef.current?.focus({ preventScroll: true });
+    }
+  }, [errorMessage]);
+
+  function requestMemberSignIn() {
+    // Keep selected Files in this mounted page; never navigate it away to log in.
+    try {
+      const { backupPassword: _backupPassword, secondaryBackupPassword: _secondaryBackupPassword, ...safeDraft } = form;
+      localStorage.setItem("memorialDraft", JSON.stringify(safeDraft));
+    } catch {
+      // The mounted form and selected media remain available even if storage is full.
+    }
+    setMemberSignInMessage("");
+    setShowMemberSignIn(true);
+  }
+
+  async function requireMemberForSave() {
+    if (isBackupAccess) return;
+    const { data: { user } } = await withBuilderTimeout(supabase.auth.getUser());
+    if (!user) {
+      requestMemberSignIn();
+      throw new Error("MEMORIAL_SIGN_IN_REQUIRED");
+    }
+  }
+
+  async function continueAfterMemberSignIn() {
+    setIsCheckingMemberSignIn(true);
+    try {
+      const { data: { user }, error } = await withBuilderTimeout(supabase.auth.getUser());
+      if (error || !user) {
+        setMemberSignInMessage("Please finish signing in in the other tab, then try Continue again.");
+        return;
+      }
+      setShowMemberSignIn(false);
+      setErrorMessage("");
+      setSuccessMessage("You are signed in. Your work is still here. Please save or publish again.");
+    } catch {
+      setMemberSignInMessage("We could not check your sign-in. Please try again.");
+    } finally {
+      setIsCheckingMemberSignIn(false);
+    }
+  }
+
  const [adCategoryPair, setAdCategoryPair] = useState<[string, string]>([
   "attorney",
   "estate_planner",
@@ -1400,6 +1476,25 @@ const rightAdCategory = adCategoryPair[1];
 useEffect(() => {
   async function verifyPayment() {
     const params = searchParams;
+
+    if (isNewFreePlanEntry) {
+      try {
+        const { data: { user }, error } = await withBuilderTimeout(supabase.auth.getUser());
+        if (!user) {
+          const returnPath = `/create?${searchParams.toString()}`;
+          window.location.replace(
+            `/login?mode=choice&redirect=${encodeURIComponent(returnPath)}`
+          );
+          return;
+        }
+        if (error) throw error;
+        setFreeEntryAuthStatus("ready");
+      } catch {
+        setFreeEntryAuthStatus("error");
+        return;
+      }
+    }
+
 
     // Start a new paid purchase before restoring or displaying a Builder draft.
     if (isNewPaidPlanEntry) {
@@ -3297,6 +3392,7 @@ async function handleVideoChange(
     setSuccessMessage("");
 
     try {
+      await requireMemberForSave();
       const galleryPhotosForSave = galleryPhotosRef.current;
       const savedGalleryPhotoCaptionsForSave =
         savedGalleryPhotoCaptionsRef.current;
@@ -3824,7 +3920,15 @@ return;
       console.error("CREATE MEMORIAL ERROR:", error);
       const message =
         error instanceof Error ? error.message : "Unknown error";
-      setErrorMessage(`Problem: ${message}`);
+      if (message === "MEMORIAL_SIGN_IN_REQUIRED") {
+        setIsSubmitting(false);
+        return;
+      }
+      if (!isBackupAccess && /sign(?:ed)? in|sign-in|not authenticated|jwt expired/i.test(message)) {
+        requestMemberSignIn();
+      } else {
+        setErrorMessage(`Problem: ${message}`);
+      }
       setIsSubmitting(false);
     }
   }
@@ -4965,6 +5069,7 @@ async function saveGuidedDraft(
   exitAfterSave: boolean,
   stayOnCurrentChapter = false
 ) {
+  setErrorMessage("");
   try {
     /*
      * A Backup Person may view a Living MyEMemorial, but must not
@@ -4994,11 +5099,10 @@ async function saveGuidedDraft(
     const user = session?.user ?? null;
 
     if (!user && !isBackupAccess) {
-      alert(
-        "Please sign in or use authorized backup-person access before saving this memorial."
-      );
-      return;
+      requestMemberSignIn();
+      throw new Error("MEMORIAL_SIGN_IN_REQUIRED");
     }
+    await requireMemberForSave();
 
     const galleryPhotosForSave = galleryPhotosRef.current;
     const savedGalleryPhotoCaptionsForSave =
@@ -5564,12 +5668,14 @@ return backupSettingsSaveResult;
   } catch (error) {
     console.error("SAVE GUIDED DRAFT ERROR:", error);
 
-    alert(
-      error instanceof Error
-        ? `Could not save your draft: ${error.message}`
-        : "Could not save your draft."
-    );
-
+    const message = error instanceof Error ? error.message : "Could not save your draft.";
+    if (message !== "MEMORIAL_SIGN_IN_REQUIRED") {
+      if (!isBackupAccess && /sign(?:ed)? in|sign-in|not authenticated|jwt expired/i.test(message)) {
+        requestMemberSignIn();
+      } else {
+        setErrorMessage(`Could not save your draft: ${message}`);
+      }
+    }
     throw error;
   }
 }
@@ -5759,6 +5865,35 @@ const isBackupChapterReadOnly = (
   );
 };
 
+  if (isNewFreePlanEntry && (freeEntryAuthStatus !== "ready" || !draftReady)) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4 py-10">
+        <section className="w-full max-w-xl rounded-3xl bg-white p-8 text-center shadow-sm">
+          <h1 className="text-2xl font-bold text-stone-900">
+            {freeEntryAuthStatus === "error" ? "Please Sign In to Continue" : "Preparing Your Free MyEMemorial"}
+          </h1>
+          <p className="mt-4 text-base leading-7 text-stone-700" role="status">
+            {freeEntryAuthStatus === "error"
+              ? "Opening your Free MyEMemorial is taking longer than expected. Please sign in or try again."
+              : "Checking your account so you can save your story and photos as you go."}
+          </p>
+          <a
+              href={`/login?mode=choice&redirect=${encodeURIComponent(`/create?${searchParams.toString()}`)}`}
+              className="mt-6 inline-flex min-h-12 items-center rounded-full bg-stone-900 px-6 py-3 text-base font-bold text-white"
+            >
+              Sign In or Create Account
+            </a>
+          {freeEntryAuthStatus === "error" && (
+            <button type="button" onClick={() => window.location.reload()}
+              className="mt-4 block min-h-12 w-full text-base font-semibold text-blue-900 underline">
+              Try Opening the Builder Again
+            </button>
+          )}
+        </section>
+      </main>
+    );
+  }
+
   if (isNewPaidPlanEntry) {
     return (
       <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
@@ -5815,6 +5950,14 @@ const isBackupChapterReadOnly = (
 
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
+      {showMemberSignIn && (
+        <MemberSignInRecovery
+          message={memberSignInMessage}
+          checking={isCheckingMemberSignIn}
+          onContinue={continueAfterMemberSignIn}
+          onClose={() => setShowMemberSignIn(false)}
+        />
+      )}
       <MemorialBuilderPageFrame
         navigationHostId="memorial-builder-chapter-nav"
         hero={
@@ -5874,8 +6017,8 @@ const isBackupChapterReadOnly = (
             )}
 
             {errorMessage && (
-              <section className="mt-6 rounded-3xl border border-red-200 bg-red-50 p-4 shadow-sm">
-                <p className="text-sm text-red-700">{errorMessage}</p>
+              <section ref={builderErrorRef} tabIndex={-1} role="alert" className="mt-6 rounded-3xl border border-red-200 bg-red-50 p-4 shadow-sm">
+                <p className="text-base text-red-700">{errorMessage}</p>
               </section>
             )}
 
@@ -6334,6 +6477,7 @@ const isBackupChapterReadOnly = (
       : "Publish MyEMemorial"
 }
   onSaveAndContinue={async (chapter) => {
+  try {
   const isLivingBackupReadOnly =
     form.isLivingPreplan &&
     isBackupAccess &&
@@ -6501,8 +6645,15 @@ const isBackupChapterReadOnly = (
     });
 
   return false;
+  } catch (error) {
+    if (error instanceof Error && error.message === "MEMORIAL_SIGN_IN_REQUIRED") {
+      return false;
+    }
+    throw error;
+  }
 }}
 onSaveAndExit={async (chapter) => {
+  try {
   if (
     isBackupAccess &&
     isPostDeathUnlocked &&
@@ -6520,6 +6671,12 @@ onSaveAndExit={async (chapter) => {
   }
 
   await saveGuidedDraft(chapter, true, true);
+  } catch (error) {
+    if (error instanceof Error && error.message === "MEMORIAL_SIGN_IN_REQUIRED") {
+      return;
+    }
+    throw error;
+  }
 }}
 
 
@@ -7616,5 +7773,46 @@ function Select({
         ))}
       </select>
     </div>
+  );
+}
+
+
+function MemberSignInRecovery({ message, checking, onContinue, onClose }: {
+  message: string;
+  checking: boolean;
+  onContinue: () => Promise<void>;
+  onClose: () => void;
+}) {
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    dialog?.showModal();
+    return () => { if (dialog?.open) dialog.close(); };
+  }, []);
+  return (
+    <dialog
+      ref={dialogRef}
+      onCancel={(event) => { event.preventDefault(); onClose(); }}
+      aria-labelledby="member-sign-in-heading"
+      className="m-auto w-[calc(100%_-_2rem)] max-w-lg rounded-3xl border-0 bg-white p-6 text-stone-900 shadow-xl backdrop:bg-black/50 md:p-8"
+    >
+      <h2 id="member-sign-in-heading" className="text-2xl font-bold">Sign In to Save Your MyEMemorial</h2>
+      <p className="mt-4 text-base leading-7">
+        Keep this Builder tab open. Sign in or create an account in the new tab, then return here. Your entered information and selected photos will stay on this page.
+      </p>
+      <a
+        href={`/login?mode=choice&redirect=${encodeURIComponent("/login?mode=builder-return")}`}
+        target="_blank"
+        rel="noopener"
+        autoFocus
+        className="mt-6 block rounded-full bg-stone-900 px-5 py-3 text-center text-base font-bold text-white"
+      >Sign In or Create Account — Opens New Tab</a>
+      <button type="button" onClick={() => void onContinue()} disabled={checking}
+        className="mt-4 min-h-12 w-full rounded-full border border-stone-300 px-5 py-3 text-base font-bold disabled:opacity-50">
+        {checking ? "Checking Sign-In…" : "I Have Signed In — Continue"}
+      </button>
+      {message && <p role="alert" className="mt-4 text-base text-red-700">{message}</p>}
+      <button type="button" onClick={onClose} className="mt-4 min-h-12 w-full text-base underline">Keep Editing</button>
+    </dialog>
   );
 }

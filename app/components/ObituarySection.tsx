@@ -161,8 +161,7 @@ export default function ObituarySection({
 
     {!isPaid && (
       <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-base text-amber-800">
-        Choose a memorial plan and complete payment before uploading an obituary
-        image.
+        Available with a paid MyEMemorial Plan
       </p>
     )}
 
@@ -214,6 +213,12 @@ export default function ObituarySection({
                 ? "Saving MyEMemorial..."
                 : celebrationPresentationLabel}
             </button>
+
+            {!isPaid && (
+              <p className="mt-3 text-base leading-7 text-stone-700">
+                Or purchase a paid plan and Celebration of Life Presentation is included.
+              </p>
+            )}
 
             <p className="mt-3 text-base text-stone-600">
               Your MyEMemorial will be saved before you continue.

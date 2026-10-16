@@ -11,11 +11,16 @@ function LoginContent() {
   const router = useRouter();
  const mode = searchParams.get("mode") || "access";
 
+const requestedRedirect = searchParams.get("redirect");
 const redirectTo =
-  searchParams.get("redirect") ||
-  (mode === "signup"
-    ? "/create"
-    : "/my-memorials");
+  requestedRedirect && requestedRedirect.startsWith("/") &&
+  !requestedRedirect.startsWith("//") && !/[\\\r\n]/.test(requestedRedirect)
+    ? requestedRedirect
+    : mode === "signup" ? "/create" : "/my-memorials";
+const isBuilderReturnMode = mode === "builder-return";
+const [builderReturnVerified, setBuilderReturnVerified] = useState(false);
+const isFreeBuilderReturn = redirectTo.startsWith("/create?") &&
+  new URLSearchParams(redirectTo.split("?")[1]).get("plan") === "free";
   const prefilledEmail = searchParams.get("email") || "";
   const isSignupMode = mode === "signup";
   const isBackupMode = mode === "backup";
@@ -38,6 +43,15 @@ const [isSubmitting, setIsSubmitting] = useState(false);
   const turnstileRef = useRef<HTMLDivElement | null>(null);
   const submitLockRef = useRef(false);
   const isChoiceMode = mode === "choice";
+  useEffect(() => {
+    if (!isBuilderReturnMode) return;
+    let active = true;
+    void supabase.auth.getUser().then(({ data: { user } }) => {
+      if (active) setBuilderReturnVerified(Boolean(user));
+    });
+    return () => { active = false; };
+  }, [isBuilderReturnMode]);
+
   useEffect(() => {
   async function checkUser() {
     const {
@@ -251,12 +265,12 @@ if (isBackupMode) {
   }
 }
     if (isSignupMode) {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${
-            process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+            window.location.origin
           }${redirectTo}`,
         },
       });
@@ -267,7 +281,12 @@ if (isBackupMode) {
         return;
       }
 
-      setMessage("Account created. Taking you to the memorial form...");
+      if (!data.session) {
+        setMessage("Please check your email to confirm your account. After confirming, sign in here to continue.");
+        setIsSubmitting(false);
+        return;
+      }
+      setMessage("Account created. Continuing...");
 
 window.location.assign(redirectTo);
 return;
@@ -285,6 +304,28 @@ return;
 }
 
     window.location.assign(redirectTo);
+  }
+  if (isBuilderReturnMode) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4">
+        <section className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-sm">
+          <h1 className="text-3xl font-bold text-stone-900">
+            {builderReturnVerified ? "You Are Signed In" : "Sign In to Continue"}
+          </h1>
+          <p className="mt-4 text-base leading-7 text-stone-700">
+            {builderReturnVerified
+              ? "Return to your original Builder tab and select ‘I Have Signed In — Continue.’ Your work is waiting there."
+              : "Please sign in before returning to your Builder."}
+          </p>
+          {!builderReturnVerified && (
+            <a href={`/login?mode=choice&redirect=${encodeURIComponent("/login?mode=builder-return")}`}
+              className="mt-6 block rounded-full bg-stone-900 px-6 py-3 text-base font-bold text-white">
+              Sign In or Create Account
+            </a>
+          )}
+        </section>
+      </main>
+    );
   }
   if (isAccessChoiceMode) {
   return (
@@ -338,7 +379,9 @@ if (isChoiceMode) {
         </h1>
 
         <p className="mt-3 text-base text-stone-600">
-          Do you already have an account?
+          {isFreeBuilderReturn
+            ? "Sign in or create your free account so you can save and publish your MyEMemorial. No payment is required."
+            : "Do you already have an account?"}
         </p>
 
         <a
@@ -604,6 +647,12 @@ if (isChoiceMode) {
 
         
 
+        {!isSignupMode && !isBackupMode && (
+          <a href={`/login?mode=signup&email=${encodeURIComponent(email)}&redirect=${encodeURIComponent(redirectTo)}`}
+            className="mt-3 block w-full text-center text-base font-medium text-stone-600 hover:text-stone-900">
+            Need an account? Create one
+          </a>
+        )}
         {isSignupMode && (
           <a
             href={`/login?mode=login&redirect=${encodeURIComponent(redirectTo)}`}
