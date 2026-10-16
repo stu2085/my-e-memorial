@@ -433,7 +433,7 @@ export default function BestMemorialSlideshowMakersPage() {
             </p>
           </section>
 
-          <section className="relative left-1/2 w-[calc(100vw-1rem)] max-w-[1600px] -translate-x-1/2 rounded-[2rem] bg-white p-4 shadow-sm md:p-8">
+          <section className="relative w-full min-w-0 rounded-[2rem] md:left-1/2 md:w-[calc(100vw-1rem)] md:max-w-[1600px] md:-translate-x-1/2 bg-white p-4 shadow-sm md:p-8">
             <div className="px-2">
               <p className="text-base font-bold uppercase tracking-[0.16em] text-blue-900">
                 At a Glance
@@ -442,14 +442,53 @@ export default function BestMemorialSlideshowMakersPage() {
                 Side-by-Side Comparison
               </h2>
               <p className="mt-4 max-w-4xl text-lg leading-8 text-stone-700">
-                Scroll horizontally on smaller screens. The rows move from common
+                On phones, expand a provider below to read its full comparison. On larger screens, scroll the table horizontally. The rows move from common
                 presentation features down to memorial and upgrade features where
                 the products differ most.
               </p>
             </div>
 
+            <div className="mt-6 space-y-4 md:hidden">
+              {providers.map((provider) => (
+                <details
+                  key={provider.key}
+                  open={provider.key === "myememorial"}
+                  className={`min-w-0 rounded-2xl border p-4 ${
+                    provider.key === "myememorial"
+                      ? "border-amber-300 bg-amber-50"
+                      : "border-stone-200 bg-white"
+                  }`}
+                >
+                  <summary className="cursor-pointer break-words text-lg font-bold">
+                    {provider.name}
+                  </summary>
+                  <p className="mt-3 break-words text-base font-semibold leading-6 text-stone-700">
+                    {provider.price}
+                  </p>
+                  <dl className="mt-4 divide-y divide-stone-200">
+                    {featureRows.map((row) => (
+                      <div key={row.feature} className="min-w-0 py-4 first:pt-0">
+                        <dt className="break-words text-base font-bold leading-6">
+                          {row.feature}
+                        </dt>
+                        <dd className="mt-2 break-words text-base leading-7 text-stone-700">
+                          {row.values[provider.key]}
+                          {row.note && (
+                            <p className="mt-2 text-base leading-6 text-stone-600">
+                              {row.note}
+                            </p>
+                          )}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <ProviderLink provider={provider} />
+                </details>
+              ))}
+            </div>
+
             <div
-              className="mt-6 overflow-x-auto rounded-2xl border border-stone-200"
+              className="mt-6 hidden max-w-full overflow-x-auto rounded-2xl border border-stone-200 md:block"
               tabIndex={0}
               aria-label="Scrollable memorial slideshow and tribute comparison table"
             >
