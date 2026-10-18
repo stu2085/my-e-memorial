@@ -118,7 +118,7 @@ export default function RootLayout({
     (function(w,d,t,u,o){
       w[u]=w[u]||[],o.ts=(new Date).getTime();
       var n=d.createElement(t);
-      n.src="https://bat.bing.net/bat.js?ti="+o.ti+("uetq"!=u?"&q="+u:"");
+      n.src="https://bat.bing.com/bat.js?ti="+o.ti+("uetq"!=u?"&q="+u:"");
       n.async=1;
       n.onload=n.onreadystatechange=function(){
         var s=this.readyState;
