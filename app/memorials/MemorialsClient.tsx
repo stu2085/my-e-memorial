@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import PlanArtwork from "../components/PlanArtwork";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import SideAd from "../components/SideAd";
+import MemorialStartForm from "../components/MemorialStartForm";
 
 export default function MemorialsPage() {
   const [resourceZip, setResourceZip] = useState("");
@@ -85,46 +85,35 @@ export default function MemorialsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f3ec]">
-      <div className="px-4 pt-8 text-center md:px-8 md:pt-10">
+    <main className="memorial-autumn-sky min-h-screen">
+      <div className="mx-4 mt-8 rounded-3xl bg-white/90 px-4 py-6 text-center shadow-sm md:mx-8 md:px-8 md:py-8">
   <h1 className="text-3xl font-bold leading-tight text-stone-900 md:text-4xl">
-    Departed MyEMemorials — For Those Who Have Passed
+    Honor Your Loved One&apos;s Life
   </h1>
 
   <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-600">
-    A Departed MyEMemorial is an online memorial website that brings their
-    life story, photos, videos, music, family history, and memories together in
-    one lasting place.
+    Create a MyEMemorial to celebrate their life, preserve the memories you
+    cherish, and give family and friends a place to remember them together.
   </p>
+  <MemorialStartForm source="memorials" />
 </div>
-      {/* HERO */}
-      <section className="px-4 py-8 md:px-8 md:py-12">
+      {/* Gift and sample links */}
+      <section className="px-4 py-4 md:px-8 md:py-6">
         <div className="mx-auto max-w-7xl">
-          <div className="overflow-hidden rounded-[2rem] bg-white shadow-sm">
-            <div className="relative aspect-[943/257] w-full bg-stone-100">
-              <Image
-                src="/Images/memorials-hero-final.png"
-                alt="Share Their Story Here — a MyEMemorial shown on a laptop with family photographs and digital devices."
-                fill
-                priority
-                sizes="(max-width: 1280px) 100vw, 1280px"
-                className="object-cover object-center"
-              />
-            </div>
-
-            <div className="flex flex-col items-center justify-center gap-3 border-t border-stone-200 bg-white px-6 py-6 sm:flex-row sm:flex-wrap md:py-7">
+          <div className="overflow-hidden rounded-[2rem] bg-white/90 shadow-sm">
+            <div className="flex flex-col items-center justify-center gap-3 bg-white/90 px-6 py-6 sm:flex-row sm:flex-wrap md:py-7">
               <Link
                 href="/gift?type=memorial"
                 className="inline-flex min-h-[68px] w-full max-w-[350px] items-center justify-center rounded-full bg-amber-400 px-8 text-center text-lg font-bold text-stone-900 shadow-sm transition hover:bg-amber-300"
               >
-                🎁 Gift a Departed MyEMemorial
+                🎁 Gift a MyEMemorial
               </Link>
 
               <Link
                 href="/memorial/daniel-james-whitmore"
                 className="inline-flex min-h-[68px] w-full max-w-[350px] items-center justify-center rounded-full border-2 border-stone-300 bg-white px-8 text-center text-lg font-bold text-stone-900 shadow-sm transition hover:bg-stone-100"
               >
-                Experience a Sample Departed MyEMemorial
+                Experience a Sample MyEMemorial
               </Link>
             </div>
           </div>
@@ -273,7 +262,7 @@ export default function MemorialsPage() {
               >
                 <div className="text-center">
                   <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-900">
-                    Departed MyEMemorial Plans
+                    MyEMemorial Plans
                   </p>
 
                   <h2 className="mt-2 text-3xl font-bold text-stone-900">
@@ -289,7 +278,7 @@ export default function MemorialsPage() {
 
                 <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
                   <PlanCard
-                    title="Free Departed MyEMemorial"
+                    title="Free MyEMemorial"
                     price="$0"
                     href="/create?mode=memorial&plan=free"
                     badge="Free Plan"
@@ -307,7 +296,7 @@ export default function MemorialsPage() {
                   />
 
                   <PlanCard
-                    title="Basic Departed MyEMemorial"
+                    title="Basic MyEMemorial"
                     price="$49.95"
                     href="/create?mode=memorial&plan=basic"
                     items={[
@@ -327,7 +316,7 @@ export default function MemorialsPage() {
                   />
 
                   <PlanCard
-                    title="Plus Departed MyEMemorial"
+                    title="Plus MyEMemorial"
                     price="$69.95"
                     href="/create?mode=memorial&plan=plus"
                     dark
@@ -349,7 +338,7 @@ export default function MemorialsPage() {
                   />
 
                   <PlanCard
-                    title="Premium Departed MyEMemorial"
+                    title="Premium MyEMemorial"
                     price="$89.95"
                     href="/create?mode=memorial&plan=premium"
                     items={[
@@ -475,7 +464,7 @@ export default function MemorialsPage() {
                     </h2>
                     <p className="mt-2 max-w-3xl text-base leading-7 text-stone-700">
                       Choose a plan and send it as a gift. The family receives
-                      the Departed MyEMemorial and creates it for the person they are remembering.
+                      the MyEMemorial and creates it for the person they are remembering.
                     </p>
                   </div>
 
@@ -483,7 +472,7 @@ export default function MemorialsPage() {
                     href="/gift?type=memorial"
                     className="inline-flex min-h-[56px] w-full max-w-[300px] shrink-0 items-center justify-center rounded-full bg-amber-400 px-6 text-center text-base font-bold text-stone-900 transition hover:bg-amber-300"
                   >
-                    🎁 Gift a Departed MyEMemorial
+                    🎁 Gift a MyEMemorial
                   </Link>
                 </div>
               </section>
@@ -509,7 +498,7 @@ export default function MemorialsPage() {
                   <div className="grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
                     <div>
                       <p className="text-lg leading-8 text-stone-600">
-                        An obituary records important facts. A Departed MyEMemorial is a
+                        An obituary records important facts. A MyEMemorial is a
                         digital memorial that brings those facts to life with the stories,
                         photographs, video, music, family history, and memories that show
                         who they really were.
@@ -566,7 +555,7 @@ export default function MemorialsPage() {
                     </div>
 
                     <h3 className="mt-4 text-xl font-bold text-stone-900">
-                      Create Their Departed MyEMemorial
+                      Create Their MyEMemorial
                     </h3>
 
                     <p className="mt-2 text-base leading-7 text-stone-600">

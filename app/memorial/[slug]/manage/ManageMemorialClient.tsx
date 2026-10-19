@@ -1187,7 +1187,7 @@ if (
           </h2>
 
           <p className="mt-3 text-lg leading-8 text-stone-700">
-            Your {memorial.plan} Departed MyEMemorial includes the full
+            Your {memorial.plan} MyEMemorial includes the full
             Presentation Builder at no additional charge. We will start it
             with the photos, videos, captions, approved family contributions,
             and favorite music already saved in this MyEMemorial.
@@ -1237,7 +1237,7 @@ if (
 
         {linkedCelebrationPresentation.convertedMemorialId === memorial.id ? (
           <p className="mt-3 text-base font-semibold leading-7 text-green-800">
-            This Presentation is preserved with your paid Departed MyEMemorial.
+            This Presentation is preserved with your paid MyEMemorial.
           </p>
         ) : linkedCelebrationPresentation.expiresAt && (
           <p className="mt-3 text-base font-semibold leading-7 text-stone-700">
@@ -1249,7 +1249,7 @@ if (
         )}
         {memorial.plan === "free" && (
           <p className="mt-3 text-base leading-7 text-stone-700">
-            Upgrade this Departed MyEMemorial before online access ends to
+            Upgrade this MyEMemorial before online access ends to
             preserve your connected Presentation. Your purchase includes a
             single-use $29.95 credit toward Basic, Plus, or Premium. Enter the
             code from your Presentation purchase email at Stripe Checkout.

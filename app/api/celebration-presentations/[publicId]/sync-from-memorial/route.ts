@@ -408,7 +408,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Update from MyEMemorial is available only for a Presentation preserved with a paid Departed MyEMemorial.",
+            "Update from MyEMemorial is available only for a Presentation preserved with a paid MyEMemorial.",
         },
         { status: 403 }
       );
@@ -450,7 +450,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "This Presentation is not connected to the correct Departed MyEMemorial.",
+            "This Presentation is not connected to the correct MyEMemorial.",
         },
         { status: 403 }
       );
@@ -469,7 +469,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "A Basic, Plus, or Premium Departed MyEMemorial is required.",
+            "A Basic, Plus, or Premium MyEMemorial is required.",
         },
         { status: 403 }
       );

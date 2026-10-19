@@ -6,14 +6,14 @@ export const metadata: Metadata = {
     absolute: "Gift a MyEMemorial | Preserve a Life Story",
   },
   description:
-    "Gift a Living or Departed MyEMemorial and give someone a meaningful way to preserve life stories, photos, videos, memories, and family history.",
+    "Gift a Living MyEMemorial or MyEMemorial and give someone a meaningful way to preserve life stories, photos, videos, memories, and family history.",
   alternates: {
     canonical: "/gift",
   },
   openGraph: {
     title: "Gift a MyEMemorial | Preserve a Life Story",
     description:
-      "Gift a Living or Departed MyEMemorial and help preserve a meaningful life story for future generations.",
+      "Gift a Living MyEMemorial or MyEMemorial and help preserve a meaningful life story for future generations.",
     url: "/gift",
     type: "website",
   },
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Gift a MyEMemorial | Preserve a Life Story",
     description:
-      "Gift a Living or Departed MyEMemorial and help preserve a meaningful life story for future generations.",
+      "Gift a Living MyEMemorial or MyEMemorial and help preserve a meaningful life story for future generations.",
   },
 };
 

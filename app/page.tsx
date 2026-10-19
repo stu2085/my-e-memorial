@@ -5,7 +5,7 @@ const homepageTitle =
   "Create an Online Memorial Website | MyEMemorial";
 
 const homepageDescription =
-  "Create a Departed MyEMemorial for someone who has passed or a Living MyEMemorial to preserve and share life stories, photos, videos, music, family history, and memories.";
+  "Create a MyEMemorial for someone who has passed or a Living MyEMemorial to preserve and share life stories, photos, videos, music, family history, and memories.";
 
 export const metadata: Metadata = {
   title: {

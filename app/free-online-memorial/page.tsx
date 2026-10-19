@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Free Online Memorial | Create a Free MyEMemorial",
     description:
-      "Create a free Departed MyEMemorial for someone who has passed. Preserve their story, photos, obituary and service information, final resting place, and memories.",
+      "Create a free MyEMemorial for someone who has passed. Preserve their story, photos, obituary and service information, final resting place, and memories.",
     url: "/free-online-memorial",
     type: "website",
   },
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Free Online Memorial | Create a Free MyEMemorial",
     description:
-      "Create a free Departed MyEMemorial for someone who has passed and preserve their life story and memories online.",
+      "Create a free MyEMemorial for someone who has passed and preserve their life story and memories online.",
   },
 };
 
@@ -43,7 +43,7 @@ export default function FreeOnlineMemorialPage() {
       <div className="mx-auto max-w-5xl">
         <section className="text-center">
           <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-900">
-            Free Departed MyEMemorial
+            Free MyEMemorial
           </p>
 
           <h1 className="mx-auto mt-3 max-w-4xl text-3xl font-bold leading-tight text-stone-900 md:text-5xl">
@@ -51,7 +51,7 @@ export default function FreeOnlineMemorialPage() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-stone-600">
-            A Free Departed MyEMemorial gives you a lasting place to preserve
+            A Free MyEMemorial gives you a lasting place to preserve
             the story and important memories of someone who has passed. There
             is no cost to get started.
           </p>
@@ -76,14 +76,14 @@ export default function FreeOnlineMemorialPage() {
 
             <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-600">
               Start preserving their story with the essential features of a
-              Departed MyEMemorial.
+              MyEMemorial.
             </p>
           </div>
 
           <div className="mx-auto mt-8 max-w-2xl rounded-[1.5rem] border border-stone-200 bg-amber-50 p-6 shadow-sm md:p-8">
             <div className="text-center">
               <h3 className="text-xl font-bold uppercase tracking-[0.12em] text-stone-900">
-                Free Departed MyEMemorial
+                Free MyEMemorial
               </h3>
 
               <div className="mt-3">
@@ -127,7 +127,7 @@ export default function FreeOnlineMemorialPage() {
               href="/memorials"
               className="mt-5 inline-flex font-bold text-blue-900 hover:underline"
             >
-              Learn About Departed MyEMemorials
+              Learn About MyEMemorials
             </Link>
           </div>
 

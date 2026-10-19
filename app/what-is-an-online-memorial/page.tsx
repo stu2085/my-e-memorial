@@ -402,7 +402,7 @@ export default function WhatIsAnOnlineMemorialPage() {
             </h2>
 
             <p className="mt-4 text-lg leading-8 text-stone-700">
-              A Departed MyEMemorial is MyEMemorial&apos;s online memorial for someone
+              A MyEMemorial is MyEMemorial&apos;s online memorial for someone
               who has passed. It is designed to preserve the story between the dates —
               combining the person&apos;s life story, photographs, Video Memories,
               favorite music, family history, important life details, obituary
@@ -420,7 +420,7 @@ export default function WhatIsAnOnlineMemorialPage() {
                 href="/memorials"
                 className="inline-flex min-h-[52px] w-full max-w-[300px] items-center justify-center rounded-full bg-blue-950 px-6 text-center text-base font-bold text-white transition hover:bg-blue-900"
               >
-                Explore Departed MyEMemorials
+                Explore MyEMemorials
               </Link>
 
               <Link
@@ -460,7 +460,7 @@ export default function WhatIsAnOnlineMemorialPage() {
             </h2>
 
             <p className="mx-auto mt-4 max-w-3xl text-lg leading-8 text-stone-700">
-              See how a Departed MyEMemorial works, experience a sample, or begin
+              See how a MyEMemorial works, experience a sample, or begin
               preserving a life story, photographs, videos, music, and memories in one
               lasting online memorial.
             </p>

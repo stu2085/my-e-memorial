@@ -369,7 +369,7 @@ export default function NavBar() {
             }}
             className={navClass(isMemorialCreate)}
           >
-            Create a Departed MyEMemorial
+            Create a MyEMemorial
           </Link>          <Link
             href="/plans-pricing"
             className={navClass(pathname === "/plans-pricing")}
@@ -459,7 +459,7 @@ export default function NavBar() {
               }}
               className={mobileNavClass(isMemorialCreate)}
             >
-              Create a Departed MyEMemorial
+              Create a MyEMemorial
             </Link>            <Link
               href="/plans-pricing"
               onClick={() => setIsMobileMenuOpen(false)}

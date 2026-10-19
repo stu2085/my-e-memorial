@@ -1,6 +1,7 @@
 "use client";
 
 import { funnelContext, trackFunnel } from "../../lib/funnel-tracking";
+import { readNameEntry } from "../../lib/name-entry";
 import MuxPlayer from "@mux/mux-player-react";
 
 import { SlugEngine } from "../../lib/memorial-engine/SlugEngine";
@@ -109,6 +110,7 @@ const BACKUP_PERSON_CHAPTER_FIELDS = new Set([
 ]);
 
 type FormState = {
+  nameEntryToken?: string;
   firstName: string;
   middleName: string;
   lastName: string;
@@ -2203,7 +2205,7 @@ return;
 if (presentationPublicId) {
   if (isPersonalModeFromUrl) {
     setErrorMessage(
-      "A Celebration of Life Presentation can only be linked to a Departed MyEMemorial."
+      "A Celebration of Life Presentation can only be linked to a MyEMemorial."
     );
     setDraftReady(true);
     setIsResolvingPaymentReturn(false);
@@ -2309,7 +2311,27 @@ if (presentationPublicId) {
   }
 }
 
-    const rawSavedDraft = localStorage.getItem("memorialDraft");
+    let rawSavedDraft = localStorage.getItem("memorialDraft");
+    const nameEntryToken = params.get("name_entry");
+    const enteredName = isNewFreePlanEntry && !isPersonalMode
+      ? readNameEntry(nameEntryToken) : null;
+    if (enteredName && nameEntryToken) {
+      const currentDraft = rawSavedDraft ? JSON.parse(rawSavedDraft) : null;
+      const appliedKey = `myememorialNameEntryApplied:${nameEntryToken}`;
+      if (!localStorage.getItem(appliedKey) && currentDraft?.nameEntryToken !== nameEntryToken) {
+        // Keep the previous browser draft recoverable; never rename or edit it.
+        const pointerKeys = ["memorialDraft", "guidedDraftMemorialId", "guidedDraftMemorialSlug", "guidedDraftCurrentChapter", "guidedDraftGalleryPhotoUrls", "guidedDraftGalleryPhotoCaptions", "paidExtraVideos", "agreedToTerms"];
+        const previous = Object.fromEntries(pointerKeys.map(key => [key, localStorage.getItem(key)]));
+        localStorage.setItem(`myememorialBeforeNameEntry:${nameEntryToken}`, JSON.stringify(previous));
+        rawSavedDraft = JSON.stringify({ ...initialForm, ...enteredName, nameEntryToken, plan: "free", isLivingPreplan: false });
+        localStorage.setItem("memorialDraft", rawSavedDraft);
+        for (const key of pointerKeys) if (key !== "memorialDraft") localStorage.removeItem(key);
+        setDraftMemorialId(null);
+        setDraftMemorialSlug("");
+        setAgreedToTerms(false);
+      }
+      localStorage.setItem(appliedKey, "true");
+    }
     const extraVideosPaid = Number(params.get("extra_videos_paid") || 0);
     const promoFromUrl = params.get("promo");
 const planFromUrl = params.get("plan");
@@ -5799,7 +5821,7 @@ async function handleObituaryCelebrationPresentation() {
       return;
     }
 
-    // Paid Departed MyEMemorials include the Presentation.
+    // Paid MyEMemorials include the Presentation.
     if (form.plan !== "free" && isPaid) {
       const response = await fetch(
         "/api/celebration-presentations/from-memorial",
@@ -5830,7 +5852,7 @@ async function handleObituaryCelebrationPresentation() {
       return;
     }
 
-    // Free Departed MyEMemorial: standalone Presentation purchase.
+    // Free MyEMemorial: standalone Presentation purchase.
     window.location.assign("/celebration-of-life-presentation");
   } catch (error) {
     console.error(
@@ -6068,12 +6090,12 @@ const isBackupChapterReadOnly = (
               ? "Plus Living MyEMemorial"
               : "Premium Living MyEMemorial"
         : form.plan === "free"
-          ? "Free Departed MyEMemorial"
+          ? "Free MyEMemorial"
           : form.plan === "basic"
-            ? "Basic Departed MyEMemorial"
+            ? "Basic MyEMemorial"
             : form.plan === "plus"
-              ? "Plus Departed MyEMemorial"
-              : "Premium Departed MyEMemorial"}
+              ? "Plus MyEMemorial"
+              : "Premium MyEMemorial"}
     </p>
 
     {!isPaid && form.plan !== "free" && (
@@ -6115,7 +6137,7 @@ const isBackupChapterReadOnly = (
           </p>
 
           <p className="mt-2 text-base leading-7 text-stone-700">
-            Your paid Departed MyEMemorial includes the full Presentation
+            Your paid MyEMemorial includes the full Presentation
             Builder at no additional charge. Create it from the photos,
             videos, captions, approved family contributions, and favorite
             music already saved in this MyEMemorial.
@@ -6192,7 +6214,7 @@ const isBackupChapterReadOnly = (
             ? `Included with your ${
                 form.isLivingPreplan
                   ? "Free Living MyEMemorial"
-                  : "Free Departed MyEMemorial"
+                  : "Free MyEMemorial"
               }:`
             : "Available while payment is pending:"}
         </p>

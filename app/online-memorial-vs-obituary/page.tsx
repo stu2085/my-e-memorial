@@ -377,7 +377,7 @@ export default function OnlineMemorialVsObituaryPage() {
             </h2>
 
             <p className="mx-auto mt-4 max-w-3xl text-lg leading-8 text-stone-700">
-              A Departed MyEMemorial can preserve the obituary while also giving your
+              A MyEMemorial can preserve the obituary while also giving your
               family room for the stories, photographs, videos, music, family history,
               and memories that show who the person really was.
             </p>

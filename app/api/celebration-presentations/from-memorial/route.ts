@@ -448,7 +448,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Celebration of Life Presentations are included with Departed MyEMemorials.",
+            "Celebration of Life Presentations are included with MyEMemorials.",
         },
         { status: 400 }
       );
@@ -467,7 +467,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "A Basic, Plus, or Premium Departed MyEMemorial is required.",
+            "A Basic, Plus, or Premium MyEMemorial is required.",
         },
         { status: 403 }
       );

@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import SideAd from "./components/SideAd";
 import MobileAd from "./components/MobileAd";
+import MemorialStartForm from "./components/MemorialStartForm";
 
 export default function HomePage() {
   const [visitorZip, setVisitorZip] = useState<string | null>(null);
@@ -26,41 +26,21 @@ useEffect(() => {
   loadVisitorZip();
 }, []);
   return (
-    <main className="min-h-screen bg-stone-100">
-      <section className="relative w-full overflow-hidden shadow-sm">
-        <Image
-          src="/Images/homepage-hero.png"
-          alt="A woman creating an online memorial website with photos and life stories"
-          width={1942}
-          height={761}
-          sizes="100vw"
-          loading="eager"
-          fetchPriority="high"
-          className="block h-auto w-full"
-        />
-
-  <div className="relative z-50 flex justify-center bg-stone-100 px-4 py-3 sm:absolute sm:inset-x-0 sm:bottom-5 sm:justify-end sm:bg-transparent sm:px-5 sm:py-0 md:bottom-6 md:px-6">
-    <Link
-      href="/memorial/daniel-james-whitmore"
-      className="relative inline-flex min-h-[44px] items-center justify-center rounded-full border-2 border-white bg-blue-950 px-4 py-2 text-sm font-semibold text-white shadow-xl transition hover:bg-blue-900 sm:min-h-[50px] sm:px-5 sm:py-3 sm:text-base"
-    >
-      Experience a Sample MyEMemorial
-    </Link>
-  </div>
-
-</section>
-
-      <section className="border-y border-stone-200 bg-white px-4 py-7 text-center shadow-sm md:px-8 md:py-9">
-        <div className="mx-auto max-w-5xl">
+    <main className="home-sky min-h-screen">
+      <section className="px-4 py-7 text-center md:px-8 md:py-9">
+        <div className="mx-auto max-w-5xl rounded-3xl bg-white/90 p-5 shadow-sm sm:p-8">
           <h1 className="text-3xl font-bold tracking-tight text-stone-900 md:text-5xl">
-            Create an Online Memorial Website
+            Create an Online Memorial Website for Your Loved One
           </h1>
-          <p className="mx-auto mt-4 max-w-4xl text-lg leading-8 text-stone-700 md:text-xl">
-            Preserve and share a life story in one lasting memorial page.
-            Create a Living MyEMemorial for yourself or an online memorial for
-            someone who has passed, with photos, videos, favorite music, family
-            history, and memories.
+          <p className="mx-auto mt-3 max-w-4xl text-lg leading-8 text-stone-700 md:text-xl">
+            Share their life story,
+            photos, videos, and music, and give family and friends a place to
+            cherish their memories together.
           </p>
+          <MemorialStartForm source="home" />
+          <Link href="/memorial/daniel-james-whitmore" className="mt-5 inline-flex min-h-12 items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-base font-semibold text-blue-950 hover:bg-blue-50">
+            Experience a Sample MyEMemorial
+          </Link>
         </div>
       </section>
 
@@ -88,46 +68,6 @@ useEffect(() => {
   <div className="mx-auto max-w-6xl">
     <div className="text-center">
       <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-950 md:text-base">
-        See How MyEMemorial Works
-      </p>
-
-      <h2 className="mt-2 text-2xl font-bold text-stone-900 md:text-3xl">
-        See How an Online Memorial Preserves a Life Story
-      </h2>
-
-      <p className="mx-auto mt-3 max-w-3xl text-base leading-7 text-stone-600 md:text-lg">
-        See how a MyEMemorial memorial website brings together the stories,
-        photos, memories, voices, and experiences that make a person&apos;s life
-        unique.
-      </p>
-    </div>
-
-   <div className="mx-auto mt-6 flex justify-center">
-  <div className="aspect-[13/17] w-full max-w-[360px] overflow-hidden rounded-2xl bg-black shadow-md">
-    <video
-      className="h-full w-full object-contain"
-      width={832}
-      height={1088}
-      playsInline
-      controls
-      preload="none"
-      poster="/videos/homepage-introduction-poster.jpg"
-      aria-label="Introduction to MyEMemorial"
-    >
-      <source
-        src="/videos/homepage-introduction.mp4"
-        type="video/mp4"
-      />
-    </video>
-  </div>
-</div>
-
-  </div>
-</section>
-<section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
-  <div className="mx-auto max-w-6xl">
-    <div className="text-center">
-      <p className="text-base font-bold uppercase tracking-[0.18em] text-blue-950 md:text-base">
         Choose Your MyEMemorial
       </p>
 
@@ -136,12 +76,52 @@ useEffect(() => {
       </h2>
 
       <p className="mx-auto mt-3 max-w-3xl text-base leading-7 text-stone-600 md:text-lg">
-        Create a Living MyEMemorial for yourself or a Departed MyEMemorial for
-        someone who has passed.
+        Remember someone who has passed, or preserve your own story with a Living MyEMemorial.
       </p>
     </div>
 
-    <div className="mt-7 grid gap-6 md:grid-cols-2">
+    <div className="mt-7 grid gap-5">
+      {/* MyEMemorial for someone who has passed */}
+      <div className="flex flex-col rounded-3xl border border-[#d6ded3] bg-[#edf2e9] p-7 text-center text-stone-900 shadow-sm md:p-8">
+        <div className="text-4xl">{"\uD83D\uDD4A\uFE0F"}</div>
+
+        <h3 className="mt-4 text-2xl font-bold md:text-3xl">
+          MyEMemorials
+        </h3>
+
+        <p className="mt-2 text-base font-semibold text-stone-700 md:text-lg">
+          For those who have passed
+        </p>
+
+        <p className="mt-2 text-base font-semibold text-stone-700 md:text-lg">
+          Preserve and share their life story
+        </p>
+
+        <details className="mt-4 text-left">
+          <summary className="cursor-pointer py-3 text-base font-semibold">What can I include?</summary>
+        <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-stone-700 md:text-lg">
+          Bring together their stories, photos, videos, favorite music,
+          family history, and meaningful memories in one lasting place.
+          Paid plans also include a Celebration of Life Presentation for
+          sharing approved photos and videos at a funeral or memorial service.
+        </p>
+
+        <p className="mx-auto mt-3 max-w-lg text-base leading-7 text-stone-700 md:text-lg">
+          Family and friends can remember, contribute, and help preserve their
+          story for future generations.
+        </p>
+
+        </details>
+
+        <div className="mt-auto pt-6">
+          <Link
+            href="/memorials"
+            className="inline-flex min-h-[64px] w-full max-w-[390px] items-center justify-center rounded-full bg-white px-4 py-3 text-center text-base font-bold leading-tight text-stone-900 transition hover:bg-stone-200"
+          >
+            Explore MyEMemorials & Pricing
+          </Link>
+        </div>
+      </div>
       {/* Living MyEMemorial */}
       <div className="flex flex-col rounded-3xl border border-amber-200 bg-amber-50 p-7 text-center shadow-sm md:p-8">
         <div className="text-4xl">{"\u2764\uFE0F"}</div>
@@ -154,6 +134,8 @@ useEffect(() => {
           For those still here who want to tell their own story
         </p>
 
+        <details className="mt-4 text-left">
+          <summary className="cursor-pointer py-3 text-base font-semibold">What can I include?</summary>
         <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-stone-700 md:text-lg">
           Preserve stories, memories, photos, family history, and experiences
           while the person can still help tell the story themselves.
@@ -171,58 +153,26 @@ useEffect(() => {
           you preserved.
         </p>
 
+        </details>
+
         <div className="mt-auto pt-6">
           <Link
             href="/personal-e-memorials"
-            className="inline-flex min-h-[64px] w-full max-w-[390px] items-center justify-center rounded-full bg-amber-400 px-4 py-3 text-center text-base font-bold leading-tight text-stone-900 transition hover:bg-amber-300"
+            className="inline-flex min-h-[64px] w-full max-w-[390px] items-center justify-center rounded-full bg-[#e6cda2] px-4 py-3 text-center text-base font-bold leading-tight text-stone-900 transition hover:bg-[#dbc08e]"
           >
             Explore Living MyEMemorials & Pricing
           </Link>
         </div>
       </div>
 
-      {/* MyEMemorial for someone who has passed */}
-      <div className="flex flex-col rounded-3xl border border-stone-300 bg-stone-900 p-7 text-center text-white shadow-sm md:p-8">
-        <div className="text-4xl">{"\uD83D\uDD4A\uFE0F"}</div>
 
-        <h3 className="mt-4 text-2xl font-bold md:text-3xl">
-          Departed MyEMemorials
-        </h3>
-
-        <p className="mt-2 text-base font-semibold text-stone-300 md:text-lg">
-          For those who have passed
-        </p>
-
-        <p className="mt-2 text-base font-semibold text-stone-300 md:text-lg">
-          Preserve and share their life story
-        </p>
-
-        <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-stone-200 md:text-lg">
-          Bring together their stories, photos, videos, favorite music,
-          family history, and meaningful memories in one lasting place.
-          Paid plans also include a Celebration of Life Presentation for
-          sharing approved photos and videos at a funeral or memorial service.
-        </p>
-
-        <p className="mx-auto mt-3 max-w-lg text-base leading-7 text-stone-200 md:text-lg">
-          Family and friends can remember, contribute, and help preserve their
-          story for future generations.
-        </p>
-
-        <div className="mt-auto pt-6">
-          <Link
-            href="/memorials"
-            className="inline-flex min-h-[64px] w-full max-w-[390px] items-center justify-center rounded-full bg-white px-4 py-3 text-center text-base font-bold leading-tight text-stone-900 transition hover:bg-stone-200"
-          >
-            Explore Departed MyEMemorials & Pricing
-          </Link>
-        </div>
-      </div>
     </div>
     <div className="mt-6 rounded-3xl border border-amber-200 bg-white p-6 text-center shadow-sm">
       <h3 className="text-2xl font-bold text-stone-900">Need only a Celebration of Life Presentation?</h3>
+      <details className="mt-3 text-left"><summary className="cursor-pointer py-2 text-base font-semibold">What the $29.95 standalone presentation includes</summary>
       <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-stone-700">Create a standalone presentation with photos, videos, and music. One-time $29.95 purchase includes a shareable presentation hosted for 60 days. Paid MyEMemorial plans already include their own presentation.</p>
       <p className="mx-auto mt-2 max-w-2xl text-base text-stone-700">If you later buy a paid MyEMemorial, apply your single-use $29.95 credit code at checkout.</p>
+      </details>
       <Link href="/celebration-of-life-presentation" className="mt-5 inline-flex min-h-14 items-center justify-center rounded-full bg-blue-950 px-7 py-3 text-base font-bold text-white hover:bg-blue-900">Explore the Standalone Presentation</Link>
       <div className="mt-4">
         <Link
@@ -280,7 +230,8 @@ useEffect(() => {
           </aside>
 
           <div className="min-w-0 space-y-6">
-<section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
+<details className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
+  <summary className="cursor-pointer py-2 text-xl font-bold text-stone-900">How your family stays in control</summary>
   <div className="mx-auto max-w-6xl">
     <div className="text-center">
       <p className="text-base font-semibold uppercase tracking-[0.18em] text-stone-500">
@@ -339,10 +290,11 @@ useEffect(() => {
       </div>
     </div>
   </div>
-</section>
+</details>
 
 
-<section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
+<details className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
+  <summary className="cursor-pointer py-2 text-xl font-bold text-stone-900">Helpful memorial and life story guides</summary>
   <div className="mx-auto max-w-6xl">
     <div className="text-center">
       <p className="text-base font-semibold uppercase tracking-[0.18em] text-stone-500">
@@ -425,10 +377,11 @@ useEffect(() => {
       </div>
     </div>
   </div>
-</section>
+</details>
 
 
-  <section className="rounded-[1.5rem] bg-white px-6 py-10 text-center shadow-sm md:px-8">
+  <details className="rounded-[1.5rem] bg-white px-6 py-10 text-center shadow-sm md:px-8">
+  <summary className="cursor-pointer py-2 text-xl font-bold text-stone-900">The story behind MyEMemorial</summary>
   <div className="mx-auto max-w-4xl">
   <p className="text-lg leading-7 font-semibold uppercase tracking-wide text-blue-900">
     The Story Behind MyEMemorial
@@ -459,7 +412,7 @@ useEffect(() => {
     Read Our Story
   </Link>
   </div>
-</section>
+</details>
 <section className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
   <div className="mx-auto max-w-5xl">
     <div className="text-center">
@@ -478,33 +431,33 @@ useEffect(() => {
     </div>
 
     <div className="mt-7 grid gap-4 md:grid-cols-2">
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-        <h3 className="text-xl font-bold text-stone-900">
+      <details className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+<summary className="cursor-pointer text-xl font-bold text-stone-900">
           What is MyEMemorial?
-        </h3>
+        </summary>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           MyEMemorial is an online memorial website for preserving and sharing
           the story of a life. You can create a Living MyEMemorial for yourself
-          or someone living, or create a Departed MyEMemorial for someone who
+          or someone living, or create a MyEMemorial for someone who
           has passed.
         </p>
-      </div>
-<div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-  <h3 className="text-xl font-bold text-stone-900">
+      </details>
+<details className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+<summary className="cursor-pointer text-xl font-bold text-stone-900">
     Do I have to create my MyEMemorial all at once?
-  </h3>
+  </summary>
 
   <p className="mt-2 text-lg leading-7 text-stone-600">
     No. You can save your progress and return anytime to continue adding
     stories, photos, family history, videos, and other memories. Your
     MyEMemorial can grow over time.
   </p>
-</div>
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-        <h3 className="text-xl font-bold text-stone-900">
+</details>
+      <details className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+<summary className="cursor-pointer text-xl font-bold text-stone-900">
           What is a Living MyEMemorial?
-        </h3>
+        </summary>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           A Living MyEMemorial lets someone preserve their
@@ -515,107 +468,107 @@ useEffect(() => {
           after-death updates without changing the life story the member
           preserved.
         </p>
-      </div>
+      </details>
 
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-        <h3 className="text-xl font-bold text-stone-900">
-          Can I create a Departed MyEMemorial for someone who has passed?
-        </h3>
+      <details className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+<summary className="cursor-pointer text-xl font-bold text-stone-900">
+          Can I create a MyEMemorial for someone who has passed?
+        </summary>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           Yes. You can create a lasting MyEMemorial that brings together their
           life story, photos, videos, favorite music, family history, obituary
           information, final resting place details, and shared memories.
         </p>
-      </div>
+      </details>
 
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-        <h3 className="text-xl font-bold text-stone-900">
+      <details className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+<summary className="cursor-pointer text-xl font-bold text-stone-900">
           Is there a Free plan?
-        </h3>
+        </summary>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           Yes. You can start with a Free MyEMemorial and preserve the basic story
           of a life, including a featured photo, life story, and a small photo
           gallery. You can upgrade later if you want additional features.
         </p>
-      </div>
+      </details>
 
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-        <h3 className="text-xl font-bold text-stone-900">
+      <details className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+<summary className="cursor-pointer text-xl font-bold text-stone-900">
           Can family and friends contribute memories?
-        </h3>
+        </summary>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           Yes. Family and friends can submit memories and media, while the
           MyEMemorial member controls what is approved and displayed publicly.
         </p>
-      </div>
+      </details>
 
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-        <h3 className="text-xl font-bold text-stone-900">
+      <details className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+<summary className="cursor-pointer text-xl font-bold text-stone-900">
           How much does MyEMemorial cost?
-        </h3>
+        </summary>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           You can start with the Free plan. Paid plans are one-time purchases:
           Basic is $49.95, Plus is $69.95, and Premium is $89.95.
         </p>
-      </div>
+      </details>
 
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-        <h3 className="text-xl font-bold text-stone-900">
+      <details className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+<summary className="cursor-pointer text-xl font-bold text-stone-900">
           Is there a monthly subscription fee?
-        </h3>
+        </summary>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           No. Paid MyEMemorial plans are one-time purchases with no recurring
           subscription fee.
         </p>
-      </div>
+      </details>
 
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-        <h3 className="text-xl font-bold text-stone-900">
+      <details className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+<summary className="cursor-pointer text-xl font-bold text-stone-900">
           Can I upgrade later?
-        </h3>
+        </summary>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           Yes. You can begin with the Free plan or a paid plan and upgrade
           later as you add more photos, videos, stories, and other memories.
         </p>
-      </div>
+      </details>
 
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-        <h3 className="text-xl font-bold text-stone-900">
+      <details className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+<summary className="cursor-pointer text-xl font-bold text-stone-900">
           Can MyEMemorial be used for a Celebration of Life?
-        </h3>
+        </summary>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
-          Yes. Basic, Plus, and Premium plans for both Living MyEMemorials and Departed MyEMemorials include a Celebration of Life
+          Yes. Basic, Plus, and Premium plans for both Living MyEMemorials and MyEMemorials include a Celebration of Life
           Presentation. It can play approved photos and videos on a television
           or projector for a funeral, memorial service, or Celebration of Life.
           For a Living MyEMemorial, the presentation is intended for use after
           the owner has passed.
         </p>
-      </div>
+      </details>
 
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-        <h3 className="text-xl font-bold text-stone-900">
+      <details className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+<summary className="cursor-pointer text-xl font-bold text-stone-900">
           Can a MyEMemorial be shared with others?
-        </h3>
+        </summary>
 
         <p className="mt-2 text-lg leading-7 text-stone-600">
           Yes. MyEMemorials can be shared with family and friends by link,
           email, text message, social media, and QR code.
         </p>
-      </div>
+      </details>
     </div>
   </div>
 </section>
-            <section className="rounded-[1.5rem] bg-stone-900 px-6 py-7 text-white shadow-sm md:px-8">
+            <section className="rounded-[1.5rem] bg-[#edf2e9] px-6 py-7 text-stone-900 shadow-sm md:px-8">
   <div className="flex flex-col gap-6 text-center md:text-left">
     <div className="max-w-3xl">
-      <p className="text-base font-semibold uppercase tracking-[0.18em] text-stone-300">
+      <p className="text-base font-semibold uppercase tracking-[0.18em] text-stone-700">
         Begin today
       </p>
 
@@ -623,25 +576,25 @@ useEffect(() => {
         Create an Online Memorial Today
       </h2>
 
-      <p className="mt-3 text-lg leading-7 text-stone-300">
+      <p className="mt-3 text-lg leading-7 text-stone-700">
         Start a memorial page today and continue adding stories, photos,
         memories, videos, and family history over time.
       </p>
     </div>
 
     <div className="grid gap-3 md:grid-cols-3">
-      <Link
-  href="/personal-e-memorials"
-  className="flex min-h-[84px] items-center justify-center rounded-full bg-amber-400 px-5 py-3 text-center text-base font-semibold leading-tight text-stone-900 transition hover:bg-amber-300"
->
-  <span>Explore<br />Living<br />MyEMemorials</span>
-</Link>
-
 <Link
   href="/memorials"
   className="flex min-h-[84px] items-center justify-center rounded-full bg-white px-5 py-3 text-center text-base font-semibold leading-tight text-stone-900 transition hover:bg-stone-200"
 >
-  <span>Explore<br />Departed<br />MyEMemorials</span>
+  <span>Explore MyEMemorials</span>
+</Link>
+
+      <Link
+  href="/personal-e-memorials"
+  className="flex min-h-[84px] items-center justify-center rounded-full bg-[#e6cda2] px-5 py-3 text-center text-base font-semibold leading-tight text-stone-900 transition hover:bg-[#dbc08e]"
+>
+  <span>Explore<br />Living<br />MyEMemorials</span>
 </Link>
 
 <Link

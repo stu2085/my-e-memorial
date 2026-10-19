@@ -7,14 +7,14 @@ export const metadata: Metadata = {
     absolute: "MyEMemorial Plans & Pricing | Free, Basic, Plus & Premium",
   },
   description:
-    "Compare MyEMemorial plans and pricing for Departed MyEMemorials and Living MyEMemorials. Start free or choose Basic, Plus, or Premium with one-time pricing.",
+    "Compare MyEMemorial plans and pricing for MyEMemorials and Living MyEMemorials. Start free or choose Basic, Plus, or Premium with one-time pricing.",
   alternates: {
     canonical: "/plans-pricing",
   },
   openGraph: {
     title: "MyEMemorial Plans & Pricing | Free, Basic, Plus & Premium",
     description:
-      "Compare Free, Basic, Plus, and Premium plans for both Departed MyEMemorials and Living MyEMemorials.",
+      "Compare Free, Basic, Plus, and Premium plans for both MyEMemorials and Living MyEMemorials.",
     url: "/plans-pricing",
     type: "website",
   },
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "MyEMemorial Plans & Pricing | Free, Basic, Plus & Premium",
     description:
-      "Compare Free, Basic, Plus, and Premium plans for both Departed MyEMemorials and Living MyEMemorials.",
+      "Compare Free, Basic, Plus, and Premium plans for both MyEMemorials and Living MyEMemorials.",
   },
 };
 
@@ -37,7 +37,7 @@ type PricingPlan = {
 
 const departedPlans: PricingPlan[] = [
   {
-    name: "Free Departed MyEMemorial",
+    name: "Free MyEMemorial",
     price: "$0",
     href: "/create?mode=memorial&plan=free",
     free: true,
@@ -54,7 +54,7 @@ const departedPlans: PricingPlan[] = [
     ],
   },
   {
-    name: "Basic Departed MyEMemorial",
+    name: "Basic MyEMemorial",
     price: "$49.95",
     href: "/create?mode=memorial&plan=basic",
     features: [
@@ -73,7 +73,7 @@ const departedPlans: PricingPlan[] = [
     ],
   },
   {
-    name: "Plus Departed MyEMemorial",
+    name: "Plus MyEMemorial",
     price: "$69.95",
     href: "/create?mode=memorial&plan=plus",
     popular: true,
@@ -93,7 +93,7 @@ const departedPlans: PricingPlan[] = [
     ],
   },
   {
-    name: "Premium Departed MyEMemorial",
+    name: "Premium MyEMemorial",
     price: "$89.95",
     href: "/create?mode=memorial&plan=premium",
     features: [
@@ -319,7 +319,7 @@ export default function PlansPricingPage() {
             </p>
 
             <h2 className="mt-3 text-3xl font-bold">
-              Departed MyEMemorials
+              MyEMemorials
             </h2>
 
             <p className="mt-4 text-base leading-7 text-stone-200">
@@ -333,7 +333,7 @@ export default function PlansPricingPage() {
               href="/memorials"
               className="mt-6 inline-flex min-h-[56px] items-center justify-center rounded-full bg-amber-400 px-6 text-base font-bold text-stone-900 transition hover:bg-amber-300"
             >
-              Explore Departed MyEMemorials
+              Explore MyEMemorials
             </Link>
           </div>
 
@@ -364,8 +364,8 @@ export default function PlansPricingPage() {
 
         <PricingSection
           eyebrow="For Those Who Have Passed"
-          title="Departed MyEMemorial Plans"
-          description="Choose a Departed MyEMemorial to preserve the life and memories of someone who has passed."
+          title="MyEMemorial Plans"
+          description="Choose a MyEMemorial to preserve the life and memories of someone who has passed."
           plans={departedPlans}
         />
 

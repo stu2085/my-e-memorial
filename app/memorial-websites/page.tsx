@@ -276,7 +276,7 @@ export default function MemorialWebsitesPage() {
             </h2>
 
             <p className="mt-4 text-lg leading-8 text-stone-200">
-              A Departed MyEMemorial gives families one place to preserve the stories,
+              A MyEMemorial gives families one place to preserve the stories,
               memories, and meaningful details that make a life unique. Important life
               details can be brought together in one online memorial rather than left
               scattered across phones, social media accounts, photo albums, and separate
@@ -336,8 +336,7 @@ export default function MemorialWebsitesPage() {
 
             <p className="mt-4 text-lg leading-8 text-stone-700">
               Some memorial websites offer a free starting option while others require
-              payment from the beginning. MyEMemorial offers a Free Departed
-              MyEMemorial so a family can begin preserving basic information, a life
+              payment from the beginning. MyEMemorial offers a Free MyEMemorial so a family can begin preserving basic information, a life
               story, and a limited photo gallery before deciding whether additional
               features or media capacity are needed.
             </p>
@@ -385,7 +384,7 @@ export default function MemorialWebsitesPage() {
 
             <p className="mx-auto mt-4 max-w-3xl text-lg leading-8 text-stone-700">
               Explore MyEMemorial plans, experience a sample memorial, or give a
-              Departed MyEMemorial to a family who wants a lasting place to preserve
+              MyEMemorial to a family who wants a lasting place to preserve
               someone they love.
             </p>
 
@@ -394,14 +393,14 @@ export default function MemorialWebsitesPage() {
                 href="/memorials"
                 className="inline-flex min-h-[56px] w-full max-w-[290px] items-center justify-center rounded-full bg-blue-950 px-6 text-center text-base font-bold text-white transition hover:bg-blue-900"
               >
-                Explore Departed MyEMemorials
+                Explore MyEMemorials
               </Link>
 
               <Link
                 href="/gift?type=memorial"
                 className="inline-flex min-h-[56px] w-full max-w-[290px] items-center justify-center rounded-full bg-amber-400 px-6 text-center text-base font-bold text-stone-900 transition hover:bg-amber-300"
               >
-                Give a Departed MyEMemorial
+                Give a MyEMemorial
               </Link>
             </div>
           </section>

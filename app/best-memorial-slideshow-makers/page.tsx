@@ -175,7 +175,7 @@ const featureRows: FeatureRow[] = [
     feature: "Free online memorial included or available",
     values: {
       myememorial:
-        "Yes - a Free Departed MyEMemorial is included with the $29.95 Presentation",
+        "Yes - a Free MyEMemorial is included with the $29.95 Presentation",
       dignity:
         "Yes - Dignity advertises a free online memorial through its providers",
       keeper:
@@ -244,7 +244,7 @@ const faqItems = [
   {
     question: "What does the MyEMemorial $29.95 Presentation include?",
     answer:
-      "It includes the Celebration of Life Presentation, 60 days of hosted online access, an MP4 Offline Copy, a Free Departed MyEMemorial, and a single-use $29.95 credit toward a new Basic, Plus, or Premium MyEMemorial.",
+      "It includes the Celebration of Life Presentation, 60 days of hosted online access, an MP4 Offline Copy, a Free MyEMemorial, and a single-use $29.95 credit toward a new Basic, Plus, or Premium MyEMemorial.",
   },
 ];
 
@@ -569,13 +569,13 @@ export default function BestMemorialSlideshowMakersPage() {
 
             <p className="mt-4 text-lg leading-8 text-stone-200">
               The purchase also includes a{" "}
-              <strong className="text-white">Free Departed MyEMemorial</strong>.
+              <strong className="text-white">Free MyEMemorial</strong>.
               The full $29.95 Presentation purchase can then be used as a
               single-use credit toward a new Basic, Plus, or Premium MyEMemorial.
             </p>
 
             <p className="mt-4 text-lg leading-8 text-stone-200">
-              Basic, Plus, and Premium Departed MyEMemorial plans include the
+              Basic, Plus, and Premium MyEMemorial plans include the
               Celebration of Life Presentation at no additional charge. If a linked
               standalone Presentation is upgraded into a paid MyEMemorial before its
               60-day hosted period ends, the Presentation is preserved with the

@@ -1,11 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf7f1;
+  --foreground: #292d29;
 }
 
 @theme inline {
+  --color-blue-950: #334b46;
+  --color-blue-900: #405c53;
+  --color-blue-50: #edf2e9;
+  --color-amber-50: #fbf5e9;
+  --color-amber-100: #f5ead4;
+  --color-amber-200: #e9d9b9;
+  --color-amber-300: #dbc08e;
+  --color-amber-400: #e6cda2;
+  --color-stone-50: #fcfaf6;
+  --color-stone-100: #f7f2e9;
+  --color-stone-200: #e6ded2;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -19,12 +30,7 @@
 }
 
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+
 
 body {
   background: var(--background);
@@ -76,4 +82,78 @@ a[role="button"]:active {
 
 .memorial-photo-crossfade-out {
   animation: memorialPhotoCrossfadeOut 1000ms ease-in-out forwards;
+}
+summary { min-height: 44px; }
+summary:focus-visible, a:focus-visible, button:focus-visible {
+  outline: 3px solid #405c53;
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  button, a[role="button"] { transition: none; }
+}
+
+/* A quiet sky backdrop and softer typography on the homepage. */
+.home-sky {
+  position: relative;
+  background: transparent;
+  font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+}
+body:has(.home-sky) {
+  position: relative;
+  isolation: isolate;
+  background: #dcecf8;
+}
+body:has(.home-sky)::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #dcecf8 url("/Images/home-sky-clouds.webp") center center / cover no-repeat;
+}
+.home-sky :is(h1, h2, h3) {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+.home-sky input:focus-visible {
+  outline: 3px solid #405c53;
+  outline-offset: 3px;
+}
+
+body:has(.home-sky) > header,
+body:has(.home-sky) > footer {
+  background-color: rgb(255 255 255 / 88%);
+}
+
+/* Autumn sky belongs to the memorial landing page only. */
+.memorial-autumn-sky {
+  position: relative;
+  background: transparent;
+  font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+}
+body:has(.memorial-autumn-sky) {
+  position: relative;
+  isolation: isolate;
+  background: #dcecf8;
+}
+body:has(.memorial-autumn-sky)::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #dcecf8 url("/Images/memorial-autumn-sky.webp") center center / cover no-repeat;
+}
+.memorial-autumn-sky :is(h1, h2, h3) {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+body:has(.memorial-autumn-sky) > header,
+body:has(.memorial-autumn-sky) > footer {
+  background-color: rgb(255 255 255 / 88%);
+}
+@media (max-width: 640px) {
+  body:has(.memorial-autumn-sky)::before { background-position: left center; }
 }

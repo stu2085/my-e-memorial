@@ -267,7 +267,7 @@ export default function CreateAnOnlineMemorialPage() {
             </h2>
 
             <p className="mt-4 text-lg leading-8 text-stone-200">
-              A Departed MyEMemorial is designed to preserve the story between the
+              A MyEMemorial is designed to preserve the story between the
               dates. Depending on the plan, families can preserve many different parts
               of a person&apos;s life in one shareable memorial website.
             </p>
@@ -371,7 +371,7 @@ export default function CreateAnOnlineMemorialPage() {
             </h2>
 
             <p className="mt-4 text-lg leading-8 text-stone-700">
-              MyEMemorial offers a Free Departed MyEMemorial so a family can begin
+              MyEMemorial offers a Free MyEMemorial so a family can begin
               preserving basic information, a life story, and a limited photo gallery.
               If the family later wants more photographs, Video Memories, favorite
               music, family history, or other paid features, the memorial can be
@@ -379,7 +379,7 @@ export default function CreateAnOnlineMemorialPage() {
             </p>
 
             <p className="mt-4 text-lg leading-8 text-stone-700">
-              Basic, Plus, and Premium Departed MyEMemorial plans use one-time
+              Basic, Plus, and Premium MyEMemorial plans use one-time
               payments rather than recurring subscription fees.
             </p>
 

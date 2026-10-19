@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     absolute: "Online Memorials | MyEMemorial",
   },
   description:
-    "Create a Departed MyEMemorial to preserve the life story, photos, videos, family history, obituary, final resting place, and meaningful memories of someone who has died.",
+    "Create a MyEMemorial to preserve the life story, photos, videos, family history, obituary, final resting place, and meaningful memories of someone who has died.",
   alternates: {
     canonical: "/memorials",
   },
@@ -47,7 +47,7 @@ export default function OnlineMemorialPage() {
               href="/gift"
               className="inline-flex min-h-[56px] w-full max-w-[280px] items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-base font-bold text-white transition hover:bg-stone-700"
             >
-              Gift a Departed MyEMemorial
+              Gift a MyEMemorial
             </Link>
           </div>
         </section>
@@ -73,7 +73,7 @@ export default function OnlineMemorialPage() {
 
           <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <PlanCard
-              title="Free Departed MyEMemorial"
+              title="Free MyEMemorial"
               price="$0"
               href="/create?plan=free"
               badge="Start Free"
@@ -91,7 +91,7 @@ export default function OnlineMemorialPage() {
             />
 
             <PlanCard
-              title="Basic Departed MyEMemorial"
+              title="Basic MyEMemorial"
               price="$49.95"
               href="/create?plan=basic"
               items={[
@@ -110,7 +110,7 @@ export default function OnlineMemorialPage() {
             />
 
             <PlanCard
-              title="Plus Departed MyEMemorial"
+              title="Plus MyEMemorial"
               price="$69.95"
               href="/create?plan=plus"
               dark
@@ -131,7 +131,7 @@ export default function OnlineMemorialPage() {
             />
 
             <PlanCard
-              title="Premium Departed MyEMemorial"
+              title="Premium MyEMemorial"
               price="$89.95"
               href="/create?plan=premium"
               items={[

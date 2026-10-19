@@ -311,7 +311,7 @@ const normalizedPlanLabel =
 const memorialProductName =
   isPersonalCheckout
     ? `${normalizedPlanLabel} Living MyEMemorial`
-    : `${normalizedPlanLabel} Departed MyEMemorial`;
+    : `${normalizedPlanLabel} MyEMemorial`;
 
 const memorialProductDescription =
   isPersonalCheckout

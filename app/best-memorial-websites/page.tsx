@@ -705,7 +705,7 @@ const faqItems = [
   {
     question: "Can I purchase a Celebration of Life Presentation?",
     answer:
-      "Yes. You do not need to purchase the presentation separately. It is included free with every paid MyEMemorial plan. The Basic plan is $49.95 and includes both the Basic Departed MyEMemorial and the Celebration of Life Presentation, giving you an online place to remember your loved one and a presentation you can use at a funeral or Celebration of Life event. Plus and Premium also include the presentation at no additional charge.",
+      "Yes. You do not need to purchase the presentation separately. It is included free with every paid MyEMemorial plan. The Basic plan is $49.95 and includes both the Basic MyEMemorial and the Celebration of Life Presentation, giving you an online place to remember your loved one and a presentation you can use at a funeral or Celebration of Life event. Plus and Premium also include the presentation at no additional charge.",
   },
 ];
 
@@ -1374,7 +1374,7 @@ export default function BestMemorialWebsitesPage() {
                 href="/memorials"
                 className="inline-flex min-h-[56px] w-full max-w-[290px] items-center justify-center rounded-full bg-blue-950 px-6 text-center text-base font-bold text-white transition hover:bg-blue-900"
               >
-                Compare Departed Plans
+                Compare MyEMemorial Plans
               </Link>
 
               <Link
