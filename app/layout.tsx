@@ -9,6 +9,7 @@ import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import FacebookPixel from "./components/FacebookPixel";
 import PublicClarity from "./components/PublicClarity";
+import PurchaseTracking from "./components/PurchaseTracking";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -299,6 +300,7 @@ export default function RootLayout({
         </footer>
 
         <GoogleAnalytics gaId="G-SLX50BGDQK" />
+        <PurchaseTracking />
       </body>
     </html>
   );

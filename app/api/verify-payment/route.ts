@@ -479,6 +479,7 @@ const conversionValueCents = Math.max(
 
 return NextResponse.json({
   paid: true,
+  livemode: session.livemode,
   checkoutType,
   plan: isPaidPlan(
     String(session.metadata?.plan || "")

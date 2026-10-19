@@ -1,6 +1,7 @@
 "use client";
 
 import { funnelContext, trackFunnel } from "../../lib/funnel-tracking";
+import { rememberVerifiedPurchase } from "../../lib/purchase-tracking";
 import { readNameEntry } from "../../lib/name-entry";
 import MuxPlayer from "@mux/mux-player-react";
 
@@ -2684,56 +2685,7 @@ if (giftToken) {
       const data = await res.json();
 
       if (data.paid === true) {
-  const conversionValue = Number(data?.conversionValue);
-  const conversionCurrency = String(
-    data?.conversionCurrency || "USD"
-  );
-  const transactionId = String(
-    data?.transactionId || sessionId
-  );
-
-  if (
-    typeof window !== "undefined" &&
-    typeof (window as any).gtag === "function" &&
-    Number.isFinite(conversionValue) &&
-    conversionValue > 0 &&
-    transactionId
-  ) {
-    (window as any).gtag("event", "conversion", {
-      send_to:
-        "AW-18425931513/S-_aCO006-wcEPnNldJE",
-      value: conversionValue,
-      currency: conversionCurrency,
-      transaction_id: transactionId,
-    });
-
-    (window as any).gtag("event", "purchase", {
-      transaction_id: transactionId,
-      value: conversionValue,
-      currency: conversionCurrency,
-      items: [
-        {
-          item_id: selectedPlan,
-          item_name: `${selectedPlan} MyEMemorial`,
-          price: conversionValue,
-          quantity: 1,
-        },
-      ],
-    });
-  }
-  if (
-  typeof window !== "undefined" &&
-  Number.isFinite(conversionValue) &&
-  conversionValue > 0 &&
-  transactionId
-) {
-  (window as any).uetq = (window as any).uetq || [];
-
-  (window as any).uetq.push("event", "purchase", {
-  revenue_value: conversionValue,
-  currency: conversionCurrency,
-});
-}
+        rememberVerifiedPurchase(data, isPersonalModeFromUrl ? "living" : "departed");
 
   const {
     data: { user },
@@ -2765,25 +2717,6 @@ if (giftToken) {
             block: "center",
           });
         }, 300);
-
-        if (
-          typeof window !== "undefined" &&
-          typeof (window as any).fbq === "function"
-        ) {
-          (window as any).fbq(
-            "track",
-            "Purchase",
-            {
-              value:
-                planPrices[selectedPlan as keyof typeof planPrices] / 100,
-              currency: "USD",
-              content_name: selectedPlan,
-            },
-            {
-              eventID: `memorial_${sessionId}`,
-            }
-          );
-        }
       } else {
         setIsPaid(false);
         setIsResolvingPaymentReturn(false);
