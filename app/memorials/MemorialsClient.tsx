@@ -1,5 +1,6 @@
 "use client";
 
+import { trackFunnel } from "../../lib/funnel-tracking";
 import PlanArtwork from "../components/PlanArtwork";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -7,6 +8,37 @@ import SideAd from "../components/SideAd";
 import MemorialStartForm from "../components/MemorialStartForm";
 
 export default function MemorialsPage() {
+  const pricingHeadingRef = useRef<HTMLHeadingElement | null>(null);
+  const pricingReported = useRef(false);
+
+  useEffect(() => {
+    const heading = pricingHeadingRef.current;
+    if (!heading || typeof IntersectionObserver === "undefined") return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let visible = false;
+    const clearTimer = () => { clearTimeout(timer); timer = undefined; };
+    const check = () => {
+      clearTimer();
+      if (!visible || document.visibilityState !== "visible" || pricingReported.current) return;
+      timer = setTimeout(() => {
+        pricingReported.current = true;
+        trackFunnel("pricing_section_viewed", { entry_page: "memorials", memorial_type: "departed" });
+        observer.disconnect();
+      }, 1000);
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting && entry.intersectionRatio >= 0.5;
+      check();
+    }, { threshold: [0, 0.5] });
+    observer.observe(heading);
+    document.addEventListener("visibilitychange", check);
+    return () => {
+      clearTimer();
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", check);
+    };
+  }, []);
+
   const [resourceZip, setResourceZip] = useState("");
   const [zipInput, setZipInput] = useState("");
   const [zipError, setZipError] = useState("");
@@ -265,7 +297,7 @@ export default function MemorialsPage() {
                     MyEMemorial Plans
                   </p>
 
-                  <h2 className="mt-2 text-3xl font-bold text-stone-900">
+                  <h2 ref={pricingHeadingRef} className="mt-2 text-3xl font-bold text-stone-900">
                     Start Free or Choose the Plan That Fits Their Story
                   </h2>
 
