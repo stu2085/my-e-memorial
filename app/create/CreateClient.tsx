@@ -3350,8 +3350,29 @@ async function handleVideoChange(
     return response;
   }
 
+  // Analytics must never interrupt saving or send private memorial content.
+  function trackBuilderOutcome(
+    event: string,
+    chapterId: string,
+    outcome: string
+  ) {
+    try {
+      trackFunnel(event, {
+        chapter_id: chapterId,
+        outcome,
+        plan: ["free", "basic", "plus", "premium"].includes(form.plan || "")
+          ? form.plan! : "unspecified",
+        memorial_type: form.isLivingPreplan ? "living" : "departed",
+        access_role: isBackupAccess ? "designated_person" : "member",
+      });
+    } catch {
+      // A tracking failure must not affect the member's work.
+    }
+  }
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    trackBuilderOutcome("builder_review_submitted", "review", "attempted");
 
     setIsSubmitting(true);
     setErrorMessage("");
@@ -3875,6 +3896,12 @@ localStorage.removeItem(
  * storage above is already cleared, so navigation can happen immediately.
  */
 
+trackBuilderOutcome(
+  "builder_review_completed",
+  "review",
+  requiresReview ? "pending_moderation" : "saved"
+);
+
 if (requiresReview) {
   alert(
     "This memorial requires review before publication."
@@ -3891,6 +3918,12 @@ if (isBackupAccess) {
 
 return;
     } catch (error) {
+      trackBuilderOutcome(
+        "builder_review_failed",
+        "review",
+        error instanceof Error && error.message === "MEMORIAL_SIGN_IN_REQUIRED"
+          ? "sign_in_required" : "save_failed"
+      );
       console.error("CREATE MEMORIAL ERROR:", error);
       const message =
         error instanceof Error ? error.message : "Unknown error";
@@ -5634,6 +5667,12 @@ if (
   );
 }
 
+trackBuilderOutcome(
+  "builder_chapter_saved",
+  chapter.id,
+  exitAfterSave ? "save_and_exit" : stayOnCurrentChapter ? "saved_in_place" : "save_and_continue"
+);
+
 if (exitAfterSave) {
   if (isBackupAccess) {
     window.location.assign(
@@ -5648,6 +5687,12 @@ if (exitAfterSave) {
 
 return backupSettingsSaveResult;
   } catch (error) {
+    trackBuilderOutcome(
+      "builder_chapter_save_failed",
+      chapter.id,
+      error instanceof Error && error.message === "MEMORIAL_SIGN_IN_REQUIRED"
+        ? "sign_in_required" : "save_failed"
+    );
     console.error("SAVE GUIDED DRAFT ERROR:", error);
 
     const message = error instanceof Error ? error.message : "Could not save your draft.";
@@ -6598,6 +6643,7 @@ const isBackupChapterReadOnly = (
   if (guidedExperienceType === "after-death") {
   await saveGuidedDraft(chapter, false);
 
+  trackBuilderOutcome("builder_review_completed", "review", "after_death_updates_saved");
   setShowAfterDeathSaveModal(true);
 
   return;
@@ -6614,6 +6660,8 @@ const isBackupChapterReadOnly = (
   }
 
   await saveGuidedDraft(chapter, false);
+
+  trackBuilderOutcome("builder_review_blocked", "review", "payment_required");
 
   alert(
     "Payment has not been completed. Your draft is saved with Free access. Complete payment to unlock the selected plan and finish your MyEMemorial."
