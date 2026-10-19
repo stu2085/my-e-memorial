@@ -3831,6 +3831,14 @@ if (draftMemorialId) {
     );
   }
 
+  // Count only confirmed new database records, never subsequent edits.
+  // Send enumerated plan/type values only; no memorial IDs or form contents.
+  trackFunnel("memorial_first_saved", {
+    plan: ["free", "basic", "plus", "premium"].includes(form.plan || "")
+      ? form.plan! : "unspecified",
+    memorial_type: form.isLivingPreplan ? "living" : "departed",
+  });
+
   completedMemorialId = createResult.memorialId;
 }
 if (form.isLivingPreplan && !isBackupAccess) {
@@ -5552,6 +5560,14 @@ if (draftMemorialId) {
         "The draft memorial could not be saved."
     );
   }
+
+  // Count only confirmed new database records, never subsequent edits.
+  // Send enumerated plan/type values only; no memorial IDs or form contents.
+  trackFunnel("memorial_first_saved", {
+    plan: ["free", "basic", "plus", "premium"].includes(form.plan || "")
+      ? form.plan! : "unspecified",
+    memorial_type: form.isLivingPreplan ? "living" : "departed",
+  });
 
   setDraftMemorialId(
     createResult.memorialId
