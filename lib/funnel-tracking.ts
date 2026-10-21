@@ -1,3 +1,5 @@
+import { isProductionTrackingAllowed } from "./tracking-environment";
+
 // Only enumerated plan/mode values are sent. Never send redirect URLs or form contents.
 export function funnelContext(path: string) {
   const params = new URL(path, "https://www.myememorial.com").searchParams;
@@ -8,7 +10,7 @@ export function funnelContext(path: string) {
   };
 }
 export function trackFunnel(event: string, context: Record<string, string> = {}) {
-  if (typeof window === "undefined") return;
+  if (!isProductionTrackingAllowed()) return;
   const target = window as typeof window & { dataLayer?: unknown[] };
   target.dataLayer = target.dataLayer || [];
   // Google tag command format; queues safely before the tag has loaded.

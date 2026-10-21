@@ -1,15 +1,11 @@
 import { Suspense } from "react";
+import ProductionTracking from "./components/ProductionTracking";
 import Link from "next/link";
-import Script from "next/script";
 import NavBar from "./components/NavBar";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
-import FacebookPixel from "./components/FacebookPixel";
-import PublicClarity from "./components/PublicClarity";
-import PurchaseTracking from "./components/PurchaseTracking";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -113,29 +109,7 @@ export default function RootLayout({
           Skip to main content
         </a>
 
-        <FacebookPixel />
-<Script id="microsoft-uet" strategy="afterInteractive">
-  {`
-    (function(w,d,t,u,o){
-      w[u]=w[u]||[],o.ts=(new Date).getTime();
-      var n=d.createElement(t);
-      n.src="https://bat.bing.com/bat.js?ti="+o.ti+("uetq"!=u?"&q="+u:"");
-      n.async=1;
-      n.onload=n.onreadystatechange=function(){
-        var s=this.readyState;
-        s&&"loaded"!=s&&"complete"!=s||
-        (o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad"),
-        n.onload=n.onreadystatechange=null)
-      };
-      var i=d.getElementsByTagName(t)[0];
-      i.parentNode.insertBefore(n,i)
-    })(window,document,"script","uetq",{
-      ti:"97271377",
-      enableAutoSpaTracking:true
-    });
-  `}
-</Script>
-        <PublicClarity />
+        <ProductionTracking />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -299,8 +273,6 @@ export default function RootLayout({
           </p>
         </footer>
 
-        <GoogleAnalytics gaId="G-SLX50BGDQK" />
-        <PurchaseTracking />
       </body>
     </html>
   );

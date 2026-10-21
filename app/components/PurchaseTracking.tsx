@@ -1,9 +1,11 @@
 "use client";
+import { isProductionTrackingAllowed } from "../../lib/tracking-environment";
 import { useEffect } from 'react';
 import { flushPendingPurchases, PURCHASE_READY_EVENT } from '../../lib/purchase-tracking';
 
 export default function PurchaseTracking() {
   useEffect(() => {
+    if (!isProductionTrackingAllowed()) return;
     const flush = () => flushPendingPurchases();
     const scriptLoaded = () => { queueMicrotask(flush); };
     flush();

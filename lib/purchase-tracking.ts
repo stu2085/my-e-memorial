@@ -1,3 +1,5 @@
+import { isProductionTrackingAllowed } from "./tracking-environment";
+
 // Only server-verified transaction details are retained; never store form contents here.
 const PENDING_PREFIX = 'myememorial:pending-purchase:';
 const SENT_PREFIX = 'myememorial:processed-purchase:';
@@ -57,7 +59,7 @@ function validPurchase(value: unknown): value is Purchase {
     Number.isFinite(p.createdAt) && p.createdAt <= Date.now() && Date.now() - p.createdAt < MAX_AGE;
 }
 export function rememberVerifiedPurchase(result: Record<string, unknown>, memorialType: 'living' | 'departed') {
-  if (typeof window === 'undefined' || result.paid !== true || result.livemode !== true || result.checkoutType !== 'standard') return;
+  if (!isProductionTrackingAllowed() || result.paid !== true || result.livemode !== true || result.checkoutType !== 'standard') return;
   const purchase = {
     transactionId: result.transactionId, value: Number(result.conversionValue),
     currency: String(result.conversionCurrency || '').toUpperCase(), plan: result.plan,
@@ -74,6 +76,7 @@ export function rememberVerifiedPurchase(result: Record<string, unknown>, memori
   window.dispatchEvent(new Event(PURCHASE_READY_EVENT));
 }
 function googleEvent(purchase: Purchase, channel: 'ga4' | 'google-ads', event: string, params: Record<string, unknown>) {
+  if (!isProductionTrackingAllowed()) return;
   const key = channelKey(purchase, channel);
   if (done(purchase, channel) || queued.has(key)) return;
   const target = window as TrackingWindow;
@@ -98,7 +101,7 @@ function googleEvent(purchase: Purchase, channel: 'ga4' | 'google-ads', event: s
   } catch { queued.delete(key); }
 }
 export function flushPendingPurchases() {
-  if (typeof window === 'undefined') return;
+  if (!isProductionTrackingAllowed()) return;
   for (const storage of stores()) {
     try {
       for (let i = storage.length - 1; i >= 0; i--) {

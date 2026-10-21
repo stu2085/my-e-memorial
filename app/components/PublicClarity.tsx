@@ -1,4 +1,5 @@
 "use client";
+import { isProductionTrackingAllowed } from "../../lib/tracking-environment";
 
 import { funnelContext, trackFunnel } from "../../lib/funnel-tracking";
 import { useEffect } from "react";
@@ -79,6 +80,7 @@ export default function PublicClarity() {
   const pathname = usePathname();
 
   useEffect(() => {
+    if (!isProductionTrackingAllowed()) return;
     // Stop tracking on client-side route changes even if navigation was not
     // initiated by a clicked link. Once stopped, never restart in this tab.
     if (!isApproved(new URL(window.location.href))) {
@@ -126,6 +128,7 @@ export default function PublicClarity() {
   }, [pathname]);
 
   useEffect(() => {
+    if (!isProductionTrackingAllowed()) return;
     // Capture the click before normal Next.js link handlers. We also watch
     // browser History APIs below for programmatic client-side navigation.
     const onClick = (event: MouseEvent) => {

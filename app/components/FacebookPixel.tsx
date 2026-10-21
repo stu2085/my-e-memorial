@@ -1,11 +1,12 @@
 'use client';
+import { isProductionTrackingAllowed } from "../../lib/tracking-environment";
 
 import Script from 'next/script';
 
 const PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
 
 export default function FacebookPixel() {
-  if (!PIXEL_ID) {
+  if (!PIXEL_ID || !isProductionTrackingAllowed()) {
     return null;
   }
 
