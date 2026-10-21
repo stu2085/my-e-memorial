@@ -51,7 +51,7 @@ export default function LifeStorySection({
             <label className="block space-y-2"><span>Years served</span><input name="militaryYears" value={form.militaryYears || ""} onChange={handleChange} maxLength={120} placeholder="e.g., 1974–1978" className="block w-full rounded-lg border border-stone-300 p-3" /></label>
             <label className="block space-y-2"><span>Rank</span><input name="militaryRank" value={form.militaryRank || ""} onChange={handleChange} maxLength={120} className="block w-full rounded-lg border border-stone-300 p-3" /></label>
             <label className="block space-y-2 sm:col-span-2"><span>Deployment locations</span><textarea name="militaryDeployments" value={form.militaryDeployments || ""} onChange={handleChange} maxLength={2000} rows={3} className="block w-full rounded-lg border border-stone-300 p-3" /></label>
-            <p className="text-sm text-stone-600 sm:col-span-2">These details are optional and will appear in the memorial’s Life Story. A star badge with the selected branch name will appear at the top.</p>
+            <p className="text-sm text-stone-600 sm:col-span-2">These details are optional and will appear in the memorial’s Life Story. A custom tribute symbol with the selected branch name will appear at the top.</p>
           </div>
         )}
       </fieldset>

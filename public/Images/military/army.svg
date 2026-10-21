@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88">
+  <title>Army service tribute — custom shield and star</title>
+  <circle cx="44" cy="44" r="42" fill="#faf5e9"/>
+  <circle cx="44" cy="44" r="38" fill="none" stroke="#c6a56b" stroke-width="1.5"/>
+  <path d="M44 13 68 22v23c0 14-11 24-24 31C31 69 20 59 20 45V22Z" fill="#40513b" stroke="#c6a56b" stroke-width="2"/>
+  <path d="M44 21 61 27v18c0 10-7 18-17 24-10-6-17-14-17-24V27Z" fill="none" stroke="#7d8b66" stroke-width="1"/>
+  <path d="m44 28 5.1 10.4 11.5 1.7-8.3 8.1 2 11.4L44 54.2l-10.3 5.4 2-11.4-8.3-8.1 11.5-1.7Z" fill="#e6bf67" stroke="#f6dc99" stroke-width="1" stroke-linejoin="round"/>
+</svg>

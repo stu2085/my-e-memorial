@@ -1893,6 +1893,16 @@ const hasObituary = Boolean(
   hasFuneralInformation
 );
 
+// Original decorative tribute artwork, not official military emblems.
+const militaryTributeImages: Record<string, string> = {
+  Army: "army",
+  "Marine Corps": "marine-corps",
+  Navy: "navy",
+  "Air Force": "air-force",
+  "Coast Guard": "coast-guard",
+  "Space Force": "space-force",
+};
+const militaryTributeImage = militaryTributeImages[data.military_branch || ""];
 const hasMilitaryService = data.military_service === "yes";
 const hasLifeStory = Boolean(data.life_story?.trim()) || hasMilitaryService;
 const isDepartedMemorial = data.is_living_preplan !== true;
@@ -1971,9 +1981,21 @@ function showNextPhoto() {
             )}
 
             {hasMilitaryService && data.military_branch?.trim() && (
-              <div className="mb-4 inline-flex max-w-full items-center gap-2 rounded-full border border-amber-200/70 bg-stone-900/65 px-4 py-2 text-base font-semibold text-amber-100">
-                <span aria-hidden="true">★</span>
-                <span className="break-words">{data.military_branch} · Military Service</span>
+              <div className="mb-4 inline-flex max-w-full items-center gap-3 rounded-2xl border border-amber-200/70 bg-stone-900/65 px-4 py-3 text-left text-base font-semibold text-amber-100">
+                {militaryTributeImage ? (
+                  <img
+                    src={`/Images/military/${militaryTributeImage}.svg`}
+                    alt=""
+                    aria-hidden="true"
+                    width={64}
+                    height={64}
+                    className="h-16 w-16 shrink-0"
+                  />
+                ) : <span aria-hidden="true" className="text-3xl">★</span>}
+                <span className="min-w-0 break-words">
+                  <span className="block">{data.military_branch}</span>
+                  <span className="block text-sm font-normal text-amber-100/90">Military Service</span>
+                </span>
               </div>
             )}
             <h1 className="text-4xl font-bold leading-tight tracking-tight drop-shadow-lg sm:text-5xl lg:text-6xl">
