@@ -46,6 +46,12 @@ type Memorial = {
   funeral_venue_name?: string | null;
   funeral_address?: string | null;
   life_story?: string;
+  military_service?: string | null;
+  military_branch?: string | null;
+  military_years?: string | null;
+  military_rank?: string | null;
+  military_deployments?: string | null;
+
 great_grandparents_names?: string;
 grandparents_father_side?: string;
 grandparents_mother_side?: string;
@@ -1887,11 +1893,13 @@ const hasObituary = Boolean(
   hasFuneralInformation
 );
 
+const hasMilitaryService = data.military_service === "yes";
+const hasLifeStory = Boolean(data.life_story?.trim()) || hasMilitaryService;
 const isDepartedMemorial = data.is_living_preplan !== true;
 
 const publicNavChapters = [
   { id: "basic-information", title: "Basic Information", show: true },
-  { id: "life-story", title: "Life Story", show: Boolean(data.life_story?.trim()) },
+  { id: "life-story", title: "Life Story", show: hasLifeStory },
   { id: "family-history", title: "Family History", show: hasFamilyHistory },
   { id: "places-lived", title: "Places Lived", show: Boolean(data.places_lived?.trim()) },
   { id: "places-worked", title: "Places Worked", show: Boolean(data.places_worked?.trim()) },
@@ -1962,6 +1970,12 @@ function showNextPhoto() {
               </p>
             )}
 
+            {hasMilitaryService && data.military_branch?.trim() && (
+              <div className="mb-4 inline-flex max-w-full items-center gap-2 rounded-full border border-amber-200/70 bg-stone-900/65 px-4 py-2 text-base font-semibold text-amber-100">
+                <span aria-hidden="true">★</span>
+                <span className="break-words">{data.military_branch} · Military Service</span>
+              </div>
+            )}
             <h1 className="text-4xl font-bold leading-tight tracking-tight drop-shadow-lg sm:text-5xl lg:text-6xl">
               {data.full_name || "Unnamed Memorial"}
             </h1>
@@ -2177,15 +2191,28 @@ function showNextPhoto() {
   <MobileAd memorialZip={data.map_zip} pageType="memorial" />
 </div>
 
-{data.life_story?.trim() && (
+{hasLifeStory && (
   <section id="public-life-story" className="rounded-2xl bg-white p-5 shadow-sm">
     <h2 className="text-[28px] font-bold tracking-tight text-stone-900">
       Life Story
     </h2>
 
-        <p className="mt-4 whitespace-pre-line text-stone-700">
-      {data.life_story}
-    </p>
+    {data.life_story?.trim() && <p className="mt-4 whitespace-pre-line text-stone-700">{data.life_story}</p>}
+    {hasMilitaryService && (
+      <div className="mt-6 rounded-xl border border-stone-200 bg-stone-50 p-4">
+        <h3 className="text-xl font-semibold text-stone-900">Military Service</h3>
+        <dl className="mt-3 space-y-3 text-stone-700">
+          {[
+            ["Branch", data.military_branch],
+            ["Years served", data.military_years],
+            ["Rank", data.military_rank],
+            ["Deployment locations", data.military_deployments],
+          ].filter(([, value]) => value?.trim()).map(([label, value]) => (
+            <div key={label}><dt className="font-semibold">{label}</dt><dd className="whitespace-pre-line break-words">{value}</dd></div>
+          ))}
+        </dl>
+      </div>
+    )}
   </section>
 )}
 

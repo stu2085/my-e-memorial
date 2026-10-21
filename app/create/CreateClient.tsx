@@ -129,6 +129,12 @@ funeralVenueName: string;
 funeralAddress: string;
 newspaperArticles: string;
   lifeStory: string;
+  militaryService: string;
+  militaryBranch: string;
+  militaryYears: string;
+  militaryRank: string;
+  militaryDeployments: string;
+
   greatGrandparentsNames: string;
 grandparentsFatherSide: string;
 grandparentsMotherSide: string;
@@ -267,6 +273,12 @@ funeralVenueName: "",
 funeralAddress: "",
 newspaperArticles: "",
   lifeStory: "",
+  militaryService: "",
+  militaryBranch: "",
+  militaryYears: "",
+  militaryRank: "",
+  militaryDeployments: "",
+
   greatGrandparentsNames: "",
 grandparentsFatherSide: "",
 grandparentsMotherSide: "",
@@ -1907,6 +1919,12 @@ funeralVenueName: draftData.funeral_venue_name ?? "",
 funeralAddress: draftData.funeral_address ?? "",
 newspaperArticles: draftData.newspaper_articles ?? "",
     lifeStory: draftData.life_story ?? "",
+    militaryService: draftData.military_service ?? "",
+    militaryBranch: draftData.military_branch ?? "",
+    militaryYears: draftData.military_years ?? "",
+    militaryRank: draftData.military_rank ?? "",
+    militaryDeployments: draftData.military_deployments ?? "",
+
     greatGrandparentsNames:
       draftData.great_grandparents_names ?? "",
     grandparentsFatherSide:

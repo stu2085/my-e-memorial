@@ -31,6 +31,12 @@ type MemorialFormData = {
   obituary: string;
   obituaryUrl: string;
   lifeStory: string;
+  militaryService?: string;
+  militaryBranch?: string;
+  militaryYears?: string;
+  militaryRank?: string;
+  militaryDeployments?: string;
+
   greatGrandparentsNames: string;
   grandparentsFatherSide: string;
   grandparentsMotherSide: string;
@@ -207,6 +213,12 @@ guided_current_chapter: guidedCurrentChapter,
 obituary_url: normalizeObituaryUrl(form.obituaryUrl),
 obituary_image_url: obituaryImageUrl,
 life_story: form.lifeStory,
+  military_service: form.militaryService || "",
+  military_branch: form.militaryService === "yes" ? (form.militaryBranch || "").trim() : "",
+  military_years: form.militaryService === "yes" ? (form.militaryYears || "").trim() : "",
+  military_rank: form.militaryService === "yes" ? (form.militaryRank || "").trim() : "",
+  military_deployments: form.militaryService === "yes" ? (form.militaryDeployments || "").trim() : "",
+
     great_grandparents_names: form.greatGrandparentsNames,
     grandparents_father_side: form.grandparentsFatherSide,
     grandparents_mother_side: form.grandparentsMotherSide,
