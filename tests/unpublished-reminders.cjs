@@ -7,7 +7,7 @@ assert(eligible(base,now)); assert.equal(dueStage(base,now,false),7); assert.equ
 assert.equal(dueStage({...base,created_at:new Date(now-14*day).toISOString()},now,true),14);
 for(const patch of [{id:149},{id:195},{owner_id:null},{is_living_preplan:true},{is_living_preplan:null},{is_published:true},{is_published:null},{created_at:new Date(now-7*day+1).toISOString()}]) assert(!eligible({...base,...patch},now));
 const content=reminderMessage(7,false), review=reminderMessage(14,true);
-assert(content.html.includes('myememorial-logo.png')); assert(content.html.includes('after your MyEMemorial is published')); assert(content.text.includes('after your MyEMemorial is published')); assert(review.text.includes('awaiting review')); assert(!review.text.includes('complete the steps to publish'));
+assert(content.html.includes('myememorial-logo.png')); assert(content.html.includes('after publication')); assert(content.text.includes('after publication')); assert(review.text.includes('awaiting review')); assert(!review.text.includes('complete the steps to publish'));
 console.log('PASS: 7/14 day timing, exclusions, publication, logo and review wording');
 (async()=>{
  const Module=require('module'),original=Module._load; let sent=[]; const ledger=[];
