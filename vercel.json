@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/unpublished-reminders",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/memory-reminders",
+      "schedule": "0 13 * * *"
     }
   ]
 }
