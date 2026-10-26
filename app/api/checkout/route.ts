@@ -1,3 +1,4 @@
+import { checkoutGa4Metadata } from "../../../lib/ga4-server-config";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
@@ -377,6 +378,7 @@ const memorialProductDescription =
       },
 
       metadata: {
+        ...checkoutGa4Metadata(req, body.ga4Context),
         plan: plan || "",
         advertiserId: advertiserId || "",
         billingPlan: billingPlan || "",

@@ -480,6 +480,7 @@ const conversionValueCents = Math.max(
 return NextResponse.json({
   paid: true,
   livemode: session.livemode,
+  ga4Owner: session.metadata?.ga4_owner === "server" ? "server" : "browser",
   checkoutType,
   plan: isPaidPlan(
     String(session.metadata?.plan || "")

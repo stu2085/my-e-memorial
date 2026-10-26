@@ -1,3 +1,4 @@
+import { checkoutGa4Metadata } from "../../../../../lib/ga4-server-config";
 import { createHash, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -9,6 +10,7 @@ const publicIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f
 
 export async function POST(req: NextRequest, context: { params: Promise<{ publicId: string }> }) {
   const { publicId } = await context.params;
+  const checkoutBody = await req.json().catch(() => ({}));
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   const priceId = process.env.STRIPE_CELEBRATION_PRICE_ID;
 
@@ -61,7 +63,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ public
       customer_email: presentation.customer_email,
       line_items: [{ price: priceId, quantity: 1 }],
       automatic_tax: { enabled: true },
-      metadata: { checkoutType: "celebration_presentation", presentationId: String(presentation.id), publicId },
+      metadata: { ...checkoutGa4Metadata(req, checkoutBody.ga4Context), checkoutType: "celebration_presentation", presentationId: String(presentation.id), publicId },
       success_url: `${origin}/celebration-of-life-slideshow/create/${publicId}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/celebration-of-life-slideshow/create/${publicId}?payment=cancelled`,
     });

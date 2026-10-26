@@ -6,6 +6,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import FacebookPixel from "./FacebookPixel";
 import PublicClarity from "./PublicClarity";
 import PurchaseTracking from "./PurchaseTracking";
+import CheckoutAnalyticsContext from "./CheckoutAnalyticsContext";
 import { isProductionTrackingAllowed } from "../../lib/tracking-environment";
 
 export default function ProductionTracking() {
@@ -39,6 +40,7 @@ export default function ProductionTracking() {
         <PublicClarity />
       <GoogleAnalytics gaId="G-SLX50BGDQK" />
       <PurchaseTracking />
+      <CheckoutAnalyticsContext />
     </>
   );
 }

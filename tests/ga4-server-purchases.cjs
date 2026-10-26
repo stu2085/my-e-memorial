@@ -1,0 +1,39 @@
+const fs=require('node:fs'),assert=require('node:assert/strict'),ts=require('typescript');
+require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,f);
+const {buildGa4Purchase:build,parseGa4Context:parse}=require('../lib/ga4-purchase.ts');
+const {checkoutGa4Metadata:metadata}=require('../lib/ga4-server-config.ts');
+const {deliverGa4Purchase:deliver}=require('../lib/ga4-delivery.ts');
+const {POST}=require('../app/api/stripe-analytics-webhook/route.ts');
+const now=Math.floor(Date.now()/1000);
+const session=(o={})=>({id:'cs_live_simulated',livemode:true,payment_status:'paid',amount_total:7415,currency:'usd',total_details:{amount_tax:420},metadata:{checkoutType:'standard',plan:'plus',ga4_owner:'server',ga4_client_id:'123456789.1793000000',ga4_session_id:String(now)},...o});
+class DB{
+ constructor(){this.rows=new Map();this.fail=false}
+ from(){const db=this;return {
+ async upsert(row){if(db.fail)return{error:{}};if(!db.rows.has(row.transaction_id))db.rows.set(row.transaction_id,{...row,attempts:0});return{error:null}},
+ select(){return{eq:(_,id)=>({single:async()=>({data:db.rows.get(id),error:null})})}},
+ update(fields){let id;return{eq(k,v){if(k==='transaction_id'){id=v;return this}const r=db.rows.get(id);if(r?.lease_token===v)Object.assign(r,fields);return Promise.resolve({error:null})}}}
+ }}
+ async rpc(_,a){const r=this.rows.get(a.p_transaction_id);if(r.status!=='pending'&&!(r.status==='processing'&&r.lease_until<Date.now()))return{data:[],error:null};Object.assign(r,{status:'processing',lease_token:a.p_lease_token,lease_until:Date.now()+120000,attempts:r.attempts+1});return{data:[{...r}],error:null}}
+}
+let n=0;async function test(name,fn){await fn();console.log('PASS',name);n++}const ok=async()=>new Response(null,{status:204});
+(async()=>{
+ await test('tax excluded; actual discounted total used',()=>{assert.equal(build(session(),now).payload.events[0].params.value,69.95);assert.equal(build(session({amount_total:5000,total_details:{amount_tax:0}}),now).payload.events[0].params.value,50)});
+ await test('Stripe test and unpaid sessions excluded',()=>{assert.equal(build(session({livemode:false}),now),null);assert.equal(build(session({payment_status:'unpaid'}),now),null)});
+ await test('upgrades, gifts, extras, renewals excluded',()=>{for(const type of ['upgrade','gift','extra_videos','renewal'])assert.equal(build(session({metadata:{checkoutType:type,plan:'plus'}}),now),null)});
+ await test('presentations supported',()=>{const p=build(session({amount_total:2995,total_details:{amount_tax:0},metadata:{checkoutType:'celebration_presentation',ga4_owner:'server',ga4_client_id:'123.456'}}),now);assert.equal(p.payload.events[0].params.items[0].item_id,'celebration_presentation');assert.equal(p.payload.events[0].params.value,29.95)});
+ await test('missing and PII-like identifiers rejected',()=>{assert.equal(parse({clientId:'customer@example.com'}),null);assert.equal(build(session({metadata:{checkoutType:'standard',plan:'plus'}}),now).payload,null)});
+ await test('handoff only with production flag and live HTTPS origin',()=>{Object.assign(process.env,{STRIPE_ANALYTICS_WEBHOOK_SECRET:'whsec_mock',GA4_API_SECRET:'mock',GA4_SERVER_PURCHASES_ENABLED:'true',VERCEL_ENV:'production'});assert.equal(metadata(new Request('https://www.myememorial.com/api/checkout'),{clientId:'123.456'}).ga4_owner,'server');assert.deepEqual(metadata(new Request('http://localhost:3000/api/checkout'),{clientId:'123.456'}),{});process.env.VERCEL_ENV='preview';assert.deepEqual(metadata(new Request('https://www.myememorial.com/api/checkout'),{clientId:'123.456'}),{})});
+ await test('analytics webhook disabled outside production',async()=>assert.equal((await POST(new Request('http://localhost/api',{method:'POST'}))).status,503));
+ await test('local webhook excluded even with production-like environment',async()=>{process.env.VERCEL_ENV='production';assert.equal((await POST(new Request('http://localhost:3000/api',{method:'POST'}))).status,503)});
+ await test('invalid Stripe signature rejected before database',async()=>{Object.assign(process.env,{VERCEL_ENV:'production',STRIPE_ANALYTICS_WEBHOOK_SECRET:'whsec_mock',STRIPE_SECRET_KEY:'sk_test_mock',NEXT_PUBLIC_SUPABASE_URL:'https://example.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'mock'});assert.equal((await POST(new Request('https://www.myememorial.com/api',{method:'POST',headers:{'stripe-signature':'bad'},body:'{}'}))).status,400)});
+ await test('duplicate webhook events send once',async()=>{const db=new DB();let count=0;const send=async()=>{count++;return ok()};await deliver(db,session(),'evt_1',now,'mock',send);await deliver(db,session(),'evt_2',now,'mock',send);assert.equal(count,1);assert.equal(db.rows.get(session().id).status,'http_accepted')});
+ await test('concurrent deliveries cannot both send',async()=>{const db=new DB();let count=0;const send=async()=>{count++;await new Promise(r=>setTimeout(r,10));return ok()};await Promise.allSettled([deliver(db,session(),'evt_1',now,'mock',send),deliver(db,session(),'evt_2',now,'mock',send)]);assert.equal(count,1)});
+ await test('network failure remains pending and retries',async()=>{const db=new DB();await assert.rejects(deliver(db,session(),'evt_1',now,'mock',async()=>{throw Error('offline')}));assert.equal(db.rows.get(session().id).status,'pending');await deliver(db,session(),'evt_1',now,'mock',ok);assert.equal(db.rows.get(session().id).attempts,2)});
+ await test('permanent Google rejection logged without blind retries',async()=>{const db=new DB();let count=0;const send=async()=>{count++;return new Response(null,{status:400})};assert.equal(await deliver(db,session(),'evt',now,'mock',send),'rejected');await deliver(db,session(),'evt_again',now,'mock',send);assert.equal(count,1)});
+ await test('temporary Google failure stays retryable',async()=>{const db=new DB();await assert.rejects(deliver(db,session(),'evt',now,'mock',async()=>new Response(null,{status:503})));assert.equal(db.rows.get(session().id).status,'pending')});
+ await test('database failure sends nothing',async()=>{const db=new DB();db.fail=true;let count=0;await assert.rejects(deliver(db,session(),'evt_1',now,'mock',async()=>{count++;return ok()}));assert.equal(count,0)});
+ await test('legacy purchase logged but not resent',async()=>{const db=new DB();assert.equal(await deliver(db,session({metadata:{checkoutType:'standard',plan:'plus'}}),'evt',now,'mock',()=>{throw Error('must not send')}),'skipped')});
+ await test('old retries expire instead of reporting as new sales',async()=>{assert.equal(await deliver(new DB(),session(),'evt',now-49*3600,'mock',()=>{throw Error('must not send')}),'expired')});
+ await test('browser handoff suppresses GA4 but preserves Google Ads',()=>{const map=new Map(),store={getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k),key:i=>[...map.keys()][i],get length(){return map.size}};const calls=[];global.window={location:{protocol:'https:',hostname:'www.myememorial.com'},localStorage:store,sessionStorage:store,dispatchEvent(){},dataLayer:[{0:'config',1:'G-SLX50BGDQK'}],gtag:(...a)=>{calls.push(a);a[2].event_callback()}};process.env.NODE_ENV='production';const h=require('../lib/purchase-tracking.ts');h.rememberVerifiedPurchase({paid:true,livemode:true,checkoutType:'standard',ga4Owner:'server',transactionId:'cs_live_handoff',conversionValue:69.95,conversionCurrency:'USD',plan:'plus'},'departed');h.flushPendingPurchases();assert.equal(calls.filter(a=>a[1]==='purchase').length,0);assert.equal(calls.filter(a=>a[1]==='conversion').length,1);delete global.window});
+ console.log(n+' tests passed. All analytics HTTP mocked; no live data sent.');
+})().catch(e=>{console.error(e);process.exitCode=1});

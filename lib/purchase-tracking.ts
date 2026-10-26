@@ -71,6 +71,7 @@ export function rememberVerifiedPurchase(result: Record<string, unknown>, memori
   if (existing) {
     try { const value: unknown = JSON.parse(existing); if (validPurchase(value)) purchase.createdAt = value.createdAt; } catch { /* Replace invalid pending data. */ }
   }
+  if (result.ga4Owner === "server") mark(purchase, "ga4");
   pending.set(purchase.transactionId, purchase);
   write(key, JSON.stringify(purchase));
   window.dispatchEvent(new Event(PURCHASE_READY_EVENT));

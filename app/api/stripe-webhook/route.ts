@@ -222,6 +222,7 @@ const isPrimaryMemorialPurchase =
   checkoutType !== "upgrade";
 
 if (
+  event.livemode && session.livemode &&
   isPrimaryMemorialPurchase &&
   session.payment_status === "paid" &&
   typeof session.amount_total === "number" &&
