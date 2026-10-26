@@ -11,6 +11,7 @@ import {
 import { useParams } from "next/navigation";
 import MuxPlayer from "@mux/mux-player-react";
 import { supabase } from "../../../lib/supabase";
+import { rememberVerifiedPurchase } from "../../../../lib/purchase-tracking";
 import CameraPhotoCapture from "../../../components/celebration-presentation/CameraPhotoCapture";
 import CelebrationVideoRecorder from "../../../components/celebration-presentation/CelebrationVideoRecorder";
 import ArrangePresentationSection from "../../../components/celebration-presentation/ArrangePresentationSection";
@@ -301,33 +302,7 @@ const [showUpgradeOffer, setShowUpgradeOffer] =
         confirmationResult?.ok === true &&
         confirmationResult?.paymentStatus === "paid"
       ) {
-        const conversionValue = Number(
-          confirmationResult?.conversionValue
-        );
-
-        const conversionCurrency = String(
-          confirmationResult?.conversionCurrency || "USD"
-        );
-
-        const transactionId = String(
-          confirmationResult?.transactionId || sessionId
-        );
-
-        if (
-          typeof window !== "undefined" &&
-          typeof (window as any).gtag === "function" &&
-          Number.isFinite(conversionValue) &&
-          conversionValue > 0 &&
-          transactionId
-        ) {
-          (window as any).gtag("event", "conversion", {
-            send_to:
-              "AW-18425931513/S-_aCO006-wcEPnNldJE",
-            value: conversionValue,
-            currency: conversionCurrency,
-            transaction_id: transactionId,
-          });
-        }
+        rememberVerifiedPurchase(confirmationResult, "departed");
       }
     } catch (confirmationError) {
       console.error(

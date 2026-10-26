@@ -8,7 +8,7 @@ const MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 type Channel = 'ga4' | 'google-ads' | 'microsoft' | 'meta';
 type Purchase = {
   transactionId: string; value: number; currency: string;
-  plan: 'basic' | 'plus' | 'premium'; memorialType: 'living' | 'departed'; createdAt: number;
+  plan: 'basic' | 'plus' | 'premium' | 'celebration_presentation'; memorialType: 'living' | 'departed'; createdAt: number;
 };
 type TrackingWindow = Window & {
   dataLayer?: unknown[];
@@ -55,14 +55,14 @@ function validPurchase(value: unknown): value is Purchase {
   const p = value as Purchase;
   return typeof p.transactionId === 'string' && p.transactionId.length > 0 && p.transactionId.length <= 255 &&
     Number.isFinite(p.value) && p.value > 0 && typeof p.currency === 'string' && /^[A-Z]{3}$/.test(p.currency) &&
-    ['basic', 'plus', 'premium'].includes(p.plan) && ['living', 'departed'].includes(p.memorialType) &&
+    ['basic', 'plus', 'premium', 'celebration_presentation'].includes(p.plan) && ['living', 'departed'].includes(p.memorialType) &&
     Number.isFinite(p.createdAt) && p.createdAt <= Date.now() && Date.now() - p.createdAt < MAX_AGE;
 }
 export function rememberVerifiedPurchase(result: Record<string, unknown>, memorialType: 'living' | 'departed') {
-  if (!isProductionTrackingAllowed() || result.paid !== true || result.livemode !== true || result.checkoutType !== 'standard') return;
+  if (!isProductionTrackingAllowed() || result.paid !== true || result.livemode !== true || !['standard', 'celebration_presentation'].includes(String(result.checkoutType))) return;
   const purchase = {
     transactionId: result.transactionId, value: Number(result.conversionValue),
-    currency: String(result.conversionCurrency || '').toUpperCase(), plan: result.plan,
+    currency: String(result.conversionCurrency || '').toUpperCase(), plan: result.checkoutType === 'celebration_presentation' ? 'celebration_presentation' : result.plan,
     memorialType, createdAt: Date.now(),
   };
   if (!validPurchase(purchase)) return;
@@ -122,7 +122,7 @@ export function flushPendingPurchases() {
     const context = { plan: purchase.plan, memorial_type: purchase.memorialType };
     googleEvent(purchase, 'ga4', 'purchase', {
       ...context, transaction_id: purchase.transactionId, value: purchase.value, currency: purchase.currency,
-      items: [{ item_id: purchase.plan, item_name: `${purchase.plan} MyEMemorial`, price: purchase.value, quantity: 1 }],
+      items: [{ item_id: purchase.plan, item_name: purchase.plan === 'celebration_presentation' ? 'Celebration of Life Presentation' : `${purchase.plan} MyEMemorial`, price: purchase.value, quantity: 1 }],
     });
     googleEvent(purchase, 'google-ads', 'conversion', {
       send_to: 'AW-18425931513/S-_aCO006-wcEPnNldJE', transaction_id: purchase.transactionId,

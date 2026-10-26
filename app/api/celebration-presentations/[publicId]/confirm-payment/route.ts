@@ -147,6 +147,10 @@ export async function POST(
       {
         ok: true,
         paymentStatus: "paid",
+        paid: true,
+        livemode: session.livemode,
+        checkoutType: "celebration_presentation",
+        ga4Owner: session.metadata?.ga4_owner === "server" ? "server" : "browser",
         conversionValue: conversionValueCents / 100,
         conversionCurrency: String(
           session.currency || "usd"
