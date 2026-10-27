@@ -211,6 +211,7 @@ if (form.assignedEmail.trim()) {
       <p className="mt-3 text-stone-600">
         Create private beta, personal, and business promotion codes.
       </p>
+      <a href="/admin/owner-announcements" className="mt-4 inline-block text-base font-semibold text-emerald-800 underline">Email Memorial Owners</a>
     </div>
 
     <a

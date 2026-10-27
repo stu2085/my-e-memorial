@@ -1,0 +1,14 @@
+const fs = require('fs'), ts = require('typescript'), assert = require('assert');
+require.extensions['.ts'] = (m, f) => m._compile(ts.transpileModule(fs.readFileSync(f, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText, f);
+const { unsubscribeToken, verifyUnsubscribeToken, announcementMessage } = require('../lib/owner-announcement.ts');
+const id = '12345678-1234-1234-1234-123456789abc', secret = 'test-secret';
+const token = unsubscribeToken(id, secret);
+assert(verifyUnsubscribeToken(id, token, secret));
+assert(!verifyUnsubscribeToken(id, token, 'wrong-secret'));
+assert(!verifyUnsubscribeToken(id, 'invalid', secret));
+const message = announcementMessage('<Mike>', 'A <script> & a story', id, secret);
+assert(message.html.includes('Hello &lt;Mike&gt;'));
+assert(!message.html.includes('<script>'));
+assert(message.text.includes('Hello <Mike>'));
+assert(message.text.includes('/api/owner-announcements/unsubscribe?'));
+console.log('PASS: announcement personalization, HTML escaping and unsubscribe tokens');

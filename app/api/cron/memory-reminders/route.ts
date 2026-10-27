@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { transporter } from '../../../lib/email';
+import { cleanReminderName } from '../../../../lib/reminder-names';
 import { dueStage, eligible, reminderMessage, type Candidate } from '../../../../lib/memory-reminder';
 
 export const runtime = 'nodejs';
@@ -26,6 +27,11 @@ export async function GET(req: NextRequest) {
       const stage = dueStage(m, now);
       if (prior.data?.some(x => x.status === 'sending' || x.status === 'failed')) continue;
       if (!stage || prior.data?.some(x => x.stage === stage)) continue;
+      // Missing names do not create a delivery claim; the next run can retry.
+      const owner = await db.auth.admin.getUserById(m.owner_id!);
+      if (owner.error || !owner.data.user?.email) { failed++; continue; }
+      const ownerName = cleanReminderName(owner.data.user.user_metadata?.first_name);
+      if (!ownerName) continue;
       const claim = await db.from('memory_reminder_deliveries').insert({ memorial_id: m.id, stage, status: 'sending' });
       if (claim.error) { if (claim.error.code !== '23505') failed++; continue; }
       const finish = async (status: 'sent'|'failed'|'skipped') => {
@@ -33,12 +39,10 @@ export async function GET(req: NextRequest) {
         if (result.error) throw new Error('Could not update reminder status');
       };
       try {
-        const fresh = await db.from('memorials').select('id,owner_id,created_at,is_living_preplan,is_published,needs_review').eq('id', m.id).maybeSingle();
+        const fresh = await db.from('memorials').select('id,owner_id,created_at,is_living_preplan,is_published,needs_review,first_name,full_name').eq('id', m.id).maybeSingle();
         if (fresh.error) throw new Error('Could not recheck memorial');
         if (!fresh.data || !eligible(fresh.data as Candidate, now) || fresh.data.owner_id !== m.owner_id) { await finish('skipped'); continue; }
-        const owner = await db.auth.admin.getUserById(m.owner_id!);
-        if (owner.error || !owner.data.user?.email) throw new Error('Owner email unavailable');
-        const content = reminderMessage();
+        const content = reminderMessage(ownerName, cleanReminderName(fresh.data.first_name) || cleanReminderName(fresh.data.full_name));
         await transporter.sendMail({ from: '"MyEMemorial" <info@myememorial.com>', to: owner.data.user.email, ...content });
         await finish('sent'); sent++;
       } catch {

@@ -267,6 +267,16 @@ const shouldVerifyFinalization =
   isFinalizingDraft ||
   isRecoveringCompletedUnpublishedOwnerMemorial;
 
+// Require a name for the owner before finalizing a departed memorial.
+// Backup-person access and already-published memorials are not changed here.
+if (shouldVerifyFinalization && isOwner && memorial.is_living_preplan !== true) {
+  const firstName = user?.user_metadata?.first_name;
+  const lastName = user?.user_metadata?.last_name;
+  if (typeof firstName !== "string" || !firstName.trim() || typeof lastName !== "string" || !lastName.trim()) {
+    return NextResponse.json({ error: "Please save your first and last name in Basic Information before publishing." }, { status: 400 });
+  }
+}
+
 let verifiedFinalizationFields: Record<string, unknown> = {};
 
 if (shouldVerifyFinalization) {

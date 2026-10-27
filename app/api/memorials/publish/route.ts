@@ -47,6 +47,12 @@ export async function POST(req: Request) {
       );
     }
 
+    const firstName = user.user_metadata?.first_name;
+    const lastName = user.user_metadata?.last_name;
+    if (typeof firstName !== "string" || !firstName.trim() || typeof lastName !== "string" || !lastName.trim()) {
+      return NextResponse.json({ error: "Please save your first and last name in Basic Information before publishing." }, { status: 400 });
+    }
+
     const { error: updateError } = await supabaseAdmin
   .from("memorials")
   .update({

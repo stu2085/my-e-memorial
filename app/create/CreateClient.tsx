@@ -22,6 +22,7 @@ import FinalRestingPlaceSection from "../components/FinalRestingPlaceSection";
 import HeadstonePhotosSection from "../components/HeadstonePhotosSection";
 import BackupPersonSection from "../components/BackupPersonSection";
 import BasicInformationSection from "../components/BasicInformationSection";
+import OwnerNameSection, { type OwnerNameHandle } from "../components/OwnerNameSection";
 import GuidedMemoryBuilder from "../components/guided/GuidedMemoryBuilder";
 import MemorialBuilderHero from "../components/memorial-builder/MemorialBuilderHero";
 import MemorialBannerPhotoSection from "../components/memorial-builder/MemorialBannerPhotoSection";
@@ -1321,6 +1322,10 @@ const [isResolvingPaymentReturn, setIsResolvingPaymentReturn] = useState(
 
 const [isPostDeathUnlocked, setIsPostDeathUnlocked] =
   useState(false);
+const creatorCreditEditedRef = useRef(false);
+const ownerNameRef = useRef<OwnerNameHandle>(null);
+const [creatorCredit, setCreatorCredit] = useState("");
+const [showCreatorCredit, setShowCreatorCredit] = useState(false);
 const [existingMemorialOwnerId, setExistingMemorialOwnerId] =
   useState<string | null>(null);
 
@@ -1777,6 +1782,10 @@ if (!backupEditResponse.ok) {
 
   setDraftMemorialId(draftData.id);
 setDraftMemorialSlug(draftData.slug || "");
+if (!creatorCreditEditedRef.current) {
+  setCreatorCredit(typeof draftData.public_creator_credit === "string" ? draftData.public_creator_credit : "");
+  setShowCreatorCredit(Boolean(draftData.public_creator_credit));
+}
 setExistingMemorialOwnerId(draftData.owner_id ?? null);
 
 if (isEditingExistingMemorial && !hasBackupAccess) {
@@ -3398,6 +3407,16 @@ async function handleVideoChange(
 
     try {
       await requireMemberForSave();
+      // Existing published memorials remain published. Drafts can be saved,
+      // but an owner must save their name before publishing a departed memorial.
+      if (!isBackupAccess && !form.isLivingPreplan && !existingMemorialIsPublished) {
+        const { data: ownerData, error: ownerError } = await supabase.auth.getUser();
+        const first = ownerData.user?.user_metadata?.first_name;
+        const last = ownerData.user?.user_metadata?.last_name;
+        if (ownerError || typeof first !== "string" || !first.trim() || typeof last !== "string" || !last.trim()) {
+          throw new Error("Please return to Basic Information, enter your first and last name under ‘Who is creating this memorial?’, and select Save My Name before publishing.");
+        }
+      }
       const galleryPhotosForSave = galleryPhotosRef.current;
       const savedGalleryPhotoCaptionsForSave =
         savedGalleryPhotoCaptionsRef.current;
@@ -3805,6 +3824,7 @@ existingIsPublished: isExistingMemorialEdit
   ? true
   : null,
   }),
+  ...(!isBackupAccess ? { public_creator_credit: showCreatorCredit ? creatorCredit.trim() || null : null } : {}),
   funeral_date: (form.funeralDate ?? "").trim() || null,
   funeral_time: (form.funeralTime ?? "").trim() || null,
   funeral_venue_name: (form.funeralVenueName ?? "").trim() || null,
@@ -5554,6 +5574,7 @@ const memorialData = {
     ? existingMemorialIsPublished
     : null,
   }),
+  ...(!isBackupAccess ? { public_creator_credit: showCreatorCredit ? creatorCredit.trim() || null : null } : {}),
   funeral_date: (form.funeralDate ?? "").trim() || null,
   funeral_time: (form.funeralTime ?? "").trim() || null,
   funeral_venue_name: (form.funeralVenueName ?? "").trim() || null,
@@ -6549,6 +6570,9 @@ const isBackupChapterReadOnly = (
   }
 
   if (chapter.id !== "review") {
+    if (chapter.id === "basic-information" && !isBackupAccess && ownerNameRef.current && !(await ownerNameRef.current.save())) {
+      return false;
+    }
     const isOwnerBackupPersonChapter =
       chapter.id === "backup-person" &&
       form.isLivingPreplan &&
@@ -6702,6 +6726,9 @@ const isBackupChapterReadOnly = (
 }}
 onSaveAndExit={async (chapter) => {
   try {
+  if (chapter.id === "basic-information" && !isBackupAccess && ownerNameRef.current && !(await ownerNameRef.current.save())) {
+    return;
+  }
   if (
     isBackupAccess &&
     isPostDeathUnlocked &&
@@ -6741,6 +6768,19 @@ onSaveAndExit={async (chapter) => {
             : undefined
         }
       >
+        {!isBackupAccess && <>
+          <OwnerNameSection ref={ownerNameRef} />
+          <section className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
+            <label className="flex items-start gap-3 text-base text-stone-800">
+              <input type="checkbox" checked={showCreatorCredit} onChange={(event) => { creatorCreditEditedRef.current = true; setShowCreatorCredit(event.target.checked); }} className="mt-1 h-5 w-5" />
+              <span>Display the creator’s name on this memorial</span>
+            </label>
+            {showCreatorCredit && <label className="mt-4 block text-base font-medium text-stone-800">Name to display publicly
+              <input type="text" value={creatorCredit} maxLength={150} onChange={(event) => { creatorCreditEditedRef.current = true; setCreatorCredit(event.target.value); }} className="mt-1 block w-full rounded-lg border border-stone-400 px-3 py-2 text-base" />
+            </label>}
+            <p className="mt-2 text-base text-stone-700">This choice applies only to this memorial. Save your changes to update it.</p>
+          </section>
+        </>}
         <BasicInformationSection
           form={form}
           handleChange={handleChange}

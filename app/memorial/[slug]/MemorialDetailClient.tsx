@@ -31,6 +31,7 @@ type Memorial = {
   id?: number;
   slug?: string;
   full_name?: string;
+  public_creator_credit?: string | null;
   first_name?: string;
   middle_name?: string;
   last_name?: string;
@@ -2001,6 +2002,10 @@ function showNextPhoto() {
             <h1 className="text-4xl font-bold leading-tight tracking-tight drop-shadow-lg sm:text-5xl lg:text-6xl">
               {data.full_name || "Unnamed Memorial"}
             </h1>
+
+            {data.public_creator_credit?.trim() && (
+              <p className="mt-3 text-base font-medium text-white drop-shadow">Created with love by {data.public_creator_credit.trim()}</p>
+            )}
 
             {(data.birth_date || data.death_date) && (
               <p className="mt-4 text-xl font-semibold leading-8 text-white/95 drop-shadow sm:text-2xl">
