@@ -201,7 +201,22 @@ if (form.assignedEmail.trim()) {
   return (
     <main className="min-h-screen bg-stone-100 p-8">
       <div className="mx-auto max-w-6xl space-y-8">
-        <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-3xl bg-white p-8 shadow-sm">
+    <h2 className="text-2xl font-bold text-stone-900">
+      Email Memorial Owners
+    </h2>
+    <p className="mt-3 text-base text-stone-600">
+      Share website improvements and updates with memorial owners.
+    </p>
+    <a
+      href="/admin/owner-announcements"
+      className="mt-4 inline-block rounded-full bg-emerald-800 px-6 py-3 text-base font-semibold text-white transition hover:bg-emerald-700"
+    >
+      Email Memorial Owners
+    </a>
+  </section>
+
+  <section className="rounded-3xl bg-white p-8 shadow-sm">
   <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
     <div>
       <h1 className="text-3xl font-bold text-stone-900">
@@ -211,15 +226,10 @@ if (form.assignedEmail.trim()) {
       <p className="mt-3 text-stone-600">
         Create private beta, personal, and business promotion codes.
       </p>
-      <a href="/admin/owner-announcements" className="mt-4 inline-block text-base font-semibold text-emerald-800 underline">Email Memorial Owners</a>
+      
     </div>
 
-    <a
-      href="/campaigns/manage"
-      className="w-fit rounded-full bg-stone-900 px-6 py-3 text-base font-semibold text-white transition hover:bg-stone-700"
-    >
-      Social Campaigns
-    </a>
+    
   </div>
 
           {message && (
@@ -341,9 +351,24 @@ if (form.assignedEmail.trim()) {
               </button>
             </div>
           </form>
-        </section>
+         </section>
 
-        <section className="rounded-3xl bg-white p-8 shadow-sm">
+  <section className="rounded-3xl bg-white p-8 shadow-sm">
+    <h2 className="text-2xl font-bold text-stone-900">
+      Social Campaigns
+    </h2>
+    <p className="mt-3 text-base text-stone-600">
+      Create and manage social campaign pages.
+    </p>
+    <a
+      href="/campaigns/manage"
+      className="mt-4 inline-block rounded-full bg-stone-900 px-6 py-3 text-base font-semibold text-white transition hover:bg-stone-700"
+    >
+      Social Campaigns
+    </a>
+  </section>
+
+  <section className="rounded-3xl bg-white p-8 shadow-sm">
           <h2 className="text-2xl font-bold text-stone-900">
             Existing Promo Codes
           </h2>
