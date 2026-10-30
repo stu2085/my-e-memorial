@@ -3,10 +3,10 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Best Online Memorial Pages & Websites in 2026 | MyEMemorial",
+    absolute: "Best Memorial Websites 2026 | Honor Their Life | MyEMemorial",
   },
   description:
-    "Compare the best online memorial pages and websites in 2026 by pricing, photos, video, music, family contributions, living options, privacy and presentations.",
+    "Every loved one has a story worth remembering. Compare memorial websites and discover a beautiful way to honor their life and preserve their memories.",
   keywords: [
     "online memorial pages",
     "best online memorial pages",
@@ -30,17 +30,17 @@ export const metadata: Metadata = {
     canonical: "/best-memorial-websites",
   },
   openGraph: {
-    title: "Best Online Memorial Pages & Websites in 2026: Side-by-Side Comparison",
+    title: "Best Memorial Websites 2026 | Honor Their Life",
     description:
-      "Compare online memorial pages and memorial websites from MyEMemorial, CreateMemorial, Ever Loved, ForeverMissed, Keeper, Scan2Remember, Kudoboard, and Willowise using current pricing and publicly listed features.",
+      "Every loved one has a story worth remembering. Compare memorial websites and find a meaningful way to honor their life, preserve memories and share stories.",
     url: "/best-memorial-websites",
     type: "article",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Best Online Memorial Pages & Websites in 2026: Side-by-Side Comparison",
+    title: "Best Memorial Websites 2026 | Honor Their Life",
     description:
-      "Compare online memorial pages and websites by pricing, media, family contributions, living options, presentations, privacy, and more.",
+      "Every loved one has a story worth remembering. Explore memorial websites that help families honor a life and keep treasured memories close.",
   },
 };
 
@@ -744,9 +744,9 @@ const breadcrumbJsonLd = {
 const articleJsonLd = {
   "@context": "https://schema.org",
   "@type": "Article",
-  headline: "Best Online Memorial Pages & Websites in 2026: Side-by-Side Comparison",
+  headline: "Best Memorial Websites 2026 | Honor Their Life",
   description:
-    "A comparison of leading online memorial pages and memorial websites using publicly listed pricing, multimedia features, family contribution tools, living memorial options, presentations, privacy, and related services.",
+    "Every loved one has a story worth remembering. A comparison of memorial websites, with pricing, photos, video, family contributions, privacy and living memorial options.",
   keywords: [
     "online memorial pages",
     "best online memorial pages",
@@ -754,7 +754,7 @@ const articleJsonLd = {
     "online memorial website comparison",
   ],
   datePublished: "2026-09-09",
-  dateModified: "2026-09-10",
+  dateModified: "2026-10-30",
   author: {
     "@type": "Organization",
     name: "MyEMemorial",
@@ -818,10 +818,15 @@ export default function BestMemorialWebsitesPage() {
               <span className="block">Side-by-Side Comparison</span>
             </h1>
 
-            <p className="mx-auto mt-5 max-w-4xl text-lg leading-8 text-stone-200">
-              Compare leading online memorial pages and memorial websites by price,
-              photos, video, music, family contributions, living memorial options,
-              future management, privacy, slideshows and Celebration of Life features.
+            <p className="mx-auto mt-5 max-w-4xl text-xl font-semibold leading-8 text-amber-200">
+              Every loved one has a story worth remembering.
+            </p>
+
+            <p className="mx-auto mt-3 max-w-4xl text-lg leading-8 text-stone-200">
+              Finding a place to honor someone you love is about more than comparing
+              features. Explore memorial websites that help families share treasured
+              stories, photos and videos, keep memories close, and celebrate a life
+              well lived. Then compare the options to find what feels right for your family.
             </p>
 
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
@@ -829,7 +834,7 @@ export default function BestMemorialWebsitesPage() {
                 href="/memorials"
                 className="inline-flex min-h-[56px] w-full max-w-[300px] items-center justify-center rounded-full bg-amber-400 px-6 text-center text-base font-bold text-stone-900 transition hover:bg-amber-300"
               >
-                Compare MyEMemorial Plans
+                Explore MyEMemorial Plans
               </Link>
 
               <Link
@@ -1374,7 +1379,7 @@ export default function BestMemorialWebsitesPage() {
                 href="/memorials"
                 className="inline-flex min-h-[56px] w-full max-w-[290px] items-center justify-center rounded-full bg-blue-950 px-6 text-center text-base font-bold text-white transition hover:bg-blue-900"
               >
-                Compare MyEMemorial Plans
+                Explore MyEMemorial Plans
               </Link>
 
               <Link

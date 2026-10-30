@@ -3,13 +3,16 @@ import MemorialsClient from "./MemorialsClient";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "MyEMemorials | Online Memorials for Loved Ones",
+    absolute: "Memorial Websites to Honor a Loved One | MyEMemorial",
   },
   description:
-    "Create a MyEMemorial for someone who has passed. Preserve their life story, photos, videos, music, family history, obituary, and memories in one online memorial.",
+    "Every loved one has a story worth remembering. Create a beautiful memorial website to honor their life and share treasured photos, videos, stories and memories.",
   keywords: [
     "online memorial",
     "memorial website",
+    "memorial websites",
+    "create a memorial website",
+    "memorial website for loved one",
     "digital memorial",
     "online obituary",
     "memorial page",
@@ -25,17 +28,17 @@ export const metadata: Metadata = {
     canonical: "/memorials",
   },
   openGraph: {
-    title: "MyEMemorials | Online Memorials for Loved Ones",
+    title: "Memorial Websites to Honor a Loved One | MyEMemorial",
     description:
-      "Create an online memorial website to preserve the life story, photos, videos, music, family history, obituary details, and memories of someone who has passed.",
+      "Every loved one has a story worth remembering. Create a beautiful online memorial to honor their life and share photos, videos, stories and memories.",
     url: "/memorials",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MyEMemorials | Online Memorials for Loved Ones",
+    title: "Memorial Websites to Honor a Loved One | MyEMemorial",
     description:
-      "Create an online memorial website to preserve the life story, photos, videos, music, family history, obituary details, and memories of someone who has passed.",
+      "Every loved one has a story worth remembering. Create a beautiful online memorial to honor their life and share photos, videos, stories and memories.",
   },
 };
 

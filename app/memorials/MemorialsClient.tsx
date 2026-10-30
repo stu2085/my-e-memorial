@@ -119,16 +119,17 @@ export default function MemorialsPage() {
   return (
     <main className="memorial-autumn-sky min-h-screen">
       <div className="mx-4 mt-8 rounded-3xl bg-white/90 px-4 py-6 text-center shadow-sm md:mx-8 md:px-8 md:py-8">
-  <h1 className="text-3xl font-bold leading-tight text-stone-900 md:text-4xl">
-    Honor Your Loved One&apos;s Life
-  </h1>
+        <h1 className="text-3xl font-bold leading-tight text-stone-900 md:text-4xl">
+          Create a Memorial Website to Honor Someone You Love
+        </h1>
 
-  <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-600">
-    Create a MyEMemorial to celebrate their life, preserve the memories you
-    cherish, and give family and friends a place to remember them together.
-  </p>
-  <MemorialStartForm source="memorials" />
-</div>
+        <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-700">
+          Every loved one has a story worth remembering. Create a beautiful online
+          memorial to celebrate their life, share treasured photos and videos,
+          and bring family and friends together through lasting memories.
+        </p>
+        <MemorialStartForm source="memorials" />
+      </div>
       {/* Gift and sample links */}
       <section className="px-4 py-4 md:px-8 md:py-6">
         <div className="mx-auto max-w-7xl">
@@ -653,7 +654,7 @@ export default function MemorialsPage() {
                     className="rounded-2xl border border-amber-300 bg-amber-50 p-5 transition hover:border-amber-400 hover:bg-amber-100"
                   >
                     <h3 className="text-xl font-bold text-stone-900">
-                      Best Memorial Websites in 2026
+                      Compare Memorial Websites in 2026
                     </h3>
                     <p className="mt-2 text-base leading-7 text-stone-600">
                       Compare MyEMemorial with leading memorial websites by pricing,
