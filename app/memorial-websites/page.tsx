@@ -3,10 +3,10 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Memorial Websites: What They Are & What to Look For | MyEMemorial",
+    absolute: "What Is a Memorial Website? A Guide for Families | MyEMemorial",
   },
   description:
-    "Learn what memorial websites are, what they can include, how they differ from an obituary, and what to look for when choosing an online memorial website for someone you love.",
+    "Every loved one has a story worth remembering. Learn what memorial websites preserve, how they differ from obituaries, and what families should consider.",
   keywords: [
     "memorial websites",
     "memorial website",
@@ -25,17 +25,17 @@ export const metadata: Metadata = {
     canonical: "/memorial-websites",
   },
   openGraph: {
-    title: "Memorial Websites: What They Are & What to Look For | MyEMemorial",
+    title: "What Is a Memorial Website? A Guide for Families | MyEMemorial",
     description:
-      "A practical guide to memorial websites, including common features, the difference between a memorial and an obituary, and what families should consider.",
+      "Every loved one has a story worth remembering. Explore how memorial websites preserve stories, photos and video, and learn what to consider when choosing one.",
     url: "/memorial-websites",
     type: "article",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Memorial Websites: What They Are & What to Look For | MyEMemorial",
+    title: "What Is a Memorial Website? A Guide for Families | MyEMemorial",
     description:
-      "Learn what memorial websites are, what they can preserve, and what to consider when choosing one for someone you love.",
+      "Every loved one has a story worth remembering. Learn how memorial websites help families preserve and share cherished memories.",
   },
 };
 
@@ -119,29 +119,29 @@ export default function MemorialWebsitesPage() {
             </p>
 
             <h1 className="mx-auto mt-3 max-w-4xl text-4xl font-bold leading-tight md:text-5xl">
-              Memorial Websites: What They Are and What to Look For
+              What Is a Memorial Website? A Guide for Families
             </h1>
 
             <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-stone-200">
-              Memorial websites give families an online place to preserve more than
-              dates and facts. They can bring together a loved one&apos;s life story,
-              photographs, videos, music, family history, and memories in one lasting,
-              shareable place.
+              Every loved one has a story worth remembering. A memorial website
+              gives families a meaningful place to preserve that story through
+              photographs, videos, music, family history, and memories they can
+              share together.
             </p>
 
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
               <Link
-                href="/best-memorial-websites"
+                href="/memorials"
                 className="inline-flex min-h-[56px] w-full max-w-[310px] items-center justify-center rounded-full bg-amber-400 px-6 text-center text-base font-bold text-stone-900 transition hover:bg-amber-300"
               >
-                Compare Best Memorial Websites
+                Create a Memorial Website
               </Link>
 
               <Link
-                href="/memorials"
+                href="/best-memorial-websites"
                 className="inline-flex min-h-[56px] w-full max-w-[310px] items-center justify-center rounded-full border-2 border-white/30 bg-white px-6 text-center text-base font-bold text-stone-900 transition hover:bg-stone-100"
               >
-                Explore Online Memorials
+                Compare Memorial Website Options
               </Link>
 
               <Link
@@ -324,7 +324,7 @@ export default function MemorialWebsitesPage() {
                 href="/memorials"
                 className="inline-flex min-h-[56px] w-full max-w-[320px] items-center justify-center rounded-full bg-amber-400 px-6 text-center text-base font-bold text-stone-900 transition hover:bg-amber-300"
               >
-                View MyEMemorial Plans
+                Create a Memorial Website
               </Link>
             </div>
           </section>
@@ -393,7 +393,7 @@ export default function MemorialWebsitesPage() {
                 href="/memorials"
                 className="inline-flex min-h-[56px] w-full max-w-[290px] items-center justify-center rounded-full bg-blue-950 px-6 text-center text-base font-bold text-white transition hover:bg-blue-900"
               >
-                Explore MyEMemorials
+                Create a Memorial for a Loved One
               </Link>
 
               <Link
