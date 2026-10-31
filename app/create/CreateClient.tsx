@@ -5933,24 +5933,24 @@ const isBackupChapterReadOnly = (
 
   if (isNewFreePlanEntry && (freeEntryAuthStatus !== "ready" || !draftReady)) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4 py-10">
+      <main data-clarity-mask="true" className="flex min-h-screen items-center justify-center bg-stone-100 px-4 py-10">
         <section className="w-full max-w-xl rounded-3xl bg-white p-8 text-center shadow-sm">
-          <h1 className="text-2xl font-bold text-stone-900">
+          <h1 data-clarity-unmask="true" className="text-2xl font-bold text-stone-900">
             {freeEntryAuthStatus === "error" ? "Please Sign In to Continue" : "Preparing Your Free MyEMemorial"}
           </h1>
-          <p className="mt-4 text-base leading-7 text-stone-700" role="status">
+          <p data-clarity-unmask="true" className="mt-4 text-base leading-7 text-stone-700" role="status">
             {freeEntryAuthStatus === "error"
               ? "Opening your Free MyEMemorial is taking longer than expected. Please sign in or try again."
               : "Checking your account so you can save your story and photos as you go."}
           </p>
-          <a
+          <a data-clarity-unmask="true"
               href={`/login?mode=choice&redirect=${encodeURIComponent(`/create?${searchParams.toString()}`)}`}
               className="mt-6 inline-flex min-h-12 items-center rounded-full bg-stone-900 px-6 py-3 text-base font-bold text-white"
             >
               Sign In or Create Account
             </a>
           {freeEntryAuthStatus === "error" && (
-            <button type="button" onClick={() => window.location.reload()}
+            <button data-clarity-unmask="true" type="button" onClick={() => window.location.reload()}
               className="mt-4 block min-h-12 w-full text-base font-semibold text-blue-900 underline">
               Try Opening the Builder Again
             </button>
@@ -5962,17 +5962,17 @@ const isBackupChapterReadOnly = (
 
   if (isNewPaidPlanEntry) {
     return (
-      <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
+      <main data-clarity-mask="true" className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
         <div className="mx-auto flex min-h-[60vh] max-w-3xl items-center justify-center">
           <section className="w-full rounded-3xl border border-stone-200 bg-white p-8 text-center shadow-sm">
-            <h1 className="text-2xl font-bold text-stone-900">
+            <h1 data-clarity-unmask="true" className="text-2xl font-bold text-stone-900">
               {entryCheckoutError ? "Checkout Could Not Be Opened" : "Opening Secure Checkout"}
             </h1>
             <p className="mt-4 text-base leading-7 text-stone-700" role={entryCheckoutError ? "alert" : "status"}>
               {entryCheckoutError || "Taking you to Stripe to purchase your selected plan."}
             </p>
             {entryCheckoutError && (
-              <button
+              <button data-clarity-unmask="true"
                 type="button"
                 onClick={() => window.location.reload()}
                 className="mt-6 min-h-12 rounded-full bg-blue-950 px-6 py-3 text-base font-bold text-white"
@@ -5980,7 +5980,7 @@ const isBackupChapterReadOnly = (
                 Try Again
               </button>
             )}
-            <a
+            <a data-clarity-unmask="true"
               href={isPersonalMode ? "/personal-e-memorials#pricing" : "/memorials#pricing"}
               className="mt-6 block text-base font-semibold text-blue-900 underline underline-offset-4"
             >
@@ -5994,13 +5994,13 @@ const isBackupChapterReadOnly = (
 
   if (isResolvingPaymentReturn) {
     return (
-      <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
+      <main data-clarity-mask="true" className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
         <div className="mx-auto flex min-h-[60vh] max-w-3xl items-center justify-center">
           <section className="w-full rounded-3xl border border-stone-200 bg-white p-8 text-center shadow-sm">
-            <h1 className="text-2xl font-bold text-stone-900">
+            <h1 data-clarity-unmask="true" className="text-2xl font-bold text-stone-900">
               Confirming Your Payment
             </h1>
-            <p className="mt-4 text-base leading-7 text-stone-700">
+            <p data-clarity-unmask="true" className="mt-4 text-base leading-7 text-stone-700">
               Please wait while MyEMemorial confirms your payment and prepares the next step.
             </p>
           </section>
@@ -6015,7 +6015,7 @@ const isBackupChapterReadOnly = (
       : null;
 
   return (
-    <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
+    <main data-clarity-mask="true" className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
       {showMemberSignIn && (
         <MemberSignInRecovery
           message={memberSignInMessage}
@@ -6072,11 +6072,11 @@ const isBackupChapterReadOnly = (
                 ref={paymentSuccessBoxRef}
                 className="mx-auto mt-6 max-w-3xl rounded-xl border border-green-300 bg-green-50 p-5 text-center shadow-sm"
               >
-                <h2 className="text-xl font-bold text-green-800">
+                <h2 data-clarity-unmask="true" className="text-xl font-bold text-green-800">
                   ✓ Payment Successful
                 </h2>
 
-                <p className="mt-2 text-base text-green-700">
+                <p data-clarity-unmask="true" className="mt-2 text-base text-green-700">
                   Your payment has been confirmed. Continue below to complete your MyEMemorial.
                 </p>
               </section>
@@ -6109,11 +6109,11 @@ const isBackupChapterReadOnly = (
   className="rounded-3xl bg-white p-6 shadow-sm"
 >
   <div>
-    <p className="text-sm font-semibold uppercase tracking-[0.16em] text-stone-500">
+    <p data-clarity-unmask="true" className="text-sm font-semibold uppercase tracking-[0.16em] text-stone-500">
       Current Plan
     </p>
 
-    <p className="mt-1 text-xl font-bold text-stone-900">
+    <p data-clarity-unmask="true" className="mt-1 text-xl font-bold text-stone-900">
       {form.isLivingPreplan
         ? form.plan === "free"
           ? "Free Living MyEMemorial"
@@ -6133,16 +6133,16 @@ const isBackupChapterReadOnly = (
 
     {!isPaid && form.plan !== "free" && (
       <div className="mt-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
-        <p className="text-lg font-bold text-amber-900">
+        <p data-clarity-unmask="true" className="text-lg font-bold text-amber-900">
           Payment Pending
         </p>
 
-        <p className="mt-2 text-base leading-7 text-amber-900">
+        <p data-clarity-unmask="true" className="mt-2 text-base leading-7 text-amber-900">
           Your selected plan has not been paid for yet. Until Stripe confirms
           payment, this MyEMemorial keeps Free access only.
         </p>
 
-        <button
+        <button data-clarity-unmask="true"
           type="button"
           onClick={handleCompletePlanPayment}
           disabled={isStartingPlanCheckout}
@@ -6161,22 +6161,22 @@ const isBackupChapterReadOnly = (
       isPaid &&
       draftMemorialId && (
         <div className="mt-5 rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
-          <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-800">
+          <p data-clarity-unmask="true" className="text-sm font-bold uppercase tracking-[0.14em] text-blue-800">
             Included With Your Paid Plan
           </p>
 
-          <p className="mt-2 text-lg font-bold text-stone-900">
+          <p data-clarity-unmask="true" className="mt-2 text-lg font-bold text-stone-900">
             Celebration of Life Presentation
           </p>
 
-          <p className="mt-2 text-base leading-7 text-stone-700">
+          <p data-clarity-unmask="true" className="mt-2 text-base leading-7 text-stone-700">
             Your paid MyEMemorial includes the full Presentation
             Builder at no additional charge. Create it from the photos,
             videos, captions, approved family contributions, and favorite
             music already saved in this MyEMemorial.
           </p>
 
-          <button
+          <button data-clarity-unmask="true"
             type="button"
             onClick={handleCreateIncludedCelebrationPresentation}
             disabled={isCreatingIncludedPresentation}
@@ -6197,21 +6197,21 @@ const isBackupChapterReadOnly = (
 
     {linkedPresentationStatus === "paid" && !form.isLivingPreplan && (
       <div className="mt-5 rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
-        <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-800">
+        <p data-clarity-unmask="true" className="text-sm font-bold uppercase tracking-[0.14em] text-blue-800">
           Connected Paid Presentation
         </p>
 
-        <p className="mt-2 text-lg font-bold text-stone-900">
+        <p data-clarity-unmask="true" className="mt-2 text-lg font-bold text-stone-900">
           Celebration of Life Presentation
         </p>
 
-        <p className="mt-2 text-base leading-7 text-stone-700">
+        <p data-clarity-unmask="true" className="mt-2 text-base leading-7 text-stone-700">
           Your paid Celebration of Life Presentation is connected to this
           MyEMemorial. You can return to the Presentation Builder at any time.
         </p>
 
         <div className="mt-4 flex flex-wrap gap-3">
-          <button
+          <button data-clarity-unmask="true"
             type="button"
             onClick={handleOpenLinkedCelebrationPresentation}
             disabled={isOpeningLinkedPresentation}
@@ -6223,7 +6223,7 @@ const isBackupChapterReadOnly = (
           </button>
 
           {draftMemorialSlug && (
-            <a
+            <a data-clarity-unmask="true"
               href={`/memorial/${encodeURIComponent(draftMemorialSlug)}/manage`}
               className="inline-flex items-center justify-center rounded-full border border-blue-300 bg-white px-6 py-3 text-base font-bold text-blue-900 transition hover:bg-blue-100"
             >
@@ -6270,11 +6270,11 @@ const isBackupChapterReadOnly = (
 
         {form.plan === "free" && (
           <div className="mt-5 rounded-2xl border border-stone-200 bg-stone-50 p-5">
-            <p className="text-base font-semibold text-stone-800">
+            <p data-clarity-unmask="true" className="text-base font-semibold text-stone-800">
               More ways to preserve the story
             </p>
 
-            <p className="mt-2 text-base leading-7 text-stone-600">
+            <p data-clarity-unmask="true" className="mt-2 text-base leading-7 text-stone-600">
               If you decide later that you want to preserve more, paid
               MyEMemorial plans make these additional sections and features available:
             </p>
@@ -6301,7 +6301,7 @@ const isBackupChapterReadOnly = (
             {!draftMemorialId &&
               presentationClaimedInThisSession &&
               !form.isLivingPreplan && (
-                <p className="mt-4 text-base leading-7 text-stone-700">
+                <p data-clarity-unmask="true" className="mt-4 text-base leading-7 text-stone-700">
                   Your paid Celebration of Life Presentation is ready to
                   connect. Save this MyEMemorial, then you can open the
                   Presentation Builder directly from this page.
@@ -6314,7 +6314,7 @@ const isBackupChapterReadOnly = (
                 {draftMemorialSlug && (
                   <>
                     {' '}Check your{' '}
-                    <a
+                    <a data-clarity-unmask="true"
                       href={`/memorial/${encodeURIComponent(draftMemorialSlug)}/manage`}
                       className="font-semibold text-amber-800 underline underline-offset-2 hover:text-amber-950"
                     >
@@ -6326,7 +6326,7 @@ const isBackupChapterReadOnly = (
               </p>
             )}
 
-            <p className="mt-4 text-base leading-7 text-stone-500">
+            <p data-clarity-unmask="true" className="mt-4 text-base leading-7 text-stone-500">
               You can upgrade later if you decide you want these additional
               ways to preserve the story.
             </p>
@@ -6346,15 +6346,15 @@ const isBackupChapterReadOnly = (
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-700">
+                      <p data-clarity-unmask="true" className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-700">
                         Shared by Family & Friends
                       </p>
 
-                      <h2 className="mt-1 text-2xl font-bold text-stone-900">
+                      <h2 data-clarity-unmask="true" className="mt-1 text-2xl font-bold text-stone-900">
                         Approved Photos, Videos & Written Stories
                       </h2>
 
-                      <p className="mt-3 max-w-3xl text-base leading-7 text-stone-600">
+                      <p data-clarity-unmask="true" className="mt-3 max-w-3xl text-base leading-7 text-stone-600">
                         These contributions are currently approved and visible
                         on the public MyEMemorial. You can review them here and
                         remove any contribution that should no longer appear
@@ -6376,7 +6376,7 @@ const isBackupChapterReadOnly = (
                   )}
 
                   {approvedContributions.length === 0 ? (
-                    <p className="mt-5 text-base text-stone-500">
+                    <p data-clarity-unmask="true" className="mt-5 text-base text-stone-500">
                       No approved Family & Friends contributions are currently
                       visible on this MyEMemorial.
                     </p>
@@ -6413,7 +6413,7 @@ const isBackupChapterReadOnly = (
                                   </p>
                                 )}
 
-                                <p className="mt-2 inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-800">
+                                <p data-clarity-unmask="true" className="mt-2 inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-800">
                                   Visible on Public MyEMemorial
                                 </p>
                               </div>
@@ -6435,7 +6435,7 @@ const isBackupChapterReadOnly = (
 
                             {submittedPhotos.length > 0 && (
                               <div className="mt-5">
-                                <p className="mb-3 text-base font-semibold text-stone-800">
+                                <p data-clarity-unmask="true" className="mb-3 text-base font-semibold text-stone-800">
                                   Shared Photo
                                   {submittedPhotos.length === 1
                                     ? ""
@@ -6466,7 +6466,7 @@ const isBackupChapterReadOnly = (
 
                             {submittedVideos.length > 0 && (
                               <div className="mt-5">
-                                <p className="mb-3 text-base font-semibold text-stone-800">
+                                <p data-clarity-unmask="true" className="mb-3 text-base font-semibold text-stone-800">
                                   Shared Video
                                   {submittedVideos.length === 1
                                     ? ""
@@ -6493,7 +6493,7 @@ const isBackupChapterReadOnly = (
                             )}
 
                             <div className="mt-5 border-t border-stone-200 pt-4">
-                              <button
+                              <button data-clarity-unmask="true"
                                 type="button"
                                 disabled={
                                   removingContributionId ===
@@ -6772,13 +6772,13 @@ onSaveAndExit={async (chapter) => {
           <OwnerNameSection ref={ownerNameRef} />
           <section className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
             <label className="flex items-start gap-3 text-base text-stone-800">
-              <input type="checkbox" checked={showCreatorCredit} onChange={(event) => { creatorCreditEditedRef.current = true; setShowCreatorCredit(event.target.checked); }} className="mt-1 h-5 w-5" />
-              <span>Display the creator’s name on this memorial</span>
+              <input data-clarity-mask="true" type="checkbox" checked={showCreatorCredit} onChange={(event) => { creatorCreditEditedRef.current = true; setShowCreatorCredit(event.target.checked); }} className="mt-1 h-5 w-5" />
+              <span data-clarity-unmask="true">Display the creator’s name on this memorial</span>
             </label>
             {showCreatorCredit && <label className="mt-4 block text-base font-medium text-stone-800">Name to display publicly
-              <input type="text" value={creatorCredit} maxLength={150} onChange={(event) => { creatorCreditEditedRef.current = true; setCreatorCredit(event.target.value); }} className="mt-1 block w-full rounded-lg border border-stone-400 px-3 py-2 text-base" />
+              <input data-clarity-mask="true" type="text" value={creatorCredit} maxLength={150} onChange={(event) => { creatorCreditEditedRef.current = true; setCreatorCredit(event.target.value); }} className="mt-1 block w-full rounded-lg border border-stone-400 px-3 py-2 text-base" />
             </label>}
-            <p className="mt-2 text-base text-stone-700">This choice applies only to this memorial. Save your changes to update it.</p>
+            <p data-clarity-unmask="true" className="mt-2 text-base text-stone-700">This choice applies only to this memorial. Save your changes to update it.</p>
           </section>
         </>}
         <BasicInformationSection
@@ -7032,7 +7032,7 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
             PLAN_LIMITS={PLAN_LIMITS}
           />
 
-          <p className="mt-2 text-base text-stone-500">
+          <p data-clarity-unmask="true" className="mt-2 text-base text-stone-500">
             You can select multiple gallery images at once.
           </p>
         </div>
@@ -7176,17 +7176,17 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
 
         {isBackupAccess && !isPostDeathUnlocked && (
           <div className="rounded-2xl border border-green-300 bg-green-50 p-5">
-            <h3 className="text-xl font-bold text-green-900">
+            <h3 data-clarity-unmask="true" className="text-xl font-bold text-green-900">
               Post-Death Access
             </h3>
 
-            <p className="mt-3 text-base leading-7 text-green-900">
+            <p data-clarity-unmask="true" className="mt-3 text-base leading-7 text-green-900">
               Once the death has been independently verified,
               you may activate post-death access to continue
               completing the memorial.
             </p>
 
-            <button
+            <button data-clarity-unmask="true"
               type="button"
               onClick={unlockPostDeathAccess}
               className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-green-800 px-6 py-4 text-lg font-bold text-white transition hover:bg-green-700"
@@ -7250,7 +7250,7 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
 
 <div className="mt-2 whitespace-pre-wrap text-base leading-7 text-stone-600">
         {value || (
-          <span className="italic text-stone-400">
+          <span data-clarity-unmask="true" className="italic text-stone-400">
             Nothing added
           </span>
         )}
@@ -7261,7 +7261,7 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
   return (
     <div className="space-y-6">
       <div className="rounded-3xl border-2 border-amber-300 bg-amber-50 p-8 shadow-sm">
-        <h2 className="text-2xl font-bold text-stone-900">
+        <h2 data-clarity-unmask="true" className="text-2xl font-bold text-stone-900">
           {guidedExperienceType === "after-death"
   ? "Review the Memorial Before Publication"
   : form.isLivingPreplan
@@ -7269,7 +7269,7 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
     : "Review the Memorial"}
         </h2>
 
-        <p className="mt-4 text-base leading-7 text-stone-700">
+        <p data-clarity-unmask="true" className="mt-4 text-base leading-7 text-stone-700">
           Review the information below before finishing. If something needs
           to be changed, use the Back button to return to the appropriate
           chapter.
@@ -7280,10 +7280,10 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
 
       {!hasPaidPlanAccess && form.plan !== "free" && (
         <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
-          <p className="text-lg font-bold text-amber-900">
+          <p data-clarity-unmask="true" className="text-lg font-bold text-amber-900">
             Payment Pending — Free Access Only
           </p>
-          <p className="mt-2 text-base leading-7 text-amber-900">
+          <p data-clarity-unmask="true" className="mt-2 text-base leading-7 text-amber-900">
             Paid-plan information already saved in this draft is preserved,
             but it stays locked until payment is completed.
           </p>
@@ -7542,11 +7542,11 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
 
 {guidedExperienceType === "after-death" && (
   <div className="mt-6 rounded-2xl border-2 border-amber-300 bg-amber-50 p-6">
-    <h3 className="text-xl font-bold text-stone-900">
+    <h3 data-clarity-unmask="true" className="text-xl font-bold text-stone-900">
       Private Legacy Instructions
     </h3>
 
-    <p className="mt-2 text-base font-semibold leading-7 text-amber-900">
+    <p data-clarity-unmask="true" className="mt-2 text-base font-semibold leading-7 text-amber-900">
       These private instructions were released only after post-death access was verified.
     </p>
 
@@ -7559,11 +7559,11 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
 )}
       {guidedExperienceType === "after-death" && (
   <div className="mt-6 rounded-2xl border-2 border-blue-300 bg-blue-50 p-6">
-    <h3 className="text-xl font-bold text-stone-900">
+    <h3 data-clarity-unmask="true" className="text-xl font-bold text-stone-900">
       Private Message from the Memorial Owner
     </h3>
 
-    <p className="mt-2 text-base font-semibold leading-7 text-blue-900">
+    <p data-clarity-unmask="true" className="mt-2 text-base font-semibold leading-7 text-blue-900">
       This private message was released only after post-death access was verified.
     </p>
 
@@ -7581,7 +7581,7 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
     default:
     return (
       <div className="rounded-3xl border border-dashed border-stone-300 bg-stone-50 p-8 text-center">
-        <p className="text-stone-600">
+        <p data-clarity-unmask="true" className="text-stone-600">
           This chapter has not been connected yet.
         </p>
       </div>
@@ -7606,19 +7606,19 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
       {showAfterDeathSaveModal && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
     <div className="w-full max-w-lg rounded-3xl bg-white p-8 text-center shadow-2xl">
-      <h2 className="text-2xl font-bold text-stone-900">
+      <h2 data-clarity-unmask="true" className="text-2xl font-bold text-stone-900">
         After-Death Updates Saved
       </h2>
 
-      <p className="mt-4 text-lg leading-8 text-stone-700">
+      <p data-clarity-unmask="true" className="mt-4 text-lg leading-8 text-stone-700">
         Your updates have been saved successfully.
       </p>
 
-      <p className="mt-3 text-base font-semibold leading-7 text-stone-700">
+      <p data-clarity-unmask="true" className="mt-3 text-base font-semibold leading-7 text-stone-700">
         The memorial is still private and has not been published.
       </p>
 
-      <button
+      <button data-clarity-unmask="true"
         type="button"
         onClick={() => setShowAfterDeathSaveModal(false)}
         className="mt-6 rounded-full bg-stone-900 px-8 py-3 text-base font-semibold text-white transition hover:bg-stone-700"
@@ -7709,13 +7709,13 @@ function BackupReadOnlyChapter({
   return (
     <div className="space-y-5">
       <div className="rounded-2xl border-2 border-stone-300 bg-stone-100 p-5">
-        <p className="text-lg font-bold text-stone-900">
+        <p data-clarity-unmask="true" className="text-lg font-bold text-stone-900">
           {ownerLiving
             ? "View Only — Memorial Owner Protected"
             : "Preserved by the Memorial Owner"}
         </p>
 
-        <p className="mt-2 text-base font-semibold leading-7 text-stone-700">
+        <p data-clarity-unmask="true" className="mt-2 text-base font-semibold leading-7 text-stone-700">
           {ownerLiving
             ? "This chapter is read-only while the memorial owner is living."
             : "This chapter is locked after death so the memorial owner's story cannot be rewritten by a Backup Person."}
@@ -7779,7 +7779,7 @@ function Input({
         {label}
       </label>
 
-      <input
+      <input data-clarity-mask="true"
         type={type}
         name={name}
         value={value}
@@ -7813,7 +7813,7 @@ function TextArea({
         {label}
       </label>
 
-      <textarea
+      <textarea data-clarity-mask="true"
         name={name}
         value={value}
         onChange={onChange}
@@ -7884,23 +7884,23 @@ function MemberSignInRecovery({ message, checking, onContinue, onClose }: {
       aria-labelledby="member-sign-in-heading"
       className="m-auto w-[calc(100%_-_2rem)] max-w-lg rounded-3xl border-0 bg-white p-6 text-stone-900 shadow-xl backdrop:bg-black/50 md:p-8"
     >
-      <h2 id="member-sign-in-heading" className="text-2xl font-bold">Sign In to Save Your MyEMemorial</h2>
-      <p className="mt-4 text-base leading-7">
+      <h2 data-clarity-unmask="true" id="member-sign-in-heading" className="text-2xl font-bold">Sign In to Save Your MyEMemorial</h2>
+      <p data-clarity-unmask="true" className="mt-4 text-base leading-7">
         Keep this Builder tab open. Sign in or create an account in the new tab, then return here. Your entered information and selected photos will stay on this page.
       </p>
-      <a
+      <a data-clarity-unmask="true"
         href={`/login?mode=choice&redirect=${encodeURIComponent("/login?mode=builder-return")}`}
         target="_blank"
         rel="noopener"
         autoFocus
         className="mt-6 block rounded-full bg-stone-900 px-5 py-3 text-center text-base font-bold text-white"
       >Sign In or Create Account — Opens New Tab</a>
-      <button type="button" onClick={() => void onContinue()} disabled={checking}
+      <button data-clarity-unmask="true" type="button" onClick={() => void onContinue()} disabled={checking}
         className="mt-4 min-h-12 w-full rounded-full border border-stone-300 px-5 py-3 text-base font-bold disabled:opacity-50">
         {checking ? "Checking Sign-In…" : "I Have Signed In — Continue"}
       </button>
       {message && <p role="alert" className="mt-4 text-base text-red-700">{message}</p>}
-      <button type="button" onClick={onClose} className="mt-4 min-h-12 w-full text-base underline">Keep Editing</button>
+      <button data-clarity-unmask="true" type="button" onClick={onClose} className="mt-4 min-h-12 w-full text-base underline">Keep Editing</button>
     </dialog>
   );
 }

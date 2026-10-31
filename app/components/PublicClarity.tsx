@@ -1,32 +1,19 @@
 "use client";
-import { isProductionTrackingAllowed } from "../../lib/tracking-environment";
 
-import { funnelContext, trackFunnel } from "../../lib/funnel-tracking";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { usePathname } from "next/navigation";
+import { isProductionTrackingAllowed } from "../../lib/tracking-environment";
+import { funnelContext, trackFunnel } from "../../lib/funnel-tracking";
 
 const PROJECT_ID = "yws1foa6kg";
-
-// Explicitly allow only marketing pages. Do not include builders, memorials,
-// account pages, private editing pages, or checkout return pages.
 const PUBLIC_PAGES = new Set([
-  "/",
-  "/memorials",
-  "/personal-e-memorials",
-  "/plans-pricing",
+  "/", "/memorials", "/personal-e-memorials", "/plans-pricing",
   "/celebration-of-life-presentation",
 ]);
-
-// Only known marketing attribution parameters are allowed on recorded pages.
-const ALLOWED_PARAMETERS = new Set([
-  "utm_source",
-  "utm_medium",
-  "utm_campaign",
-  "utm_content",
-  "utm_term",
-  "msclkid",
-  "gclid",
-  "fbclid",
+const JOURNEY_PAGES = new Set(["/login", "/create", "/my-memorials"]);
+const ATTRIBUTION_PARAMETERS = new Set([
+  "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term",
+  "msclkid", "gclid", "fbclid",
 ]);
 
 type ClarityFunction = ((...args: unknown[]) => void) & {
@@ -43,14 +30,56 @@ declare global {
   }
 }
 
-function isApproved(url: URL): boolean {
+// Account/Builder URLs use enumerated values and opaque record references.
+// Never allow email addresses, passwords, auth codes, gift/access tokens or
+// unvalidated nested redirects into recorded URLs. Text masking alone does
+// not mask URLs. Stripe session references are not authentication tokens.
+function isApproved(url: URL, depth = 0): boolean {
+  if (depth > 3 || url.origin !== window.location.origin) return false;
   const path = url.pathname.replace(/\/$/, "") || "/";
-  return (
-    url.origin === window.location.origin &&
-    PUBLIC_PAGES.has(path) &&
-    [...url.searchParams.keys()].every((key) => ALLOWED_PARAMETERS.has(key)) &&
-    !url.hash // Don't record URLs containing fragments (which can carry tokens).
-  );
+  if (!PUBLIC_PAGES.has(path) && !JOURNEY_PAGES.has(path)) return false;
+  if (url.hash && !(PUBLIC_PAGES.has(path) && url.hash === "#pricing")) return false;
+
+  for (const [key, value] of url.searchParams) {
+    if (ATTRIBUTION_PARAMETERS.has(key)) continue;
+    if (!JOURNEY_PAGES.has(path)) return false;
+    if (key === "mode" && ["choice", "login", "signup", "access", "backup",
+      "builder-return", "memorial", "deceased", "personal", "preplan"].includes(value)) continue;
+    if (key === "plan" && ["free", "basic", "plus", "premium"].includes(value)) continue;
+    if (["edit", "draft", "resume", "extra_videos_paid"].includes(key) && /^\d{1,12}$/.test(value)) continue;
+    if (["success", "upgrade_success", "autocheckout"].includes(key) && ["true", "false", "1", "0"].includes(value)) continue;
+    if (key === "name_entry" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) continue;
+    if (key === "session_id" && /^cs_(?:live|test)_[A-Za-z0-9_]+$/.test(value)) continue;
+    if (key === "promo" && /^[A-Za-z0-9_-]{1,64}$/.test(value)) continue;
+    if (key === "email" && value === "") continue;
+    if (key === "redirect" && path === "/login" && value.startsWith("/") &&
+        !value.startsWith("//") && !/[\\\r\n]/.test(value)) {
+      try {
+        if (isApproved(new URL(value, window.location.origin), depth + 1)) continue;
+      } catch { /* Invalid destinations remain excluded. */ }
+    }
+    return false;
+  }
+  return true;
+}
+
+// Mask the whole account/Builder document, including shared headers and
+// portals. Explicitly marked static controls can remain readable. The page
+// components also provide server-rendered masks before this effect runs.
+function applyRouteMask(url: URL): void {
+  const path = url.pathname.replace(/\/$/, "") || "/";
+  const root = document.documentElement;
+  if (JOURNEY_PAGES.has(path)) {
+    if (!root.hasAttribute("data-myem-clarity-mask")) {
+      root.setAttribute("data-myem-clarity-mask", root.getAttribute("data-clarity-mask") ?? "");
+    }
+    root.setAttribute("data-clarity-mask", "true");
+  } else if (root.hasAttribute("data-myem-clarity-mask")) {
+    const previous = root.getAttribute("data-myem-clarity-mask");
+    if (previous) root.setAttribute("data-clarity-mask", previous);
+    else root.removeAttribute("data-clarity-mask");
+    root.removeAttribute("data-myem-clarity-mask");
+  }
 }
 
 function stopClarity(): void {
@@ -59,7 +88,6 @@ function stopClarity(): void {
   const clarity = window.clarity;
   if (clarity) {
     if (!clarity.v) {
-      // Prevent a delayed tag response from starting a recording.
       clarity.q = [];
       clarity.t = true;
     }
@@ -69,48 +97,19 @@ function stopClarity(): void {
 }
 
 function shouldStopForDestination(href: string): boolean {
-  try {
-    return !isApproved(new URL(href, window.location.href));
-  } catch {
-    return true;
-  }
+  try { return !isApproved(new URL(href, window.location.href)); }
+  catch { return true; }
 }
 
 export default function PublicClarity() {
   const pathname = usePathname();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isProductionTrackingAllowed()) return;
-    // Stop tracking on client-side route changes even if navigation was not
-    // initiated by a clicked link. Once stopped, never restart in this tab.
-    if (!isApproved(new URL(window.location.href))) {
-      stopClarity();
-      return;
-    }
+    const url = new URL(window.location.href);
+    applyRouteMask(url);
+    if (!isApproved(url)) { stopClarity(); return; }
     if (window.__myemClarityStarted || window.__myemClarityStopped) return;
-
-    // Do not start tracking when a marketing page already contains links with
-    // access tokens or private destinations in their URLs. Clarity may capture
-    // clicked URLs independently of text masking. Public links to the ordinary
-    // plan Builder are allowed; private URLs should never be embedded here.
-    const hasSensitiveLink = [...document.querySelectorAll<HTMLAnchorElement>("a[href]")]
-      .some((link) => {
-        try {
-          const url = new URL(link.href, window.location.href);
-          const sensitiveKeys = [
-            "token", "access_token", "session_id", "code",
-            "edit", "draft", "publicid", "public_id", "key", "secret",
-          ];
-          return [...url.searchParams.keys()].some((key) =>
-            sensitiveKeys.includes(key.toLowerCase()),
-          );
-        } catch {
-          return true;
-        }
-      });
-    if (hasSensitiveLink) return;
-
-    // Create the official-style command queue before loading the tag.
     if (!window.clarity) {
       const queue: ClarityFunction = (...args: unknown[]) => {
         if (window.__myemClarityStopped) return;
@@ -129,72 +128,88 @@ export default function PublicClarity() {
 
   useEffect(() => {
     if (!isProductionTrackingAllowed()) return;
-    // Capture the click before normal Next.js link handlers. We also watch
-    // browser History APIs below for programmatic client-side navigation.
+    // This host contains the Builder's fixed chapter navigation, not chapter
+    // contents. Keep its labels readable while the rest of the document masks
+    // user-entered text. It can mount after draft/account loading completes.
+    const markChapterNavigation = () => {
+      if (window.location.pathname.replace(/\/$/, "") !== "/create") return;
+      const navigation = document.getElementById("memorial-builder-chapter-nav");
+      if (navigation && navigation.getAttribute("data-clarity-unmask") !== "true") {
+        navigation.setAttribute("data-clarity-unmask", "true");
+      }
+    };
+    markChapterNavigation();
+    const navigationObserver = new MutationObserver(markChapterNavigation);
+    navigationObserver.observe(document.body, { childList: true, subtree: true });
     const onClick = (event: MouseEvent) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
       const link = target.closest("a[href]") as HTMLAnchorElement | null;
-      if (link) {
-        const destination = new URL(link.href, window.location.href);
-        if (destination.origin === window.location.origin && destination.pathname === "/create" &&
-            ["free", "basic", "plus", "premium"].includes(destination.searchParams.get("plan") || "")) {
-          trackFunnel("plan_selected", funnelContext(destination.href));
-        }
+      if (!link) return;
+      const destination = new URL(link.href, window.location.href);
+      // Retain the existing GA4 plan-click event.
+      if (destination.origin === window.location.origin && destination.pathname === "/create" &&
+          ["free", "basic", "plus", "premium"].includes(destination.searchParams.get("plan") || "")) {
+        trackFunnel("plan_selected", funnelContext(destination.href));
       }
-      if (link && shouldStopForDestination(link.href)) {
+      if (shouldStopForDestination(link.href)) {
         stopClarity();
-        // Use a fresh document for private pages: the Clarity runtime cannot
-        // survive into the Builder while its scripts are still loading.
-        const url = new URL(link.href, window.location.href);
-        if (url.origin === window.location.origin && !event.ctrlKey &&
-            !event.metaKey && !event.shiftKey && !event.altKey &&
-            event.button === 0 && (!link.target || link.target === "_self") &&
-            !link.hasAttribute("download")) {
+        // Keep the old fresh-document boundary for excluded routes. Ordinary
+        // account/Builder links now pass through without stopping Clarity.
+        if (destination.origin === window.location.origin && !event.ctrlKey &&
+            !event.metaKey && !event.shiftKey && !event.altKey && event.button === 0 &&
+            (!link.target || link.target === "_self") && !link.hasAttribute("download")) {
           event.preventDefault();
           event.stopImmediatePropagation();
-          window.location.assign(url.href);
+          window.location.assign(destination.href);
         }
+      } else if (!event.ctrlKey && !event.metaKey && !event.shiftKey &&
+                 !event.altKey && event.button === 0 &&
+                 (!link.target || link.target === "_self") && !link.hasAttribute("download")) {
+        applyRouteMask(destination);
       }
     };
-
     const onSubmit = (event: SubmitEvent) => {
       const form = event.target;
-      if (!(form instanceof HTMLFormElement)) return;
-      if (shouldStopForDestination(form.action)) stopClarity();
+      if (form instanceof HTMLFormElement && shouldStopForDestination(form.action)) stopClarity();
     };
-
     const originalPushState = history.pushState;
     const originalReplaceState = history.replaceState;
     history.pushState = function (data, unused, url) {
-      if (url != null && window.__myemClarityStarted &&
-          shouldStopForDestination(String(url))) {
-        stopClarity();
-        window.location.assign(new URL(String(url), window.location.href).href);
-        return;
+      if (url != null) {
+        const destination = new URL(String(url), window.location.href);
+        if (window.__myemClarityStarted && !isApproved(destination)) {
+          stopClarity();
+          window.location.assign(destination.href);
+          return;
+        }
+        applyRouteMask(destination);
       }
       return originalPushState.call(this, data, unused, url);
     };
     history.replaceState = function (data, unused, url) {
-      if (url != null && window.__myemClarityStarted &&
-          shouldStopForDestination(String(url))) {
-        stopClarity();
-        window.location.assign(new URL(String(url), window.location.href).href);
-        return;
+      if (url != null) {
+        const destination = new URL(String(url), window.location.href);
+        if (window.__myemClarityStarted && !isApproved(destination)) {
+          stopClarity();
+          window.location.assign(destination.href);
+          return;
+        }
+        applyRouteMask(destination);
       }
       return originalReplaceState.call(this, data, unused, url);
     };
-
     const onLocationChange = () => {
-      if (!isApproved(new URL(window.location.href))) stopClarity();
+      const url = new URL(window.location.href);
+      applyRouteMask(url);
+      if (!isApproved(url)) stopClarity();
     };
-
     document.addEventListener("click", onClick, true);
     document.addEventListener("submit", onSubmit, true);
     window.addEventListener("popstate", onLocationChange);
     window.addEventListener("hashchange", onLocationChange);
-
     return () => {
+      navigationObserver.disconnect();
       document.removeEventListener("click", onClick, true);
       document.removeEventListener("submit", onSubmit, true);
       window.removeEventListener("popstate", onLocationChange);
@@ -203,6 +218,5 @@ export default function PublicClarity() {
       history.replaceState = originalReplaceState;
     };
   }, []);
-
   return null;
 }

@@ -8,6 +8,8 @@ import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
+const EMAIL_PREFILL_KEY = "myememorial:account-email-prefill";
+
 function LoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -39,6 +41,18 @@ const isAccessChoiceMode = mode === "access";
 const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState(prefilledEmail);
   const [confirmEmail, setConfirmEmail] = useState("");
+  // Keep email prefill in tab storage rather than in a recorded link URL.
+  function rememberEmailPrefill() {
+    try { sessionStorage.setItem(EMAIL_PREFILL_KEY, email); } catch { /* Prefill is optional. */ }
+  }
+  useEffect(() => {
+    if (!isSignupMode) return;
+    try {
+      const saved = sessionStorage.getItem(EMAIL_PREFILL_KEY);
+      sessionStorage.removeItem(EMAIL_PREFILL_KEY);
+      if (!prefilledEmail && saved) setEmail(saved);
+    } catch { /* Signup still works when tab storage is unavailable. */ }
+  }, [isSignupMode, prefilledEmail]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -323,18 +337,18 @@ return;
   }
   if (isBuilderReturnMode) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4">
+      <main data-clarity-mask="true" className="flex min-h-screen items-center justify-center bg-stone-100 px-4">
         <section className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-sm">
-          <h1 className="text-3xl font-bold text-stone-900">
+          <h1 data-clarity-unmask="true" className="text-3xl font-bold text-stone-900">
             {builderReturnVerified ? "You Are Signed In" : "Sign In to Continue"}
           </h1>
-          <p className="mt-4 text-base leading-7 text-stone-700">
+          <p data-clarity-unmask="true" className="mt-4 text-base leading-7 text-stone-700">
             {builderReturnVerified
               ? "Return to your original Builder tab and select ‘I Have Signed In — Continue.’ Your work is waiting there."
               : "Please sign in before returning to your Builder."}
           </p>
           {!builderReturnVerified && (
-            <a href={`/login?mode=choice&redirect=${encodeURIComponent("/login?mode=builder-return")}`}
+            <a data-clarity-unmask="true" href={`/login?mode=choice&redirect=${encodeURIComponent("/login?mode=builder-return")}`}
               className="mt-6 block rounded-full bg-stone-900 px-6 py-3 text-base font-bold text-white">
               Sign In or Create Account
             </a>
@@ -345,13 +359,13 @@ return;
   }
   if (isAccessChoiceMode) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4">
+    <main data-clarity-mask="true" className="flex min-h-screen items-center justify-center bg-stone-100 px-4">
       <div className="w-full max-w-xl rounded-3xl bg-white p-8 shadow-sm">
-        <h1 className="text-4xl font-bold text-stone-900">
+        <h1 data-clarity-unmask="true" className="text-4xl font-bold text-stone-900">
           Log In to MyEMemorial
         </h1>
 
-        <p className="mt-3 text-base leading-7 text-stone-600">
+        <p data-clarity-unmask="true" className="mt-3 text-base leading-7 text-stone-600">
           Choose how you would like to access MyEMemorial.
         </p>
 
@@ -361,11 +375,11 @@ return;
           )}`}
           className="mt-7 block rounded-2xl border border-stone-300 bg-white p-6 transition hover:bg-stone-50"
         >
-          <span className="block text-xl font-bold text-stone-900">
+          <span data-clarity-unmask="true" className="block text-xl font-bold text-stone-900">
             MyEMemorial Member Login
           </span>
 
-          <span className="mt-2 block text-base leading-7 text-stone-600">
+          <span data-clarity-unmask="true" className="mt-2 block text-base leading-7 text-stone-600">
             Log in to create, edit, and manage memorials that belong to you.
           </span>
         </a>
@@ -374,11 +388,11 @@ return;
           href="/login?mode=backup"
           className="mt-5 block rounded-2xl border border-stone-300 bg-stone-900 p-6 text-white transition hover:bg-stone-700"
         >
-          <span className="block text-xl font-bold">
+          <span data-clarity-unmask="true" className="block text-xl font-bold">
             Backup Person Login
           </span>
 
-          <span className="mt-2 block text-base leading-7 text-stone-200">
+          <span data-clarity-unmask="true" className="mt-2 block text-base leading-7 text-stone-200">
             Access a Living MyEMemorial when someone has assigned you as their Backup Person.
           </span>
         </a>
@@ -388,28 +402,28 @@ return;
 }
 if (isChoiceMode) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,#f1eadb,#faf7f0_65%)] px-4 py-8">
+    <main data-clarity-mask="true" className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,#f1eadb,#faf7f0_65%)] px-4 py-8">
       <div className="w-full max-w-lg rounded-3xl border border-[#e5d8c7] bg-[#fffdf8] p-6 shadow-sm md:p-8">
         <AccountWelcome living={funnelContext(redirectTo).memorial_type === "living"} />
-        <h1 className="mt-5 text-center text-2xl font-bold text-blue-950">
+        <h1 data-clarity-unmask="true" className="mt-5 text-center text-2xl font-bold text-blue-950">
           Continue to MyEMemorial
         </h1>
 
-        <p className="mt-3 text-base text-stone-600">
+        <p data-clarity-unmask="true" className="mt-3 text-base text-stone-600">
           {isFreeBuilderReturn
             ? "Sign in or create your free account so you can save and publish your MyEMemorial. No payment is required."
             : "Do you already have an account?"}
         </p>
 
-        <a
+        <a data-clarity-unmask="true"
           href={`/login?mode=login&redirect=${encodeURIComponent(redirectTo)}`}
           className="mt-6 block w-full rounded-full border border-stone-300 bg-white px-6 py-3 text-center text-base font-semibold text-stone-800 hover:bg-stone-100"
         >
           I Already Have an Account
         </a>
 
-        <a
-          href={`/login?mode=signup&email=${encodeURIComponent(email)}&redirect=${encodeURIComponent(redirectTo)}`}
+        <a data-clarity-unmask="true"
+          onClick={rememberEmailPrefill} href={`/login?mode=signup&redirect=${encodeURIComponent(redirectTo)}`}
           className="mt-4 block w-full rounded-full bg-stone-900 px-6 py-3 text-center text-base font-semibold text-white hover:bg-stone-700"
         >
           Create New Account
@@ -419,13 +433,13 @@ if (isChoiceMode) {
   );
 }
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,#f1eadb,#faf7f0_65%)] px-4 py-8">
+    <main data-clarity-mask="true" className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,#f1eadb,#faf7f0_65%)] px-4 py-8">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-lg rounded-3xl border border-[#e5d8c7] bg-[#fffdf8] p-6 shadow-sm md:p-8"
       >
        <AccountWelcome living={funnelContext(redirectTo).memorial_type === "living"} />
-        <h1 className="mt-5 text-center text-2xl font-bold text-blue-950">
+        <h1 data-clarity-unmask="true" className="mt-5 text-center text-2xl font-bold text-blue-950">
   {isSignupMode
     ? "Create Account"
     : isBackupMode
@@ -435,7 +449,7 @@ if (isChoiceMode) {
 
      
 
-<p className="mt-2 text-base leading-7 text-stone-600">
+<p data-clarity-unmask="true" className="mt-2 text-base leading-7 text-stone-600">
   {isSignupMode
     ? "Create your account to begin preserving the memories that matter most."
     : isBackupMode
@@ -445,11 +459,11 @@ if (isChoiceMode) {
 
         <div className="mt-6 space-y-4">
   <label className="block">
-    <span className="mb-2 block text-base font-semibold text-stone-700">
+    <span data-clarity-unmask="true" className="mb-2 block text-base font-semibold text-stone-700">
       Email Address
     </span>
 
-    <input
+    <input data-clarity-mask="true"
       type="email"
       placeholder="Email"
       autoComplete="email"
@@ -462,11 +476,11 @@ if (isChoiceMode) {
 
   {isSignupMode && (
     <label className="block">
-      <span className="mb-2 block text-base font-semibold text-stone-700">
+      <span data-clarity-unmask="true" className="mb-2 block text-base font-semibold text-stone-700">
         Confirm Email Address
       </span>
 
-      <input
+      <input data-clarity-mask="true"
         type="email"
         placeholder="Confirm Email"
         autoComplete="email"
@@ -479,12 +493,12 @@ if (isChoiceMode) {
   )}
 
   <label className="block">
-    <span className="mb-2 block text-base font-semibold text-stone-700">
+    <span data-clarity-unmask="true" className="mb-2 block text-base font-semibold text-stone-700">
       {isSignupMode ? "Create Password" : "Password"}
     </span>
 
     <div className="relative">
-      <input
+      <input data-clarity-mask="true"
         type={showPassword ? "text" : "password"}
         placeholder={isSignupMode ? "Create Password" : "Password"}
         autoComplete={isSignupMode ? "new-password" : "current-password"}
@@ -538,12 +552,12 @@ if (isChoiceMode) {
 
   {isSignupMode && (
     <label className="block">
-      <span className="mb-2 block text-base font-semibold text-stone-700">
+      <span data-clarity-unmask="true" className="mb-2 block text-base font-semibold text-stone-700">
         Confirm Password
       </span>
 
       <div className="relative">
-        <input
+        <input data-clarity-mask="true"
           type={showConfirmPassword ? "text" : "password"}
           placeholder="Confirm Password"
           autoComplete="new-password"
@@ -617,11 +631,11 @@ if (isChoiceMode) {
 {isBackupMode &&
   backupMemorials.length > 1 && (
     <div className="mt-6 rounded-2xl border border-stone-200 bg-stone-50 p-5">
-      <p className="text-lg font-bold text-stone-900">
+      <p data-clarity-unmask="true" className="text-lg font-bold text-stone-900">
         Choose a Living MyEMemorial
       </p>
 
-      <p className="mt-2 text-base leading-7 text-stone-600">
+      <p data-clarity-unmask="true" className="mt-2 text-base leading-7 text-stone-600">
         Your credentials match more than one Living MyEMemorial.
       </p>
 
@@ -645,7 +659,7 @@ if (isChoiceMode) {
       </div>
     </div>
   )}
-        <button
+        <button data-clarity-unmask="true"
           type="submit"
           disabled={isSubmitting}
          className="mt-6 w-full rounded-full bg-blue-950 px-6 py-3 text-base font-semibold text-white hover:bg-blue-900 disabled:opacity-60"
@@ -666,21 +680,21 @@ if (isChoiceMode) {
         
 
         {!isSignupMode && !isBackupMode && (
-          <a href={`/login?mode=signup&email=${encodeURIComponent(email)}&redirect=${encodeURIComponent(redirectTo)}`}
+          <a data-clarity-unmask="true" onClick={rememberEmailPrefill} href={`/login?mode=signup&redirect=${encodeURIComponent(redirectTo)}`}
             className="mt-3 block w-full text-center text-base font-medium text-stone-600 hover:text-stone-900">
             Need an account? Create one
           </a>
         )}
         {isSignupMode && (
-          <a
+          <a data-clarity-unmask="true"
             href={`/login?mode=login&redirect=${encodeURIComponent(redirectTo)}`}
             className="mt-3 block w-full text-center text-base font-medium text-stone-600 hover:text-stone-900"
           >
             Already have an account? Log in
           </a>
         )}
-        <p className="mt-6 text-center text-base leading-6 text-stone-600">You can save your progress and return whenever you are ready.</p>
-        <p className="mt-3 text-center font-serif text-base text-blue-950">Where Life’s Stories Are Told.</p>
+        <p data-clarity-unmask="true" className="mt-6 text-center text-base leading-6 text-stone-600">You can save your progress and return whenever you are ready.</p>
+        <p data-clarity-unmask="true" className="mt-3 text-center font-serif text-base text-blue-950">Where Life’s Stories Are Told.</p>
       </form>
     </main>
   );

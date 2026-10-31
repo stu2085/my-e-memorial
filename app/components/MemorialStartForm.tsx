@@ -22,7 +22,7 @@ export default function MemorialStartForm({ source }: { source: 'home' | 'memori
       setBusy(true);
       trackFunnel('memorial_name_submitted', { entry_page: source, memorial_type: 'departed', plan: 'free' });
       trackFunnel('plan_selected', { memorial_type: 'departed', plan: 'free' });
-      // A fresh document keeps public-page recording out of account/builder pages.
+      // Keep the existing name handoff; Clarity now runs on account/Builder pages too.
       window.location.assign(`/create?mode=memorial&plan=free&name_entry=${encodeURIComponent(token)}`);
     } catch {
       setBusy(false);
@@ -30,21 +30,21 @@ export default function MemorialStartForm({ source }: { source: 'home' | 'memori
     }
   }
   return (
-    <form onSubmit={submit} data-clarity-mask="true" className="mx-auto mt-6 max-w-2xl rounded-3xl border border-[#d6ded3] bg-[#edf2e9] p-5 text-left sm:p-6" aria-label="Begin a MyEMemorial">
-      <p className="mb-4 text-center text-lg font-semibold text-stone-900">Begin with your loved one’s name</p>
+    <form onSubmit={submit} className="mx-auto mt-6 max-w-2xl rounded-3xl border border-[#d6ded3] bg-[#edf2e9] p-5 text-left sm:p-6" aria-label="Begin a MyEMemorial">
+      <p data-clarity-unmask="true" className="mb-4 text-center text-lg font-semibold text-stone-900">Begin with your loved one’s name</p>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor={`${id}-first`} className="mb-2 block text-base font-semibold text-stone-900">Their first name</label>
-          <input id={`${id}-first`} name="firstName" required maxLength={100} autoComplete="off" className="min-h-12 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900" />
+          <label data-clarity-unmask="true" htmlFor={`${id}-first`} className="mb-2 block text-base font-semibold text-stone-900">Their first name</label>
+          <input data-clarity-mask="true" id={`${id}-first`} name="firstName" required maxLength={100} autoComplete="off" className="min-h-12 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900" />
         </div>
         <div>
-          <label htmlFor={`${id}-last`} className="mb-2 block text-base font-semibold text-stone-900">Their last name</label>
-          <input id={`${id}-last`} name="lastName" required maxLength={100} autoComplete="off" className="min-h-12 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900" />
+          <label data-clarity-unmask="true" htmlFor={`${id}-last`} className="mb-2 block text-base font-semibold text-stone-900">Their last name</label>
+          <input data-clarity-mask="true" id={`${id}-last`} name="lastName" required maxLength={100} autoComplete="off" className="min-h-12 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900" />
         </div>
       </div>
       {error && <p role="alert" className="mt-3 text-base text-red-800">{error}</p>}
-      <button type="submit" disabled={busy} className="mt-5 min-h-12 w-full rounded-full bg-blue-950 px-6 py-3 text-lg font-semibold text-white hover:bg-blue-900 disabled:opacity-60">{busy ? 'Continuing…' : 'Begin Their MyEMemorial'}</button>
-      <p className="mt-3 text-center text-base leading-6 text-stone-700">Start free, sign in or create an account to save your progress. Add their story and memories at your own pace.</p>
+      <button data-clarity-unmask="true" type="submit" disabled={busy} className="mt-5 min-h-12 w-full rounded-full bg-blue-950 px-6 py-3 text-lg font-semibold text-white hover:bg-blue-900 disabled:opacity-60">{busy ? 'Continuing…' : 'Begin Their MyEMemorial'}</button>
+      <p data-clarity-unmask="true" className="mt-3 text-center text-base leading-6 text-stone-700">Start free, sign in or create an account to save your progress. Add their story and memories at your own pace.</p>
     </form>
   );
 }
