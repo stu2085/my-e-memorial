@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -60,7 +61,13 @@ export async function generateMetadata({
 
   const url = `https://www.myememorial.com/memorial/${data.slug}`;
   // A bounded sharing image avoids sending oversized original uploads to crawlers.
-  const image = `${url}/share-image?v=1`;
+  const photoSource =
+    data.featured_photo_url || data.headstone_photo_1 || "default";
+  const photoVersion = createHash("sha256")
+    .update(photoSource)
+    .digest("hex")
+    .slice(0, 20);
+  const image = `${url}/share-image?v=${photoVersion}`;
 
   return {
     title: {
