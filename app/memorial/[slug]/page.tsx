@@ -59,10 +59,8 @@ export async function generateMetadata({
     : `Remember ${name} through their online MyEMemorial with life stories, photos, videos, family history, obituary details, favorite music, and memories shared by family and friends.`;
 
   const url = `https://www.myememorial.com/memorial/${data.slug}`;
-  const image =
-    data.featured_photo_url ||
-    data.headstone_photo_1 ||
-    "https://www.myememorial.com/gravestone1.jpg";
+  // A bounded sharing image avoids sending oversized original uploads to crawlers.
+  const image = `${url}/share-image?v=1`;
 
   return {
     title: {
@@ -92,6 +90,9 @@ export async function generateMetadata({
       images: [
         {
           url: image,
+          width: 1200,
+          height: 630,
+          type: "image/png",
           alt: `${name} MyEMemorial`,
         },
       ],
