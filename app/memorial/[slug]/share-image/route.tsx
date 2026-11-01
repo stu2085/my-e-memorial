@@ -1,4 +1,4 @@
-import { ImageResponse } from "next/og";
+import sharp from "sharp";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
@@ -53,38 +53,26 @@ export async function GET(
       throw new Error("Unsupported photo format");
     }
     const bytes = await photo.arrayBuffer();
-    const imageData = `data:${mime};base64,${Buffer.from(bytes).toString("base64")}`;
+    const image = await sharp(Buffer.from(bytes), {
+      limitInputPixels: 40000000,
+      animated: false,
+    })
+      .rotate()
+      .resize(1200, 630, {
+        fit: "contain",
+        background: "#edf4fa",
+      })
+      .flatten({ background: "#edf4fa" })
+      .png({ compressionLevel: 9 })
+      .toBuffer();
 
-    // Rasterize at bounded dimensions instead of exposing a large original PNG.
-    // Contain preserves the complete portrait instead of cropping a person's face.
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            display: "flex",
-            width: "100%",
-            height: "100%",
-            backgroundColor: "#edf4fa",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <img
-            src={imageData}
-            width={1200}
-            height={630}
-            style={{ objectFit: "contain" }}
-          />
-        </div>
-      ),
-      {
-        width: 1200,
-        height: 630,
-        headers: {
-          "Cache-Control": "public, max-age=300, s-maxage=3600",
-        },
-      }
-    );
+    // Finish rendering before returning so failures are caught below.
+    return new Response(new Uint8Array(image), {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=300, s-maxage=3600",
+      },
+    });
   } catch (error) {
     console.error("MEMORIAL SHARING IMAGE ERROR:", error);
     // Do not cache a logo in place of a failed portrait; allow a later retry.
