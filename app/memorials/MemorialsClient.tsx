@@ -131,6 +131,22 @@ export default function MemorialsPage() {
         <div id="begin-memorial" className="scroll-mt-24">
   <MemorialStartForm source="memorials" />
 </div>
+
+<div className="mx-auto mt-6 max-w-2xl text-center">
+  <p className="text-base leading-7 text-stone-700">
+    Looking for meaningful ways to remember someone you love?
+  </p>
+  <p className="mt-1 text-sm leading-6 text-stone-600">
+    Discover gentle ideas for preserving their voice, photographs,
+    stories, and precious memories.
+  </p>
+  <Link
+    href="/keeping-your-loved-ones-memory-alive"
+    className="mt-3 inline-block text-base font-semibold text-teal-800 underline underline-offset-4 hover:text-teal-950"
+  >
+    Explore Ways to Keep Their Memory Alive →
+  </Link>
+</div>
       </div>
       {/* Gift and sample links */}
       <section className="px-4 py-4 md:px-8 md:py-6">
