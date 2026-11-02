@@ -128,7 +128,9 @@ export default function MemorialsPage() {
           memorial to celebrate their life, share treasured photos and videos,
           and bring family and friends together through lasting memories.
         </p>
-        <MemorialStartForm source="memorials" />
+        <div id="begin-memorial" className="scroll-mt-24">
+  <MemorialStartForm source="memorials" />
+</div>
       </div>
       {/* Gift and sample links */}
       <section className="px-4 py-4 md:px-8 md:py-6">
