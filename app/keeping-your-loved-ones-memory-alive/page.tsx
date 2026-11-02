@@ -3,14 +3,21 @@ import Link from 'next/link';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
-  title: 'Keeping Your Loved One’s Memory Alive | MyEMemorial',
-  description: 'Explore memorial ideas for loved ones, ways to remember someone who died, and gentle ways to preserve their voice, photographs, stories, and family memories.',
-  alternates: { canonical: '/keeping-your-loved-ones-memory-alive' },
+  title: {
+    absolute:
+      "Memorial Ideas for Loved Ones | Keep Their Memory Alive | MyEMemorial",
+  },
+  description:
+    "Discover meaningful memorial ideas for loved ones, ways to remember someone who died, and how to preserve their voice, photographs, stories, and precious family memories.",
+  alternates: {
+    canonical: "/keeping-your-loved-ones-memory-alive",
+  },
   openGraph: {
-    title: 'Keeping Your Loved One’s Memory Alive | MyEMemorial',
-    description: 'Gentle ideas for honoring someone you love and preserving the memories that matter.',
-    url: '/keeping-your-loved-ones-memory-alive',
-    type: 'article',
+    title: "Keeping Your Loved One's Memory Alive | MyEMemorial",
+    description:
+      "Gentle ideas for honoring someone you love and preserving their voice, photographs, stories, and treasured memories.",
+    url: "/keeping-your-loved-ones-memory-alive",
+    type: "article",
   },
 };
 
@@ -34,6 +41,14 @@ export default function KeepingMemoryAlivePage() {
         <p className={styles.eyebrow}>A gentle place for remembrance</p>
         <h1>Keeping Your Loved One’s Memory Alive</h1>
         <p className={styles.heroText}>Their voice. Their laughter. Their stories. The little things that made them who they were. There are beautiful ways to hold those memories close and share them with the people who loved them.</p>
+        <p className={styles.heroText}>
+  Remembering loved ones is a deeply personal experience.
+  Whether you're looking for ways to keep memories alive,
+  preserve family memories, or celebrate the moments you shared,
+  there are many meaningful ways to honor someone who has passed away.
+  Preserving memories through photographs, videos, and personal stories
+  can help keep their life story close to your heart.
+</p>
         <a className={styles.button} href="#ways-to-remember">Explore ways to remember</a>
         <span className={styles.subcta}>Read at your own pace. There is no rush.</span><p className={styles.heroLink}><Link href="/memorials#begin-memorial" className={styles.textLink}>Or begin a free MyEMemorial →</Link></p>
       </div><div className={styles.wave}/>
