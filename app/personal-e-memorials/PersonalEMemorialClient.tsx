@@ -965,9 +965,29 @@ function PlanCard({
   buttonLabel?: string;
   disabled?: boolean;
 }) {
+  function handleCardClick(event: React.MouseEvent<HTMLDivElement>) {
+    if (disabled) return;
+
+    const target = event.target;
+    if (target instanceof Element && target.closest("button, a")) {
+      return;
+    }
+
+    if (onChoosePlan) {
+      onChoosePlan();
+    } else {
+      window.location.assign(href);
+    }
+  }
+
   return (
     <div
-      className={`relative flex min-w-0 flex-col rounded-[1.25rem] p-5 pt-8 shadow-sm ${
+      onClick={handleCardClick}
+      className={`relative flex min-w-0 flex-col rounded-[1.25rem] p-5 pt-8 shadow-sm transition-all duration-200 ${
+        disabled
+          ? "cursor-not-allowed"
+          : "cursor-pointer hover:-translate-y-1 hover:shadow-lg"
+      } ${
         dark
           ? "border-2 border-amber-400 bg-[#fff9ed] text-stone-900"
           : "border border-[#e5d8c7] bg-[#fffdf8] text-stone-900"

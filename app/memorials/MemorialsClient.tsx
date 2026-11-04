@@ -776,8 +776,9 @@ function PlanCard({
   badge?: string;
 }) {
   return (
-    <div
-      className={`relative flex min-w-0 flex-col rounded-[1.25rem] p-5 pt-8 shadow-sm ${
+  <Link
+    href={href}
+    className={`relative flex min-w-0 cursor-pointer flex-col rounded-[1.25rem] p-5 pt-8 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-950 ${
         dark
           ? "border-2 border-amber-400 bg-[#fff9ed] text-stone-900"
           : "border border-[#e5d8c7] bg-[#fffdf8] text-stone-900"
@@ -839,18 +840,17 @@ function PlanCard({
       </ul>
 
       <div className="mt-auto pt-5">
-        <Link
-          href={href}
-          className={`inline-flex min-h-[50px] w-full items-center justify-center rounded-full px-5 py-2.5 text-base font-semibold transition ${
+        <span
+  className={`inline-flex min-h-[50px] w-full items-center justify-center rounded-full px-5 py-2.5 text-base font-semibold transition ${
             dark
               ? "bg-blue-950 text-white hover:bg-blue-900"
               : "bg-stone-900 text-white hover:bg-stone-700"
           }`}
         >
           {badge === "Free Plan" ? "Free Plan" : "Choose Plan"}
-        </Link>
+        </span>
       </div>
-    </div>
+    </Link>
   );
 }
 
