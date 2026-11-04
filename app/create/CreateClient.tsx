@@ -4938,6 +4938,79 @@ async function unlockPostDeathAccess() {
     );
   }
 }
+// Upgrade from a Free builder chapter without sending the owner to Manage.
+// Save the chapter in place first so uploaded files and the return chapter survive Stripe.
+async function handleFreeBuilderUpgrade(
+  toPlan: "basic" | "plus" | "premium",
+  chapterId: "photo-gallery" | "obituary"
+) {
+  if (isStartingPlanCheckout || isBackupAccess) return;
+  if (form.plan !== "free" || isPaid || form.isLivingPreplan) return;
+
+  const chapter = getGuidedChapters("memorial").find(
+    (item) => item.id === chapterId
+  );
+  if (!chapter) {
+    setErrorMessage("This builder chapter could not be found.");
+    return;
+  }
+
+  setIsStartingPlanCheckout(true);
+  try {
+    // This also creates a memorial record if this is the owner's first save.
+    // The third argument preserves the current chapter instead of advancing.
+    await saveGuidedDraft(chapter, false, true);
+
+    const savedId = Number(
+      window.localStorage.getItem("guidedDraftMemorialId") || 0
+    );
+    const memorialId = draftMemorialId || savedId;
+    if (!memorialId) {
+      throw new Error("Your memorial could not be saved for the upgrade. Please try again.");
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      throw new Error("Please sign in again before upgrading your memorial.");
+    }
+
+    const planPrices = { basic: 4995, plus: 6995, premium: 8995 } as const;
+    const returnUrl = new URL("/create", window.location.origin);
+    returnUrl.searchParams.set("mode", "memorial");
+    returnUrl.searchParams.set("edit", String(memorialId));
+    returnUrl.searchParams.set("upgrade_success", "true");
+
+    const response = await fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        plan: toPlan,
+        amount: planPrices[toPlan],
+        memorialId,
+        checkoutType: "upgrade",
+        fromPlan: "free",
+        toPlan,
+        returnUrl: returnUrl.toString(),
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result?.url) {
+      throw new Error(result?.error || "Upgrade checkout could not be started.");
+    }
+
+    window.location.assign(result.url);
+  } catch (error) {
+    if (error instanceof Error && error.message === "MEMORIAL_SIGN_IN_REQUIRED") return;
+    setErrorMessage(
+      error instanceof Error ? error.message : "Upgrade checkout could not be started."
+    );
+    setIsStartingPlanCheckout(false);
+  }
+}
+
 async function handleCompletePlanPayment() {
   const selectedPlan = form.plan;
 
@@ -7029,6 +7102,10 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
             setGalleryPhotos={setGalleryPhotos}
             galleryUploadProgress={galleryUploadProgress}
             isPaid={isPaid}
+            onUpgradePlan={!form.isLivingPreplan && form.plan === "free" && !isPaid && !isBackupAccess
+              ? (plan) => void handleFreeBuilderUpgrade(plan, "photo-gallery")
+              : undefined}
+            isUpgrading={isStartingPlanCheckout}
             PLAN_LIMITS={PLAN_LIMITS}
           />
 
@@ -7084,6 +7161,10 @@ setSavedGalleryPhotoCaptions={setSavedGalleryPhotoCaptions}
       isSaving={isSubmitting}
       isPublished={false}
       isPaid={isPaid}
+      onUpgradePlan={!form.isLivingPreplan && form.plan === "free" && !isPaid && !isBackupAccess
+        ? (plan) => void handleFreeBuilderUpgrade(plan, "obituary")
+        : undefined}
+      isUpgrading={isStartingPlanCheckout}
       onCelebrationPresentation={handleObituaryCelebrationPresentation}
       celebrationPresentationLabel={
         linkedPresentationStatus === "paid"

@@ -28,6 +28,8 @@ galleryPhotos: GalleryPhoto[];
   setGalleryPhotos: Dispatch<SetStateAction<GalleryPhoto[]>>;
   galleryUploadProgress: UploadProgress | null;
    isPaid: boolean;
+  onUpgradePlan?: (plan: "basic" | "plus" | "premium") => void;
+  isUpgrading?: boolean;
   PLAN_LIMITS: Record<
     PlanKey,
     {
@@ -47,6 +49,8 @@ galleryPhotos,
   setGalleryPhotos,
   galleryUploadProgress,
   isPaid,
+  onUpgradePlan,
+  isUpgrading = false,
   PLAN_LIMITS,
 }: CreateGallerySectionProps) {
   const [selectionMessage, setSelectionMessage] = useState("");
@@ -224,9 +228,20 @@ const remainingPhotos = hasFiniteLimit
   Upload and organize the photos that will appear in the memorial gallery.
 </p>
 {form.plan === "free" ? (
-  <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-base text-amber-800">
-    Your first 5 gallery photos are free. Upgrade your plan to add more.
-  </p>
+   <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-3 text-amber-900">
+     <p className="text-sm">Your first 5 gallery photos are free. Upgrade your plan to add more.</p>
+     {onUpgradePlan && (
+       <div className="mt-2 flex flex-wrap gap-2" aria-label="Upgrade your MyEMemorial">
+         {([ ["basic", "$49.95"], ["plus", "$69.95"], ["premium", "$89.95"] ] as const).map(([plan, price]) => (
+           <button key={plan} type="button" disabled={isUpgrading}
+             onClick={() => onUpgradePlan(plan)}
+             className="rounded-full bg-blue-950 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-900 disabled:cursor-wait disabled:opacity-60">
+             {isUpgrading ? "Saving..." : `Upgrade to ${plan[0].toUpperCase() + plan.slice(1)} · ${price}`}
+           </button>
+         ))}
+       </div>
+     )}
+   </div>
 ) : !isPaid ? (
   <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-base text-amber-800">
     Complete payment to upload gallery photos with your selected plan.
