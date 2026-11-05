@@ -124,11 +124,13 @@ function AcknowledgeContent() {
       <div className="mx-auto max-w-3xl">
         <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
           <div className="border-b border-stone-200 bg-stone-900 px-6 py-8 text-center md:px-10">
+            <a href="/" aria-label="MyEMemorial home" className="block w-fit max-w-full mx-auto">
             <img
               src="/myememorial-logo.png"
               alt="MyEMemorial"
               className="mx-auto w-[220px] max-w-full"
             />
+            </a>
 
             <h1 className="mt-6 text-3xl font-bold text-white md:text-4xl">
               Funeral Home Preference

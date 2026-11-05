@@ -363,14 +363,16 @@ export default function ReviewSubmissionClient() {
       <main className="min-h-screen bg-stone-100 px-4 py-10">
         <div className="mx-auto max-w-3xl">
           <section className="rounded-[2rem] border border-stone-200 bg-white p-8 text-center shadow-sm md:p-10">
-            <Image
-              src="/myememorial-logo.png"
+            <Link href="/" aria-label="MyEMemorial home" className="block">
+              <Image
+                src="/myememorial-logo.png"
               alt="MyEMemorial"
               width={360}
               height={110}
               className="mx-auto h-auto w-full max-w-[320px]"
               priority
-            />
+              />
+            </Link>
 
             <h1 className="mt-8 text-3xl font-bold text-stone-900">
               Review Submitted Memory
@@ -397,14 +399,16 @@ export default function ReviewSubmissionClient() {
       <div className="mx-auto w-full max-w-3xl">
         <section className="overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-sm">
           <div className="border-b border-stone-200 px-6 py-7 text-center md:px-10 md:py-8">
-            <Image
-              src="/myememorial-logo.png"
+            <Link href="/" aria-label="MyEMemorial home" className="block">
+              <Image
+                src="/myememorial-logo.png"
               alt="MyEMemorial"
               width={360}
               height={110}
               className="mx-auto h-auto w-full max-w-[320px]"
               priority
-            />
+              />
+            </Link>
 
             <p className="mt-6 text-base font-semibold uppercase tracking-[0.18em] text-stone-500">
               Owner Review

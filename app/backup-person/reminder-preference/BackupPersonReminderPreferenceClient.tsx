@@ -169,11 +169,13 @@ function BackupPersonReminderPreferenceContent() {
       <div className="mx-auto max-w-2xl">
         <section className="rounded-3xl border border-stone-200 bg-white p-7 shadow-sm md:p-10">
           <div className="text-center">
+            <a href="/" aria-label="MyEMemorial home" className="block w-fit max-w-full mx-auto">
             <img
               src="/myememorial-logo.png"
               alt="MyEMemorial"
               className="mx-auto h-auto w-[320px] max-w-full"
             />
+            </a>
 
             <h1 className="mt-7 text-3xl font-bold text-stone-900">
               Backup Person Status
@@ -250,11 +252,13 @@ export default function BackupPersonReminderPreferenceClient() {
         <main className="min-h-screen bg-stone-100 px-4 py-10 md:px-8">
           <div className="mx-auto max-w-2xl">
             <section className="rounded-3xl border border-stone-200 bg-white p-7 text-center shadow-sm md:p-10">
+              <a href="/" aria-label="MyEMemorial home" className="block w-fit max-w-full mx-auto">
               <img
                 src="/myememorial-logo.png"
                 alt="MyEMemorial"
                 className="mx-auto h-auto w-[320px] max-w-full"
               />
+              </a>
               <p className="mt-8 text-base leading-7 text-stone-700">
                 Loading Backup Person status...
               </p>

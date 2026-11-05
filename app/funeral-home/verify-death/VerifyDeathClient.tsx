@@ -116,11 +116,13 @@ function VerifyDeathContent() {
     <main className="min-h-screen bg-stone-100 px-4 py-12">
       <div className="mx-auto max-w-2xl rounded-3xl bg-white p-8 shadow-sm sm:p-10">
         <div className="text-center">
+          <a href="/" aria-label="MyEMemorial home" className="block w-fit max-w-full mx-auto">
           <img
             src="/myememorial-logo.png"
             alt="MyEMemorial"
             className="mx-auto h-auto w-[220px] max-w-full"
           />
+          </a>
 
           <h1 className="mt-8 text-3xl font-bold text-stone-900 sm:text-4xl">
             Death Verification
