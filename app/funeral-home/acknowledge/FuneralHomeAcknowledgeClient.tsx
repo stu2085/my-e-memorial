@@ -123,16 +123,16 @@ function AcknowledgeContent() {
     <main className="min-h-screen bg-stone-100 px-4 py-12 md:px-8">
       <div className="mx-auto max-w-3xl">
         <section className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
-          <div className="border-b border-stone-200 bg-stone-900 px-6 py-8 text-center md:px-10">
+          <div className="border-b border-stone-200 bg-[#fffcf5] px-6 py-8 text-center md:px-10">
             <a href="/" aria-label="MyEMemorial home" className="block w-fit max-w-full mx-auto">
             <img
               src="/myememorial-logo.png"
               alt="MyEMemorial"
-              className="mx-auto w-[220px] max-w-full"
+              className="mx-auto w-[360px] max-w-full h-auto"
             />
             </a>
 
-            <h1 className="mt-6 text-3xl font-bold text-white md:text-4xl">
+            <h1 className="mt-6 text-3xl font-bold text-stone-900 md:text-4xl">
               Funeral Home Preference
             </h1>
           </div>
@@ -183,7 +183,7 @@ function AcknowledgeContent() {
                 {warningMessage && (
                   <div className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-6">
                     <p className="text-lg font-bold text-amber-900">
-                      Preference Acknowledged — Follow-Up Needed
+                      Preference Acknowledged â€” Follow-Up Needed
                     </p>
 
                     <p className="mt-3 text-base leading-7 text-amber-900">
