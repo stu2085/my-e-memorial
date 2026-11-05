@@ -1505,7 +1505,7 @@ useEffect(() => {
         if (!user) {
           const returnPath = `/create?${searchParams.toString()}`;
           window.location.replace(
-            `/login?mode=choice&redirect=${encodeURIComponent(returnPath)}`
+            `/login?mode=${searchParams.has("name_entry") ? "signup" : "choice"}&redirect=${encodeURIComponent(returnPath)}`
           );
           return;
         }
