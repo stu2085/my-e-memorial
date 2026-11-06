@@ -132,6 +132,12 @@ export default function CelebrationPresentationBuilderPage() {
   >(null);
   const [videoUploadResult, setVideoUploadResult] = useState("");
   const [videoUploadError, setVideoUploadError] = useState("");
+  const [musicUploadProgress, setMusicUploadProgress] = useState<{
+    completed: number;
+    total: number;
+  } | null>(null);
+  const [musicUploadResult, setMusicUploadResult] = useState("");
+  const [musicUploadError, setMusicUploadError] = useState("");
 
   const [movingItemId, setMovingItemId] =
     useState<number | null>(null);
@@ -1023,42 +1029,47 @@ window.clearInterval(timer);
   function handleMusicChange(
     event: ChangeEvent<HTMLInputElement>
   ) {
-    const selected =
-      Array.from(
-        event.target.files || []
-      );
-
+    const selected = Array.from(event.target.files || []);
     event.target.value = "";
-
-    if (selected.length === 0) {
-      return;
-    }
+    if (selected.length === 0) return;
 
     void (async () => {
-      try {
-        setUploadingMusic(true);
-        setErrorMessage("");
-        setStatusMessage("");
+      let completed = 0;
+      setUploadingMusic(true);
+      setMusicUploadProgress({ completed: 0, total: selected.length });
+      setMusicUploadResult("");
+      setMusicUploadError("");
+      setErrorMessage("");
+      setStatusMessage("");
 
+      try {
         for (const file of selected) {
           await uploadMusic(file);
+          completed += 1;
+          setMusicUploadProgress({ completed, total: selected.length });
         }
 
-        setStatusMessage(
-          selected.length === 1
-            ? "Music added."
-            : `${selected.length} music files added.`
-        );
-
         await loadPresentation();
+        const message = selected.length === 1
+          ? "Upload complete! Your music has been saved."
+          : `Upload complete! All ${selected.length} music files have been saved.`;
+        setMusicUploadResult(message);
+        setStatusMessage(message);
       } catch (error) {
-        setErrorMessage(
-          error instanceof Error
-            ? error.message
-            : "The music could not be uploaded."
-        );
+        const detail = error instanceof Error
+          ? error.message
+          : "The music could not be uploaded.";
+        const partial = completed > 0
+          ? `${completed} of ${selected.length} music files were saved. `
+          : "";
+        const message = `${partial}${detail} Check your music list before trying again to avoid duplicates.`;
+        setMusicUploadError(message);
+        setErrorMessage(message);
+        // The previously successful tracks remain saved even when a later one fails.
+        await loadPresentation();
       } finally {
         setUploadingMusic(false);
+        setMusicUploadProgress(null);
       }
     })();
   }
@@ -1901,7 +1912,7 @@ window.clearInterval(timer);
                 }
                 className="min-h-16 w-full rounded-2xl bg-[#244f40] px-5 py-4 text-lg font-bold text-white shadow-sm transition hover:bg-[#193b30] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Add Music
+                {uploadingMusic ? "Uploading Music…" : "Add Music"}
               </button>
 
               <input
@@ -1912,6 +1923,43 @@ window.clearInterval(timer);
                 onChange={handleMusicChange}
                 className="hidden"
               />
+
+              {(uploadingMusic || musicUploadResult || musicUploadError) && (
+                <div
+                  role={musicUploadError ? "alert" : "status"}
+                  aria-live="polite"
+                  aria-atomic="true"
+                  className={`mt-4 rounded-xl border px-4 py-3 text-base font-semibold ${
+                    musicUploadError
+                      ? "border-red-200 bg-red-50 text-red-800"
+                      : uploadingMusic
+                        ? "border-sky-200 bg-sky-50 text-sky-900"
+                        : "border-green-200 bg-green-50 text-green-800"
+                  }`}
+                >
+                  {uploadingMusic && musicUploadProgress ? (
+                    <>
+                      <p>Uploading your music… {musicUploadProgress.completed} of {musicUploadProgress.total} saved.</p>
+                      <div
+                        role="progressbar"
+                        aria-label="Music uploads saved"
+                        aria-valuemin={0}
+                        aria-valuemax={musicUploadProgress.total}
+                        aria-valuenow={musicUploadProgress.completed}
+                        className="mt-2 h-2 overflow-hidden rounded-full bg-sky-100"
+                      >
+                        <div
+                          className="h-full rounded-full bg-[#244f40] transition-all duration-200"
+                          style={{ width: `${(musicUploadProgress.completed / musicUploadProgress.total) * 100}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-sm font-normal">Please keep this page open until all music is saved. The bar shows completed files, not bytes transferred.</p>
+                    </>
+                  ) : (
+                    <p>{musicUploadError || musicUploadResult}</p>
+                  )}
+                </div>
+              )}
 
               {music.length === 0 ? (
                 <p className="mt-6 text-center text-base text-stone-500">
