@@ -9,6 +9,9 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 );
 
+const ALLOWED_INTRO_FONTS = new Set(["classic", "elegant", "modern"]);
+const ALLOWED_INTRO_COLORS = new Set(["#FDE68A", "#FFFFFF", "#BAE6FD", "#FBCFE8"]);
+
 const ALLOWED_THEMES = new Set([
   "classic",
   "warm",
@@ -110,6 +113,10 @@ async function getAuthorizedPresentation(
       birth_date,
       death_date,
       featured_photo_url,
+      intro_color,
+      intro_font,
+      intro_message,
+      intro_title,
       theme,
       status,
       payment_status,
@@ -343,6 +350,11 @@ export async function GET(
 
           featuredPhotoUrl:
             presentation.featured_photo_url,
+
+          introTitle: presentation.intro_title || "Celebration of Life",
+          introMessage: presentation.intro_message || "",
+          introFont: presentation.intro_font || "classic",
+          introColor: presentation.intro_color || "#FDE68A",
 
           theme:
             presentation.theme,
@@ -710,6 +722,38 @@ export async function PATCH(
         true;
     }
 
+    if (Object.prototype.hasOwnProperty.call(body, "introTitle")) {
+      const value = normalizeText(body.introTitle);
+      if (!value || value.length > 60 || /[\r\n]/.test(value)) {
+        return NextResponse.json({ error: "The opening title must be 1–60 characters on one line." }, { status: 400 });
+      }
+      updates.intro_title = value;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, "introMessage")) {
+      const value = normalizeText(body.introMessage);
+      if (value.length > 140 || value.split(/\r?\n/).length > 2) {
+        return NextResponse.json({ error: "The opening message must be 140 characters or less, across at most two lines." }, { status: 400 });
+      }
+      updates.intro_message = value;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, "introFont")) {
+      const value = normalizeText(body.introFont);
+      if (!ALLOWED_INTRO_FONTS.has(value)) {
+        return NextResponse.json({ error: "Please choose a valid opening font." }, { status: 400 });
+      }
+      updates.intro_font = value;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(body, "introColor")) {
+      const value = normalizeText(body.introColor).toUpperCase();
+      if (!ALLOWED_INTRO_COLORS.has(value)) {
+        return NextResponse.json({ error: "Please choose a valid opening text color." }, { status: 400 });
+      }
+      updates.intro_color = value;
+    }
+
     if (
       Object.keys(updates).length ===
       0
@@ -740,6 +784,10 @@ export async function PATCH(
         birth_date,
         death_date,
         featured_photo_url,
+        intro_color,
+        intro_font,
+        intro_message,
+        intro_title,
         theme,
         status,
         payment_status,
@@ -795,6 +843,11 @@ export async function PATCH(
 
         featuredPhotoUrl:
           updated.featured_photo_url,
+
+        introTitle: updated.intro_title || "Celebration of Life",
+        introMessage: updated.intro_message || "",
+        introFont: updated.intro_font || "classic",
+        introColor: updated.intro_color || "#FDE68A",
 
         theme:
           updated.theme,

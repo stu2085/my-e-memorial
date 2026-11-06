@@ -25,6 +25,10 @@ type Presentation = {
   birthDate: string | null;
   deathDate: string | null;
   featuredPhotoUrl: string | null;
+  introTitle?: string;
+  introMessage?: string;
+  introFont?: "classic" | "elegant" | "modern";
+  introColor?: string;
   theme: string;
   status: string;
   paymentStatus: string;
@@ -104,6 +108,15 @@ export default function CelebrationPresentationBuilderPage() {
     useState<PresentationMusic[]>(
       []
     );
+
+  const [introTitle, setIntroTitle] = useState("Celebration of Life");
+  const [introMessage, setIntroMessage] = useState("");
+  const [introFont, setIntroFont] = useState<"classic" | "elegant" | "modern">("classic");
+  const [introColor, setIntroColor] = useState("#FDE68A");
+  const [introSaving, setIntroSaving] = useState(false);
+  const [introFeedback, setIntroFeedback] = useState("");
+  const [introError, setIntroError] = useState("");
+  const introInitializedRef = useRef(false);
 
   const [loading, setLoading] =
     useState(true);
@@ -227,6 +240,14 @@ const [showUpgradeOffer, setShowUpgradeOffer] =
         setPresentation(
           result.presentation as Presentation
         );
+        if (!introInitializedRef.current) {
+          const p = result.presentation as Presentation;
+          setIntroTitle(p.introTitle || "Celebration of Life");
+          setIntroMessage(p.introMessage || "");
+          setIntroFont(p.introFont || "classic");
+          setIntroColor(p.introColor || "#FDE68A");
+          introInitializedRef.current = true;
+        }
 
         const loadedItems =
           (
@@ -392,6 +413,34 @@ window.clearInterval(timer);
       setRecoveryMessage(result?.message || "If this is the purchaser email, a private access link will arrive shortly.");
     } catch {
       setRecoveryMessage("The access request could not be sent. Please try again.");
+    }
+  }
+
+  async function saveOpeningScreen() {
+    if (introSaving || !publicId) return;
+    setIntroSaving(true);
+    setIntroFeedback("");
+    setIntroError("");
+    try {
+      const response = await fetch(
+        `/api/celebration-presentations/${encodeURIComponent(publicId)}`,
+        {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ introTitle, introMessage, introFont, introColor }),
+        }
+      );
+      const result = await response.json();
+      if (!response.ok || !result?.presentation) {
+        throw new Error(result?.error || "The opening screen could not be saved.");
+      }
+      setPresentation(result.presentation as Presentation);
+      setIntroFeedback("Opening screen saved. A new Offline Copy will include these changes.");
+    } catch (error) {
+      setIntroError(error instanceof Error ? error.message : "The opening screen could not be saved.");
+    } finally {
+      setIntroSaving(false);
     }
   }
 
@@ -1559,6 +1608,59 @@ window.clearInterval(timer);
               music={music}
             />
           )}
+
+          <section className="mt-8 rounded-2xl border border-[#d8d3c7] bg-white/95 p-5 shadow-sm sm:p-6">
+            <h2 className="font-serif text-2xl font-bold text-[#173a31]">Opening Screen</h2>
+            <p className="mt-2 text-base text-stone-700">Personalize the first five seconds of your presentation. Changes appear in the online player and your next Offline Copy.</p>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <label className="block text-base font-semibold text-stone-800">
+                Opening title
+                <input type="text" maxLength={60} value={introTitle} onChange={(event) => { setIntroTitle(event.target.value); setIntroFeedback(""); }}
+                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900" />
+              </label>
+              <label className="block text-base font-semibold text-stone-800">
+                Font
+                <select value={introFont} onChange={(event) => { setIntroFont(event.target.value as "classic" | "elegant" | "modern"); setIntroFeedback(""); }}
+                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900">
+                  <option value="classic">Classic</option>
+                  <option value="elegant">Elegant</option>
+                  <option value="modern">Modern</option>
+                </select>
+              </label>
+              <label className="block text-base font-semibold text-stone-800 sm:col-span-2">
+                Personal dedication or message (optional, maximum 140 characters)
+                <textarea value={introMessage} maxLength={140} rows={2}
+                  onChange={(event) => { setIntroMessage(event.target.value); setIntroFeedback(""); }}
+                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900"
+                  placeholder="Forever in our hearts" />
+              </label>
+              <label className="block text-base font-semibold text-stone-800">
+                Text color
+                <select value={introColor} onChange={(event) => { setIntroColor(event.target.value); setIntroFeedback(""); }}
+                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900">
+                  <option value="#FDE68A">Soft gold</option>
+                  <option value="#FFFFFF">White</option>
+                  <option value="#BAE6FD">Pale blue</option>
+                  <option value="#FBCFE8">Soft pink</option>
+                </select>
+              </label>
+            </div>
+            <div className="mx-auto mt-5 flex min-h-64 max-w-xl flex-col items-center justify-center gap-3 rounded-xl bg-black px-6 py-8 text-center"
+              style={{ fontFamily: introFont === "elegant" ? "Georgia, serif" : introFont === "modern" ? "Arial, sans-serif" : "inherit" }}>
+              <p className="text-xl font-bold uppercase tracking-wide sm:text-2xl" style={{ color: introColor }}>{introTitle || "Celebration of Life"}</p>
+              {presentation?.featuredPhotoUrl && <img src={presentation.featuredPhotoUrl} alt="Featured photo preview" className="h-28 w-24 rounded-lg object-cover" />}
+              <p className="text-2xl font-semibold text-white">{presentation?.personName}</p>
+              {(presentation?.birthDate || presentation?.deathDate) && <p className="text-sm text-amber-100">{[presentation?.birthDate?.slice(0, 4), presentation?.deathDate?.slice(0, 4)].filter(Boolean).join(" – ")}</p>}
+              {introMessage && <p className="whitespace-pre-line text-base" style={{ color: introColor }}>{introMessage}</p>}
+            </div>
+            <p className="mt-2 text-center text-sm text-stone-600">Preview of your opening screen</p>
+            <button type="button" onClick={() => void saveOpeningScreen()} disabled={introSaving}
+              className="mt-5 min-h-12 rounded-full bg-[#244f40] px-6 py-3 text-base font-bold text-white disabled:opacity-60">
+              {introSaving ? "Saving opening screen…" : "Save Opening Screen"}
+            </button>
+            {introFeedback && <p role="status" className="mt-3 text-base font-semibold text-green-800">{introFeedback}</p>}
+            {introError && <p role="alert" className="mt-3 text-base font-semibold text-red-700">{introError}</p>}
+          </section>
 
           <div className="mt-8 space-y-3">
             <BuilderMediaAccordion

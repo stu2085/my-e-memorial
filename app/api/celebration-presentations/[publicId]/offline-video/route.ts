@@ -31,6 +31,10 @@ type PresentationRow = {
   birth_date: string | null;
   death_date: string | null;
   featured_photo_url: string | null;
+  intro_title: string | null;
+  intro_message: string | null;
+  intro_font: string | null;
+  intro_color: string | null;
   edit_token_hash: string;
   status: string;
   payment_status: string;
@@ -198,6 +202,10 @@ async function getAuthorizedPresentation(
       birth_date,
       death_date,
       featured_photo_url,
+      intro_title,
+      intro_message,
+      intro_font,
+      intro_color,
       edit_token_hash,
       status,
       payment_status,
@@ -299,6 +307,17 @@ function contentHash(
     birthDate: presentation.birth_date,
     deathDate: presentation.death_date,
     featuredPhotoUrl: presentation.featured_photo_url,
+    ...(presentation.intro_title !== "Celebration of Life" ||
+        Boolean(presentation.intro_message) ||
+        presentation.intro_font !== "classic" ||
+        presentation.intro_color !== "#FDE68A"
+      ? { intro: {
+          title: presentation.intro_title,
+          message: presentation.intro_message,
+          font: presentation.intro_font,
+          color: presentation.intro_color,
+        } }
+      : {}),
     items: items.map((item) => ({
       id: item.id,
       type: item.item_type,
@@ -634,7 +653,8 @@ function buildRenderPayload(
     height: number,
     fontSize: string,
     fontWeight: string,
-    color: string
+    color: string,
+    fontFamily = "Roboto"
   ) => {
     if (!content) {
       return;
@@ -652,7 +672,7 @@ function buildRenderPayload(
       width: 1400,
       height,
       styles: {
-        fontFamily: "Roboto",
+        fontFamily,
         fontSize,
         fontWeight,
         color,
@@ -774,17 +794,24 @@ function buildRenderPayload(
     });
   };
 
+  const introTitle = presentation.intro_title || "Celebration of Life";
+  const introMessage = presentation.intro_message || "";
+  const introColor = presentation.intro_color || "#FDE68A";
+  const introFontFamily = presentation.intro_font === "elegant" ? "Georgia" :
+    presentation.intro_font === "modern" ? "Arial" : "Roboto";
+
   // Opening: 5 seconds.
   addBackground(0, INTRO_FRAMES, 175, 770, 380, 500);
   addText(
-    "CELEBRATION OF LIFE",
+    introTitle.toUpperCase(),
     0,
     INTRO_FRAMES,
     65,
     90,
-    "38px",
+    introTitle.length > 32 ? "30px" : "38px",
     "600",
-    "#FDE68A"
+    introColor,
+    introFontFamily
   );
   addText(
     personName,
@@ -820,6 +847,20 @@ function buildRenderPayload(
       "30px",
       "600",
       "#FEF3C7"
+    );
+  }
+
+  if (introMessage) {
+    addText(
+      introMessage,
+      0,
+      INTRO_FRAMES,
+      930,
+      110,
+      introMessage.length > 90 ? "26px" : "32px",
+      "500",
+      introColor,
+      introFontFamily
     );
   }
 

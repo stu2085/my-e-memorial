@@ -17,6 +17,10 @@ type Presentation = {
   birthDate: string | null;
   deathDate: string | null;
   featuredPhotoUrl?: string | null;
+  introTitle?: string | null;
+  introMessage?: string | null;
+  introFont?: string | null;
+  introColor?: string | null;
   theme: string;
   status: string;
   paymentStatus: string;
@@ -624,6 +628,15 @@ export default function CelebrationPresentationPlayer({
         )
       : presentation.personName;
 
+  const introTitle = presentation.introTitle || "Celebration of Life";
+  const introMessage = presentation.introMessage || "";
+  const introColor = presentation.introColor || "#FDE68A";
+  const introFontStyle = presentation.introFont === "elegant"
+    ? "Georgia, serif"
+    : presentation.introFont === "modern"
+      ? "Arial, sans-serif"
+      : "inherit";
+
   return (
     <main
       ref={playerContainerRef}
@@ -662,8 +675,8 @@ export default function CelebrationPresentationPlayer({
       {!hasStarted ? (
         <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black px-6 py-12 text-center">
           <div className="relative z-10 mx-auto max-w-4xl">
-            <p className="font-serif text-xl tracking-[0.22em] text-amber-200 uppercase sm:text-2xl">
-              Celebration of Life
+            <p className="font-serif text-xl tracking-[0.22em] uppercase sm:text-2xl" style={{ color: introColor, fontFamily: introFontStyle }}>
+              {introTitle}
             </p>
 
             {presentation.featuredPhotoUrl && (
@@ -710,8 +723,8 @@ export default function CelebrationPresentationPlayer({
       ) : showOpeningScreen ? (
         <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black px-6 py-8 text-center">
           <div className="relative z-10 mx-auto w-full max-w-5xl">
-            <p className="text-3xl font-bold tracking-wide text-amber-200 uppercase sm:text-6xl">
-              Celebration of Life
+            <p className="text-3xl font-bold tracking-wide uppercase sm:text-6xl" style={{ color: introColor, fontFamily: introFontStyle }}>
+              {introTitle}
             </p>
 
             {presentation.featuredPhotoUrl && (
@@ -737,6 +750,11 @@ export default function CelebrationPresentationPlayer({
                 {years}
               </p>
             ) : null}
+            {introMessage && (
+              <p className="mx-auto mt-5 max-w-4xl whitespace-pre-line text-xl leading-snug sm:text-3xl" style={{ color: introColor, fontFamily: introFontStyle }}>
+                {introMessage}
+              </p>
+            )}
           </div>
         </section>
       ) : showClosingScreen ? (
