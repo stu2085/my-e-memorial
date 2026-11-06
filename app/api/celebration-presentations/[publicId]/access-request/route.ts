@@ -54,7 +54,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ public
               <h1 style="margin:0 0 18px;font-family:Georgia,serif;font-size:30px;line-height:1.25;text-align:center;color:#173a31;">Your private builder link</h1>
               <p style="margin:0 0 20px;font-size:16px;line-height:1.6;">You requested access to your Celebration of Life Presentation.</p>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:24px auto;"><tr><td style="border-radius:999px;background:#244f40;"><a href="${link}" style="display:inline-block;padding:14px 24px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;">Open Private Builder</a></td></tr></table>
-              <div style="margin:24px 0 0;padding:18px;background:#edf5f0;border:1px solid #c9ddd2;border-radius:12px;"><p style="margin:0;font-size:15px;line-height:1.55;">This link can be used once, until the presentation's hosting period ends. If you did not request it, you may ignore this email.</p></div>
+              <div style="margin:24px 0 0;padding:18px;background:#edf5f0;border:1px solid #c9ddd2;border-radius:12px;"><p style="margin:0;font-size:15px;line-height:1.55;">You can reopen this private link while the presentation is active. Keep it private. If you did not request it, you may ignore this email.</p></div>
             </td></tr>
             <tr><td align="center" style="padding:20px 28px;background:#173a31;color:#ffffff;"><p style="margin:0;font-size:14px;font-weight:700;">MyEMemorial</p><p style="margin:5px 0 0;font-size:12px;color:#d9e4de;">Where Life's Stories Are Told</p></td></tr>
           </table>

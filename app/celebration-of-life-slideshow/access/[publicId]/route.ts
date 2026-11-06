@@ -17,13 +17,13 @@ export async function GET(req: NextRequest, context: { params: Promise<{ publicI
     .eq("public_id", publicId).eq("email_access_token_hash", tokenHash).maybeSingle();
   if (error || !presentation || presentation.payment_status !== "paid" || !presentation.email_access_expires_at ||
       new Date(presentation.email_access_expires_at).getTime() <= Date.now()) {
-    return NextResponse.json({ error: "This private access link has expired or was already used." }, { status: 403 });
+    return NextResponse.json({ error: "This private access link is invalid or has expired." }, { status: 403 });
   }
   const { data: redeemed, error: redemptionError } = await admin.from("celebration_presentations")
-    .update({ edit_token_hash: tokenHash, email_access_token_hash: null })
+    .update({ edit_token_hash: tokenHash })
     .eq("id", presentation.id).eq("email_access_token_hash", tokenHash).select("id").maybeSingle();
   if (redemptionError || !redeemed) {
-    return NextResponse.json({ error: "This private access link has already been used." }, { status: 403 });
+    return NextResponse.json({ error: "This private access link could not be opened. Please try again." }, { status: 403 });
   }
   const response = NextResponse.redirect(new URL(`/celebration-of-life-slideshow/create/${publicId}`, req.url));
   response.headers.set("Cache-Control", "no-store");

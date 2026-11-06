@@ -102,7 +102,7 @@ export async function activateCelebrationPurchase(stripe: Stripe, session: Strip
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:24px auto;"><tr><td style="border-radius:999px;background:#244f40;"><a href="${viewingLink}" style="display:inline-block;padding:14px 24px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;">View &amp; Share Presentation</a></td></tr></table>
             <div style="margin:26px 0;padding:22px;background:#edf5f0;border:1px solid #c9ddd2;border-radius:12px;">
               <h2 style="margin:0 0 9px;font-family:Georgia,serif;font-size:22px;color:#173a31;">Your private builder</h2>
-              <p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Use this private link to add photos, videos, captions, music, and create your Offline Copy. It can be used once during the 60-day hosting period. Please do not share it with viewers.</p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Use this private link to add photos, videos, captions, music, and create your Offline Copy. You can reopen this private link while the presentation is active. Keep it private and do not share it with viewers.</p>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td style="border-radius:999px;background:#244f40;"><a href="${link}" style="display:inline-block;padding:13px 21px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">Open Private Builder</a></td></tr></table>
             </div>
             <div style="margin:26px 0 0;padding:22px;background:#fbf7ed;border:1px solid #e0d2b4;border-radius:12px;">
@@ -117,7 +117,7 @@ export async function activateCelebrationPurchase(stripe: Stripe, session: Strip
         </table>
       </div>
     `,
-    text: `Your Celebration of Life Presentation for ${presentation.person_name} is ready to edit and share for 60 days.\n\nView and share the presentation: ${viewingLink}\n\nYour private builder link: ${link}\nThis private edit link may be used once during your 60-day hosting period. Do not share it with viewers.\n\n${thankYou}\nEnter your single-use credit code when purchasing a new paid MyEMemorial in Stripe Checkout: ${creditCode}`,
+    text: `Your Celebration of Life Presentation for ${presentation.person_name} is ready to edit and share for 60 days.\n\nView and share the presentation: ${viewingLink}\n\nYour private builder link: ${link}\nYou can reopen this private edit link while your presentation is active. Keep it private and do not share it with viewers.\n\n${thankYou}\nEnter your single-use credit code when purchasing a new paid MyEMemorial in Stripe Checkout: ${creditCode}`,
   });
 }
 
