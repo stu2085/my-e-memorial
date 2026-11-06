@@ -100,7 +100,16 @@ export default function OfflineVideoSection({
   );
   const [starting, setStarting] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [openChoice, setOpenChoice] = useState<"watch" | "offline" | "funeral" | null>(null);
+  const [device, setDevice] = useState<"windows" | "iphone" | "android" | "mac">("windows");
   const aliveRef = useRef(true);
+
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    if (/iPad|iPhone|iPod/i.test(ua)) setDevice("iphone");
+    else if (/Android/i.test(ua)) setDevice("android");
+    else if (/Macintosh|Mac OS X/i.test(ua)) setDevice("mac");
+  }, []);
 
   const eligible = paymentStatus === "paid" && status === "active";
 
@@ -361,116 +370,108 @@ export default function OfflineVideoSection({
       setDownloading(false);
     }
   }
+  const toggle = (choice: "watch" | "offline" | "funeral") => {
+    setOpenChoice((current) => current === choice ? null : choice);
+  };
+
+  const choiceClass = "w-full flex items-center justify-between gap-4 rounded-2xl px-5 py-5 text-left transition hover:bg-[#f6f3ea] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244f40]";
+  const panelClass = "border-t border-[#e5ded0] px-5 pb-5 pt-4 text-left text-base leading-7 text-[#344f43]";
+
   return (
-    <section className="mt-8 rounded-3xl border border-[#cdbf9f] bg-[#fffdf8]/95 p-6 shadow-sm sm:p-8">
-      <div className="mx-auto max-w-3xl text-center">
-        <p className="text-base font-bold uppercase tracking-[0.16em] text-[#8d6c3f]">
-          Event Readiness
-        </p>
+    <section className="mt-8 rounded-3xl border border-[#cdbf9f] bg-[#fffdf8]/95 p-5 shadow-sm sm:p-8">
+      <div className="mx-auto max-w-3xl">
+        <p className="text-center text-sm font-bold uppercase tracking-[0.15em] text-[#8d6c3f]">Your Celebration of Life Presentation</p>
+        <h2 className="mt-2 text-center font-serif text-3xl font-bold text-[#173a31]">Watch, Save, or Share</h2>
+        <p className="mt-3 text-center text-base text-[#344f43]">Choose what you would like to do. Instructions appear only for your choice.</p>
 
-        <h2 className="mt-2 font-serif text-3xl font-bold text-[#173a31]">
-          Offline Copy
-        </h2>
-
-        <p className="mt-3 text-lg leading-8 text-[#344f43]">
-          Create a video copy of this Celebration of Life Presentation
-          that will play even if there is no internet at the service.
-        </p>
-
-        {offlineStatus === "idle" || offlineStatus === "failed" ? (
-          <button
-            type="button"
-            onClick={() => void startRender()}
-            disabled={starting}
-            className="mt-6 min-h-14 rounded-full bg-[#244f40] px-8 py-3 text-lg font-bold text-white transition hover:bg-[#193b30] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {starting
-              ? "Preparing..."
-              : "Download Offline Copy"}
-          </button>
-        ) : null}
-
-        {offlineStatus === "preparing_media" ||
-        offlineStatus === "rendering" ? (
-          <div className="mx-auto mt-6 max-w-2xl rounded-2xl bg-[#f8f4e9] p-5">
-            <p className="text-xl font-bold text-[#173a31]">
-              Preparing Your Offline Copy...
-            </p>
-
-            <p className="mt-2 text-base leading-7 text-stone-700">
-              {message}
-            </p>
-
-            {offlineStatus === "rendering" ? (
-              <div className="mx-auto mt-4 h-3 max-w-xl overflow-hidden rounded-full bg-stone-200">
-                <div
-                  className="h-full rounded-full bg-[#244f40] transition-all"
-                  style={{
-                    width: `${Math.max(
-                      4,
-                      Math.min(progress >= 100 ? 95 : progress, 95)
-                    )}%`,
-                  }}
-                />
-              </div>
-            ) : null}
-
-            {offlineStatus === "rendering" && progress > 0 ? (
-              <p className="mt-2 text-sm font-semibold text-stone-600">
-                {progress >= 100 ? "Almost ready..." : `${Math.round(progress)}%`}
-              </p>
-            ) : null}
-          </div>
-        ) : null}
-
-        {offlineStatus === "ready" && outputUrl ? (
-          <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-[#b5ccba] bg-[#f4faf2] p-5">
-            <p className="text-xl font-bold text-[#173a31]">
-              ✓ Your Offline Copy Is Ready
-            </p>
-
-            <p className="mt-2 text-base leading-7 text-[#344f43]">
-              Save this video on the laptop or device that will be used
-              at the service.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => void downloadPresentation()}
-              disabled={downloading}
-              className="mt-5 inline-flex min-h-14 items-center justify-center rounded-full bg-[#244f40] px-8 py-3 text-lg font-bold text-white transition hover:bg-[#193b30] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {downloading
-                ? "Downloading..."
-                : "Download My Presentation"}
+        <div className="mt-6 space-y-3">
+          <div className="overflow-hidden rounded-2xl border border-[#d9d1c1] bg-white">
+            <button type="button" className={choiceClass} aria-expanded={openChoice === "watch"} aria-controls="celebration-watch-panel" onClick={() => toggle("watch")}>
+              <span><span className="block text-lg font-bold text-[#173a31]">Watch or Share Online</span><span className="block text-sm text-stone-600">For family, friends, and venues with internet</span></span>
+              <span aria-hidden="true" className="text-xl text-[#244f40]">{openChoice === "watch" ? "−" : "+"}</span>
             </button>
-
-            <p className="mt-4 text-base leading-7 text-stone-700">
-              After downloading, open the file and play it from
-              beginning to end with Wi-Fi turned off.
-            </p>
+            {openChoice === "watch" && (
+              <div id="celebration-watch-panel" className={panelClass}>
+                <p>Use the presentation’s <strong>Play Presentation</strong> option to watch online. You can also share its regular viewing link with family, friends, or the funeral home.</p>
+                <p className="mt-2 text-sm font-semibold text-[#244f40]">Important: share the viewing link, not your private editing link.</p>
+              </div>
+            )}
           </div>
-        ) : null}
 
-        {errorMessage ? (
-          <p
-            role="alert"
-            className="mx-auto mt-5 max-w-2xl rounded-2xl bg-red-50 px-4 py-3 text-base font-semibold text-red-700"
-          >
-            {errorMessage}
-          </p>
-        ) : null}
+          <div className="overflow-hidden rounded-2xl border border-[#d9d1c1] bg-white">
+            <button type="button" className={choiceClass} aria-expanded={openChoice === "offline"} aria-controls="celebration-offline-panel" onClick={() => toggle("offline")}>
+              <span><span className="block text-lg font-bold text-[#173a31]">Save for Offline Viewing</span><span className="block text-sm text-stone-600">Only needed if the venue has no reliable internet</span></span>
+              <span aria-hidden="true" className="text-xl text-[#244f40]">{openChoice === "offline" ? "−" : "+"}</span>
+            </button>
+            {openChoice === "offline" && (
+              <div id="celebration-offline-panel" className={panelClass}>
+                <p>A saved MP4 video can play without internet. Download it <strong>before</strong> the service.</p>
 
-        <details className="mx-auto mt-6 max-w-2xl rounded-2xl border border-stone-200 bg-white/80 p-4 text-left">
-          <summary className="cursor-pointer text-base font-bold text-[#173a31]">
-            Want an extra backup?
-          </summary>
+                {(offlineStatus === "idle" || offlineStatus === "failed") && (
+                  <button type="button" onClick={() => void startRender()} disabled={starting} className="mt-5 min-h-12 rounded-full bg-[#244f40] px-6 py-3 font-bold text-white hover:bg-[#193b30] disabled:opacity-60">
+                    {starting ? "Preparing..." : "Prepare My Offline Video"}
+                  </button>
+                )}
 
-          <p className="mt-3 text-base leading-7 text-stone-700">
-            Copy the downloaded Offline Copy to a USB thumb drive or a
-            second device. Bring both copies to the service.
-          </p>
-        </details>
+                {(offlineStatus === "preparing_media" || offlineStatus === "rendering") && (
+                  <div className="mt-5 rounded-xl bg-[#f8f4e9] p-4" role="status">
+                    <p className="font-bold text-[#173a31]">Preparing Your Offline Video</p>
+                    <p className="mt-1">{message}</p>
+                    {offlineStatus === "rendering" && (
+                      <>
+                        <div className="mt-3 h-3 overflow-hidden rounded-full bg-stone-200"><div className="h-full rounded-full bg-[#244f40] transition-all" style={{width: `${Math.max(4, Math.min(progress >= 100 ? 95 : progress, 95))}%`}} /></div>
+                        {progress > 0 && <p className="mt-1 text-sm">{progress >= 100 ? "Almost ready..." : `${Math.round(progress)}%`}</p>}
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {offlineStatus === "ready" && outputUrl && (
+                  <div className="mt-5 rounded-xl border border-[#b5ccba] bg-[#f4faf2] p-4">
+                    <p className="font-bold text-[#173a31]">Your Offline Video Is Ready</p>
+                    <button type="button" onClick={() => void downloadPresentation()} disabled={downloading} className="mt-3 min-h-12 rounded-full bg-[#244f40] px-6 py-3 font-bold text-white hover:bg-[#193b30] disabled:opacity-60">
+                      {downloading ? "Starting Download..." : "Download Now to This Device"}
+                    </button>
+                    <p className="mt-3 text-sm">Please allow the download to finish completely before using the video offline.</p>
+                  </div>
+                )}
+
+                {errorMessage && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 font-semibold text-red-700">{errorMessage}</p>}
+
+                <details className="mt-5 rounded-xl border border-stone-200 bg-[#fffdf8] p-3">
+                  <summary className="cursor-pointer font-semibold text-[#173a31]">Where will I find my video?</summary>
+                  <label className="mt-3 block text-sm font-semibold" htmlFor="celebration-device">My device</label>
+                  <select id="celebration-device" value={device} onChange={(event) => setDevice(event.target.value as typeof device)} className="mt-1 w-full rounded-lg border border-stone-300 bg-white p-2 text-base">
+                    <option value="windows">Windows computer</option><option value="iphone">iPhone or iPad</option><option value="android">Android</option><option value="mac">Mac</option>
+                  </select>
+                  <p className="mt-3 text-sm">
+                    {device === "windows" && "Open File Explorer → Downloads. Double-click the Celebration of Life MP4 file."}
+                    {device === "iphone" && "Open the Files app → Browse → Downloads. If necessary, also check On My iPhone or iCloud Drive."}
+                    {device === "android" && "Open Files (or My Files) → Downloads, then tap the video."}
+                    {device === "mac" && "Open Finder → Downloads, then double-click the video."}
+                  </p>
+                </details>
+                <p className="mt-4 text-sm"><strong>Before the service:</strong> play the entire downloaded video with Wi-Fi off, check the sound, and consider a backup USB drive.</p>
+                <p className="mt-2 text-sm text-stone-600">Email delivery of a private download link is a planned addition. The working Download Now option remains available here.</p>
+              </div>
+            )}
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-[#d9d1c1] bg-white">
+            <button type="button" className={choiceClass} aria-expanded={openChoice === "funeral"} aria-controls="celebration-funeral-panel" onClick={() => toggle("funeral")}>
+              <span><span className="block text-lg font-bold text-[#173a31]">Send to Funeral Home</span><span className="block text-sm text-stone-600">Help the funeral director prepare ahead of time</span></span>
+              <span aria-hidden="true" className="text-xl text-[#244f40]">{openChoice === "funeral" ? "−" : "+"}</span>
+            </button>
+            {openChoice === "funeral" && (
+              <div id="celebration-funeral-panel" className={panelClass}>
+                <p>We recommend contacting the funeral home before the service and asking whether the venue has reliable internet.</p>
+                <details className="mt-3 rounded-xl border border-stone-200 p-3"><summary className="cursor-pointer font-semibold">Yes, they have internet</summary><p className="mt-2 text-sm">Send the regular online viewing link and ask the funeral director to test playback and sound.</p></details>
+                <details className="mt-3 rounded-xl border border-stone-200 p-3"><summary className="cursor-pointer font-semibold">No, they need an offline copy</summary><p className="mt-2 text-sm">Use Save for Offline Viewing above to get the MP4 in advance. Arrange to deliver the saved file, such as on a USB drive, and ask them to test it.</p></details>
+                <p className="mt-3 text-sm text-stone-600">Direct emailing to a funeral home will be added after secure sharing and delivery are connected. Please do not forward your private editing link.</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
