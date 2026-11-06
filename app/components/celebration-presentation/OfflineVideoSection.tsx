@@ -100,6 +100,8 @@ export default function OfflineVideoSection({
   );
   const [starting, setStarting] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [linkCopyError, setLinkCopyError] = useState("");
   const [openChoice, setOpenChoice] = useState<"watch" | "offline" | "funeral" | null>(null);
   const [device, setDevice] = useState<"windows" | "iphone" | "android" | "mac">("windows");
   const aliveRef = useRef(true);
@@ -370,6 +372,21 @@ export default function OfflineVideoSection({
       setDownloading(false);
     }
   }
+  const viewingPath = `/celebration-of-life-slideshow/${encodeURIComponent(publicId)}`;
+
+  async function copyViewingLink() {
+    const viewingLink = `${window.location.origin}${viewingPath}`;
+    setLinkCopyError("");
+    setLinkCopied(false);
+    try {
+      await navigator.clipboard.writeText(viewingLink);
+      setLinkCopied(true);
+    } catch {
+      // Make the safe viewing URL selectable when clipboard permissions are unavailable.
+      setLinkCopyError(viewingLink);
+    }
+  }
+
   const toggle = (choice: "watch" | "offline" | "funeral") => {
     setOpenChoice((current) => current === choice ? null : choice);
   };
@@ -392,8 +409,32 @@ export default function OfflineVideoSection({
             </button>
             {openChoice === "watch" && (
               <div id="celebration-watch-panel" className={panelClass}>
-                <p>Use the presentation’s <strong>Play Presentation</strong> option to watch online. You can also share its regular viewing link with family, friends, or the funeral home.</p>
-                <p className="mt-2 text-sm font-semibold text-[#244f40]">Important: share the viewing link, not your private editing link.</p>
+                <p>Watch your presentation online or share the viewing link with family, friends, and your funeral home.</p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <a
+                    href={viewingPath}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#244f40] px-6 py-3 font-bold text-white hover:bg-[#193b30]"
+                  >
+                    Play Presentation
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => void copyViewingLink()}
+                    className="min-h-12 rounded-full border-2 border-[#244f40] bg-white px-6 py-3 font-bold text-[#173a31] hover:bg-[#e9f0e8]"
+                  >
+                    {linkCopied ? "Link Copied!" : "Copy Viewing Link"}
+                  </button>
+                </div>
+                {linkCopied && <p role="status" className="mt-3 text-sm font-semibold text-[#244f40]">Viewing link copied. Paste it into an email or message to share it.</p>}
+                {linkCopyError && (
+                  <div className="mt-3">
+                    <label htmlFor="celebration-view-link" className="block text-sm font-semibold text-[#244f40]">Copy this viewing link:</label>
+                    <input id="celebration-view-link" readOnly onFocus={(event) => event.target.select()} value={linkCopyError} className="mt-1 w-full rounded-lg border border-stone-300 bg-white p-2 text-sm" />
+                  </div>
+                )}
+                <p className="mt-3 text-sm text-stone-600">This link lets others watch your presentation. It does not let them edit it.</p>
               </div>
             )}
           </div>
