@@ -1,7 +1,10 @@
-import { createHash, timingSafeEqual } from "crypto";
+﻿import { createHash, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import Mux from "@mux/mux-node";
+import { HeadObjectCommand } from "@aws-sdk/client-s3";
+import { getR2Client, getR2Config } from "../../../../../lib/r2-storage";
+import { getPrivateVideoDownloadUrl } from "../../../../../lib/r2-video-upload";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -42,6 +45,10 @@ type PresentationRow = {
   offline_backup_status: string | null;
   offline_backup_storage_path: string | null;
   offline_backup_created_at: string | null;
+  offline_r2_storage_key: string | null;
+  offline_r2_content_hash: string | null;
+  offline_r2_size_bytes: number | null;
+  offline_r2_stored_at: string | null;
 };
 
 type ItemRow = {
@@ -212,7 +219,11 @@ async function getAuthorizedPresentation(
       expires_at,
       offline_backup_status,
       offline_backup_storage_path,
-      offline_backup_created_at
+      offline_backup_created_at,
+      offline_r2_storage_key,
+      offline_r2_content_hash,
+      offline_r2_size_bytes,
+      offline_r2_stored_at
     `)
     .eq("public_id", publicId)
     .maybeSingle();
@@ -1193,6 +1204,38 @@ export async function POST(
     }
 
     const hash = contentHash(presentation, items, music);
+    if (
+      presentation.offline_r2_storage_key &&
+      presentation.offline_r2_content_hash === hash
+    ) {
+      try {
+        const r2 = getR2Client();
+        const { bucket } = getR2Config();
+
+        const stored = await r2.send(
+          new HeadObjectCommand({
+            Bucket: bucket,
+            Key: presentation.offline_r2_storage_key,
+          })
+        );
+
+        if (
+          typeof stored.ContentLength === "number" &&
+          stored.ContentLength >= 1024 &&
+          (presentation.offline_r2_size_bytes == null ||
+            stored.ContentLength === presentation.offline_r2_size_bytes)
+        ) {
+          return NextResponse.json({
+            success: true,
+            status: "ready",
+            progress: 100,
+            filename: safeDownloadName(presentation.person_name),
+          });
+        }
+      } catch (error) {
+        console.error("R2 READY CHECK FALLBACK:", error);
+      }
+    }
     const existing = await normalizeExistingJob(presentation, hash);
 
     if (existing) {
@@ -1303,6 +1346,10 @@ export async function POST(
         offline_backup_storage_path: renderMarker(hash, jobId),
         offline_backup_created_at: null,
         offline_backup_error: null,
+        offline_r2_storage_key: null,
+        offline_r2_content_hash: null,
+        offline_r2_size_bytes: null,
+        offline_r2_stored_at: null,
       })
       .eq("id", presentation.id);
 
@@ -1372,6 +1419,78 @@ export async function GET(
       presentation.offline_backup_storage_path
     );
 
+    if (
+      !wantsDownload &&
+      presentation.offline_r2_storage_key &&
+      presentation.offline_r2_content_hash === hash
+    ) {
+      try {
+        const r2 = getR2Client();
+        const { bucket } = getR2Config();
+        const stored = await r2.send(
+          new HeadObjectCommand({
+            Bucket: bucket,
+            Key: presentation.offline_r2_storage_key,
+          })
+        );
+
+        if (
+          typeof stored.ContentLength === "number" &&
+          stored.ContentLength >= 1024 &&
+          (presentation.offline_r2_size_bytes == null ||
+            stored.ContentLength === presentation.offline_r2_size_bytes)
+        ) {
+          return NextResponse.json({
+            success: true,
+            status: "ready",
+            progress: 100,
+            filename: safeDownloadName(presentation.person_name),
+          });
+        }
+      } catch (error) {
+        console.error("R2 GET STATUS FALLBACK:", error);
+      }
+    }
+
+    if (
+      wantsDownload &&
+      presentation.offline_r2_storage_key &&
+      presentation.offline_r2_content_hash === hash
+    ) {
+      try {
+        const client = getR2Client();
+        const config = getR2Config();
+
+        const stored = await client.send(
+          new HeadObjectCommand({
+            Bucket: config.bucket,
+            Key: presentation.offline_r2_storage_key,
+          })
+        );
+
+        const expectedBytes = presentation.offline_r2_size_bytes;
+
+        if (
+          typeof stored.ContentLength !== "number" ||
+          stored.ContentLength < 1024 ||
+          (expectedBytes != null &&
+            stored.ContentLength !== expectedBytes)
+        ) {
+          throw new Error("R2 video size verification failed.");
+        }
+
+        const signedUrl = await getPrivateVideoDownloadUrl(
+          presentation.offline_r2_storage_key
+        );
+
+        const response = NextResponse.redirect(signedUrl, 302);
+        response.headers.set("Cache-Control", "private, no-store");
+        response.headers.set("Referrer-Policy", "no-referrer");
+        return response;
+      } catch (error) {
+        console.error("R2 OFFLINE DOWNLOAD FALLBACK:", error);
+      }
+    }
     if (!marker || marker.hash !== hash) {
       if (wantsDownload) {
         return NextResponse.json(
@@ -1600,3 +1719,10 @@ export async function GET(
     );
   }
 }
+
+
+
+
+
+
+
