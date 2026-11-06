@@ -1,5 +1,26 @@
 "use client";
 
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  verticalListSortingStrategy,
+  useSortable,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { ReactNode } from "react";
+
+
 type ArrangePresentationItem = {
   id: number;
   item_type: "photo" | "video";
@@ -11,6 +32,7 @@ type ArrangePresentationItem = {
 type ArrangePresentationSectionProps = {
   items: ArrangePresentationItem[];
   movingItemId: number | null;
+  onReorder: (orderedItemIds: number[], movedItemId: number) => void | Promise<void>;
   onMove: (
     itemId: number,
     direction: "earlier" | "later"
@@ -21,7 +43,23 @@ export default function ArrangePresentationSection({
   items,
   movingItemId,
   onMove,
+  onReorder,
 }: ArrangePresentationSectionProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (movingItemId !== null || !over || active.id === over.id) return;
+    const from = items.findIndex((item) => item.id === active.id);
+    const to = items.findIndex((item) => item.id === over.id);
+    if (from < 0 || to < 0) return;
+    const order = arrayMove(items, from, to).map((item) => item.id);
+    void onReorder(order, Number(active.id));
+  }
   return (
     <section className="mt-4 rounded-2xl border border-[#d8d3c7] bg-white/95 p-5 shadow-[0_6px_18px_rgba(64,50,30,0.10)] backdrop-blur-[2px] sm:p-6">
       <div className="flex items-center gap-4">
@@ -54,17 +92,18 @@ export default function ArrangePresentationSection({
           Add photos or videos to arrange your presentation.
         </p>
       ) : (
-        <div className="mt-5 space-y-3">
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <p className="mt-3 text-sm text-stone-600">Drag the handle on any photo or video to change its position. The order saves when you release it.</p>
+          <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
+          <div className="mt-5 space-y-3">
           {items.map((item, index) => {
             const isFirst = index === 0;
             const isLast = index === items.length - 1;
             const isMoving = movingItemId === item.id;
 
             return (
-              <div
-                key={item.id}
-                className="flex flex-col gap-4 rounded-2xl border border-[#e1ddd4] bg-white/90 p-4 sm:flex-row sm:items-center"
-              >
+              <SortablePresentationRow key={item.id} id={item.id} disabled={movingItemId !== null}>
+
                 <div className="flex items-center gap-4 sm:min-w-0 sm:flex-1">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#244f40] text-base font-bold text-white shadow-sm">
                     {index + 1}
@@ -148,11 +187,42 @@ export default function ArrangePresentationSection({
                     {isMoving ? "Saving..." : "Move Later"}
                   </button>
                 </div>
-              </div>
+              </SortablePresentationRow>
             );
           })}
-        </div>
+          </div>
+          </SortableContext>
+        </DndContext>
       )}
     </section>
+  );
+}
+
+
+function SortablePresentationRow({ id, disabled, children }: {
+  id: number;
+  disabled: boolean;
+  children: ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id, disabled });
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={`flex flex-col gap-3 rounded-2xl border border-[#e1ddd4] bg-white/90 p-4 sm:flex-row sm:items-center ${isDragging ? "relative z-10 opacity-70 shadow-xl" : ""}`}
+    >
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        disabled={disabled}
+        aria-label="Drag to rearrange this photo or video"
+        className="min-h-12 shrink-0 cursor-grab touch-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-2 text-sm font-semibold text-stone-700 active:cursor-grabbing disabled:opacity-40"
+      >
+        ☰ Drag
+      </button>
+      {children}
+    </div>
   );
 }

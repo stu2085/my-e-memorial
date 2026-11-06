@@ -1181,116 +1181,70 @@ window.clearInterval(timer);
     }
   }
 
-  async function moveItem(
-    itemId: number,
-    direction: "earlier" | "later"
-  ) {
-    if (movingItemId !== null) {
-      return;
-    }
+  function applySavedOrder(orderedItemIds: number[]) {
+    const positionMap = new Map(orderedItemIds.map((id, index) => [id, index]));
+    setItems((previous) =>
+      previous.length === orderedItemIds.length &&
+      previous.every((item) => positionMap.has(item.id))
+        ? [...previous]
+            .sort((a, b) => (positionMap.get(a.id) ?? 0) - (positionMap.get(b.id) ?? 0))
+            .map((item, index) => ({ ...item, sort_order: index }))
+        : previous
+    );
+  }
 
+  async function saveOrderChange(
+    action: { action: "move"; itemId: number; direction: "earlier" | "later" } |
+            { action: "reorder"; orderedItemIds: number[]; itemId: number }
+  ) {
+    if (movingItemId !== null) return;
     try {
-      setMovingItemId(itemId);
+      setMovingItemId(action.itemId);
       setErrorMessage("");
       setStatusMessage("");
-
-      const response =
-        await fetch(
-          `/api/celebration-presentations/${encodeURIComponent(
-            publicId
-          )}/items`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            credentials:
-              "include",
-            body:
-              JSON.stringify({
-                action: "move",
-                itemId,
-                direction,
-              }),
-          }
-        );
-
-      const result =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result?.error ||
-            "The presentation order could not be saved."
-        );
-      }
-
-      const orderedItemIds =
-        Array.isArray(
-          result?.orderedItemIds
-        )
-          ? result.orderedItemIds.map(
-              (value: unknown) =>
-                Number(value)
-            )
-          : [];
-
-      if (
-        orderedItemIds.length ===
-        items.length
-      ) {
-        const positionMap =
-          new Map<number, number>(
-            orderedItemIds.map(
-              (
-                id: number,
-                index: number
-              ) => [
-                id,
-                index,
-              ] as const
-            )
-          );
-
-        setItems((previous) =>
-          [...previous]
-            .sort(
-              (a, b) =>
-                (positionMap.get(
-                  a.id
-                ) ?? 0) -
-                (positionMap.get(
-                  b.id
-                ) ?? 0)
-            )
-            .map(
-              (
-                item,
-                index
-              ) => ({
-                ...item,
-                sort_order:
-                  index,
-              })
-            )
-        );
-      } else {
-        await loadPresentation();
-      }
-
-      setStatusMessage(
-        "Presentation order saved."
+      const response = await fetch(
+        `/api/celebration-presentations/${encodeURIComponent(publicId)}/items`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(action),
+        }
       );
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result?.error || "The presentation order could not be saved.");
+      }
+      const orderedItemIds = Array.isArray(result?.orderedItemIds)
+        ? result.orderedItemIds.map((value: unknown) => Number(value))
+        : [];
+      if (
+        orderedItemIds.length !== items.length ||
+        new Set(orderedItemIds).size !== items.length ||
+        !items.every((item) => orderedItemIds.includes(item.id))
+      ) {
+        await loadPresentation();
+      } else {
+        applySavedOrder(orderedItemIds);
+      }
+      setStatusMessage("Presentation order saved.");
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "The presentation order could not be saved."
+        error instanceof Error ? error.message : "The presentation order could not be saved."
       );
+      // Refresh from the database so a failed request cannot show a misleading order.
+      await loadPresentation();
     } finally {
       setMovingItemId(null);
     }
+  }
+
+  async function moveItem(itemId: number, direction: "earlier" | "later") {
+    await saveOrderChange({ action: "move", itemId, direction });
+  }
+
+  async function reorderItems(orderedItemIds: number[], movedItemId: number) {
+    await saveOrderChange({ action: "reorder", itemId: movedItemId, orderedItemIds });
   }
 
   async function removeItem(
@@ -1933,6 +1887,7 @@ window.clearInterval(timer);
             items={items}
             movingItemId={movingItemId}
             onMove={moveItem}
+            onReorder={reorderItems}
           />
 
           {(uploadingPhoto ||

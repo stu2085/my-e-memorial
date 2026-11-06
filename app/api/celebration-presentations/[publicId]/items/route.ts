@@ -269,6 +269,33 @@ export async function PATCH(
     }
 
     const body = await req.json();
+
+    if (body?.action === "reorder") {
+      const ids: unknown = body?.orderedItemIds;
+      if (
+        !Array.isArray(ids) ||
+        ids.length < 1 ||
+        ids.length > 2000 ||
+        !ids.every((id) => Number.isSafeInteger(id) && id > 0) ||
+        new Set(ids).size !== ids.length
+      ) {
+        return NextResponse.json({ error: "Invalid presentation order." }, { status: 400 });
+      }
+
+      const { data, error } = await supabaseAdmin.rpc(
+        "celebration_reorder_approved_items",
+        { p_presentation_id: presentation.id, p_item_ids: ids }
+      );
+      if (error) {
+        console.error("CELEBRATION REORDER ERROR:", error);
+        return NextResponse.json(
+          { error: "The presentation order could not be saved. Please try again." },
+          { status: 409 }
+        );
+      }
+      return NextResponse.json({ success: true, orderedItemIds: data });
+    }
+
     const itemId = Number(body?.itemId);
 
     if (
