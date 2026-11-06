@@ -22,7 +22,7 @@ export async function activateCelebrationPurchase(stripe: Stripe, session: Strip
     throw new Error("Celebration payment does not match the configured price.");
   }
   const { data: presentation, error } = await admin.from("celebration_presentations")
-    .select("id, public_id, person_name, customer_email, price_cents, hosting_days, payment_status, stripe_checkout_session_id, credit_coupon_id, credit_promotion_code_id, credit_code")
+    .select("id, public_id, person_name, customer_email, price_cents, hosting_days, payment_status, stripe_checkout_session_id, credit_coupon_id, credit_promotion_code_id, credit_code, email_access_token_hash, email_access_expires_at")
     .eq("id", presentationId).eq("public_id", publicId).maybeSingle();
   if (error || !presentation || presentation.price_cents !== 2995 || presentation.hosting_days !== 60 ||
       presentation.customer_email.toLowerCase() !== (session.customer_details?.email || "").toLowerCase()) {
@@ -70,14 +70,19 @@ export async function activateCelebrationPurchase(stripe: Stripe, session: Strip
     if (creditError) throw creditError;
   }
 
-  // Retry-safe delivery: a webhook retry can issue a fresh single-use link.
+  // Only the first activation may issue the private builder link.
+  // Existing issued or redeemed links cannot be invalidated by payment retries.
+  if (presentation.email_access_token_hash || presentation.email_access_expires_at) return;
   const accessToken = randomBytes(32).toString("hex");
   const tokenHash = createHash("sha256").update(accessToken).digest("hex");
   const deliveryExpiry = new Date(eventCreated * 1000 + 60 * 24 * 60 * 60 * 1000);
-  const { error: deliveryError } = await admin.from("celebration_presentations")
+  const { data: claimedDelivery, error: deliveryError } = await admin.from("celebration_presentations")
     .update({ email_access_token_hash: tokenHash, email_access_expires_at: deliveryExpiry.toISOString() })
-    .eq("id", presentation.id).eq("stripe_checkout_session_id", session.id);
+    .eq("id", presentation.id).eq("stripe_checkout_session_id", session.id)
+    .is("email_access_token_hash", null).is("email_access_expires_at", null)
+    .select("id").maybeSingle();
   if (deliveryError) throw deliveryError;
+  if (!claimedDelivery) return;
 
   const origin = new URL(originOverride || process.env.NEXT_PUBLIC_SITE_URL || "https://www.myememorial.com").origin;
   const link = `${origin}/celebration-of-life-slideshow/access/${publicId}?token=${accessToken}`;

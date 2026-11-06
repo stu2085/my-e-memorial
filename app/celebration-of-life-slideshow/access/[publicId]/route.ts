@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ publicI
     return NextResponse.json({ error: "This private access link has expired or was already used." }, { status: 403 });
   }
   const { data: redeemed, error: redemptionError } = await admin.from("celebration_presentations")
-    .update({ edit_token_hash: tokenHash, email_access_token_hash: null, email_access_expires_at: null })
+    .update({ edit_token_hash: tokenHash, email_access_token_hash: null })
     .eq("id", presentation.id).eq("email_access_token_hash", tokenHash).select("id").maybeSingle();
   if (redemptionError || !redeemed) {
     return NextResponse.json({ error: "This private access link has already been used." }, { status: 403 });
