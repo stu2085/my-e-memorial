@@ -120,6 +120,19 @@ export default function CelebrationPresentationBuilderPage() {
   const [uploadingMusic, setUploadingMusic] =
     useState(false);
 
+  // File-count progress is based on photos saved successfully, not estimated bytes.
+  const [photoUploadProgress, setPhotoUploadProgress] = useState<{
+    completed: number;
+    total: number;
+  } | null>(null);
+  const [photoUploadResult, setPhotoUploadResult] = useState("");
+  const [photoUploadError, setPhotoUploadError] = useState("");
+  const [videoUploadStage, setVideoUploadStage] = useState<
+    "uploading" | "processing" | null
+  >(null);
+  const [videoUploadResult, setVideoUploadResult] = useState("");
+  const [videoUploadError, setVideoUploadError] = useState("");
+
   const [movingItemId, setMovingItemId] =
     useState<number | null>(null);
 
@@ -560,54 +573,53 @@ window.clearInterval(timer);
   async function handlePhotos(
     files: File[]
   ) {
-    if (
-      !publicId ||
-      files.length === 0
-    ) {
-      return;
-    }
+    if (!publicId || files.length === 0) return;
+
+    let uploadedCount = 0;
+    setUploadingPhoto(true);
+    setPhotoUploadProgress({ completed: 0, total: files.length });
+    setPhotoUploadResult("");
+    setPhotoUploadError("");
+    setErrorMessage("");
+    setStatusMessage("");
 
     try {
-      setUploadingPhoto(true);
-      setErrorMessage("");
-      setStatusMessage("");
-
       let firstUploadedPhotoUrl = "";
 
       for (const file of files) {
         const photoUrl = await uploadOnePhoto(file);
+        uploadedCount += 1;
+        setPhotoUploadProgress({ completed: uploadedCount, total: files.length });
 
         if (!firstUploadedPhotoUrl) {
           firstUploadedPhotoUrl = photoUrl;
         }
       }
 
-      if (
-        !presentation?.featuredPhotoUrl &&
-        firstUploadedPhotoUrl
-      ) {
-        await saveFeaturedPhoto(
-          firstUploadedPhotoUrl
-        );
+      if (!presentation?.featuredPhotoUrl && firstUploadedPhotoUrl) {
+        await saveFeaturedPhoto(firstUploadedPhotoUrl);
       }
 
-      setStatusMessage(
-        files.length === 1
-          ? "Photo added."
-          : `${files.length} photos added.`
-      );
-
       await loadPresentation();
+      const message = files.length === 1
+        ? "Upload complete! Your photo has been saved."
+        : `Upload complete! All ${files.length} photos have been saved.`;
+      setPhotoUploadResult(message);
+      setStatusMessage(message);
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "The photo could not be uploaded."
-      );
-
+      const detail = error instanceof Error
+        ? error.message
+        : "The photo could not be uploaded.";
+      const partial = uploadedCount > 0
+        ? `${uploadedCount} of ${files.length} photos were uploaded. `
+        : "";
+      const message = `${partial}${detail} Please check your photos before trying again to avoid duplicates.`;
+      setPhotoUploadError(message);
+      setErrorMessage(message);
       throw error;
     } finally {
       setUploadingPhoto(false);
+      setPhotoUploadProgress(null);
     }
   }
 
@@ -773,6 +785,9 @@ window.clearInterval(timer);
       );
     }
 
+    // The file has reached Mux; encoding/registration can still take time.
+    setVideoUploadStage("processing");
+
     for (
       let attempt = 0;
       attempt < 60;
@@ -837,31 +852,28 @@ window.clearInterval(timer);
     file: File,
     knownDuration?: number
   ) {
+    setUploadingVideo(true);
+    setVideoUploadStage("uploading");
+    setVideoUploadResult("");
+    setVideoUploadError("");
+    setErrorMessage("");
+    setStatusMessage("");
+
     try {
-      setUploadingVideo(true);
-      setErrorMessage("");
-      setStatusMessage("");
-
-      await uploadVideo(
-        file,
-        knownDuration
-      );
-
-      setStatusMessage(
-        "Video added."
-      );
-
+      await uploadVideo(file, knownDuration);
       await loadPresentation();
+      setVideoUploadResult("Upload complete! Your video is ready and saved.");
+      setStatusMessage("Video added.");
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "The video could not be uploaded."
-      );
-
+      const message = error instanceof Error
+        ? error.message
+        : "The video could not be uploaded.";
+      setVideoUploadError(message);
+      setErrorMessage(message);
       throw error;
     } finally {
       setUploadingVideo(false);
+      setVideoUploadStage(null);
     }
   }
 
@@ -1562,7 +1574,7 @@ window.clearInterval(timer);
                   }
                   className="min-h-16 rounded-2xl bg-[#244f40] px-5 py-4 text-lg font-bold text-white shadow-sm transition hover:bg-[#193b30] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Add Photos
+                  {uploadingPhoto ? "Uploading Photos…" : "Add Photos"}
                 </button>
 
                 <button
@@ -1589,6 +1601,43 @@ window.clearInterval(timer);
                 onChange={handlePhotoChange}
                 className="hidden"
               />
+
+              {(uploadingPhoto || photoUploadResult || photoUploadError) && (
+                <div
+                  role={photoUploadError ? "alert" : "status"}
+                  aria-live="polite"
+                  aria-atomic="true"
+                  className={`mt-4 rounded-xl border px-4 py-3 text-base font-semibold ${
+                    photoUploadError
+                      ? "border-red-200 bg-red-50 text-red-800"
+                      : uploadingPhoto
+                        ? "border-sky-200 bg-sky-50 text-sky-900"
+                        : "border-green-200 bg-green-50 text-green-800"
+                  }`}
+                >
+                  {uploadingPhoto && photoUploadProgress ? (
+                    <>
+                      <p>Uploading your photos… {photoUploadProgress.completed} of {photoUploadProgress.total} saved.</p>
+                      <div
+                        role="progressbar"
+                        aria-label="Photo uploads saved"
+                        aria-valuemin={0}
+                        aria-valuemax={photoUploadProgress.total}
+                        aria-valuenow={photoUploadProgress.completed}
+                        className="mt-2 h-2 overflow-hidden rounded-full bg-sky-100"
+                      >
+                        <div
+                          className="h-full rounded-full bg-[#244f40] transition-all duration-200"
+                          style={{ width: `${(photoUploadProgress.completed / photoUploadProgress.total) * 100}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-sm font-normal">Please keep this page open until the upload finishes. The bar shows files saved, not bytes transferred.</p>
+                    </>
+                  ) : (
+                    <p>{photoUploadError || photoUploadResult}</p>
+                  )}
+                </div>
+              )}
 
               {photoItems.length === 0 ? (
                 <p className="mt-6 text-center text-base text-stone-500">
@@ -1704,7 +1753,7 @@ window.clearInterval(timer);
                   }
                   className="min-h-16 rounded-2xl bg-[#244f40] px-5 py-4 text-lg font-bold text-white shadow-sm transition hover:bg-[#193b30] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Upload a Video
+                  {uploadingVideo ? "Uploading Video…" : "Upload a Video"}
                 </button>
 
                 <button
@@ -1730,6 +1779,32 @@ window.clearInterval(timer);
                 onChange={handleVideoChange}
                 className="hidden"
               />
+
+              {(uploadingVideo || videoUploadResult || videoUploadError) && (
+                <div
+                  role={videoUploadError ? "alert" : "status"}
+                  aria-live="polite"
+                  aria-atomic="true"
+                  className={`mt-4 rounded-xl border px-4 py-3 text-base font-semibold ${
+                    videoUploadError
+                      ? "border-red-200 bg-red-50 text-red-800"
+                      : uploadingVideo
+                        ? "border-sky-200 bg-sky-50 text-sky-900"
+                        : "border-green-200 bg-green-50 text-green-800"
+                  }`}
+                >
+                  {uploadingVideo ? (
+                    <>
+                      <p>{videoUploadStage === "processing"
+                        ? "Video uploaded. Processing your video for playback…"
+                        : "Uploading your video…"}</p>
+                      <p className="mt-2 text-sm font-normal">Please keep this page open until your video is ready. Processing may take a few minutes.</p>
+                    </>
+                  ) : (
+                    <p>{videoUploadError || videoUploadResult}</p>
+                  )}
+                </div>
+              )}
 
               {videoItems.length === 0 ? (
                 <p className="mt-6 text-center text-base text-stone-500">
@@ -1897,8 +1972,12 @@ window.clearInterval(timer);
               {uploadingMusic
                 ? "Adding music..."
                 : uploadingVideo
-                  ? "Adding video..."
-                  : "Adding photo..."}
+                  ? videoUploadStage === "processing"
+                    ? "Processing video for playback..."
+                    : "Uploading video..."
+                  : photoUploadProgress
+                    ? `Uploading photos: ${photoUploadProgress.completed} of ${photoUploadProgress.total} saved...`
+                    : "Uploading photo..."}
             </p>
           )}
 

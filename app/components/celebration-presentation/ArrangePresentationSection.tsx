@@ -140,11 +140,13 @@ export default function ArrangePresentationSection({
                   </div>
 
                   <div className="min-w-0">
-                    <p className="text-base font-bold text-[#173a31]">
-                      {item.item_type === "photo"
-                        ? "Photo"
-                        : "Video"}
-                    </p>
+                    {item.item_type === "video" ? (
+                      <span className="inline-flex items-center rounded-md border border-amber-500 bg-yellow-300 px-3 py-1 text-base font-extrabold uppercase tracking-wide text-stone-900 shadow-sm">
+                        Video
+                      </span>
+                    ) : (
+                      <p className="text-base font-bold text-[#173a31]">Photo</p>
+                    )}
 
                     {item.caption?.trim() ? (
                       <p className="mt-1 line-clamp-2 text-base text-stone-600">
