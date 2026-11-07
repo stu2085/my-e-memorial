@@ -1769,7 +1769,9 @@ export async function GET(
           success: false,
           status: "failed",
           error:
-            "The Offline Copy could not be prepared. Please try again.",
+            /\b(?:timed out|timeout)\b/i.test(errorMessage)
+              ? "Your last offline export timed out. No MP4 was created for this attempt."
+              : "The Offline Copy could not be prepared. Please try again.",
         },
         { status: 500 }
       );

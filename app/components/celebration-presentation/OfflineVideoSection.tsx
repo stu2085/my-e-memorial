@@ -213,7 +213,7 @@ export default function OfflineVideoSection({
 
       const result = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok && result?.status !== "failed") {
         throw new Error(
           result?.error ||
             "The Offline Copy status could not be checked."
