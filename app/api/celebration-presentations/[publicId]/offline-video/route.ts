@@ -1157,7 +1157,11 @@ async function normalizeExistingJob(
       "CELEBRATION OFFLINE VIDEO EXISTING JOB CHECK ERROR:",
       error
     );
-    return null;
+    const unavailable = new Error(
+      "We could not check the previous offline export. Please check again shortly."
+    );
+    Object.assign(unavailable, { status: 503 });
+    throw unavailable;
   }
 }
 
@@ -1334,9 +1338,50 @@ export async function POST(
       );
     }
 
+    const submissionToken = crypto.randomUUID();
+    const reservation = supabaseAdmin
+      .from("celebration_presentations")
+      .update({ offline_render_submission_token: submissionToken })
+      .eq("id", presentation.id)
+      .is("offline_render_submission_token", null);
+
+    const previousPath = presentation.offline_backup_storage_path;
+    const { data: reserved, error: reservationError } = await (
+      previousPath == null
+        ? reservation.is("offline_backup_storage_path", null)
+        : reservation.eq("offline_backup_storage_path", previousPath)
+    ).select("id").maybeSingle();
+
+    if (reservationError) throw reservationError;
+
+    if (!reserved) {
+      return NextResponse.json(
+        {
+          error:
+            "Another request is preparing this offline video. Wait a moment, then reopen Save for Offline Viewing.",
+        },
+        { status: 409 }
+      );
+    }
+
     const renderResult = await renderlyRequest("/renders", {
       method: "POST",
       body: JSON.stringify(payload),
+    }).catch(async (error: unknown) => {
+      const status = (error as { status?: number } | null)?.status;
+      if (status != null && [400, 401, 402, 403, 404, 422, 429].includes(status)) {
+        const { error: releaseError } = await supabaseAdmin
+          .from("celebration_presentations")
+          .update({ offline_render_submission_token: null })
+          .eq("id", presentation.id)
+          .eq("offline_render_submission_token", submissionToken);
+        if (releaseError) {
+          console.error("OFFLINE RENDER RESERVATION RELEASE FAILED:", releaseError);
+        }
+      } else {
+        console.error("OFFLINE RENDER SUBMISSION NEEDS REVIEW:", { publicId, submissionToken });
+      }
+      throw error;
     });
 
     const jobId = String(renderResult?.data?.jobId || "");
@@ -1347,11 +1392,12 @@ export async function POST(
       );
     }
 
-    const { error: updateError } = await supabaseAdmin
+    const { data: savedJob, error: updateError } = await supabaseAdmin
       .from("celebration_presentations")
       .update({
         offline_backup_status: "processing",
         offline_backup_storage_path: renderMarker(hash, jobId),
+        offline_render_submission_token: null,
         offline_backup_created_at: null,
         offline_backup_error: null,
         offline_r2_storage_key: null,
@@ -1359,13 +1405,16 @@ export async function POST(
         offline_r2_size_bytes: null,
         offline_r2_stored_at: null,
       })
-      .eq("id", presentation.id);
+      .eq("id", presentation.id)
+      .eq("offline_render_submission_token", submissionToken)
+      .select("id")
+      .maybeSingle();
 
-    if (updateError) {
-      console.error(
-        "CELEBRATION OFFLINE VIDEO JOB SAVE ERROR:",
-        updateError
-      );
+    if (updateError || !savedJob) {
+      console.error("CELEBRATION OFFLINE VIDEO JOB SAVE ERROR:", {
+        publicId, submissionToken, jobId, updateError,
+      });
+      throw new Error("The render was submitted, but its status could not be saved. Please contact support before retrying.");
     }
 
     if (!updateError && r2TransfersEnabledFor(publicId)) {
