@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (process.env.CELEBRATION_R2_TRANSFERS_ENABLED !== "true") {
+  if (process.env.CELEBRATION_R2_PROCESSOR_ENABLED !== "true") {
     return NextResponse.json({ enabled: false });
   }
 
