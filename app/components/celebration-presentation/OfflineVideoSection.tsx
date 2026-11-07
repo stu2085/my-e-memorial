@@ -225,6 +225,8 @@ export default function OfflineVideoSection({
     }
   }, [applyResult, eligible, publicId]);
 
+  const renderRequestInFlight = useRef(false);
+
   useEffect(() => {
     aliveRef.current = true;
     void checkStatus();
@@ -274,9 +276,11 @@ export default function OfflineVideoSection({
   }
 
   async function startRender(isAutomaticRetry = false) {
-    if (starting && !isAutomaticRetry) {
+    if (renderRequestInFlight.current) {
       return;
     }
+
+    renderRequestInFlight.current = true;
 
     try {
       if (!isAutomaticRetry) {
@@ -324,6 +328,7 @@ export default function OfflineVideoSection({
           : "The Offline Copy could not be prepared."
       );
     } finally {
+      renderRequestInFlight.current = false;
       if (!isAutomaticRetry) {
         setStarting(false);
       }
