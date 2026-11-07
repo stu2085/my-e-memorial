@@ -1,4 +1,4 @@
-﻿import { createHash, timingSafeEqual } from "crypto";
+import { createHash, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import Mux from "@mux/mux-node";
@@ -1360,6 +1360,31 @@ export async function POST(
       );
     }
 
+    if (!updateError && process.env.CELEBRATION_R2_TRANSFERS_ENABLED === "true") {
+      try {
+        const { error: queueError } = await supabaseAdmin
+          .from("celebration_r2_transfers")
+          .upsert(
+            {
+              presentation_public_id: publicId,
+              render_job_id: jobId,
+              content_hash: hash,
+              storage_key: `celebration-presentations/${publicId}/${jobId}.mp4`,
+            },
+            {
+              onConflict: "presentation_public_id,render_job_id",
+              ignoreDuplicates: true,
+            }
+          );
+
+        if (queueError) throw queueError;
+      } catch {
+        console.error("Could not queue newly submitted celebration R2 transfer", {
+          jobId,
+        });
+      }
+    }
+
     return NextResponse.json({
       success: true,
       status: "rendering",
@@ -1571,6 +1596,58 @@ export async function GET(
           success: true,
           status: "not_started",
         });
+      }
+
+      if (!wantsDownload && process.env.CELEBRATION_R2_TRANSFERS_ENABLED === "true") {
+        try {
+          const { error: queueError } = await supabaseAdmin
+            .from("celebration_r2_transfers")
+            .upsert(
+              {
+                presentation_public_id: publicId,
+                render_job_id: marker.jobId,
+                content_hash: hash,
+                storage_key: `celebration-presentations/${publicId}/${marker.jobId}.mp4`,
+              },
+              {
+                onConflict: "presentation_public_id,render_job_id",
+                ignoreDuplicates: true,
+              }
+            );
+          if (queueError) throw queueError;
+
+          const { data: storedTransfer, error: storedTransferError } =
+            await supabaseAdmin
+              .from("celebration_r2_transfers")
+              .select("storage_key, expected_bytes, updated_at")
+              .eq("presentation_public_id", publicId)
+              .eq("render_job_id", marker.jobId)
+              .eq("content_hash", hash)
+              .eq("status", "stored")
+              .maybeSingle();
+
+          if (storedTransferError) throw storedTransferError;
+
+          if (storedTransfer && Number(storedTransfer.expected_bytes) >= 1024) {
+            const { error: linkError } = await supabaseAdmin
+              .from("celebration_presentations")
+              .update({
+                offline_r2_storage_key: storedTransfer.storage_key,
+                offline_r2_content_hash: hash,
+                offline_r2_size_bytes: storedTransfer.expected_bytes,
+                offline_r2_stored_at: storedTransfer.updated_at,
+              })
+              .eq("id", presentation.id)
+              .eq("offline_backup_storage_path", presentation.offline_backup_storage_path)
+              .is("offline_r2_storage_key", null);
+
+            if (linkError) throw linkError;
+          }
+        } catch {
+          console.error("Could not queue celebration R2 transfer", {
+            jobId: marker.jobId,
+          });
+        }
       }
 
       if (wantsDownload) {
