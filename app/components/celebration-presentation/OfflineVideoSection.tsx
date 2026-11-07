@@ -475,11 +475,30 @@ export default function OfflineVideoSection({
                     <p className="font-bold text-[#173a31]">Preparing Your Offline Video</p>
                     <p className="mt-1">{message}</p>
                     <p className="mt-1 text-sm tabular-nums" aria-hidden="true">Elapsed: {Math.floor(elapsedSeconds / 60)}m {elapsedSeconds % 60}s</p>
-                    {offlineStatus === "rendering" && (
+                    {offlineStatus === "rendering" && progress > 0 && progress < 100 && (
                       <>
-                        <div className="mt-3 h-3 overflow-hidden rounded-full bg-stone-200"><div className="h-full rounded-full bg-[#244f40] transition-all" style={{width: `${Math.max(4, Math.min(progress >= 100 ? 95 : progress, 95))}%`}} /></div>
-                        {progress > 0 && <p className="mt-1 text-sm">{progress >= 100 ? "Waiting for the MP4 file" : `${Math.round(progress)}% rendered`}</p>}
+                        <div aria-hidden="true" className="mt-3 h-3 overflow-hidden rounded-full bg-stone-200">
+                          <div
+                            className="h-full rounded-full bg-[#244f40] transition-all"
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                        <p className="mt-1 text-sm">{Math.floor(progress)}% rendered</p>
                       </>
+                    )}
+                    {offlineStatus === "rendering" && progress >= 100 && (
+                      <div className="mt-3 flex items-center gap-2 text-sm font-medium text-[#173a31]">
+                        <span
+                          aria-hidden="true"
+                          className="h-4 w-4 shrink-0 rounded-full border-2 border-[#244f40]/25 border-t-[#244f40] motion-safe:animate-spin"
+                        />
+                        <span>Finishing your offline video…</span>
+                      </div>
+                    )}
+                    {elapsedSeconds >= 300 && (
+                      <p className="mt-2 text-sm text-stone-700">
+                        Large presentations can take several minutes. We’re still checking for your download.
+                      </p>
                     )}
                   </div>
                 )}
