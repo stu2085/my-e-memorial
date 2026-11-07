@@ -100,6 +100,7 @@ export default function OfflineVideoSection({
   const [starting, setStarting] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [downloading, setDownloading] = useState(false);
+  const [downloadRequested, setDownloadRequested] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [linkCopyError, setLinkCopyError] = useState("");
   const [openChoice, setOpenChoice] = useState<"watch" | "offline" | "funeral" | null>(null);
@@ -370,6 +371,7 @@ export default function OfflineVideoSection({
 
       document.body.appendChild(anchor);
       anchor.click();
+      setDownloadRequested(true);
       anchor.remove();
 
       window.setTimeout(() => {
@@ -488,7 +490,7 @@ export default function OfflineVideoSection({
                     <button type="button" onClick={() => void downloadPresentation()} disabled={downloading} className="mt-3 min-h-12 rounded-full bg-[#244f40] px-6 py-3 font-bold text-white hover:bg-[#193b30] disabled:opacity-60">
                       {downloading ? "Starting Download..." : "Download Now to This Device"}
                     </button>
-                    <p className="mt-3 text-sm">Open your browser's Downloads to see how much of the file has transferred. Wait until it finishes before playing the video offline.</p>
+                    <p className="mt-3 text-sm" role="status">{downloadRequested ? "Download requested. Check your browser's Downloads for progress and wait for it to finish before playing the video offline." : "Open your browser's Downloads to see how much of the file has transferred. Wait until it finishes before playing the video offline."}</p>
                   </div>
                 )}
 
