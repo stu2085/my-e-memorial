@@ -725,6 +725,8 @@ export async function POST(
         matches.find((candidate) => !candidate.removed_at) ||
         matches[0];
 
+      if (item?.removed_at) continue;
+
       if (!item) {
         const { error } = await supabaseAdmin
           .from("celebration_presentation_items")
@@ -752,9 +754,7 @@ export async function POST(
         continue;
       }
 
-      const wasRemoved = Boolean(item.removed_at);
       const needsUpdate =
-        wasRemoved ||
         item.approval_status !== "approved" ||
         !stringsEqual(item.caption, photo.caption) ||
         !stringsEqual(item.attribution, photo.attribution) ||
@@ -770,11 +770,6 @@ export async function POST(
           approval_status: "approved",
         };
 
-        if (wasRemoved) {
-          updates.removed_at = null;
-          updates.sort_order = nextItemSortOrder++;
-        }
-
         const { error } = await supabaseAdmin
           .from("celebration_presentation_items")
           .update(updates)
@@ -785,11 +780,7 @@ export async function POST(
           throw error;
         }
 
-        if (wasRemoved) {
-          photosAdded += 1;
-        } else {
-          photosUpdated += 1;
-        }
+        photosUpdated += 1;
       }
     }
 
@@ -803,6 +794,8 @@ export async function POST(
       const item =
         matches.find((candidate) => !candidate.removed_at) ||
         matches[0];
+
+      if (item?.removed_at) continue;
 
       const resolved = await resolveMuxVideo(
         video,
@@ -837,9 +830,7 @@ export async function POST(
         continue;
       }
 
-      const wasRemoved = Boolean(item.removed_at);
       const needsUpdate =
-        wasRemoved ||
         item.approval_status !== "approved" ||
         !stringsEqual(item.caption, video.caption) ||
         !stringsEqual(item.attribution, video.attribution) ||
@@ -862,11 +853,6 @@ export async function POST(
           duration_seconds: resolved.durationSeconds,
         };
 
-        if (wasRemoved) {
-          updates.removed_at = null;
-          updates.sort_order = nextItemSortOrder++;
-        }
-
         const { error } = await supabaseAdmin
           .from("celebration_presentation_items")
           .update(updates)
@@ -877,11 +863,7 @@ export async function POST(
           throw error;
         }
 
-        if (wasRemoved) {
-          videosAdded += 1;
-        } else {
-          videosUpdated += 1;
-        }
+        videosUpdated += 1;
       }
     }
 

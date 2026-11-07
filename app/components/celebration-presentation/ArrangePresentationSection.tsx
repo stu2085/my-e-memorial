@@ -33,6 +33,7 @@ type ArrangePresentationSectionProps = {
   items: ArrangePresentationItem[];
   movingItemId: number | null;
   onReorder: (orderedItemIds: number[], movedItemId: number) => void | Promise<void>;
+  onRemove: (itemId: number, itemType: ArrangePresentationItem["item_type"]) => void | Promise<void>;
   onMove: (
     itemId: number,
     direction: "earlier" | "later"
@@ -44,6 +45,7 @@ export default function ArrangePresentationSection({
   movingItemId,
   onMove,
   onReorder,
+  onRemove,
 }: ArrangePresentationSectionProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -187,6 +189,14 @@ export default function ArrangePresentationSection({
                     className="min-h-12 rounded-xl border border-[#cfc9bd] bg-white px-3 py-2 text-base font-bold text-[#173a31] transition hover:bg-[#f5f4ed] disabled:cursor-not-allowed disabled:opacity-35"
                   >
                     {isMoving ? "Saving..." : "Move Later"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void onRemove(item.id, item.item_type)}
+                    disabled={movingItemId !== null}
+                    className="col-span-2 min-h-11 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-35"
+                  >
+                    Remove from Presentation
                   </button>
                 </div>
               </SortablePresentationRow>

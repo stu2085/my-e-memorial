@@ -2113,6 +2113,7 @@ window.clearInterval(timer);
             movingItemId={movingItemId}
             onMove={moveItem}
             onReorder={reorderItems}
+            onRemove={removeItem}
           />
 
           {(uploadingPhoto ||
