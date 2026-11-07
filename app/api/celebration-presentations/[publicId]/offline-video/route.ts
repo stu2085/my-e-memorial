@@ -1161,6 +1161,14 @@ async function normalizeExistingJob(
   }
 }
 
+function r2TransfersEnabledFor(publicId: string) {
+  const testPublicId = process.env.CELEBRATION_R2_TEST_PRESENTATION_ID?.trim();
+  return (
+    process.env.CELEBRATION_R2_TRANSFERS_ENABLED === "true" &&
+    (!testPublicId || testPublicId === publicId)
+  );
+}
+
 export async function POST(
   req: NextRequest,
   context: {
@@ -1360,7 +1368,7 @@ export async function POST(
       );
     }
 
-    if (!updateError && process.env.CELEBRATION_R2_TRANSFERS_ENABLED === "true") {
+    if (!updateError && r2TransfersEnabledFor(publicId)) {
       try {
         const { error: queueError } = await supabaseAdmin
           .from("celebration_r2_transfers")
@@ -1598,7 +1606,7 @@ export async function GET(
         });
       }
 
-      if (!wantsDownload && process.env.CELEBRATION_R2_TRANSFERS_ENABLED === "true") {
+      if (!wantsDownload && r2TransfersEnabledFor(publicId)) {
         try {
           const { error: queueError } = await supabaseAdmin
             .from("celebration_r2_transfers")
