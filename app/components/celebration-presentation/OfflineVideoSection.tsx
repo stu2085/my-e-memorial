@@ -94,11 +94,11 @@ export default function OfflineVideoSection({
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [outputUrl, setOutputUrl] = useState("");
   const [filename, setFilename] = useState(
     `Celebration of Life - ${cleanPersonName(personName)}.mp4`
   );
   const [starting, setStarting] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [downloading, setDownloading] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [linkCopyError, setLinkCopyError] = useState("");
@@ -113,15 +113,27 @@ export default function OfflineVideoSection({
     else if (/Macintosh|Mac OS X/i.test(ua)) setDevice("mac");
   }, []);
 
+  const isPreparing = starting || offlineStatus === "preparing_media" || offlineStatus === "rendering";
+
+  useEffect(() => {
+    if (!isPreparing) return;
+
+    const startedAt = Date.now();
+    const timer = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [isPreparing]);
+
   const eligible = paymentStatus === "paid" && status === "active";
 
   const applyResult = useCallback((result: any) => {
     const nextStatus = String(result?.status || "");
 
-    if (nextStatus === "ready" && result?.outputUrl) {
+    if (nextStatus === "ready") {
       setOfflineStatus("ready");
       setProgress(100);
-      setOutputUrl(String(result.outputUrl));
       setFilename(
         String(
           result?.filename ||
@@ -141,7 +153,6 @@ export default function OfflineVideoSection({
           Math.min(100, Number(result?.progress || 0))
         )
       );
-      setOutputUrl("");
       setErrorMessage("");
       setMessage(
         Number(result?.progress || 0) >= 100
@@ -154,7 +165,6 @@ export default function OfflineVideoSection({
     if (nextStatus === "preparing_media") {
       setOfflineStatus("preparing_media");
       setProgress(0);
-      setOutputUrl("");
       setErrorMessage("");
       setMessage(
         result?.preparingVideos
@@ -168,7 +178,6 @@ export default function OfflineVideoSection({
 
     if (nextStatus === "failed") {
       setOfflineStatus("failed");
-      setOutputUrl("");
       setMessage("");
       setErrorMessage(
         String(
@@ -181,7 +190,6 @@ export default function OfflineVideoSection({
 
     setOfflineStatus("idle");
     setProgress(0);
-    setOutputUrl("");
     setMessage("");
   }, [personName]);
 
@@ -284,6 +292,7 @@ export default function OfflineVideoSection({
 
     try {
       if (!isAutomaticRetry) {
+        setElapsedSeconds(0);
         setStarting(true);
         setErrorMessage("");
         setMessage(
@@ -336,7 +345,7 @@ export default function OfflineVideoSection({
   }
 
   async function downloadPresentation() {
-    if (!outputUrl || downloading) {
+    if (offlineStatus !== "ready" || downloading) {
       return;
     }
 
@@ -463,22 +472,23 @@ export default function OfflineVideoSection({
                   <div className="mt-5 rounded-xl bg-[#f8f4e9] p-4" role="status">
                     <p className="font-bold text-[#173a31]">Preparing Your Offline Video</p>
                     <p className="mt-1">{message}</p>
+                    <p className="mt-1 text-sm tabular-nums" aria-hidden="true">Elapsed: {Math.floor(elapsedSeconds / 60)}m {elapsedSeconds % 60}s</p>
                     {offlineStatus === "rendering" && (
                       <>
                         <div className="mt-3 h-3 overflow-hidden rounded-full bg-stone-200"><div className="h-full rounded-full bg-[#244f40] transition-all" style={{width: `${Math.max(4, Math.min(progress >= 100 ? 95 : progress, 95))}%`}} /></div>
-                        {progress > 0 && <p className="mt-1 text-sm">{progress >= 100 ? "Almost ready..." : `${Math.round(progress)}%`}</p>}
+                        {progress > 0 && <p className="mt-1 text-sm">{progress >= 100 ? "Waiting for the MP4 file" : `${Math.round(progress)}% rendered`}</p>}
                       </>
                     )}
                   </div>
                 )}
 
-                {offlineStatus === "ready" && outputUrl && (
+                {offlineStatus === "ready" && (
                   <div className="mt-5 rounded-xl border border-[#b5ccba] bg-[#f4faf2] p-4">
                     <p className="font-bold text-[#173a31]">Your Offline Video Is Ready</p>
                     <button type="button" onClick={() => void downloadPresentation()} disabled={downloading} className="mt-3 min-h-12 rounded-full bg-[#244f40] px-6 py-3 font-bold text-white hover:bg-[#193b30] disabled:opacity-60">
                       {downloading ? "Starting Download..." : "Download Now to This Device"}
                     </button>
-                    <p className="mt-3 text-sm">Please allow the download to finish completely before using the video offline.</p>
+                    <p className="mt-3 text-sm">Open your browser's Downloads to see how much of the file has transferred. Wait until it finishes before playing the video offline.</p>
                   </div>
                 )}
 
