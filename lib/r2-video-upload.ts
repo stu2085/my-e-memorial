@@ -82,6 +82,7 @@ export async function getPrivateVideoDownloadUrl(
     new GetObjectCommand({
       Bucket: bucket,
       Key: key,
+      ResponseContentDisposition: 'attachment; filename="Celebration of Life.mp4"',
     }),
     { expiresIn: 900 }
   );
