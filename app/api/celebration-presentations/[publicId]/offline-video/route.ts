@@ -415,6 +415,16 @@ async function requestTemporaryMasterAccess(assetId: string) {
 
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
+    if (response.status === 400) {
+      const body = await Promise.resolve()
+        .then(() => JSON.parse(detail))
+        .catch(() => null);
+      const messages = body?.error?.messages;
+      if (Array.isArray(messages) && messages.includes("Download already exists")) {
+        // Another request already started preparation. The next check will reload the asset.
+        return;
+      }
+    }
     throw new Error(
       `Mux master access request failed (${response.status})${
         detail ? `: ${detail.slice(0, 200)}` : ""
