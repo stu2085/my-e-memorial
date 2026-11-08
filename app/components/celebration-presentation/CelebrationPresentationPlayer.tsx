@@ -710,6 +710,7 @@ export default function CelebrationPresentationPlayer({
         <video
           ref={continuousVideoRef}
           src={continuousPlayback.url}
+          loop={loop}
           onClick={() => {
             setContinuousControlsVisible(true);
             setContinuousControlsTouchedAt(Date.now());
@@ -753,6 +754,57 @@ export default function CelebrationPresentationPlayer({
               ? (continuousIsPlaying ? "Pause" : "Resume")
               : "Begin Presentation"}
           </button>
+          {continuousHasPlayed && (
+            <button
+              type="button"
+              onClick={() => {
+                const video = continuousVideoRef.current as
+                  | (HTMLVideoElement & { webkitEnterFullscreen?: () => void })
+                  | null;
+                if (!video) return;
+
+                if (typeof video.webkitEnterFullscreen === "function") {
+                  video.webkitEnterFullscreen();
+                } else if (typeof video.requestFullscreen === "function") {
+                  void video.requestFullscreen().catch(() => undefined);
+                }
+              }}
+              className="rounded-full border border-white/40 px-4 py-2 font-semibold text-white"
+            >
+              Full Screen
+            </button>
+          )}
+          {continuousHasPlayed && (
+            <button
+              type="button"
+              onClick={() => {
+                const video = continuousVideoRef.current as
+                  | (HTMLVideoElement & { webkitEnterFullscreen?: () => void })
+                  | null;
+                if (!video) return;
+
+                if (typeof video.webkitEnterFullscreen === "function") {
+                  video.webkitEnterFullscreen();
+                } else if (typeof video.requestFullscreen === "function") {
+                  void video.requestFullscreen().catch(() => undefined);
+                }
+              }}
+              className="rounded-full border border-white/40 px-4 py-2 font-semibold text-white"
+            >
+              Full Screen
+            </button>
+          )}
+          {continuousHasPlayed && (
+            <button
+              type="button"
+              aria-label="Loop presentation"
+              aria-pressed={loop}
+              onClick={() => setLoop((previous) => !previous)}
+              className="rounded-full border border-white/40 px-4 py-2 font-semibold text-white"
+            >
+              Loop {loop ? "On" : "Off"}
+            </button>
+          )}
           {continuousHasPlayed && continuousDuration > 0 && (
             <label className="flex min-w-[12rem] flex-1 items-center gap-3">
               <span className="sr-only">Presentation playback position</span>
