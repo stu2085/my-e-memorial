@@ -502,6 +502,12 @@ export default function CelebrationPresentationPlayer({
     }
   }
 
+  function seekToItem(index: number) {
+    setShowClosingScreen(false);
+    setCurrentIndex(index);
+    scheduleControlsHide();
+  }
+
   function restartPresentation() {
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
@@ -821,7 +827,7 @@ export default function CelebrationPresentationPlayer({
                     currentItem.mux_playback_id
                   }
                   streamType="on-demand"
-                  autoPlay
+                  autoPlay={!paused}
                   playsInline
                   metadata={{
                     video_title:
@@ -867,6 +873,25 @@ export default function CelebrationPresentationPlayer({
                 : "opacity-100"
             }`}
           >
+            {playableItems.length > 1 && (
+              <label className="flex w-full items-center gap-3 text-sm">
+                <span className="shrink-0">Jump to item</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={playableItems.length - 1}
+                  step={1}
+                  value={currentIndex}
+                  aria-valuetext={`Item ${currentIndex + 1} of ${playableItems.length}`}
+                  onChange={(event) => seekToItem(event.currentTarget.valueAsNumber)}
+                  className="min-w-0 flex-1 accent-amber-300"
+                />
+                <span className="shrink-0 tabular-nums" aria-hidden="true">
+                  {currentIndex + 1} / {playableItems.length}
+                </span>
+              </label>
+            )}
+
             <button
               type="button"
               onClick={togglePause}
