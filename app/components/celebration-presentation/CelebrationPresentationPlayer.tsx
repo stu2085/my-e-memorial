@@ -470,6 +470,22 @@ export default function CelebrationPresentationPlayer({
     volume,
   ]);
 
+  const [isIPhone, setIsIPhone] = useState<boolean | null>(null);
+  const [playbackCheck, setPlaybackCheck] = useState<{
+    publicId: string;
+    attempt: number;
+    status: "unavailable" | "error";
+  } | null>(null);
+  const [playbackAttempt, setPlaybackAttempt] = useState(0);
+  const playbackCheckStatus =
+    playbackCheck?.publicId === publicId && playbackCheck.attempt === playbackAttempt
+      ? playbackCheck.status
+      : "checking";
+
+  useEffect(() => {
+    setIsIPhone(/iPhone/i.test(navigator.userAgent));
+  }, []);
+
   const continuousVideoRef = useRef<HTMLVideoElement | null>(null);
   const [continuousPlayback, setContinuousPlayback] = useState<{
     publicId: string;
@@ -491,28 +507,39 @@ export default function CelebrationPresentationPlayer({
   }, [continuousIsPlaying, continuousControlsVisible, continuousControlsTouchedAt]);
 
   useEffect(() => {
-    if (!/iPhone/i.test(navigator.userAgent)) return;
+    if (!isIPhone) return;
 
     const controller = new AbortController();
-    void fetch(
-      `/api/celebration-presentations/${encodeURIComponent(publicId)}/offline-video?playback=1`,
-      { cache: "no-store", signal: controller.signal }
-    )
-      .then(async (response) => {
-        if (!response.ok) return;
-        const result = await response.json();
-        if (
-          !controller.signal.aborted &&
-          result.status === "ready" &&
-          typeof result.playbackUrl === "string"
-        ) {
-          setContinuousPlayback({ publicId, url: result.playbackUrl });
-        }
-      })
-      .catch(() => undefined);
 
+    async function checkPlayback() {
+      try {
+        const response = await fetch(
+          `/api/celebration-presentations/${encodeURIComponent(publicId)}/offline-video?playback=1`,
+          { cache: "no-store", signal: controller.signal }
+        );
+        const result = await response.json();
+        if (controller.signal.aborted) return;
+
+        if (response.ok && result.status === "ready" && typeof result.playbackUrl === "string") {
+          setContinuousPlayback({ publicId, url: result.playbackUrl });
+          return;
+        }
+
+        setPlaybackCheck({
+          publicId,
+          attempt: playbackAttempt,
+          status: result.status === "unavailable" ? "unavailable" : "error",
+        });
+      } catch {
+        if (!controller.signal.aborted) {
+          setPlaybackCheck({ publicId, attempt: playbackAttempt, status: "error" });
+        }
+      }
+    }
+
+    void checkPlayback();
     return () => controller.abort();
-  }, [publicId]);
+  }, [isIPhone, playbackAttempt, publicId]);
 
   function beginPresentation() {
     setCurrentIndex(0);
@@ -928,7 +955,26 @@ export default function CelebrationPresentationPlayer({
               </p>
             )}
 
-            {playableItems.length > 0 ? (
+            {playableItems.length > 0 ? isIPhone !== false ? (
+              <div className="mt-10">
+                <p role="status" className="text-lg">
+                  {playbackCheckStatus === "checking"
+                    ? "Checking video availability…"
+                    : playbackCheckStatus === "unavailable"
+                      ? "The online video isn’t ready to play yet."
+                      : "We couldn’t check whether the online video is ready."}
+                </p>
+                {isIPhone && playbackCheckStatus !== "checking" && (
+                  <button
+                    type="button"
+                    onClick={() => setPlaybackAttempt((attempt) => attempt + 1)}
+                    className="mt-4 rounded-full bg-amber-500 px-6 py-3 font-bold text-stone-950"
+                  >
+                    Check again
+                  </button>
+                )}
+              </div>
+            ) : (
               <button
                 type="button"
                 onClick={beginPresentation}
