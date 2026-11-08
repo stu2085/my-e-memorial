@@ -509,7 +509,21 @@ export default function OfflineVideoSection({
                     <button type="button" onClick={() => void downloadPresentation()} disabled={downloading} className="mt-3 min-h-12 rounded-full bg-[#244f40] px-6 py-3 font-bold text-white hover:bg-[#193b30] disabled:opacity-60">
                       {downloading ? "Starting Download..." : "Download Now to This Device"}
                     </button>
-                    <p className="mt-3 text-sm" role="status">{downloadRequested ? "Download requested. Check your browser's Downloads for progress and wait for it to finish before playing the video offline." : "Open your browser's Downloads to see how much of the file has transferred. Wait until it finishes before playing the video offline."}</p>
+                    <p className="mt-3 text-sm">
+                      Open your browser&apos;s Downloads to see the transfer progress.
+                    </p>
+                    <div role="status">
+                      {downloadRequested && (
+                        <div className="mt-4 rounded-xl border-2 border-[#244f40] bg-white p-4 text-[#173a31]">
+                          <p className="text-xl font-bold">Download requested</p>
+                          <p className="mt-1 text-base">
+                            Open your browser&apos;s Downloads to see progress. On Windows, press{" "}
+                            <kbd className="rounded border px-1.5 py-0.5 font-semibold">Ctrl+J</kbd>.
+                            Wait until the MP4 is fully downloaded before opening it.
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
