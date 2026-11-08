@@ -707,6 +707,7 @@ export default function CelebrationPresentationPlayer({
         <h1 className="text-center font-serif text-2xl">
           {presentation.personName}
         </h1>
+        <div className="relative w-full max-w-5xl">
         <video
           ref={continuousVideoRef}
           src={continuousPlayback.url}
@@ -738,6 +739,18 @@ export default function CelebrationPresentationPlayer({
             setContinuousPlaybackError(true);
           }}
         />
+          {continuousIsPlaying && !continuousControlsVisible && (
+            <button
+              type="button"
+              aria-label="Show playback controls"
+              className="absolute inset-0 z-10 h-full w-full touch-manipulation bg-transparent"
+              onClick={() => {
+                setContinuousControlsVisible(true);
+                setContinuousControlsTouchedAt(Date.now());
+              }}
+            />
+          )}
+        </div>
         <div
           className={`flex w-full max-w-5xl flex-wrap items-center gap-3 ${
             continuousIsPlaying && !continuousControlsVisible ? "invisible" : ""
