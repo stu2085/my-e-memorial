@@ -519,7 +519,7 @@ export default function OfflineVideoSection({
                           <p className="mt-1 text-base">
                             Open your browser&apos;s Downloads to see progress. On Windows, press{" "}
                             <kbd className="rounded border px-1.5 py-0.5 font-semibold">Ctrl+J</kbd>.
-                            Wait until the MP4 is fully downloaded before opening it.
+                            If the MP4 is still downloading, wait for it to finish. If the download failed or never started, select Try download again.
                           </p>
                         </div>
                       )}
