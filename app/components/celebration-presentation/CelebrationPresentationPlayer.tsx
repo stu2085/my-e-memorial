@@ -817,26 +817,6 @@ export default function CelebrationPresentationPlayer({
           {continuousHasPlayed && (
             <button
               type="button"
-              onClick={() => {
-                const video = continuousVideoRef.current as
-                  | (HTMLVideoElement & { webkitEnterFullscreen?: () => void })
-                  | null;
-                if (!video) return;
-
-                if (typeof video.webkitEnterFullscreen === "function") {
-                  video.webkitEnterFullscreen();
-                } else if (typeof video.requestFullscreen === "function") {
-                  void video.requestFullscreen().catch(() => undefined);
-                }
-              }}
-              className="rounded-full border border-white/40 px-4 py-2 font-semibold text-white"
-            >
-              Full Screen
-            </button>
-          )}
-          {continuousHasPlayed && (
-            <button
-              type="button"
               aria-label="Loop presentation"
               aria-pressed={loop}
               onClick={() => setLoop((previous) => !previous)}
