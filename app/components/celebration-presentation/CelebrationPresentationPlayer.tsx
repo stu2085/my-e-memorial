@@ -476,6 +476,10 @@ export default function CelebrationPresentationPlayer({
     url: string;
   } | null>(null);
   const [continuousPlaybackError, setContinuousPlaybackError] = useState(false);
+  const [continuousHasPlayed, setContinuousHasPlayed] = useState(false);
+  const [continuousIsPlaying, setContinuousIsPlaying] = useState(false);
+  const [continuousTime, setContinuousTime] = useState(0);
+  const [continuousDuration, setContinuousDuration] = useState(0);
 
   useEffect(() => {
     if (!/iPhone/i.test(navigator.userAgent)) return;
@@ -669,6 +673,26 @@ export default function CelebrationPresentationPlayer({
       : presentation.personName;
 
   if (continuousPlayback?.publicId === publicId && !hasStarted) {
+    function formatPlaybackTime(seconds: number) {
+      const totalSeconds = Math.max(0, Math.floor(seconds));
+      const minutes = Math.floor(totalSeconds / 60);
+      return `${minutes}:${String(totalSeconds % 60).padStart(2, "0")}`;
+    }
+
+    function toggleContinuousPlayback() {
+      const video = continuousVideoRef.current;
+      if (!video) return;
+
+      if (!video.paused && !video.ended) {
+        video.pause();
+        return;
+      }
+
+      if (video.ended) video.currentTime = 0;
+      setContinuousPlaybackError(false);
+      void video.play().catch(() => setContinuousPlaybackError(true));
+    }
+
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-black px-4 py-8 text-white">
         <h1 className="text-center font-serif text-2xl">
@@ -677,25 +701,63 @@ export default function CelebrationPresentationPlayer({
         <video
           ref={continuousVideoRef}
           src={continuousPlayback.url}
-          controls
           playsInline
           preload="metadata"
-          className="max-h-[75vh] w-full max-w-5xl"
-        />
-        <button
-          type="button"
-          onClick={() => {
-            const video = continuousVideoRef.current;
-            if (!video) return;
-            setContinuousPlaybackError(false);
-            void video.play().catch(() => setContinuousPlaybackError(true));
+          className="max-h-[65vh] w-full max-w-5xl"
+          onDurationChange={(event) => {
+            const duration = event.currentTarget.duration;
+            setContinuousDuration(Number.isFinite(duration) ? duration : 0);
           }}
-          className="rounded-full bg-amber-300 px-6 py-3 font-semibold text-black"
-        >
-          Begin Presentation
-        </button>
+          onTimeUpdate={(event) => setContinuousTime(event.currentTarget.currentTime)}
+          onPlaying={() => {
+            setContinuousHasPlayed(true);
+            setContinuousIsPlaying(true);
+            setContinuousPlaybackError(false);
+          }}
+          onPause={() => setContinuousIsPlaying(false)}
+          onEnded={() => setContinuousIsPlaying(false)}
+          onError={() => {
+            setContinuousIsPlaying(false);
+            setContinuousPlaybackError(true);
+          }}
+        />
+        <div className="flex w-full max-w-5xl flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={toggleContinuousPlayback}
+            className="rounded-full bg-amber-300 px-6 py-3 font-semibold text-black"
+          >
+            {continuousHasPlayed
+              ? (continuousIsPlaying ? "Pause" : "Resume")
+              : "Begin Presentation"}
+          </button>
+          {continuousHasPlayed && continuousDuration > 0 && (
+            <label className="flex min-w-[12rem] flex-1 items-center gap-3">
+              <span className="sr-only">Presentation playback position</span>
+              <span className="shrink-0 text-sm tabular-nums" aria-hidden="true">
+                {formatPlaybackTime(continuousTime)} / {formatPlaybackTime(continuousDuration)}
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={continuousDuration}
+                step={0.1}
+                value={Math.min(continuousTime, continuousDuration)}
+                aria-valuetext={`${formatPlaybackTime(continuousTime)} of ${formatPlaybackTime(continuousDuration)}`}
+                onChange={(event) => {
+                  const video = continuousVideoRef.current;
+                  if (!video) return;
+                  const time = event.currentTarget.valueAsNumber;
+                  video.currentTime = time;
+                  setContinuousTime(time);
+                }}
+                className="min-w-0 flex-1 accent-amber-300"
+              />
+            </label>
+          )}
+        </div>
         {continuousPlaybackError && (
-          <p role="alert">The video could not start. Try the play control on the video.</p>
+          <p role="alert">The video could not play. Reopen the viewing link and try again.</p>
         )}
       </main>
     );
