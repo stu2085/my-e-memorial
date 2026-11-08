@@ -505,9 +505,9 @@ export default function OfflineVideoSection({
 
                 {offlineStatus === "ready" && (
                   <div className="mt-5 rounded-xl border border-[#b5ccba] bg-[#f4faf2] p-4">
-                    <p className="font-bold text-[#173a31]">Your Offline Video Is Ready</p>
+                    <p className="font-bold text-[#173a31]">{downloadRequested ? "Check your Downloads" : "Save a copy to this device"}</p>
                     <button type="button" onClick={() => void downloadPresentation()} disabled={downloading} className={downloadRequested ? "mt-2 text-sm font-semibold text-[#244f40] underline underline-offset-2 disabled:opacity-50" : "mt-3 min-h-12 rounded-full bg-[#244f40] px-6 py-3 font-bold text-white hover:bg-[#193b30] disabled:opacity-60"}>
-                      {downloading ? "Starting Download..." : (downloadRequested ? "Try download again" : "Download Now to This Device")}
+                      {downloading ? "Starting Download..." : (downloadRequested ? "Try download again" : "Download MP4")}
                     </button>
                     <p className="mt-3 text-sm">
                       Open your browser&apos;s Downloads to see the transfer progress.
@@ -515,7 +515,7 @@ export default function OfflineVideoSection({
                     <div role="status">
                       {downloadRequested && (
                         <div className="mt-4 rounded-xl border-2 border-[#244f40] bg-white p-4 text-[#173a31]">
-                          <p className="text-xl font-bold">Download requested</p>
+                          <p className="text-xl font-bold">Look for the MP4 in Downloads</p>
                           <p className="mt-1 text-base">
                             Open your browser&apos;s Downloads to see progress. On Windows, press{" "}
                             <kbd className="rounded border px-1.5 py-0.5 font-semibold">Ctrl+J</kbd>.
