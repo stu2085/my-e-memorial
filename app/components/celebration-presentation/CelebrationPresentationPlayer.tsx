@@ -480,6 +480,15 @@ export default function CelebrationPresentationPlayer({
   const [continuousIsPlaying, setContinuousIsPlaying] = useState(false);
   const [continuousTime, setContinuousTime] = useState(0);
   const [continuousDuration, setContinuousDuration] = useState(0);
+  const [continuousControlsTouchedAt, setContinuousControlsTouchedAt] = useState(0);
+  const [continuousControlsVisible, setContinuousControlsVisible] = useState(true);
+
+  useEffect(() => {
+    if (!continuousIsPlaying || !continuousControlsVisible) return;
+
+    const timer = window.setTimeout(() => setContinuousControlsVisible(false), 3000);
+    return () => window.clearTimeout(timer);
+  }, [continuousIsPlaying, continuousControlsVisible, continuousControlsTouchedAt]);
 
   useEffect(() => {
     if (!/iPhone/i.test(navigator.userAgent)) return;
@@ -701,6 +710,10 @@ export default function CelebrationPresentationPlayer({
         <video
           ref={continuousVideoRef}
           src={continuousPlayback.url}
+          onClick={() => {
+            setContinuousControlsVisible(true);
+            setContinuousControlsTouchedAt(Date.now());
+          }}
           playsInline
           preload="metadata"
           className="max-h-[65vh] w-full max-w-5xl"
@@ -714,14 +727,23 @@ export default function CelebrationPresentationPlayer({
             setContinuousIsPlaying(true);
             setContinuousPlaybackError(false);
           }}
-          onPause={() => setContinuousIsPlaying(false)}
+          onPause={() => {
+            setContinuousIsPlaying(false);
+            setContinuousControlsVisible(true);
+          }}
           onEnded={() => setContinuousIsPlaying(false)}
           onError={() => {
             setContinuousIsPlaying(false);
             setContinuousPlaybackError(true);
           }}
         />
-        <div className="flex w-full max-w-5xl flex-wrap items-center gap-3">
+        <div
+          className={`flex w-full max-w-5xl flex-wrap items-center gap-3 ${
+            continuousIsPlaying && !continuousControlsVisible ? "invisible" : ""
+          }`}
+          onPointerDown={() => setContinuousControlsTouchedAt(Date.now())}
+          onKeyDown={() => setContinuousControlsTouchedAt(Date.now())}
+        >
           <button
             type="button"
             onClick={toggleContinuousPlayback}
