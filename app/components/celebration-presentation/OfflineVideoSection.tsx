@@ -268,6 +268,30 @@ export default function OfflineVideoSection({
     return null;
   }
 
+  async function prepareOnlineVideoIfNeeded() {
+    try {
+      const response = await fetch(
+        `/api/celebration-presentations/${encodeURIComponent(publicId)}/offline-video?playback=1`,
+        { credentials: "include", cache: "no-store" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Could not check online video availability.");
+      }
+
+      const result = await response.json();
+      if (!aliveRef.current || result.status === "ready") return;
+
+      if (result.status === "unavailable") {
+        await startRender();
+      }
+    } catch {
+      if (aliveRef.current) {
+        setErrorMessage("Could not check the online video. Close and reopen Watch or Share Online to try again.");
+      }
+    }
+  }
+
   async function getMusicDurations() {
     const tracks = music.filter(
       (track) =>
@@ -419,13 +443,24 @@ export default function OfflineVideoSection({
 
         <div className="mt-6 space-y-3">
           <div className="overflow-hidden rounded-2xl border border-[#d9d1c1] bg-white">
-            <button type="button" className={choiceClass} aria-expanded={openChoice === "watch"} aria-controls="celebration-watch-panel" onClick={() => toggle("watch")}>
+            <button type="button" className={choiceClass} aria-expanded={openChoice === "watch"} aria-controls="celebration-watch-panel" onClick={() => {
+              toggle("watch");
+              if (openChoice !== "watch") void prepareOnlineVideoIfNeeded();
+            }}>
               <span><span className="block text-lg font-bold text-[#173a31]">Watch or Share Online</span><span className="block text-sm text-stone-600">For family, friends, and venues with internet</span></span>
               <span aria-hidden="true" className="text-xl text-[#244f40]">{openChoice === "watch" ? "−" : "+"}</span>
             </button>
             {openChoice === "watch" && (
               <div id="celebration-watch-panel" className={panelClass}>
                 <p>Watch your presentation online or share the viewing link with family, friends, and your funeral home.</p>
+                {(starting || offlineStatus === "preparing_media" || offlineStatus === "rendering") && (
+                  <p role="status" className="mt-3 text-sm font-semibold">
+                    We’re preparing the video for iPhone playback. Viewers can use Check Back on the viewing page.
+                  </p>
+                )}
+                {errorMessage && (
+                  <p role="alert" className="mt-3 text-sm text-red-700">{errorMessage}</p>
+                )}
                 <div className="mt-4 flex flex-wrap gap-3">
                   <a
                     href={viewingPath}
