@@ -804,7 +804,21 @@ export default function CelebrationPresentationPlayer({
                 if (!video) return;
 
                 if (typeof video.webkitEnterFullscreen === "function") {
-                  video.webkitEnterFullscreen();
+                  const restoreInlineControls = () => {
+                    video.controls = false;
+                    setContinuousControlsVisible(true);
+                    setContinuousControlsTouchedAt(Date.now());
+                  };
+
+                  video.addEventListener("webkitendfullscreen", restoreInlineControls, { once: true });
+                  video.controls = true;
+
+                  try {
+                    video.webkitEnterFullscreen();
+                  } catch {
+                    video.removeEventListener("webkitendfullscreen", restoreInlineControls);
+                    restoreInlineControls();
+                  }
                 } else if (typeof video.requestFullscreen === "function") {
                   void video.requestFullscreen().catch(() => undefined);
                 }
