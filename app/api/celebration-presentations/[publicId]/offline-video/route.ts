@@ -194,7 +194,8 @@ function yearLine(presentation: PresentationRow) {
 
 async function getAuthorizedPresentation(
   req: NextRequest,
-  publicId: string
+  publicId: string,
+  publicPlayback = false
 ): Promise<PresentationRow | null> {
   if (!isValidPublicId(publicId)) {
     return null;
@@ -230,6 +231,15 @@ async function getAuthorizedPresentation(
 
   if (error || !presentation) {
     return null;
+  }
+
+  if (publicPlayback) {
+    const expiresAt = Date.parse(presentation.expires_at ?? "");
+    return presentation.status === "active" &&
+      presentation.payment_status === "paid" &&
+      expiresAt > Date.now()
+      ? (presentation as PresentationRow)
+      : null;
   }
 
   const editToken =
@@ -1480,6 +1490,38 @@ export async function GET(
 ) {
   try {
     const { publicId } = await context.params;
+
+    if (
+      req.nextUrl.searchParams.get("playback") === "1" &&
+      !req.nextUrl.searchParams.has("download")
+    ) {
+      const viewing = await getAuthorizedPresentation(req, publicId, true);
+      const headers = { "Cache-Control": "private, no-store" };
+
+      if (!viewing) {
+        return NextResponse.json({ status: "unavailable" }, { status: 404, headers });
+      }
+
+      const { items, music } = await loadPresentationMedia(viewing.id);
+      const hash = contentHash(viewing, items, music);
+      const key = viewing.offline_r2_storage_key;
+      if (!key || viewing.offline_r2_content_hash !== hash) {
+        return NextResponse.json({ status: "unavailable" }, { headers });
+      }
+
+      const secondsRemaining = Math.floor(
+        (Date.parse(viewing.expires_at ?? "") - Date.now()) / 1000
+      );
+      if (secondsRemaining < 1) {
+        return NextResponse.json({ status: "unavailable" }, { status: 404, headers });
+      }
+
+      const playbackUrl = await getPrivateVideoDownloadUrl(
+        key,
+        { inline: true, expiresIn: Math.min(7200, secondsRemaining) }
+      );
+      return NextResponse.json({ status: "ready", playbackUrl }, { headers });
+    }
     const presentation = await getAuthorizedPresentation(req, publicId);
 
     if (!presentation) {

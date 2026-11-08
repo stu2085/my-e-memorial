@@ -70,7 +70,8 @@ export async function uploadVideoToR2(options: {
 }
 
 export async function getPrivateVideoDownloadUrl(
-  key: string
+  key: string,
+  options?: { inline: boolean; expiresIn: number }
 ) {
   validateVideoKey(key);
 
@@ -82,8 +83,10 @@ export async function getPrivateVideoDownloadUrl(
     new GetObjectCommand({
       Bucket: bucket,
       Key: key,
-      ResponseContentDisposition: 'attachment; filename="Celebration of Life.mp4"',
+      ResponseContentDisposition: options?.inline
+        ? "inline"
+        : 'attachment; filename="Celebration of Life.mp4"',
     }),
-    { expiresIn: 900 }
+    { expiresIn: options?.expiresIn ?? 900 }
   );
 }

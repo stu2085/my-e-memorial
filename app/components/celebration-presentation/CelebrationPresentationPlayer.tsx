@@ -151,6 +151,8 @@ export default function CelebrationPresentationPlayer({
   const [volume, setVolume] =
     useState(0.7);
 
+  const [playingVideoId, setPlayingVideoId] = useState<number | null>(null);
+
   const [muted, setMuted] =
     useState(false);
 
@@ -468,6 +470,37 @@ export default function CelebrationPresentationPlayer({
     volume,
   ]);
 
+  const continuousVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [continuousPlayback, setContinuousPlayback] = useState<{
+    publicId: string;
+    url: string;
+  } | null>(null);
+  const [continuousPlaybackError, setContinuousPlaybackError] = useState(false);
+
+  useEffect(() => {
+    if (!/iPhone/i.test(navigator.userAgent)) return;
+
+    const controller = new AbortController();
+    void fetch(
+      `/api/celebration-presentations/${encodeURIComponent(publicId)}/offline-video?playback=1`,
+      { cache: "no-store", signal: controller.signal }
+    )
+      .then(async (response) => {
+        if (!response.ok) return;
+        const result = await response.json();
+        if (
+          !controller.signal.aborted &&
+          result.status === "ready" &&
+          typeof result.playbackUrl === "string"
+        ) {
+          setContinuousPlayback({ publicId, url: result.playbackUrl });
+        }
+      })
+      .catch(() => undefined);
+
+    return () => controller.abort();
+  }, [publicId]);
+
   function beginPresentation() {
     setCurrentIndex(0);
     setMusicIndex(0);
@@ -504,6 +537,7 @@ export default function CelebrationPresentationPlayer({
 
   function seekToItem(index: number) {
     setShowClosingScreen(false);
+    setPlayingVideoId(null);
     setCurrentIndex(index);
     scheduleControlsHide();
   }
@@ -634,6 +668,39 @@ export default function CelebrationPresentationPlayer({
         )
       : presentation.personName;
 
+  if (continuousPlayback?.publicId === publicId && !hasStarted) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-black px-4 py-8 text-white">
+        <h1 className="text-center font-serif text-2xl">
+          {presentation.personName}
+        </h1>
+        <video
+          ref={continuousVideoRef}
+          src={continuousPlayback.url}
+          controls
+          playsInline
+          preload="metadata"
+          className="max-h-[75vh] w-full max-w-5xl"
+        />
+        <button
+          type="button"
+          onClick={() => {
+            const video = continuousVideoRef.current;
+            if (!video) return;
+            setContinuousPlaybackError(false);
+            void video.play().catch(() => setContinuousPlaybackError(true));
+          }}
+          className="rounded-full bg-amber-300 px-6 py-3 font-semibold text-black"
+        >
+          Begin Presentation
+        </button>
+        {continuousPlaybackError && (
+          <p role="alert">The video could not start. Try the play control on the video.</p>
+        )}
+      </main>
+    );
+  }
+
   const introTitle = presentation.introTitle || "Celebration of Life";
   const introMessage = presentation.introMessage || "";
   const introColor = presentation.introColor || "#FDE68A";
@@ -656,6 +723,7 @@ export default function CelebrationPresentationPlayer({
           key={currentMusic.id}
           src={currentMusic.source_url}
           preload="auto"
+          muted={muted}
           onEnded={advanceMusic}
           onCanPlay={() => {
             if (
@@ -828,6 +896,7 @@ export default function CelebrationPresentationPlayer({
                   }
                   streamType="on-demand"
                   autoPlay={!paused}
+                  muted={muted}
                   playsInline
                   metadata={{
                     video_title:
@@ -835,13 +904,34 @@ export default function CelebrationPresentationPlayer({
                       `Celebration of Life for ${presentation.personName}`,
                   }}
                   className="h-full w-full [--controls:none]"
-                  onPlay={() => {
+                  onPlaying={() => {
                     audioRef.current?.pause();
+                    setPlayingVideoId(currentItem.id);
                   }}
-                  onEnded={
-                    advancePresentation
-                  }
+                  onPause={() => setPlayingVideoId(null)}
+                  onEnded={() => {
+                    setPlayingVideoId(null);
+                    advancePresentation();
+                  }}
                 />
+              )}
+
+            {currentItem?.item_type === "video" &&
+              currentItem.mux_playback_id &&
+              !paused &&
+              playingVideoId !== currentItem.id && (
+                <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      scheduleControlsHide();
+                      void videoRef.current?.play().catch(() => undefined);
+                    }}
+                    className="pointer-events-auto rounded-full bg-black/80 px-6 py-3 font-semibold text-white ring-1 ring-white/50"
+                  >
+                    Play Video
+                  </button>
+                </div>
               )}
 
             {currentItem?.caption && (
