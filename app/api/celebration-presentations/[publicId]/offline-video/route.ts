@@ -376,15 +376,17 @@ function renderMarker(hash: string, jobId: string) {
 function parseRenderMarker(value: string | null | undefined) {
   const parts = String(value || "").split("|");
 
-  if (
-    parts.length !== 4 ||
-    parts[0] !== "renderly" ||
-    parts[1] !== RENDER_CONFIG_VERSION
-  ) {
-    return null;
-  }
+  const marker =
+    parts.length === 4 &&
+    parts[0] === "renderly" &&
+    parts[1] === RENDER_CONFIG_VERSION
+      ? parts.slice(2)
+      : parts.length === 2
+        ? parts
+        : null;
+  if (!marker) return null;
 
-  const [, , hash, jobId] = parts;
+  const [hash, jobId] = marker;
 
   if (!/^[a-f0-9]{64}$/i.test(hash) || !jobId) {
     return null;
@@ -1504,8 +1506,31 @@ export async function GET(
 
       const { items, music } = await loadPresentationMedia(viewing.id);
       const hash = contentHash(viewing, items, music);
-      const key = viewing.offline_r2_storage_key;
-      if (!key || viewing.offline_r2_content_hash !== hash) {
+      let key =
+        viewing.offline_r2_content_hash === hash
+          ? viewing.offline_r2_storage_key
+          : null;
+
+      if (!key) {
+        const marker = parseRenderMarker(viewing.offline_backup_storage_path);
+        if (marker?.hash === hash) {
+          const { data: storedTransfer, error } = await supabaseAdmin
+            .from("celebration_r2_transfers")
+            .select("storage_key, expected_bytes")
+            .eq("presentation_public_id", publicId)
+            .eq("render_job_id", marker.jobId)
+            .eq("content_hash", hash)
+            .eq("status", "stored")
+            .maybeSingle();
+
+          if (error) throw error;
+          if (storedTransfer && Number(storedTransfer.expected_bytes) >= 1024) {
+            key = storedTransfer.storage_key;
+          }
+        }
+      }
+
+      if (!key) {
         return NextResponse.json({ status: "unavailable" }, { headers });
       }
 
