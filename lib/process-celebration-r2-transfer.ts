@@ -77,19 +77,19 @@ async function getVideoSize(url: URL) {
 }
 
 export async function processCelebrationR2Transfer(db: SupabaseClient) {
+  const startedAt = Date.now();
   const claim = await db.rpc("claim_celebration_r2_transfer");
   if (claim.error) throw new Error("Could not claim an R2 transfer.");
 
   const transfer = claim.data?.[0] as Transfer | undefined;
   if (!transfer) return { status: "idle" };
 
-  async function checkpoint(changes: Record<string, unknown>) {
+  async function checkpoint(changes: Record<string, unknown>, releaseLease = true) {
     const result = await db
       .from("celebration_r2_transfers")
       .update({
         ...changes,
-        lease_token: null,
-        lease_expires_at: null,
+        ...(releaseLease ? { lease_token: null, lease_expires_at: null } : {}),
         updated_at: new Date().toISOString(),
       })
       .eq("presentation_public_id", transfer!.presentation_public_id)
@@ -103,6 +103,7 @@ export async function processCelebrationR2Transfer(db: SupabaseClient) {
   }
 
   const { render_job_id: jobId, storage_key: key } = transfer;
+  let consecutiveFailures = transfer.consecutive_failures;
 
   try {
     const { bucket } = getR2Config();
@@ -150,20 +151,39 @@ export async function processCelebrationR2Transfer(db: SupabaseClient) {
         });
         return { status: "waiting_for_render" };
       }
-      const part = await transferVideoPart({
-        outputUrl: url.toString(),
-        storageKey: key,
-        uploadId: transfer.upload_id,
-        partNumber: parts.length + 1,
-        totalBytes: expectedBytes,
-      });
+      const completedParts = [...parts];
+      const maxPartsPerRun = 8;
 
-      await checkpoint({
-        completed_parts: [...parts, part],
-        consecutive_failures: 0,
-        last_error: null,
-      });
-      return { status: "part_uploaded", part: part.partNumber, totalParts };
+      for (let uploaded = 1; ; uploaded++) {
+        const part = await transferVideoPart({
+          outputUrl: url.toString(),
+          storageKey: key,
+          uploadId: transfer.upload_id,
+          partNumber: completedParts.length + 1,
+          totalBytes: expectedBytes,
+        });
+        completedParts.push(part);
+
+        // Allow up to 60 seconds for another part and leave time to checkpoint.
+        const canContinue =
+          uploaded < maxPartsPerRun &&
+          completedParts.length < totalParts &&
+          Date.now() - startedAt < 25_000;
+
+        await checkpoint(
+          {
+            completed_parts: completedParts,
+            consecutive_failures: 0,
+            last_error: null,
+          },
+          !canContinue
+        );
+        consecutiveFailures = 0;
+
+        if (!canContinue) {
+          return { status: "part_uploaded", part: part.partNumber, totalParts };
+        }
+      }
     }
 
     async function storedSize() {
@@ -203,7 +223,7 @@ export async function processCelebrationR2Transfer(db: SupabaseClient) {
     await checkpoint({ status: "stored", consecutive_failures: 0, last_error: null });
     return { status: "stored", bytes };
   } catch (error) {
-    const failures = transfer.consecutive_failures + 1;
+    const failures = consecutiveFailures + 1;
     await checkpoint({
       status: failures >= 5 ? "failed" : "uploading",
       consecutive_failures: failures,
