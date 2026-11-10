@@ -1511,27 +1511,31 @@ export async function GET(
           ? viewing.offline_r2_storage_key
           : null;
 
+      let status: "unavailable" | "preparing" | "failed" = "unavailable";
       if (!key) {
         const marker = parseRenderMarker(viewing.offline_backup_storage_path);
         if (marker?.hash === hash) {
-          const { data: storedTransfer, error } = await supabaseAdmin
+          const { data: transfer, error } = await supabaseAdmin
             .from("celebration_r2_transfers")
-            .select("storage_key, expected_bytes")
+            .select("status, storage_key, expected_bytes")
             .eq("presentation_public_id", publicId)
             .eq("render_job_id", marker.jobId)
             .eq("content_hash", hash)
-            .eq("status", "stored")
             .maybeSingle();
 
           if (error) throw error;
-          if (storedTransfer && Number(storedTransfer.expected_bytes) >= 1024) {
-            key = storedTransfer.storage_key;
+          if (transfer?.status === "stored" && Number(transfer.expected_bytes) >= 1024) {
+            key = transfer.storage_key;
+          } else if (transfer?.status === "failed" || viewing.offline_backup_status === "failed") {
+            status = "failed";
+          } else if (transfer && transfer.status !== "stored") {
+            status = "preparing";
           }
         }
       }
 
       if (!key) {
-        return NextResponse.json({ status: "unavailable" }, { headers });
+        return NextResponse.json({ status }, { headers });
       }
 
       const secondsRemaining = Math.floor(

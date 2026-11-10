@@ -474,7 +474,7 @@ export default function CelebrationPresentationPlayer({
   const [playbackCheck, setPlaybackCheck] = useState<{
     publicId: string;
     attempt: number;
-    status: "unavailable" | "error";
+    status: "unavailable" | "preparing" | "failed" | "error";
   } | null>(null);
   const [playbackAttempt, setPlaybackAttempt] = useState(0);
   const playbackCheckStatus =
@@ -510,6 +510,7 @@ export default function CelebrationPresentationPlayer({
     if (!isIPhone) return;
 
     const controller = new AbortController();
+    let retryTimer: number | undefined;
 
     async function checkPlayback() {
       try {
@@ -525,11 +526,15 @@ export default function CelebrationPresentationPlayer({
           return;
         }
 
-        setPlaybackCheck({
-          publicId,
-          attempt: playbackAttempt,
-          status: result.status === "unavailable" ? "unavailable" : "error",
-        });
+        const status = result.status === "unavailable" ||
+          (response.ok && (result.status === "preparing" || result.status === "failed"))
+          ? result.status
+          : "error";
+
+        setPlaybackCheck({ publicId, attempt: playbackAttempt, status });
+        if (status === "preparing") {
+          retryTimer = window.setTimeout(() => void checkPlayback(), 30_000);
+        }
       } catch {
         if (!controller.signal.aborted) {
           setPlaybackCheck({ publicId, attempt: playbackAttempt, status: "error" });
@@ -538,7 +543,10 @@ export default function CelebrationPresentationPlayer({
     }
 
     void checkPlayback();
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      window.clearTimeout(retryTimer);
+    };
   }, [isIPhone, playbackAttempt, publicId]);
 
   function beginPresentation() {
@@ -951,14 +959,17 @@ export default function CelebrationPresentationPlayer({
 
             {playableItems.length > 0 ? isIPhone !== false ? (
               <div className="mt-10">
-                <p role="status" className="text-lg">
-                  {playbackCheckStatus === "checking"
-                    ? "Checking video availability…"
-                    : playbackCheckStatus === "unavailable"
-                      ? "The online video isn’t ready to play yet."
-                      : "We couldn’t check whether the online video is ready."}
+                <p role="status" className="text-lg text-stone-200">
+                  {playbackCheckStatus === "checking" && "Checking video availability…"}
+                  {playbackCheckStatus === "preparing" &&
+                    "Preparing your video for online playback. This page checks automatically."}
+                  {playbackCheckStatus === "unavailable" && "The online video isn’t ready to play yet."}
+                  {playbackCheckStatus === "failed" &&
+                    "We couldn’t prepare the online video. Please contact the person who shared it."}
+                  {playbackCheckStatus === "error" && "We couldn’t check whether the online video is ready."}
                 </p>
-                {isIPhone && playbackCheckStatus !== "checking" && (
+                {isIPhone &&
+                  (playbackCheckStatus === "unavailable" || playbackCheckStatus === "error") && (
                   <button
                     type="button"
                     onClick={() => setPlaybackAttempt((attempt) => attempt + 1)}
