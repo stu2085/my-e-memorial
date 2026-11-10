@@ -962,7 +962,22 @@ export default function CelebrationPresentationPlayer({
                 <p role="status" className="text-lg text-stone-200">
                   {playbackCheckStatus === "checking" && "Checking video availability…"}
                   {playbackCheckStatus === "preparing" &&
-                    "Preparing your video for online playback. This page checks automatically."}
+                    (
+                    <>
+                      <span className="flex items-center justify-center gap-3 font-semibold">
+                        <span
+                          aria-hidden="true"
+                          className="h-5 w-5 shrink-0 rounded-full border-2 border-current border-r-transparent motion-safe:animate-spin"
+                        />
+                        Preparing your video for online playback
+                      </span>
+                      <span className="mt-2 block">
+                        This can take several minutes. Presentations with many photos or longer video clips
+                        can take 30 minutes or more. Keep this page open.{" "}
+                        <strong>Begin Presentation</strong> will appear automatically when your video is ready.
+                      </span>
+                    </>
+                  )}
                   {playbackCheckStatus === "unavailable" && "The online video isn’t ready to play yet."}
                   {playbackCheckStatus === "failed" &&
                     "We couldn’t prepare the online video. Please contact the person who shared it."}
