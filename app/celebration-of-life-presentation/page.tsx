@@ -2,6 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 
+const startLinkClass =
+  "inline-flex min-h-14 items-center justify-center rounded-full bg-[#244f40] px-8 py-4 text-lg font-bold text-white transition hover:bg-[#193b30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244f40]";
+
 const productTitle =
   "Celebration of Life Presentation | MyEMemorial";
 
@@ -100,7 +103,7 @@ export default function CelebrationOfLifeProductPage() {
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href={startHref}
-              className="inline-flex min-h-14 items-center justify-center rounded-full bg-[#244f40] px-8 py-4 text-lg font-bold text-white transition hover:bg-[#193b30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244f40]"
+              className={startLinkClass}
             >
               Start Creating
             </Link>
@@ -129,7 +132,7 @@ export default function CelebrationOfLifeProductPage() {
 
       <section className="mx-auto grid max-w-5xl gap-6 px-4 py-12 sm:grid-cols-3 sm:py-16" aria-label="What you can include">
         {[
-          ["Photos", "Choose a featured portrait, add captions, and arrange moments in the order you want."],
+          ["Photos", "You can add a featured portrait, write captions, and arrange photos in the presentation builder."],
           ["Videos", "Play their recorded memories with the presentation, while background music pauses for each video."],
           ["Music", "Add meaningful songs that play in sequence alongside the photos."],
         ].map(([title, description]) => (
@@ -138,6 +141,11 @@ export default function CelebrationOfLifeProductPage() {
             <p className="mt-3 text-base leading-7 text-[#344f43]">{description}</p>
           </div>
         ))}
+        <div className="text-center sm:col-span-3">
+          <Link href={startHref} className={startLinkClass}>
+            Create a Celebration of Life Presentation
+          </Link>
+        </div>
       </section>
 
       <section className="mx-auto max-w-5xl px-4 pb-12 sm:pb-16">
