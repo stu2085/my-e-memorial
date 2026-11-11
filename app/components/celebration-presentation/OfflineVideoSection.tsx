@@ -27,6 +27,13 @@ function cleanPersonName(value: string) {
   return value.replace(/\s+\(Sample Presentation\)$/i, "").trim();
 }
 
+function formatFileSize(bytes: number) {
+  const gigabyte = 1_000_000_000;
+  return bytes >= gigabyte
+    ? `${(bytes / gigabyte).toFixed(2)} GB`
+    : `${(bytes / 1_000_000).toFixed(1)} MB`;
+}
+
 function measureAudioDuration(url: string) {
   return new Promise<number>((resolve, reject) => {
     const audio = new Audio();
@@ -97,6 +104,7 @@ export default function OfflineVideoSection({
   const [filename, setFilename] = useState(
     `Celebration of Life - ${cleanPersonName(personName)}.mp4`
   );
+  const [sizeBytes, setSizeBytes] = useState<number | null>(null);
   const [starting, setStarting] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [downloading, setDownloading] = useState(false);
@@ -134,6 +142,8 @@ export default function OfflineVideoSection({
 
     if (nextStatus === "ready") {
       setOfflineStatus("ready");
+      const bytes = Number(result?.sizeBytes);
+      setSizeBytes(Number.isSafeInteger(bytes) && bytes > 0 ? bytes : null);
       setProgress(100);
       setFilename(
         String(
@@ -183,7 +193,7 @@ export default function OfflineVideoSection({
       setErrorMessage(
         String(
           result?.error ||
-            "The Offline Copy could not be prepared. Please try again."
+            "We couldn’t prepare your video."
         )
       );
       return;
@@ -192,6 +202,7 @@ export default function OfflineVideoSection({
     setOfflineStatus("idle");
     setProgress(0);
     setMessage("");
+    setErrorMessage("");
   }, [personName]);
 
   const checkStatus = useCallback(async () => {
@@ -318,6 +329,7 @@ export default function OfflineVideoSection({
     try {
       if (!isAutomaticRetry) {
         setElapsedSeconds(0);
+        setDownloadRequested(false);
         setStarting(true);
         setErrorMessage("");
         setMessage(
@@ -435,11 +447,9 @@ export default function OfflineVideoSection({
   const panelClass = "border-t border-[#e5ded0] px-5 pb-5 pt-4 text-left text-base leading-7 text-[#344f43]";
 
   return (
-    <section className="mt-8 rounded-3xl border border-[#cdbf9f] bg-[#fffdf8]/95 p-5 shadow-sm sm:p-8">
+    <section id="watch-save-share" className="mt-8 rounded-3xl border border-[#cdbf9f] bg-[#fffdf8]/95 p-5 shadow-sm sm:p-8">
       <div className="mx-auto max-w-3xl">
-        <p className="text-center text-sm font-bold uppercase tracking-[0.15em] text-[#8d6c3f]">Your Celebration of Life Presentation</p>
         <h2 className="mt-2 text-center font-serif text-3xl font-bold text-[#173a31]">Watch, Save, or Share</h2>
-        <p className="mt-3 text-center text-base text-[#344f43]">Choose what you would like to do. Instructions appear only for your choice.</p>
 
         <div className="mt-6 space-y-3">
           <div className="overflow-hidden rounded-2xl border border-[#d9d1c1] bg-white">
@@ -455,7 +465,7 @@ export default function OfflineVideoSection({
                 <p>Watch your presentation online or share the viewing link with family, friends, and your funeral home.</p>
                 {(starting || offlineStatus === "preparing_media" || offlineStatus === "rendering") && (
                   <p role="status" className="mt-3 text-sm font-semibold">
-                    We’re preparing the video for iPhone playback. Viewers can use Check Back on the viewing page.
+                    We’re preparing the video for online playback. The viewing page checks automatically.
                   </p>
                 )}
                 {errorMessage && (
@@ -491,17 +501,20 @@ export default function OfflineVideoSection({
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-[#d9d1c1] bg-white">
-            <button type="button" className={choiceClass} aria-expanded={openChoice === "offline"} aria-controls="celebration-offline-panel" onClick={() => toggle("offline")}>
+            <button type="button" className={choiceClass} aria-expanded={openChoice === "offline"} aria-controls="celebration-offline-panel" onClick={() => {
+              toggle("offline");
+              if (openChoice !== "offline" && !isPreparing) void checkStatus();
+            }}>
               <span><span className="block text-lg font-bold text-[#173a31]">Save for Offline Viewing</span><span className="block text-sm text-stone-600">Only needed if the venue has no reliable internet</span></span>
               <span aria-hidden="true" className="text-xl text-[#244f40]">{openChoice === "offline" ? "−" : "+"}</span>
             </button>
             {openChoice === "offline" && (
               <div id="celebration-offline-panel" className={panelClass}>
-                <p>A saved MP4 video can play without internet. Download it <strong>before</strong> the service.</p>
+                <p>Start preparing your video <strong>at least three days before the event</strong> so you have time to download it and test it on the device you’ll use at the service.</p>
 
                 {(offlineStatus === "idle" || offlineStatus === "failed") && (
                   <button type="button" onClick={() => void startRender()} disabled={starting} className="mt-5 min-h-12 rounded-full bg-[#244f40] px-6 py-3 font-bold text-white hover:bg-[#193b30] disabled:opacity-60">
-                    {starting ? "Preparing..." : "Prepare My Offline Video"}
+                    {starting ? "Preparing…" : offlineStatus === "failed" ? "Retry Video Preparation" : "Prepare My Offline Video"}
                   </button>
                 )}
 
@@ -541,28 +554,29 @@ export default function OfflineVideoSection({
                 {offlineStatus === "ready" && (
                   <div className="mt-5 rounded-xl border border-[#b5ccba] bg-[#f4faf2] p-4">
                     <p className="font-bold text-[#173a31]">{downloadRequested ? "Check your Downloads" : "Save a copy to this device"}</p>
+                    {sizeBytes !== null && <p className="mt-1 text-sm">MP4 file size {formatFileSize(sizeBytes)}</p>}
                     <button type="button" onClick={() => void downloadPresentation()} disabled={downloading} className={downloadRequested ? "mt-2 text-sm font-semibold text-[#244f40] underline underline-offset-2 disabled:opacity-50" : "mt-3 min-h-12 rounded-full bg-[#244f40] px-6 py-3 font-bold text-white hover:bg-[#193b30] disabled:opacity-60"}>
                       {downloading ? "Starting Download..." : (downloadRequested ? "Try download again" : "Download MP4")}
                     </button>
-                    <p className="mt-3 text-sm">
-                      Open your browser&apos;s Downloads to see the transfer progress.
-                    </p>
-                    <div role="status">
-                      {downloadRequested && (
-                        <div className="mt-4 rounded-xl border-2 border-[#244f40] bg-white p-4 text-[#173a31]">
-                          <p className="text-xl font-bold">Look for the MP4 in Downloads</p>
-                          <p className="mt-1 text-base">
-                            Open your browser&apos;s Downloads to see progress. On Windows, press{" "}
-                            <kbd className="rounded border px-1.5 py-0.5 font-semibold">Ctrl+J</kbd>.
-                            If the MP4 is still downloading, wait for it to finish. If the download failed or never started, select Try download again.
-                          </p>
-                        </div>
-                      )}
+                    <div className="mt-4 rounded-xl border border-[#b5ccba] bg-white p-4 text-[#173a31]" role="status">
+                      <p className="font-bold">Track progress in your browser’s Downloads</p>
+                      <p className="mt-1 text-sm">
+                        {device === "windows" && <>Press <kbd className="rounded border px-1.5 py-0.5 font-semibold">Ctrl+J</kbd> to open Downloads in Chrome or Edge.</>}
+                        {device === "iphone" && "In Safari, tap the Downloads arrow near the address bar, then tap Downloads."}
+                        {device === "android" && "In Chrome, open the three-dot menu and tap Downloads."}
+                        {device === "mac" && "Open Downloads from your browser’s toolbar or menu."}
+                      </p>
+                      {downloadRequested && <p className="mt-2 text-sm">If the transfer failed or never started, select Try download again.</p>}
                     </div>
                   </div>
                 )}
 
-                {errorMessage && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 font-semibold text-red-700">{errorMessage}</p>}
+                {errorMessage && (
+                  <div role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-red-800">
+                    <p className="font-semibold">{errorMessage}</p>
+                    {offlineStatus === "failed" && <p className="mt-1 text-sm">Your saved edits are still available. Select Retry Video Preparation to try again.</p>}
+                  </div>
+                )}
 
                 <details className="mt-5 rounded-xl border border-stone-200 bg-[#fffdf8] p-3">
                   <summary className="cursor-pointer font-semibold text-[#173a31]">Where will I find my video?</summary>

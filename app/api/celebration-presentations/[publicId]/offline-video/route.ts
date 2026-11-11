@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import Mux from "@mux/mux-node";
 import { HeadObjectCommand } from "@aws-sdk/client-s3";
+import { celebrationClosingFont, celebrationFonts, isCelebrationFont } from "../../../../lib/celebration-fonts";
 import { getR2Client, getR2Config } from "../../../../../lib/r2-storage";
 import { getPrivateVideoDownloadUrl } from "../../../../../lib/r2-video-upload";
 
@@ -830,8 +831,9 @@ function buildRenderPayload(
   const introTitle = presentation.intro_title || "Celebration of Life";
   const introMessage = presentation.intro_message || "";
   const introColor = presentation.intro_color || "#FDE68A";
-  const introFontFamily = presentation.intro_font === "elegant" ? "Georgia" :
-    presentation.intro_font === "modern" ? "Arial" : "Roboto";
+  const introFont = isCelebrationFont(presentation.intro_font) ? presentation.intro_font : "classic";
+  const introFontFamily = celebrationFonts[introFont].renderFamily;
+  const closingFontFamily = celebrationFonts[celebrationClosingFont(introFont)].renderFamily;
 
   // Opening: 5 seconds.
   addBackground(0, INTRO_FRAMES, 175, 770, 380, 500);
@@ -1009,7 +1011,8 @@ function buildRenderPayload(
     90,
     "56px",
     "600",
-    "#FDE68A"
+    "#FDE68A",
+    closingFontFamily
   );
 
   addText(
@@ -1020,7 +1023,8 @@ function buildRenderPayload(
     120,
     "76px",
     "600",
-    "#FFFFFF"
+    "#FFFFFF",
+    closingFontFamily
   );
 
   if (years) {
@@ -1032,7 +1036,8 @@ function buildRenderPayload(
       80,
       "44px",
       "500",
-      "#FDE68A"
+      "#FDE68A",
+      closingFontFamily
     );
   }
 
@@ -1116,6 +1121,22 @@ async function getRenderlyStatus(jobId: string): Promise<RenderlyStatus> {
   return (result?.data || {}) as RenderlyStatus;
 }
 
+async function getOutputSize(outputUrl: string) {
+  try {
+    if (new URL(outputUrl).protocol !== "https:") return null;
+
+    const response = await fetch(outputUrl, {
+      method: "HEAD",
+      cache: "no-store",
+      signal: AbortSignal.timeout(3000),
+    });
+    const bytes = Number(response.headers.get("content-length"));
+    return response.ok && Number.isSafeInteger(bytes) && bytes > 0 ? bytes : null;
+  } catch {
+    return null;
+  }
+}
+
 async function normalizeExistingJob(
   presentation: PresentationRow,
   currentHash: string
@@ -1162,6 +1183,7 @@ async function normalizeExistingJob(
         status: "ready",
         progress: 100,
         outputUrl: status.outputUrl,
+        sizeBytes: await getOutputSize(status.outputUrl),
         filename: safeDownloadName(presentation.person_name),
       };
     }
@@ -1263,6 +1285,7 @@ export async function POST(
             success: true,
             status: "ready",
             progress: 100,
+            sizeBytes: stored.ContentLength,
             filename: safeDownloadName(presentation.person_name),
           });
         }
@@ -1607,6 +1630,7 @@ export async function GET(
             success: true,
             status: "ready",
             progress: 100,
+            sizeBytes: stored.ContentLength,
             filename: safeDownloadName(presentation.person_name),
           });
         }
@@ -1877,6 +1901,7 @@ export async function GET(
         status: "ready",
         progress: 100,
         outputUrl: renderStatus.outputUrl,
+        sizeBytes: await getOutputSize(renderStatus.outputUrl),
         filename: safeDownloadName(presentation.person_name),
       });
     }

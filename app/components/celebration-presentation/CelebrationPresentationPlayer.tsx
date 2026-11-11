@@ -1,5 +1,7 @@
 "use client";
 
+import { celebrationClosingFont, isCelebrationFont } from "../../lib/celebration-fonts";
+import { presentationFontFamilies } from "./presentation-fonts";
 import {
   useCallback,
   useEffect,
@@ -144,9 +146,6 @@ export default function CelebrationPresentationPlayer({
 
   const [paused, setPaused] =
     useState(false);
-
-  const [loop, setLoop] =
-    useState(true);
 
   const [volume, setVolume] =
     useState(0.7);
@@ -369,7 +368,7 @@ export default function CelebrationPresentationPlayer({
   }, [hasStarted, showOpeningScreen]);
 
   useEffect(() => {
-    if (!showClosingScreen || !loop || paused) {
+    if (!showClosingScreen || paused) {
       return;
     }
 
@@ -383,7 +382,7 @@ export default function CelebrationPresentationPlayer({
     return () => {
       window.clearTimeout(timer);
     };
-  }, [loop, paused, showClosingScreen]);
+  }, [paused, showClosingScreen]);
 
   useEffect(() => {
     if (
@@ -425,10 +424,7 @@ export default function CelebrationPresentationPlayer({
       hasStarted &&
       !paused &&
       !showOpeningScreen &&
-      ((showClosingScreen && loop) ||
-        (!showClosingScreen &&
-          currentItem?.item_type ===
-            "photo")) &&
+      (showClosingScreen || currentItem?.item_type === "photo") &&
       Boolean(currentMusic);
 
     if (shouldPlay) {
@@ -443,7 +439,6 @@ export default function CelebrationPresentationPlayer({
     currentItem,
     currentMusic,
     hasStarted,
-    loop,
     paused,
     showClosingScreen,
     showOpeningScreen,
@@ -746,7 +741,7 @@ export default function CelebrationPresentationPlayer({
         <video
           ref={continuousVideoRef}
           src={continuousPlayback.url}
-          loop={loop}
+          loop
           onClick={() => {
             setContinuousControlsVisible(true);
             setContinuousControlsTouchedAt(Date.now());
@@ -836,17 +831,6 @@ export default function CelebrationPresentationPlayer({
               Full Screen
             </button>
           )}
-          {continuousHasPlayed && (
-            <button
-              type="button"
-              aria-label="Loop presentation"
-              aria-pressed={loop}
-              onClick={() => setLoop((previous) => !previous)}
-              className="rounded-full border border-white/40 px-4 py-2 font-semibold text-white"
-            >
-              Loop {loop ? "On" : "Off"}
-            </button>
-          )}
           {continuousHasPlayed && continuousDuration > 0 && (
             <label className="flex min-w-[12rem] flex-1 items-center gap-3">
               <span className="sr-only">Presentation playback position</span>
@@ -882,11 +866,9 @@ export default function CelebrationPresentationPlayer({
   const introTitle = presentation.introTitle || "Celebration of Life";
   const introMessage = presentation.introMessage || "";
   const introColor = presentation.introColor || "#FDE68A";
-  const introFontStyle = presentation.introFont === "elegant"
-    ? "Georgia, serif"
-    : presentation.introFont === "modern"
-      ? "Arial, sans-serif"
-      : "inherit";
+  const introFont = isCelebrationFont(presentation.introFont) ? presentation.introFont : "classic";
+  const introFontStyle = presentationFontFamilies[introFont] ?? "inherit";
+  const closingFontStyle = presentationFontFamilies[celebrationClosingFont(introFont)];
 
   return (
     <main
@@ -908,11 +890,7 @@ export default function CelebrationPresentationPlayer({
               hasStarted &&
               !paused &&
               !showOpeningScreen &&
-              ((showClosingScreen &&
-                loop) ||
-                (!showClosingScreen &&
-                  currentItem?.item_type ===
-                    "photo"))
+              (showClosingScreen || currentItem?.item_type === "photo")
             ) {
               void audioRef.current
                 ?.play()
@@ -1049,16 +1027,16 @@ export default function CelebrationPresentationPlayer({
       ) : showClosingScreen ? (
         <section className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black px-6 py-12 text-center">
           <div className="relative z-10 mx-auto w-full max-w-5xl">
-            <p className="font-serif text-2xl tracking-[0.2em] text-amber-200 uppercase sm:text-4xl">
+            <p className="font-serif text-2xl tracking-[0.2em] text-amber-200 uppercase sm:text-4xl" style={{ fontFamily: closingFontStyle }}>
               In Loving Memory
             </p>
 
-            <h1 className="mt-14 font-serif text-4xl font-semibold leading-tight text-white sm:text-6xl">
+            <h1 className="mt-14 font-serif text-4xl font-semibold leading-tight text-white sm:text-6xl" style={{ fontFamily: closingFontStyle }}>
               {displayPersonName}
             </h1>
 
             {years && (
-              <p className="mt-6 font-serif text-2xl text-amber-200 sm:text-4xl">
+              <p className="mt-6 font-serif text-2xl text-amber-200 sm:text-4xl" style={{ fontFamily: closingFontStyle }}>
                 {years}
               </p>
             )}
@@ -1215,19 +1193,6 @@ export default function CelebrationPresentationPlayer({
               className="rounded-full border border-white/40 px-5 py-2 text-base font-semibold hover:bg-white/15"
             >
               Restart
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setLoop(
-                  (previous) =>
-                    !previous
-                );
-              }}
-              className="rounded-full border border-white/40 px-5 py-2 text-base font-semibold hover:bg-white/15"
-            >
-              Loop: {loop ? "On" : "Off"}
             </button>
 
             <div className="flex items-center gap-3 rounded-full border border-white/40 px-4 py-2">

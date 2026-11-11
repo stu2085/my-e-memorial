@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createHash, timingSafeEqual } from "crypto";
+import { isCelebrationFont } from "../../../lib/celebration-fonts";
 
 export const runtime = "nodejs";
 
@@ -9,7 +10,6 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 );
 
-const ALLOWED_INTRO_FONTS = new Set(["classic", "elegant", "modern"]);
 const ALLOWED_INTRO_COLORS = new Set(["#FDE68A", "#FFFFFF", "#BAE6FD", "#FBCFE8"]);
 
 const ALLOWED_THEMES = new Set([
@@ -740,7 +740,7 @@ export async function PATCH(
 
     if (Object.prototype.hasOwnProperty.call(body, "introFont")) {
       const value = normalizeText(body.introFont);
-      if (!ALLOWED_INTRO_FONTS.has(value)) {
+      if (!isCelebrationFont(value)) {
         return NextResponse.json({ error: "Please choose a valid opening font." }, { status: 400 });
       }
       updates.intro_font = value;

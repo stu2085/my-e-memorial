@@ -16,6 +16,8 @@ import CameraPhotoCapture from "../../../components/celebration-presentation/Cam
 import CelebrationVideoRecorder from "../../../components/celebration-presentation/CelebrationVideoRecorder";
 import ArrangePresentationSection from "../../../components/celebration-presentation/ArrangePresentationSection";
 import BuilderMediaAccordion from "../../../components/celebration-presentation/BuilderMediaAccordion";
+import { celebrationFonts, isCelebrationFont, type CelebrationFont } from "../../../lib/celebration-fonts";
+import { presentationFontFamilies } from "../../../components/celebration-presentation/presentation-fonts";
 import OfflineVideoSection from "../../../components/celebration-presentation/OfflineVideoSection";
 
 type Presentation = {
@@ -27,7 +29,7 @@ type Presentation = {
   featuredPhotoUrl: string | null;
   introTitle?: string;
   introMessage?: string;
-  introFont?: "classic" | "elegant" | "modern";
+  introFont?: CelebrationFont;
   introColor?: string;
   theme: string;
   status: string;
@@ -111,7 +113,7 @@ export default function CelebrationPresentationBuilderPage() {
 
   const [introTitle, setIntroTitle] = useState("Celebration of Life");
   const [introMessage, setIntroMessage] = useState("");
-  const [introFont, setIntroFont] = useState<"classic" | "elegant" | "modern">("classic");
+  const [introFont, setIntroFont] = useState<CelebrationFont>("classic");
   const [introColor, setIntroColor] = useState("#FDE68A");
   const [introSaving, setIntroSaving] = useState(false);
   const [introFeedback, setIntroFeedback] = useState("");
@@ -244,7 +246,7 @@ const [showUpgradeOffer, setShowUpgradeOffer] =
           const p = result.presentation as Presentation;
           setIntroTitle(p.introTitle || "Celebration of Life");
           setIntroMessage(p.introMessage || "");
-          setIntroFont(p.introFont || "classic");
+          setIntroFont(isCelebrationFont(p.introFont) ? p.introFont : "classic");
           setIntroColor(p.introColor || "#FDE68A");
           introInitializedRef.current = true;
         }
@@ -388,17 +390,6 @@ window.clearInterval(timer);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Checkout could not be started.");
       setStartingCheckout(false);
-    }
-  }
-
-  async function copyVideoLink() {
-    try {
-      await navigator.clipboard.writeText(
-        `${window.location.origin}/celebration-of-life-slideshow/${encodeURIComponent(publicId)}`
-      );
-      setStatusMessage("Video link copied. You can share it with family or the event venue.");
-    } catch {
-      setErrorMessage("Could not copy the link. Open the presentation and copy its address instead.");
     }
   }
 
@@ -1519,7 +1510,7 @@ window.clearInterval(timer);
             </p>
 
             <p className="mt-3 text-base font-semibold text-[#587667]">
-              Your changes save automatically as you work.
+              Media and order changes save as you work. Use Save Opening Screen for title and dedication edits.
             </p>
           </div>
 
@@ -1540,21 +1531,19 @@ window.clearInterval(timer);
                   ? "Purchased · Preserved with your paid MyEMemorial."
                   : "Purchased · Your shareable presentation is active for 60 days."}
               </p>
-              <p className="mt-2 text-base text-[#344f43]">Your video link was emailed to you. You can also play it or copy the link here.</p>
-              <div className="mt-4 flex flex-wrap justify-center gap-3">
-                <a href={`/celebration-of-life-slideshow/${encodeURIComponent(publicId)}`} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex min-h-12 items-center rounded-full bg-[#244f40] px-5 py-2 text-base font-bold text-white hover:bg-[#193b30]">
-                  Play Video
-                </a>
-                <button type="button" onClick={() => void copyVideoLink()}
-                  className="min-h-12 rounded-full border-2 border-[#244f40] bg-white px-5 py-2 text-base font-bold text-[#173a31] hover:bg-[#e9f0e8]">
-                  Copy Video Link
-                </button>
-              </div>
             </div>
           )}
 
 
+
+          <nav aria-label="Presentation builder sections" className="mt-5 flex flex-wrap justify-center gap-2">
+            <a className="rounded-full border border-[#cdbf9f] bg-white px-4 py-2 font-semibold text-[#173a31] hover:bg-[#f6f3ea]" href="#presentation-media">Photos, Videos, and Music</a>
+            <a className="rounded-full border border-[#cdbf9f] bg-white px-4 py-2 font-semibold text-[#173a31] hover:bg-[#f6f3ea]" href="#opening-screen">Opening Screen</a>
+            <a className="rounded-full border border-[#cdbf9f] bg-white px-4 py-2 font-semibold text-[#173a31] hover:bg-[#f6f3ea]" href="#arrange-presentation">Arrange Presentation</a>
+            {presentation?.paymentStatus === "paid" && presentation.status === "active" && (
+              <a className="rounded-full border border-[#cdbf9f] bg-white px-4 py-2 font-semibold text-[#173a31] hover:bg-[#f6f3ea]" href="#watch-save-share">Watch, Save, or Share</a>
+            )}
+          </nav>
 
           {presentation?.convertedMemorialId && (
             <div className="mt-7 rounded-2xl border border-[#b7c8c0] bg-white/90 px-5 py-5 text-center shadow-sm">
@@ -1599,70 +1588,8 @@ window.clearInterval(timer);
             </div>
           )}
 
-          {presentation?.paymentStatus === "paid" && (
-            <OfflineVideoSection
-              publicId={publicId}
-              personName={presentation.personName}
-              paymentStatus={presentation.paymentStatus}
-              status={presentation.status}
-              music={music}
-            />
-          )}
-
-          <section className="mt-8 rounded-2xl border border-[#d8d3c7] bg-white/95 p-5 shadow-sm sm:p-6">
-            <h2 className="font-serif text-2xl font-bold text-[#173a31]">Opening Screen</h2>
-            <p className="mt-2 text-base text-stone-700">Personalize the first five seconds of your presentation. Changes appear in the online player and your next Offline Copy.</p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <label className="block text-base font-semibold text-stone-800">
-                Opening title
-                <input type="text" maxLength={60} value={introTitle} onChange={(event) => { setIntroTitle(event.target.value); setIntroFeedback(""); }}
-                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900" />
-              </label>
-              <label className="block text-base font-semibold text-stone-800">
-                Font
-                <select value={introFont} onChange={(event) => { setIntroFont(event.target.value as "classic" | "elegant" | "modern"); setIntroFeedback(""); }}
-                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900">
-                  <option value="classic">Classic</option>
-                  <option value="elegant">Elegant</option>
-                  <option value="modern">Modern</option>
-                </select>
-              </label>
-              <label className="block text-base font-semibold text-stone-800 sm:col-span-2">
-                Personal dedication or message (optional, maximum 140 characters)
-                <textarea value={introMessage} maxLength={140} rows={2}
-                  onChange={(event) => { setIntroMessage(event.target.value); setIntroFeedback(""); }}
-                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900"
-                  placeholder="Forever in our hearts" />
-              </label>
-              <label className="block text-base font-semibold text-stone-800">
-                Text color
-                <select value={introColor} onChange={(event) => { setIntroColor(event.target.value); setIntroFeedback(""); }}
-                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900">
-                  <option value="#FDE68A">Soft gold</option>
-                  <option value="#FFFFFF">White</option>
-                  <option value="#BAE6FD">Pale blue</option>
-                  <option value="#FBCFE8">Soft pink</option>
-                </select>
-              </label>
-            </div>
-            <div className="mx-auto mt-5 flex min-h-64 max-w-xl flex-col items-center justify-center gap-3 rounded-xl bg-black px-6 py-8 text-center"
-              style={{ fontFamily: introFont === "elegant" ? "Georgia, serif" : introFont === "modern" ? "Arial, sans-serif" : "inherit" }}>
-              <p className="text-xl font-bold uppercase tracking-wide sm:text-2xl" style={{ color: introColor }}>{introTitle || "Celebration of Life"}</p>
-              {presentation?.featuredPhotoUrl && <img src={presentation.featuredPhotoUrl} alt="Featured photo preview" className="h-28 w-24 rounded-lg object-cover" />}
-              <p className="text-2xl font-semibold text-white">{presentation?.personName}</p>
-              {(presentation?.birthDate || presentation?.deathDate) && <p className="text-sm text-amber-100">{[presentation?.birthDate?.slice(0, 4), presentation?.deathDate?.slice(0, 4)].filter(Boolean).join(" – ")}</p>}
-              {introMessage && <p className="whitespace-pre-line text-base" style={{ color: introColor }}>{introMessage}</p>}
-            </div>
-            <p className="mt-2 text-center text-sm text-stone-600">Preview of your opening screen</p>
-            <button type="button" onClick={() => void saveOpeningScreen()} disabled={introSaving}
-              className="mt-5 min-h-12 rounded-full bg-[#244f40] px-6 py-3 text-base font-bold text-white disabled:opacity-60">
-              {introSaving ? "Saving opening screen…" : "Save Opening Screen"}
-            </button>
-            {introFeedback && <p role="status" className="mt-3 text-base font-semibold text-green-800">{introFeedback}</p>}
-            {introError && <p role="alert" className="mt-3 text-base font-semibold text-red-700">{introError}</p>}
-          </section>
-
-          <div className="mt-8 space-y-3">
+          <section id="presentation-media" className="mt-8 space-y-3">
+            <h2 className="font-serif text-2xl font-bold text-[#173a31]">Photos, Videos, and Music</h2>
             <BuilderMediaAccordion
               title="Photos"
               icon="photo"
@@ -2106,15 +2033,79 @@ window.clearInterval(timer);
                 </div>
               )}
             </BuilderMediaAccordion>
+          </section>
+
+          <section id="opening-screen" className="mt-8 rounded-2xl border border-[#d8d3c7] bg-white/95 p-5 shadow-sm sm:p-6">
+            <h2 className="font-serif text-2xl font-bold text-[#173a31]">Opening Screen</h2>
+            <p className="mt-2 text-base text-stone-700">Personalize the first five seconds of your presentation. Storybook, Typewriter, and Bold also style the closing screen.</p>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <label className="block text-base font-semibold text-stone-800">
+                Opening title
+                <input type="text" maxLength={60} value={introTitle} onChange={(event) => { setIntroTitle(event.target.value); setIntroFeedback(""); }}
+                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900" />
+              </label>
+              <label className="block text-base font-semibold text-stone-800">
+                Title and dedication font
+                <select value={introFont} onChange={(event) => { setIntroFont(event.target.value as CelebrationFont); setIntroFeedback(""); }}
+                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900">
+                  {Object.entries(celebrationFonts).map(([value, font]) => (
+                    <option key={value} value={value}>{font.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block text-base font-semibold text-stone-800 sm:col-span-2">
+                Personal dedication or message (optional, maximum 140 characters)
+                <textarea value={introMessage} maxLength={140} rows={2}
+                  onChange={(event) => { setIntroMessage(event.target.value); setIntroFeedback(""); }}
+                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900"
+                  placeholder="Forever in our hearts" />
+              </label>
+              <label className="block text-base font-semibold text-stone-800">
+                Text color
+                <select value={introColor} onChange={(event) => { setIntroColor(event.target.value); setIntroFeedback(""); }}
+                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900">
+                  <option value="#FDE68A">Soft gold</option>
+                  <option value="#FFFFFF">White</option>
+                  <option value="#BAE6FD">Pale blue</option>
+                  <option value="#FBCFE8">Soft pink</option>
+                </select>
+              </label>
+            </div>
+            <div className="mx-auto mt-5 flex min-h-64 max-w-xl flex-col items-center justify-center gap-3 rounded-xl bg-black px-6 py-8 text-center">
+              <p className="text-xl font-bold uppercase tracking-wide sm:text-2xl" style={{ color: introColor, fontFamily: presentationFontFamilies[introFont] }}>{introTitle || "Celebration of Life"}</p>
+              {presentation?.featuredPhotoUrl && <img src={presentation.featuredPhotoUrl} alt="Featured photo preview" className="h-28 w-24 rounded-lg object-cover" />}
+              <p className="text-2xl font-semibold text-white">{presentation?.personName}</p>
+              {(presentation?.birthDate || presentation?.deathDate) && <p className="text-sm text-amber-100">{[presentation?.birthDate?.slice(0, 4), presentation?.deathDate?.slice(0, 4)].filter(Boolean).join(" – ")}</p>}
+              {introMessage && <p className="whitespace-pre-line text-base" style={{ color: introColor, fontFamily: presentationFontFamilies[introFont] }}>{introMessage}</p>}
+            </div>
+            <p className="mt-2 text-center text-sm text-stone-600">Preview of your opening screen</p>
+            <button type="button" onClick={() => void saveOpeningScreen()} disabled={introSaving}
+              className="mt-5 min-h-12 rounded-full bg-[#244f40] px-6 py-3 text-base font-bold text-white disabled:opacity-60">
+              {introSaving ? "Saving opening screen…" : "Save Opening Screen"}
+            </button>
+            {introFeedback && <p role="status" className="mt-3 text-base font-semibold text-green-800">{introFeedback}</p>}
+            {introError && <p role="alert" className="mt-3 text-base font-semibold text-red-700">{introError}</p>}
+          </section>
+
+          <div id="arrange-presentation">
+            <ArrangePresentationSection
+              items={items}
+              movingItemId={movingItemId}
+              onMove={moveItem}
+              onReorder={reorderItems}
+              onRemove={removeItem}
+            />
           </div>
 
-          <ArrangePresentationSection
-            items={items}
-            movingItemId={movingItemId}
-            onMove={moveItem}
-            onReorder={reorderItems}
-            onRemove={removeItem}
-          />
+          {presentation?.paymentStatus === "paid" && (
+            <OfflineVideoSection
+              publicId={publicId}
+              personName={presentation.personName}
+              paymentStatus={presentation.paymentStatus}
+              status={presentation.status}
+              music={music}
+            />
+          )}
 
           {(uploadingPhoto ||
             uploadingVideo ||
