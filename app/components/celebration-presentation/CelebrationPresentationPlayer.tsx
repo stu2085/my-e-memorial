@@ -951,8 +951,9 @@ export default function CelebrationPresentationPlayer({
                       </span>
                       <span className="mt-2 block">
                         This can take several minutes. Presentations with many photos or longer video clips
-                        can take 30 minutes or more. Keep this page open.{" "}
-                        <strong>Begin Presentation</strong> will appear automatically when your video is ready.
+                        can take 30 minutes or more. You can leave this page and return to the same link.
+                        Your video will keep preparing.{" "}
+                        <strong>Begin Presentation</strong> will appear when your video is ready.
                       </span>
                     </>
                   )}

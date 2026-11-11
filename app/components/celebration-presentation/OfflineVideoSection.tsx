@@ -558,6 +558,10 @@ export default function OfflineVideoSection({
                     <button type="button" onClick={() => void downloadPresentation()} disabled={downloading} className={downloadRequested ? "mt-2 text-sm font-semibold text-[#244f40] underline underline-offset-2 disabled:opacity-50" : "mt-3 min-h-12 rounded-full bg-[#244f40] px-6 py-3 font-bold text-white hover:bg-[#193b30] disabled:opacity-60"}>
                       {downloading ? "Starting Download..." : (downloadRequested ? "Try download again" : "Download MP4")}
                     </button>
+                    <p className="mt-3 text-sm">
+                      <strong>Important</strong> — To keep the presentation playing on repeat, open the downloaded MP4 and turn on
+                      <strong> Repeat</strong> or <strong>Loop</strong> in the player you’ll use at the service.
+                    </p>
                     <div className="mt-4 rounded-xl border border-[#b5ccba] bg-white p-4 text-[#173a31]" role="status">
                       <p className="font-bold">Track progress in your browser’s Downloads</p>
                       <p className="mt-1 text-sm">
