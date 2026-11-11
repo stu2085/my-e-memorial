@@ -401,33 +401,45 @@ return;
   );
 }
 if (isChoiceMode) {
+  const welcome = <AccountWelcome living={funnelContext(redirectTo).memorial_type === "living"} />;
+  const signInLink = (
+    <a data-clarity-unmask="true"
+      href={`/login?mode=login&redirect=${encodeURIComponent(redirectTo)}`}
+      className={isFreeBuilderReturn
+        ? "mt-3 flex min-h-11 items-center justify-center rounded-full px-4 text-center text-base font-semibold text-stone-800 underline underline-offset-4 hover:bg-stone-100"
+        : "mt-6 block w-full rounded-full border border-stone-300 bg-white px-6 py-3 text-center text-base font-semibold text-stone-800 hover:bg-stone-100"}
+    >
+      {isFreeBuilderReturn ? "Already have an account? Sign in" : "I Already Have an Account"}
+    </a>
+  );
+
   return (
     <main data-clarity-mask="true" className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,#f1eadb,#faf7f0_65%)] px-4 py-8">
       <div className="w-full max-w-lg rounded-3xl border border-[#e5d8c7] bg-[#fffdf8] p-6 shadow-sm md:p-8">
-        <AccountWelcome living={funnelContext(redirectTo).memorial_type === "living"} />
-        <h1 data-clarity-unmask="true" className="mt-5 text-center text-2xl font-bold text-blue-950">
-          Continue to MyEMemorial
+        {!isFreeBuilderReturn && welcome}
+        <h1 data-clarity-unmask="true" className={`text-center text-2xl font-bold text-blue-950 ${isFreeBuilderReturn ? "" : "mt-5"}`}>
+          {isFreeBuilderReturn ? "Create your free account to continue" : "Continue to MyEMemorial"}
         </h1>
 
         <p data-clarity-unmask="true" className="mt-3 text-base text-stone-600">
           {isFreeBuilderReturn
-            ? "Sign in or create your free account so you can save and publish your MyEMemorial. No payment is required."
+            ? "Create an account to save and publish your MyEMemorial. No payment is required."
             : "Do you already have an account?"}
         </p>
 
-        <a data-clarity-unmask="true"
-          href={`/login?mode=login&redirect=${encodeURIComponent(redirectTo)}`}
-          className="mt-6 block w-full rounded-full border border-stone-300 bg-white px-6 py-3 text-center text-base font-semibold text-stone-800 hover:bg-stone-100"
-        >
-          I Already Have an Account
-        </a>
-
+        {!isFreeBuilderReturn && signInLink}
         <a data-clarity-unmask="true"
           onClick={rememberEmailPrefill} href={`/login?mode=signup&redirect=${encodeURIComponent(redirectTo)}`}
           className="mt-4 block w-full rounded-full bg-stone-900 px-6 py-3 text-center text-base font-semibold text-white hover:bg-stone-700"
         >
-          Create New Account
+          {isFreeBuilderReturn ? "Create Free Account" : "Create New Account"}
         </a>
+        {isFreeBuilderReturn && (
+          <>
+            {signInLink}
+            <div className="mt-5">{welcome}</div>
+          </>
+        )}
       </div>
     </main>
   );

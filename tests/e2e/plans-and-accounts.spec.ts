@@ -51,7 +51,7 @@ for (const [landing, mode] of [["/memorials", "memorial"], ["/personal-e-memoria
         await expect(page).toHaveURL(/\/login\?mode=choice/);
         const redirect = new URL(page.url()).searchParams.get("redirect");
         expect(redirect).toBe(`/create?mode=${mode}&plan=free`);
-        await page.getByRole("link", { name: "Create New Account" }).click();
+        await page.getByRole("link", { name: "Create Free Account" }).click();
         await expect(page.getByRole("heading", { name: "Create Account", exact: true })).toBeVisible();
         expect(new URL(page.url()).searchParams.get("redirect")).toBe(redirect);
         const records = await events(page);

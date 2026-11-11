@@ -37,7 +37,7 @@ for (const path of ['/', '/memorials']) {
     expect(events).not.toMatch(/Ada|Lovelace/);
     const redirect = new URL(page.url()).searchParams.get('redirect')!;
     expect(redirect).toContain('name_entry=');
-    await page.getByRole('link', { name: 'Create New Account' }).click();
+    await page.getByRole('link', { name: 'Create Free Account' }).click();
     expect(new URL(page.url()).searchParams.get('redirect')).toBe(redirect);
     const token = new URL(redirect, 'http://127.0.0.1').searchParams.get('name_entry')!;
     // Simulate a completed email confirmation/sign-in without sending an email.
