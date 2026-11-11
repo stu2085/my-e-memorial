@@ -113,6 +113,8 @@ export default function CelebrationPresentationBuilderPage() {
 
   const [introTitle, setIntroTitle] = useState("Celebration of Life");
   const [introMessage, setIntroMessage] = useState("");
+  const [openingScreenOpen, setOpeningScreenOpen] = useState(false);
+  const [arrangePresentationOpen, setArrangePresentationOpen] = useState(false);
   const [introFont, setIntroFont] = useState<CelebrationFont>("classic");
   const [introColor, setIntroColor] = useState("#FDE68A");
   const [introSaving, setIntroSaving] = useState(false);
@@ -1537,9 +1539,9 @@ window.clearInterval(timer);
 
 
           <nav aria-label="Presentation builder sections" className="mt-5 flex flex-wrap justify-center gap-2">
+            <a className="rounded-full border border-[#cdbf9f] bg-white px-4 py-2 font-semibold text-[#173a31] hover:bg-[#f6f3ea]" href="#opening-screen" onClick={() => setOpeningScreenOpen(true)}>Opening Screen</a>
             <a className="rounded-full border border-[#cdbf9f] bg-white px-4 py-2 font-semibold text-[#173a31] hover:bg-[#f6f3ea]" href="#presentation-media">Photos, Videos, and Music</a>
-            <a className="rounded-full border border-[#cdbf9f] bg-white px-4 py-2 font-semibold text-[#173a31] hover:bg-[#f6f3ea]" href="#opening-screen">Opening Screen</a>
-            <a className="rounded-full border border-[#cdbf9f] bg-white px-4 py-2 font-semibold text-[#173a31] hover:bg-[#f6f3ea]" href="#arrange-presentation">Arrange Presentation</a>
+            <a className="rounded-full border border-[#cdbf9f] bg-white px-4 py-2 font-semibold text-[#173a31] hover:bg-[#f6f3ea]" href="#arrange-presentation" onClick={() => setArrangePresentationOpen(true)}>Arrange Presentation</a>
             {presentation?.paymentStatus === "paid" && presentation.status === "active" && (
               <a className="rounded-full border border-[#cdbf9f] bg-white px-4 py-2 font-semibold text-[#173a31] hover:bg-[#f6f3ea]" href="#watch-save-share">Watch, Save, or Share</a>
             )}
@@ -1588,7 +1590,64 @@ window.clearInterval(timer);
             </div>
           )}
 
-          <section id="presentation-media" className="mt-8 space-y-3">
+          <div id="opening-screen" className="mt-8">
+            <BuilderMediaAccordion
+              title="Opening Screen"
+              open={openingScreenOpen}
+              onToggle={() => setOpeningScreenOpen((open) => !open)}
+            >
+              <p className="mt-2 text-base text-stone-700">Personalize the first five seconds of your presentation. Storybook, Typewriter, and Bold also style the closing screen.</p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <label className="block text-base font-semibold text-stone-800">
+                  Opening title
+                  <input type="text" maxLength={60} value={introTitle} onChange={(event) => { setIntroTitle(event.target.value); setIntroFeedback(""); }}
+                    className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900" />
+                </label>
+                <label className="block text-base font-semibold text-stone-800">
+                  Title and dedication font
+                  <select value={introFont} onChange={(event) => { setIntroFont(event.target.value as CelebrationFont); setIntroFeedback(""); }}
+                    className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900">
+                    {Object.entries(celebrationFonts).map(([value, font]) => (
+                      <option key={value} value={value}>{font.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block text-base font-semibold text-stone-800 sm:col-span-2">
+                  Personal dedication or message (optional, maximum 140 characters)
+                  <textarea value={introMessage} maxLength={140} rows={2}
+                    onChange={(event) => { setIntroMessage(event.target.value); setIntroFeedback(""); }}
+                    className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900"
+                    placeholder="Forever in our hearts" />
+                </label>
+                <label className="block text-base font-semibold text-stone-800">
+                  Text color
+                  <select value={introColor} onChange={(event) => { setIntroColor(event.target.value); setIntroFeedback(""); }}
+                    className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900">
+                    <option value="#FDE68A">Soft gold</option>
+                    <option value="#FFFFFF">White</option>
+                    <option value="#BAE6FD">Pale blue</option>
+                    <option value="#FBCFE8">Soft pink</option>
+                  </select>
+                </label>
+              </div>
+              <div className="mx-auto mt-5 flex min-h-64 max-w-xl flex-col items-center justify-center gap-3 rounded-xl bg-black px-6 py-8 text-center">
+                <p className="text-xl font-bold uppercase tracking-wide sm:text-2xl" style={{ color: introColor, fontFamily: presentationFontFamilies[introFont] }}>{introTitle || "Celebration of Life"}</p>
+                {presentation?.featuredPhotoUrl && <img src={presentation.featuredPhotoUrl} alt="Featured photo preview" className="h-28 w-24 rounded-lg object-cover" />}
+                <p className="text-2xl font-semibold text-white">{presentation?.personName}</p>
+                {(presentation?.birthDate || presentation?.deathDate) && <p className="text-sm text-amber-100">{[presentation?.birthDate?.slice(0, 4), presentation?.deathDate?.slice(0, 4)].filter(Boolean).join(" – ")}</p>}
+                {introMessage && <p className="whitespace-pre-line text-base" style={{ color: introColor, fontFamily: presentationFontFamilies[introFont] }}>{introMessage}</p>}
+              </div>
+              <p className="mt-2 text-center text-sm text-stone-600">Preview of your opening screen</p>
+              <button type="button" onClick={() => void saveOpeningScreen()} disabled={introSaving}
+                className="mt-5 min-h-12 rounded-full bg-[#244f40] px-6 py-3 text-base font-bold text-white disabled:opacity-60">
+                {introSaving ? "Saving opening screen…" : "Save Opening Screen"}
+              </button>
+              {introFeedback && <p role="status" className="mt-3 text-base font-semibold text-green-800">{introFeedback}</p>}
+              {introError && <p role="alert" className="mt-3 text-base font-semibold text-red-700">{introError}</p>}
+            </BuilderMediaAccordion>
+          </div>
+
+          <section id="presentation-media" className="mt-4 space-y-3">
             <h2 className="font-serif text-2xl font-bold text-[#173a31]">Photos, Videos, and Music</h2>
             <BuilderMediaAccordion
               title="Photos"
@@ -2035,66 +2094,20 @@ window.clearInterval(timer);
             </BuilderMediaAccordion>
           </section>
 
-          <section id="opening-screen" className="mt-8 rounded-2xl border border-[#d8d3c7] bg-white/95 p-5 shadow-sm sm:p-6">
-            <h2 className="font-serif text-2xl font-bold text-[#173a31]">Opening Screen</h2>
-            <p className="mt-2 text-base text-stone-700">Personalize the first five seconds of your presentation. Storybook, Typewriter, and Bold also style the closing screen.</p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <label className="block text-base font-semibold text-stone-800">
-                Opening title
-                <input type="text" maxLength={60} value={introTitle} onChange={(event) => { setIntroTitle(event.target.value); setIntroFeedback(""); }}
-                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900" />
-              </label>
-              <label className="block text-base font-semibold text-stone-800">
-                Title and dedication font
-                <select value={introFont} onChange={(event) => { setIntroFont(event.target.value as CelebrationFont); setIntroFeedback(""); }}
-                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900">
-                  {Object.entries(celebrationFonts).map(([value, font]) => (
-                    <option key={value} value={value}>{font.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="block text-base font-semibold text-stone-800 sm:col-span-2">
-                Personal dedication or message (optional, maximum 140 characters)
-                <textarea value={introMessage} maxLength={140} rows={2}
-                  onChange={(event) => { setIntroMessage(event.target.value); setIntroFeedback(""); }}
-                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900"
-                  placeholder="Forever in our hearts" />
-              </label>
-              <label className="block text-base font-semibold text-stone-800">
-                Text color
-                <select value={introColor} onChange={(event) => { setIntroColor(event.target.value); setIntroFeedback(""); }}
-                  className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-normal text-stone-900">
-                  <option value="#FDE68A">Soft gold</option>
-                  <option value="#FFFFFF">White</option>
-                  <option value="#BAE6FD">Pale blue</option>
-                  <option value="#FBCFE8">Soft pink</option>
-                </select>
-              </label>
-            </div>
-            <div className="mx-auto mt-5 flex min-h-64 max-w-xl flex-col items-center justify-center gap-3 rounded-xl bg-black px-6 py-8 text-center">
-              <p className="text-xl font-bold uppercase tracking-wide sm:text-2xl" style={{ color: introColor, fontFamily: presentationFontFamilies[introFont] }}>{introTitle || "Celebration of Life"}</p>
-              {presentation?.featuredPhotoUrl && <img src={presentation.featuredPhotoUrl} alt="Featured photo preview" className="h-28 w-24 rounded-lg object-cover" />}
-              <p className="text-2xl font-semibold text-white">{presentation?.personName}</p>
-              {(presentation?.birthDate || presentation?.deathDate) && <p className="text-sm text-amber-100">{[presentation?.birthDate?.slice(0, 4), presentation?.deathDate?.slice(0, 4)].filter(Boolean).join(" – ")}</p>}
-              {introMessage && <p className="whitespace-pre-line text-base" style={{ color: introColor, fontFamily: presentationFontFamilies[introFont] }}>{introMessage}</p>}
-            </div>
-            <p className="mt-2 text-center text-sm text-stone-600">Preview of your opening screen</p>
-            <button type="button" onClick={() => void saveOpeningScreen()} disabled={introSaving}
-              className="mt-5 min-h-12 rounded-full bg-[#244f40] px-6 py-3 text-base font-bold text-white disabled:opacity-60">
-              {introSaving ? "Saving opening screen…" : "Save Opening Screen"}
-            </button>
-            {introFeedback && <p role="status" className="mt-3 text-base font-semibold text-green-800">{introFeedback}</p>}
-            {introError && <p role="alert" className="mt-3 text-base font-semibold text-red-700">{introError}</p>}
-          </section>
-
-          <div id="arrange-presentation">
-            <ArrangePresentationSection
-              items={items}
-              movingItemId={movingItemId}
-              onMove={moveItem}
-              onReorder={reorderItems}
-              onRemove={removeItem}
-            />
+          <div id="arrange-presentation" className="mt-4">
+            <BuilderMediaAccordion
+              title="Arrange Presentation"
+              open={arrangePresentationOpen}
+              onToggle={() => setArrangePresentationOpen((open) => !open)}
+            >
+              <ArrangePresentationSection
+                items={items}
+                movingItemId={movingItemId}
+                onMove={moveItem}
+                onReorder={reorderItems}
+                onRemove={removeItem}
+              />
+            </BuilderMediaAccordion>
           </div>
 
           {presentation?.paymentStatus === "paid" && (

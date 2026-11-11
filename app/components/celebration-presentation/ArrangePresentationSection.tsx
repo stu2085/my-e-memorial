@@ -63,39 +63,14 @@ export default function ArrangePresentationSection({
     void onReorder(order, Number(active.id));
   }
   return (
-    <section className="mt-4 rounded-2xl border border-[#d8d3c7] bg-white/95 p-5 shadow-[0_6px_18px_rgba(64,50,30,0.10)] backdrop-blur-[2px] sm:p-6">
-      <div className="flex items-center gap-4">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#244f40] text-white shadow-sm">
-          <svg
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-            className="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
-            <path d="M8 6h12" />
-            <path d="M8 12h12" />
-            <path d="M8 18h12" />
-            <circle cx="4" cy="6" r="1" fill="currentColor" />
-            <circle cx="4" cy="12" r="1" fill="currentColor" />
-            <circle cx="4" cy="18" r="1" fill="currentColor" />
-          </svg>
-        </span>
-
-        <h2 className="font-serif text-[25px] font-bold text-[#173a31]">
-          Arrange Presentation
-        </h2>
-      </div>
-
+    <>
       {items.length === 0 ? (
-        <p className="mt-6 text-center text-base text-stone-500">
+        <p className="text-center text-base text-stone-500">
           Add photos or videos to arrange your presentation.
         </p>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <p className="mt-3 text-sm text-stone-600">Drag the handle on any photo or video to change its position. The order saves when you release it.</p>
+          <p className="text-sm text-stone-600">Drag the handle on any photo or video to change its position. The order saves when you release it.</p>
           <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
           <div className="mt-5 space-y-3">
           {items.map((item, index) => {
@@ -206,7 +181,7 @@ export default function ArrangePresentationSection({
           </SortableContext>
         </DndContext>
       )}
-    </section>
+    </>
   );
 }
 

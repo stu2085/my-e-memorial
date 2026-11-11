@@ -592,22 +592,22 @@ export default function OfflineVideoSection({
                   </p>
                 </details>
                 <p className="mt-4 text-sm"><strong>Before the service:</strong> play the entire downloaded video with Wi-Fi off, check the sound, and consider a backup USB drive.</p>
-                <p className="mt-2 text-sm text-stone-600">Email delivery of a private download link is a planned addition. The working Download Now option remains available here.</p>
+                <p className="mt-2 text-sm text-stone-600">Large MP4 files can exceed email attachment limits. If someone needs an offline copy, give them the MP4 on a USB drive or ask which file-transfer service they accept.</p>
               </div>
             )}
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-[#d9d1c1] bg-white">
             <button type="button" className={choiceClass} aria-expanded={openChoice === "funeral"} aria-controls="celebration-funeral-panel" onClick={() => toggle("funeral")}>
-              <span><span className="block text-lg font-bold text-[#173a31]">Send to Funeral Home</span><span className="block text-sm text-stone-600">Help the funeral director prepare ahead of time</span></span>
+              <span><span className="block text-lg font-bold text-[#173a31]">Share with a Funeral Home</span><span className="block text-sm text-stone-600">Help the funeral director prepare ahead of time</span></span>
               <span aria-hidden="true" className="text-xl text-[#244f40]">{openChoice === "funeral" ? "−" : "+"}</span>
             </button>
             {openChoice === "funeral" && (
               <div id="celebration-funeral-panel" className={panelClass}>
                 <p>We recommend contacting the funeral home before the service and asking whether the venue has reliable internet.</p>
-                <details className="mt-3 rounded-xl border border-stone-200 p-3"><summary className="cursor-pointer font-semibold">Yes, they have internet</summary><p className="mt-2 text-sm">Send the regular online viewing link and ask the funeral director to test playback and sound.</p></details>
-                <details className="mt-3 rounded-xl border border-stone-200 p-3"><summary className="cursor-pointer font-semibold">No, they need an offline copy</summary><p className="mt-2 text-sm">Use Save for Offline Viewing above to get the MP4 in advance. Arrange to deliver the saved file, such as on a USB drive, and ask them to test it.</p></details>
-                <p className="mt-3 text-sm text-stone-600">Direct emailing to a funeral home will be added after secure sharing and delivery are connected. Please do not forward your private editing link.</p>
+                <details className="mt-3 rounded-xl border border-stone-200 p-3"><summary className="cursor-pointer font-semibold">Yes, they have internet</summary><p className="mt-2 text-sm">Choose Watch or Share Online, then select Copy Viewing Link. Paste that link into an email to the funeral director and ask them to test playback and sound.</p></details>
+                <details className="mt-3 rounded-xl border border-stone-200 p-3"><summary className="cursor-pointer font-semibold">No, they need an offline copy</summary><p className="mt-2 text-sm">Download the MP4 under Save for Offline Viewing. Deliver it on a USB drive or use a file-transfer service the funeral home accepts. Ask the funeral director to test the file and sound on the equipment they’ll use at the service.</p></details>
+                <p className="mt-3 text-sm text-stone-600">Keep your private editing link for your own use.</p>
               </div>
             )}
           </div>

@@ -4,10 +4,10 @@ import { ReactNode } from "react";
 
 type BuilderMediaAccordionProps = {
   title: string;
-  count: number;
+  count?: number;
   open: boolean;
   onToggle: () => void;
-  icon: "photo" | "video" | "music";
+  icon?: "photo" | "video" | "music";
   children: ReactNode;
 };
 
@@ -82,12 +82,14 @@ export default function BuilderMediaAccordion({
         className="flex min-h-[68px] w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-[#faf8f1] sm:px-6"
       >
         <span className="flex min-w-0 items-center gap-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#244f40] text-white shadow-sm">
-            <SectionIcon icon={icon} />
-          </span>
+          {icon && (
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#244f40] text-white shadow-sm">
+              <SectionIcon icon={icon} />
+            </span>
+          )}
 
           <span className="font-serif text-[24px] font-bold leading-none text-[#173a31]">
-            {title} ({count})
+            {title}{count !== undefined && ` (${count})`}
           </span>
         </span>
 
