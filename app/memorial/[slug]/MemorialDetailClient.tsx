@@ -403,7 +403,7 @@ function FamilyTreeCard({
     </div>
   );
 }
-export default function MemorialDetailClient() {
+export default function MemorialDetailClient({ initialMemorial }: { initialMemorial: Memorial }) {
   const MAX_CONTRIBUTOR_VIDEO_SIZE_BYTES = 1000 * 1000 * 1000; // 1 GB
   const params = useParams();
 const slug =
@@ -416,7 +416,7 @@ const slug =
 const SAMPLE_MEMORIAL_ID = 149;
 
 const [error, setError] = useState("");
-  const [data, setData] = useState<Memorial | null>(null);
+  const [data, setData] = useState<Memorial | null>(initialMemorial);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
 const [showFavoriteSongs, setShowFavoriteSongs] = useState(false);
   const [showPhotoGallery, setShowPhotoGallery] = useState(false);
@@ -429,7 +429,7 @@ const [showFavoriteSongs, setShowFavoriteSongs] = useState(false);
   const [showPlacesLived, setShowPlacesLived] = useState(false);
   const [showPlacesWorked, setShowPlacesWorked] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [wasMusicPlayingBeforeVideo, setWasMusicPlayingBeforeVideo] = useState(false);
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
   const songAudioRefs = useRef<(HTMLAudioElement | null)[]>([]);
@@ -665,7 +665,9 @@ if (platform === "whatsapp") {
         return;
       }
 
-      setLoading(true);
+      // The server has already verified and rendered the public memorial.
+      // Keep that content visible while client-only enhancements load.
+      if (!initialMemorial) setLoading(true);
 
       const { data: memorialData, error } = await supabase
         .from("memorials")
@@ -705,13 +707,17 @@ if (memorialData?.is_published === false && !isOwnerUser) {
 
       if (error) {
         console.error("LOAD MEMORIAL ERROR:", error);
-        setData(null);
+        // Do not replace a server-verified published memorial with a false
+        // not-found state because the browser's secondary request failed.
+        if (!initialMemorial) setData(null);
         setLoading(false);
         return;
       }
       if (!memorialData) {
-  setError("Memorial not found.");
-  setData(null);
+  if (!initialMemorial) {
+    setError("Memorial not found.");
+    setData(null);
+  }
   setLoading(false);
   return;
 }
@@ -738,65 +744,8 @@ setData({
   ...(memorialData as Memorial),
   memorial_videos: memorialVideosData,
 });
-      const description =
-  memorialData?.obituary?.slice(0, 155) ||
-  memorialData?.life_story?.slice(0, 155) ||
-  `View the memorial page for ${memorialData?.full_name || "a loved one"} on MyEMemorial.`;
-
-if (memorialData?.full_name) {
-  document.title = `${memorialData.full_name} | MyEMemorial`;
-
-let metaDescription = document.querySelector(
-  'meta[name="description"]'
-) as HTMLMetaElement | null;
-
-if (!metaDescription) {
-  metaDescription = document.createElement("meta");
-  metaDescription.name = "description";
-  document.head.appendChild(metaDescription);
-}
-
-metaDescription.content = description;
-}
-const ogTags = [
-  {
-    property: "og:title",
-    content: `${memorialData.full_name} | MyEMemorial`,
-  },
-  {
-    property: "og:description",
-    content: description,
-  },
-  {
-    property: "og:type",
-    content: "website",
-  },
-  {
-    property: "og:url",
-    content: `${window.location.origin}/memorial/${memorialData.slug}`,
-  },
-  {
-    property: "og:image",
-    content:
-      memorialData.featured_photo_url ||
-      memorialData.headstone_photo_1 ||
-      `${window.location.origin}/gravestone1.jpg`,
-  },
-];
-
-ogTags.forEach((tag) => {
-  let element = document.querySelector(
-    `meta[property="${tag.property}"]`
-  ) as HTMLMetaElement | null;
-
-  if (!element) {
-    element = document.createElement("meta");
-    element.setAttribute("property", tag.property);
-    document.head.appendChild(element);
-  }
-
-  element.content = tag.content;
-});
+      // The server owns the canonical title, description and Open Graph tags.
+      // Do not overwrite them with different client-side SEO values.
 
       if (memorialData?.id) {
   

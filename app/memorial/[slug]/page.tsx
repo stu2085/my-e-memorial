@@ -18,7 +18,7 @@ const getMemorial = cache(async (slug: string) => {
   const { data, error } = await supabaseServer
     .from("memorials")
     .select(
-      "slug, full_name, first_name, middle_name, last_name, birth_date, death_date, obituary, life_story, featured_photo_url, headstone_photo_1, is_published, is_living_preplan"
+      "id, slug, full_name, first_name, middle_name, last_name, birth_date, death_date, obituary, life_story, featured_photo_url, headstone_photo_1, is_published, is_living_preplan"
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -156,7 +156,25 @@ export default async function Page({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: structuredDataJson }}
       />
 
-      <MemorialDetailClient />
+      <MemorialDetailClient
+        initialMemorial={{
+          id: data.id,
+          slug: data.slug,
+          full_name: data.full_name ?? undefined,
+          first_name: data.first_name ?? undefined,
+          middle_name: data.middle_name ?? undefined,
+          last_name: data.last_name ?? undefined,
+          birth_date: data.birth_date ?? undefined,
+          death_date: data.death_date ?? undefined,
+          obituary: data.obituary ?? undefined,
+          obituary_url: null,
+          life_story: data.life_story ?? undefined,
+          featured_photo_url: data.featured_photo_url ?? undefined,
+          headstone_photo_1: data.headstone_photo_1 ?? undefined,
+          is_published: true,
+          is_living_preplan: data.is_living_preplan === true,
+        }}
+      />
     </>
   );
 }
