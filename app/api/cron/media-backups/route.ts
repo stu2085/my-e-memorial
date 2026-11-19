@@ -8,6 +8,23 @@ export const dynamic = "force-dynamic";
 
 const maxPhotoBytes = 20 * 1024 * 1024;
 const maxBatchPhotos = 5;
+const maxBulkFiles = 5;
+const backupBuckets = new Set([
+  "campaign-media", "memorial-articles", "memorial-audio", "memorial-media", "memorial-photos",
+]);
+
+type BackupFile = { bucket: string; path: string; bytes: number };
+
+function isBackupFile(value: unknown): value is BackupFile {
+  if (!value || typeof value !== "object") return false;
+  const { bucket, path, bytes } = value as Partial<BackupFile>;
+  return typeof bucket === "string" && backupBuckets.has(bucket) &&
+    typeof path === "string" && Buffer.byteLength(path) <= 1024 &&
+    !/[\x00-\x1f\x7f\\]/.test(path) &&
+    path.split("/").every((segment) => segment && segment !== "." && segment !== "..") &&
+    typeof bytes === "number" && Number.isSafeInteger(bytes) &&
+    bytes >= 0 && bytes <= maxPhotoBytes;
+}
 
 function sha256(bytes: Uint8Array) {
   return createHash("sha256").update(bytes).digest("hex");
@@ -21,23 +38,37 @@ function matchesSecret(authorization: string, secret: string | undefined) {
 }
 
 export async function GET(request: Request) {
-  return runBackup(request, false);
+  return runBackup(request, "photo");
 }
 
 export async function POST(request: Request) {
-  return runBackup(request, true);
+  return runBackup(request, "test-batch");
 }
 
-async function runBackup(request: Request, batch: boolean) {
+export async function PUT(request: Request) {
+  return runBackup(request, "inventory");
+}
+
+async function runBackup(request: Request, mode: "photo" | "test-batch" | "inventory") {
   const authorization = request.headers.get("authorization") ?? "";
   if (!matchesSecret(authorization, process.env.CRON_SECRET?.trim()) &&
       !matchesSecret(authorization, process.env.MEDIA_BACKUP_TEST_SECRET?.trim())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  let inventory: BackupFile[] = [];
+  if (mode === "inventory") {
+    const payload: unknown = await request.json().catch(() => null);
+    if (!Array.isArray(payload) || payload.length < 1 || payload.length > maxBulkFiles ||
+        !payload.every(isBackupFile)) {
+      return NextResponse.json({ error: "Send one to five valid inventory entries" }, { status: 422 });
+    }
+    inventory = payload;
+  }
+
   const sourceBucket = process.env.MEDIA_BACKUP_TEST_SOURCE_BUCKET?.trim();
   const sourcePath = process.env.MEDIA_BACKUP_TEST_SOURCE_PATH?.trim();
-  if (!sourceBucket || !sourcePath) {
+  if (mode !== "inventory" && (!sourceBucket || !sourcePath)) {
     return NextResponse.json({ enabled: false });
   }
 
@@ -62,26 +93,33 @@ async function runBackup(request: Request, batch: boolean) {
   });
 
   let stage = "download_source";
-  const storage = supabase.storage.from(sourceBucket);
-
-  async function copyPhoto(path: string) {
+  async function copyFile(sourceBucket: string, path: string, expectedBytes?: number) {
     stage = "download_source";
-    const { data, error } = await storage.download(path);
+    const { data, error } = await supabase.storage.from(sourceBucket).download(path);
     if (error || !data) throw new Error("Source download failed");
-    if (!data.type.startsWith("image/") || data.size === 0 || data.size > maxPhotoBytes) {
+    if (expectedBytes !== undefined && data.size !== expectedBytes) {
+      stage = "source_size_changed";
+      throw new Error("Source size differs from inventory");
+    }
+    if (data.size > maxPhotoBytes ||
+        (expectedBytes === undefined && (!data.type.startsWith("image/") || data.size === 0))) {
       return null;
     }
 
     const body = Buffer.from(await data.arrayBuffer());
     const checksum = sha256(body);
     const sourceId = sha256(Buffer.from(JSON.stringify([sourceBucket, path])));
-    const key = `test/${sourceId}/${checksum}`;
+    const contentType = data.type || "application/octet-stream";
+    const typeId = sha256(Buffer.from(contentType));
+    const key = mode === "inventory"
+      ? `files/${sourceBucket}/${sourceId}/${checksum}/${typeId}`
+      : `test/${sourceId}/${checksum}`;
     stage = "upload_backup";
     await r2.send(new PutObjectCommand({
       Bucket: bucket,
       Key: key,
       Body: body,
-      ContentType: data.type,
+      ContentType: contentType,
       Metadata: { sha256: checksum },
     }));
 
@@ -89,16 +127,42 @@ async function runBackup(request: Request, batch: boolean) {
     const backup = await r2.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
     const restoredBytes = await backup.Body?.transformToByteArray();
     if (!restoredBytes || restoredBytes.byteLength !== body.byteLength ||
-        sha256(restoredBytes) !== checksum || backup.ContentType !== data.type) {
+        sha256(restoredBytes) !== checksum || backup.ContentType !== contentType) {
       throw new Error("Backup verification failed");
     }
 
-    return { verified: true, key, bytes: body.byteLength, sha256: checksum };
+    const result = { verified: true, key, bytes: body.byteLength, sha256: checksum };
+    if (mode === "inventory") {
+      stage = "write_restore_record";
+      await r2.send(new PutObjectCommand({
+        Bucket: bucket,
+        Key: `${key}.json`,
+        Body: JSON.stringify({ bucket: sourceBucket, path, contentType, ...result }),
+        ContentType: "application/json",
+      }));
+    }
+    return result;
   }
 
   try {
-    if (!batch) {
-      const result = await copyPhoto(sourcePath);
+    if (mode === "inventory") {
+      const results = [];
+      for (const entry of inventory) {
+        try {
+          const result = await copyFile(entry.bucket, entry.path, entry.bytes);
+          if (!result) throw new Error("File exceeds backup limit");
+          results.push({ ...entry, ...result });
+        } catch {
+          console.error("Media backup inventory item failed", { bucket: entry.bucket, stage });
+          results.push({ ...entry, verified: false, stage });
+        }
+      }
+      return NextResponse.json({ results });
+    }
+
+    if (!sourceBucket || !sourcePath) return NextResponse.json({ enabled: false });
+    if (mode === "photo") {
+      const result = await copyFile(sourceBucket, sourcePath);
       return result
         ? NextResponse.json(result)
         : NextResponse.json({ error: "Select a nonempty photo up to 20 MiB" }, { status: 422 });
@@ -111,7 +175,7 @@ async function runBackup(request: Request, batch: boolean) {
 
     const folder = sourcePath.slice(0, folderEnd);
     stage = "list_test_folder";
-    const { data, error } = await storage.list(folder, {
+    const { data, error } = await supabase.storage.from(sourceBucket).list(folder, {
       limit: 100,
       sortBy: { column: "name", order: "asc" },
     });
@@ -130,7 +194,7 @@ async function runBackup(request: Request, batch: boolean) {
     for (const candidate of candidates) {
       const path = `${folder}/${candidate.name}`;
       try {
-        const result = await copyPhoto(path);
+        const result = await copyFile(sourceBucket, path);
         if (!result) throw new Error("Photo no longer eligible");
         verified.push({ path, ...result });
       } catch {
