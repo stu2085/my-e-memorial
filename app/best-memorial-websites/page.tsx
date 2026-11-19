@@ -3,10 +3,10 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Best Memorial Websites 2026 | Honor Their Life | MyEMemorial",
+    absolute: "Best Memorial Websites to Honor a Loved One | MyEMemorial",
   },
   description:
-    "Every loved one has a story worth remembering. Compare memorial websites and discover a beautiful way to honor their life and preserve their memories.",
+    "Are you looking for the best way to remember and honor your loved one? Let us show you why MyEMemorial is the right place to tell their story.",
   keywords: [
     "online memorial pages",
     "best online memorial pages",
