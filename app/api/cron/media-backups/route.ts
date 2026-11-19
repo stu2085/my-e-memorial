@@ -1,10 +1,13 @@
-import { createHash, timingSafeEqual } from "node:crypto";
+import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
 import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import { transporter } from "../../../lib/email";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 120;
 
 const maxPhotoBytes = 20 * 1024 * 1024;
 const maxBatchPhotos = 5;
@@ -38,7 +41,8 @@ function matchesSecret(authorization: string, secret: string | undefined) {
 }
 
 export async function GET(request: Request) {
-  return runBackup(request, "photo");
+  const scheduled = new URL(request.url).searchParams.get("scheduled") === "1";
+  return runBackup(request, scheduled ? "scheduled" : "photo");
 }
 
 export async function POST(request: Request) {
@@ -49,11 +53,22 @@ export async function PUT(request: Request) {
   return runBackup(request, "inventory");
 }
 
-async function runBackup(request: Request, mode: "photo" | "test-batch" | "inventory") {
+async function runBackup(request: Request, mode: "photo" | "test-batch" | "inventory" | "scheduled") {
   const authorization = request.headers.get("authorization") ?? "";
   if (!matchesSecret(authorization, process.env.CRON_SECRET?.trim()) &&
-      !matchesSecret(authorization, process.env.MEDIA_BACKUP_TEST_SECRET?.trim())) {
+      (mode === "scheduled" || !matchesSecret(authorization, process.env.MEDIA_BACKUP_TEST_SECRET?.trim()))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const scheduled = mode === "scheduled";
+  const permanent = scheduled || mode === "inventory";
+  const alertEmail = process.env.MEDIA_BACKUP_ALERT_EMAIL?.trim();
+  if (scheduled && (process.env.VERCEL_ENV !== "production" ||
+      process.env.MEDIA_BACKUP_SCHEDULED_ENABLED !== "true")) {
+    return NextResponse.json({ enabled: false });
+  }
+  if (scheduled && (!alertEmail || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD)) {
+    return NextResponse.json({ error: "Scheduled backup alert configuration missing" }, { status: 503 });
   }
 
   let inventory: BackupFile[] = [];
@@ -68,7 +83,7 @@ async function runBackup(request: Request, mode: "photo" | "test-batch" | "inven
 
   const sourceBucket = process.env.MEDIA_BACKUP_TEST_SOURCE_BUCKET?.trim();
   const sourcePath = process.env.MEDIA_BACKUP_TEST_SOURCE_PATH?.trim();
-  if (mode !== "inventory" && (!sourceBucket || !sourcePath)) {
+  if (!permanent && (!sourceBucket || !sourcePath)) {
     return NextResponse.json({ enabled: false });
   }
 
@@ -111,7 +126,7 @@ async function runBackup(request: Request, mode: "photo" | "test-batch" | "inven
     const sourceId = sha256(Buffer.from(JSON.stringify([sourceBucket, path])));
     const contentType = data.type || "application/octet-stream";
     const typeId = sha256(Buffer.from(contentType));
-    const key = mode === "inventory"
+    const key = permanent
       ? `files/${sourceBucket}/${sourceId}/${checksum}/${typeId}`
       : `test/${sourceId}/${checksum}`;
     stage = "upload_backup";
@@ -132,7 +147,7 @@ async function runBackup(request: Request, mode: "photo" | "test-batch" | "inven
     }
 
     const result = { verified: true, key, bytes: body.byteLength, sha256: checksum };
-    if (mode === "inventory") {
+    if (permanent) {
       stage = "write_restore_record";
       await r2.send(new PutObjectCommand({
         Bucket: bucket,
@@ -145,6 +160,68 @@ async function runBackup(request: Request, mode: "photo" | "test-batch" | "inven
   }
 
   try {
+    if (scheduled) {
+      stage = "claim_scheduled_files";
+      const lease = randomUUID();
+      const { data, error } = await supabase.rpc("claim_scheduled_media_backups", { p_lease: lease });
+      if (error || !Array.isArray(data)) throw new Error("Could not claim scheduled media");
+
+      let verified = 0;
+      let failed = 0;
+      for (const file of data as (BackupFile & {
+        object_id: string; revision: string; failures: number; alerted_at: string | null;
+      })[]) {
+        let backupKey: string | null = null;
+        let failedStage: string | null = null;
+        try {
+          stage = "validate_source";
+          if (!isBackupFile(file)) throw new Error("Invalid scheduled file");
+          const result = await copyFile(file.bucket, file.path, file.bytes);
+          if (!result) throw new Error("File exceeds backup limit");
+          backupKey = result.key;
+          verified += 1;
+        } catch {
+          failed += 1;
+          failedStage = stage;
+          console.error("Scheduled media backup item failed", { bucket: file.bucket, stage });
+        }
+
+        const failures = failedStage ? file.failures + 1 : 0;
+        const now = new Date();
+        stage = "save_scheduled_progress";
+        const { data: saved, error: saveError } = await supabase.from("media_backup_progress")
+          .update({
+            backup_key: backupKey,
+            verified_at: backupKey ? now.toISOString() : null,
+            next_attempt_at: new Date(now.getTime() + Math.min(60, 5 * failures) * 60_000).toISOString(),
+            failures,
+            last_stage: failedStage,
+          })
+          .eq("object_id", file.object_id).eq("revision", file.revision).eq("lease_token", lease)
+          .select("object_id").maybeSingle();
+        if (saveError || !saved) throw new Error("Could not save scheduled progress");
+
+        if (failures >= 3 && !file.alerted_at) {
+          try {
+            await transporter.sendMail({
+              from: process.env.EMAIL_USER,
+              to: alertEmail,
+              subject: "MyEMemorial media backup needs attention",
+              text: `A file failed backup ${failures} times.\nBucket: ${file.bucket}\nPath: ${file.path}\nStage: ${failedStage}\nThe job will retry automatically.`,
+            });
+            const { error: alertError } = await supabase.from("media_backup_progress")
+              .update({ alerted_at: new Date().toISOString() })
+              .eq("object_id", file.object_id).eq("revision", file.revision).eq("lease_token", lease);
+            if (alertError) throw alertError;
+          } catch {
+            console.error("Scheduled media backup alert failed", { bucket: file.bucket });
+          }
+        }
+      }
+      return NextResponse.json({ enabled: true, attempted: data.length, verified, failed },
+        { status: failed ? 502 : 200 });
+    }
+
     if (mode === "inventory") {
       const results = [];
       for (const entry of inventory) {
