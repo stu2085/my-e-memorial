@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
@@ -12,9 +12,17 @@ function sha256(bytes: Uint8Array) {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+function matchesSecret(authorization: string, secret: string | undefined) {
+  if (!secret) return false;
+  const expected = Buffer.from(`Bearer ${secret}`);
+  const supplied = Buffer.from(authorization);
+  return supplied.length === expected.length && timingSafeEqual(supplied, expected);
+}
+
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET?.trim();
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
+  const authorization = request.headers.get("authorization") ?? "";
+  if (!matchesSecret(authorization, process.env.CRON_SECRET?.trim()) &&
+      !matchesSecret(authorization, process.env.MEDIA_BACKUP_TEST_SECRET?.trim())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
