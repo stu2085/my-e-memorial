@@ -140,6 +140,7 @@ async function loadDirectoryPage(requestedPage: number): Promise<DirectoryData> 
     .eq("is_published", true)
     .not("slug", "is", null)
     .neq("slug", "")
+    .order("published_at", { ascending: false, nullsFirst: false })
     .order("id", { ascending: false })
     .range(rangeStart, rangeEnd);
 
