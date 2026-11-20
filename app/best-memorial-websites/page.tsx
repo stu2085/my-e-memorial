@@ -684,6 +684,7 @@ const faqItems = [
   },
   {
     question: "Which memorial websites offer a free option?",
+    excludeFromSnippet: true,
     answer:
       "MyEMemorial, CreateMemorial, Ever Loved, ForeverMissed, Keeper, Scan2Remember, and Kudoboard currently advertise a free starting option. Limits and included features differ by service.",
   },
@@ -819,7 +820,7 @@ export default function BestMemorialWebsitesPage() {
             </h1>
 
             <p className="mx-auto mt-5 max-w-4xl text-xl font-semibold leading-8 text-amber-200">
-              Every loved one has a story worth remembering.
+              Are you looking for the best way to remember and honor your loved one? Let us show you why MyEMemorial is the right place to tell their story.
             </p>
 
             <p className="mx-auto mt-3 max-w-4xl text-lg leading-8 text-stone-200">
@@ -1351,10 +1352,14 @@ export default function BestMemorialWebsitesPage() {
                   className="rounded-2xl border border-stone-200 bg-white p-5"
                 >
                   <summary className="cursor-pointer text-lg font-bold text-stone-900">
-                    {item.question}
+                    <span data-nosnippet={item.excludeFromSnippet ? "" : undefined}>
+                      {item.question}
+                    </span>
                   </summary>
                   <p className="mt-3 text-base leading-7 text-stone-700">
-                    {item.answer}
+                    <span data-nosnippet={item.excludeFromSnippet ? "" : undefined}>
+                      {item.answer}
+                    </span>
                   </p>
                 </details>
               ))}
