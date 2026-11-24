@@ -324,6 +324,12 @@ useEffect(() => {
             Memorial Websites: What They Are &amp; What to Look For
           </Link>
           <Link
+            href="/best-memorial-websites"
+            className="text-lg font-semibold text-blue-950 underline decoration-stone-300 underline-offset-4 hover:decoration-blue-950"
+          >
+            Compare memorial websites and pricing
+          </Link>
+          <Link
             href="/what-is-an-online-memorial"
             className="text-lg font-semibold text-blue-950 underline decoration-stone-300 underline-offset-4 hover:decoration-blue-950"
           >
