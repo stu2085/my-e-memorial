@@ -294,7 +294,7 @@ useEffect(() => {
 
 
 <details className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
-  <summary className="cursor-pointer py-2 text-xl font-bold text-stone-900">Helpful memorial and life story guides</summary>
+  <summary className="cursor-pointer py-2 text-xl font-bold text-stone-900">Compare memorial websites and explore life story guides</summary>
   <div className="mx-auto max-w-6xl">
     <div className="text-center">
       <p className="text-base font-semibold uppercase tracking-[0.18em] text-stone-500">
@@ -302,7 +302,7 @@ useEffect(() => {
       </p>
 
       <h2 className="mt-2 text-2xl font-bold text-stone-900 md:text-3xl">
-        Explore Memorial, Life Story &amp; Legacy Guides
+        Memorial Website Comparisons, Life Story &amp; Legacy Guides
       </h2>
 
       <p className="mx-auto mt-3 max-w-3xl text-lg leading-7 text-stone-700">
