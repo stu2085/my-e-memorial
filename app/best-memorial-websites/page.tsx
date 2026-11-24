@@ -852,6 +852,26 @@ export default function BestMemorialWebsitesPage() {
       <section className="px-4 pb-12 md:px-8 md:pb-16">
         <div className="mx-auto max-w-6xl space-y-8">
           <section className="rounded-[2rem] bg-white p-6 shadow-sm md:p-9">
+            <h2 className="text-2xl font-bold text-stone-900">
+              From family memories to an online memorial
+            </h2>
+            <p className="mt-4 text-lg leading-8 text-stone-700">
+              If you found Love, Maddily while looking for ways to preserve family
+              photos and stories, an online memorial gives you a place to bring
+              those memories together and share them with family and friends.
+              With MyEMemorial, you can start free with your loved one’s life
+              story and a small photo gallery, then choose a paid plan if you
+              want more room for photos or want to add videos and music.
+            </p>
+            <Link
+              href="/memorials"
+              className="mt-4 inline-block font-semibold text-teal-800 underline underline-offset-4 hover:text-teal-950"
+            >
+              Start a free online memorial
+            </Link>
+          </section>
+
+          <section className="rounded-[2rem] bg-white p-6 shadow-sm md:p-9">
             <h2 className="text-3xl font-bold text-stone-900">
               How This Comparison Was Prepared
             </h2>
