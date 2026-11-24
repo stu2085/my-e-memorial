@@ -141,7 +141,7 @@ export default function MemorialWebsitesPage() {
                 href="/best-memorial-websites"
                 className="inline-flex min-h-[56px] w-full max-w-[310px] items-center justify-center rounded-full border-2 border-white/30 bg-white px-6 text-center text-base font-bold text-stone-900 transition hover:bg-stone-100"
               >
-                Compare Memorial Website Options
+                Compare memorial websites and pricing
               </Link>
 
               <Link
