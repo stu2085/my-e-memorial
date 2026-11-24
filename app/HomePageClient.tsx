@@ -387,7 +387,7 @@ useEffect(() => {
 
 
   <details className="rounded-[1.5rem] bg-white px-6 py-10 text-center shadow-sm md:px-8">
-  <summary className="cursor-pointer py-2 text-xl font-bold text-stone-900">The story behind MyEMemorial</summary>
+  <summary className="cursor-pointer py-2 text-xl font-bold text-left text-stone-900">The story behind MyEMemorial</summary>
   <div className="mx-auto max-w-4xl">
   <p className="text-lg leading-7 font-semibold uppercase tracking-wide text-blue-900">
     The Story Behind MyEMemorial
