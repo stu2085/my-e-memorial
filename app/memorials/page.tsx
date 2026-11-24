@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import MemorialsClient from "./MemorialsClient";
 
+const memorialSearchMessage =
+  "Are you looking for the best way to remember and honor your loved one? Let us show you why MyEMemorial is the right place to tell their story.";
+
 export const metadata: Metadata = {
   title: {
     absolute: "Memorial Websites to Honor a Loved One | MyEMemorial",
   },
-  description:
-    "Every loved one has a story worth remembering. Create a beautiful memorial website to honor their life and share treasured photos, videos, stories and memories.",
+  description: memorialSearchMessage,
   keywords: [
     "online memorial",
     "memorial website",
@@ -43,5 +45,5 @@ export const metadata: Metadata = {
 };
 
 export default function MemorialsPage() {
-  return <MemorialsClient />;
+  return <MemorialsClient introduction={memorialSearchMessage} />;
 }

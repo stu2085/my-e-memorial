@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import SideAd from "../components/SideAd";
 import MemorialStartForm from "../components/MemorialStartForm";
 
-export default function MemorialsPage() {
+export default function MemorialsPage({ introduction }: { introduction: string }) {
   const pricingHeadingRef = useRef<HTMLHeadingElement | null>(null);
   const pricingReported = useRef(false);
 
@@ -124,13 +124,17 @@ export default function MemorialsPage() {
         </h1>
 
         <p className="mx-auto mt-3 max-w-3xl text-lg leading-8 text-stone-700">
-          Every loved one has a story worth remembering. Create a beautiful online
-          memorial to celebrate their life, share treasured photos and videos,
-          and bring family and friends together through lasting memories.
+          {introduction}
         </p>
         <div id="begin-memorial" className="scroll-mt-24">
   <MemorialStartForm source="memorials" />
 </div>
+        <Link
+          href="/best-memorial-websites"
+          className="mt-4 inline-block text-sm font-semibold text-teal-800 underline underline-offset-4 hover:text-teal-950"
+        >
+          Compare memorial websites and pricing
+        </Link>
 
 <div className="mx-auto mt-6 max-w-2xl text-center">
   <p className="text-base leading-7 text-stone-700">
