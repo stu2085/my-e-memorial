@@ -230,7 +230,7 @@ useEffect(() => {
           </aside>
 
           <div className="min-w-0 space-y-6">
-<details className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
+<details className="mx-auto w-full max-w-2xl rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
   <summary className="cursor-pointer py-2 text-xl font-bold text-stone-900">How your family stays in control</summary>
   <div className="mx-auto max-w-6xl">
     <div className="text-center">
@@ -293,8 +293,8 @@ useEffect(() => {
 </details>
 
 
-<details className="rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
-  <summary className="cursor-pointer py-2 text-xl font-bold text-stone-900">Helpful memorial and life story guides</summary>
+<details className="mx-auto w-full max-w-2xl rounded-[1.5rem] bg-white/95 p-6 shadow-sm md:p-8">
+  <summary className="cursor-pointer py-2 text-xl font-bold text-stone-900">Compare memorial websites and explore life story guides</summary>
   <div className="mx-auto max-w-6xl">
     <div className="text-center">
       <p className="text-base font-semibold uppercase tracking-[0.18em] text-stone-500">
@@ -302,7 +302,7 @@ useEffect(() => {
       </p>
 
       <h2 className="mt-2 text-2xl font-bold text-stone-900 md:text-3xl">
-        Explore Memorial, Life Story &amp; Legacy Guides
+        Memorial Website Comparisons, Life Story &amp; Legacy Guides
       </h2>
 
       <p className="mx-auto mt-3 max-w-3xl text-lg leading-7 text-stone-700">
@@ -322,6 +322,12 @@ useEffect(() => {
             className="text-lg font-semibold text-blue-950 underline decoration-stone-300 underline-offset-4 hover:decoration-blue-950"
           >
             Memorial Websites: What They Are &amp; What to Look For
+          </Link>
+          <Link
+            href="/best-memorial-websites"
+            className="text-lg font-semibold text-blue-950 underline decoration-stone-300 underline-offset-4 hover:decoration-blue-950"
+          >
+            Compare memorial websites and pricing
           </Link>
           <Link
             href="/what-is-an-online-memorial"
@@ -380,8 +386,8 @@ useEffect(() => {
 </details>
 
 
-  <details className="rounded-[1.5rem] bg-white px-6 py-10 text-center shadow-sm md:px-8">
-  <summary className="cursor-pointer py-2 text-xl font-bold text-stone-900">The story behind MyEMemorial</summary>
+  <details className="mx-auto w-full max-w-2xl rounded-[1.5rem] bg-white px-6 py-10 text-center shadow-sm md:px-8">
+  <summary className="cursor-pointer py-2 text-xl font-bold text-left text-stone-900">The story behind MyEMemorial</summary>
   <div className="mx-auto max-w-4xl">
   <p className="text-lg leading-7 font-semibold uppercase tracking-wide text-blue-900">
     The Story Behind MyEMemorial

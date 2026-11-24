@@ -937,6 +937,38 @@ export default function BestMemorialWebsitesPage() {
               </p>
             </div>
 
+            <div className="mt-6 rounded-2xl border border-stone-200 bg-stone-50 p-5">
+              <h3 className="text-xl font-bold text-stone-900">
+                Three questions to ask before choosing a memorial website
+              </h3>
+              <dl className="mt-4 grid gap-4 text-base leading-7 text-stone-700 md:grid-cols-3">
+                <div>
+                  <dt className="font-bold text-stone-900">Can I start free?</dt>
+                  <dd>
+                    MyEMemorial, Ever Loved, and ForeverMissed each offer a free
+                    starting option. Check how many photos you can add and which
+                    features require an upgrade.
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-bold text-stone-900">What will I pay over time?</dt>
+                  <dd>
+                    MyEMemorial paid plans start at $49.95 as a one-time purchase.
+                    Ever Loved Premium is $199.99 one time. ForeverMissed offers
+                    monthly, yearly, and one-time lifetime options.
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-bold text-stone-900">Can family and friends contribute?</dt>
+                  <dd>
+                    Check whether relatives can add their own photos and stories
+                    and who approves what gets published. MyEMemorial lets
+                    visitors submit memories and media for the member to review.
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
             <div className="mt-6 rounded-2xl border border-stone-200 bg-stone-50 p-4">
               <p className="text-base font-bold text-stone-900">
                 Comparison Color Key
