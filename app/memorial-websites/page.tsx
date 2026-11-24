@@ -119,7 +119,7 @@ export default function MemorialWebsitesPage() {
             </p>
 
             <h1 className="mx-auto mt-3 max-w-4xl text-4xl font-bold leading-tight md:text-5xl">
-              What Is a Memorial Website? A Guide for Families
+              What Is a Memorial Website?<br />A Guide for Families
             </h1>
 
             <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-stone-200">
